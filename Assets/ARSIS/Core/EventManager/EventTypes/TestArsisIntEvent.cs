@@ -3,9 +3,6 @@ using System;
 public class TestArsisIntEvent : IArsisEvent
 {
     private int value;
-    
-    public override string eventId { get { return "thisIsMyTestID"; } }
-
 
     public TestArsisIntEvent() {
         value = 0;
