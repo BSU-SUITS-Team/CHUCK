@@ -25,7 +25,8 @@ namespace EventManager
         private static void AddListener(Action<IArsisEvent> eventFunction, Type type)
         {
             MethodInfo delagateInfo = eventFunction.Method;
-            Debug.Log((delagateInfo.GetParameters()[0].ParameterType.GetConstructor(BindingFlags.Public | BindingFlags.Instance, null, CallingConventions.HasThis, new Type[0], null)).ToString());
+            Debug.Log((delagateInfo.GetParameters()[0].ParameterType == typeof(TestArsisIntEvent)));
+            Debug.Log((delagateInfo.GetParameters()[0].ParameterType == typeof(IArsisEvent)));
             string id = ((IArsisEvent)(delagateInfo.GetParameters()[0].ParameterType.GetConstructors()[0].Invoke(null))).eventId;
             Debug.Log(id);
             // if (eventDictionary.ContainsKey(id))
