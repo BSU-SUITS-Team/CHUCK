@@ -6,6 +6,11 @@ class TestArsisIntEvent : IArsisEvent
     
     public override string eventId { get { return "thisIsMyTestID"; } }
 
+
+    public TestArsisIntEvent() {
+        value = 0;
+    }
+    
     public TestArsisIntEvent(int value) {
         this.value = value;
     }
