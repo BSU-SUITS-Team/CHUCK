@@ -22,15 +22,15 @@ namespace EventManager
         }
         private static Dictionary<string, EventData> eventDictionary = new Dictionary<string, EventData>();
 
-        private static void AddListener(Action<IArsisEvent> eventFunction, Type type)
+        private static void AddListener(Action<dynamic> eventFunction, Type type)
         {
             if (eventDictionary.ContainsKey(type.Name))
             {
                 //This should never happen now
-                if (type is not null && eventDictionary[type.Name].type != type)
-                {
-                    throw new Exception("Event type mismatch. Event tried to register to: " + type.Name + " with argument type: " + type + " but event already exists with type: " + eventDictionary[type.Name].type);
-                }
+                // if (type is not null && eventDictionary[type.Name].type != type)
+                // {
+                //     throw new Exception("Event type mismatch. Event tried to register to: " + type.Name + " with argument type: " + type + " but event already exists with type: " + eventDictionary[type.Name].type);
+                // }
                 eventDictionary[type.Name].actions.Add(eventFunction);
             }
             else
@@ -40,7 +40,7 @@ namespace EventManager
         }
 
         public static void AddListener(Action<TestArsisIntEvent> eventFunction) {
-            AddListener((IArsisEvent evt) => {eventFunction((TestArsisIntEvent)evt); }, typeof(TestArsisIntEvent));
+            AddListener((dynamic evt) => {eventFunction((TestArsisIntEvent)evt); }, typeof(TestArsisIntEvent));
         }
 
         private static void RemoveListener(string eventName, Action<dynamic> eventFunction)
@@ -66,23 +66,15 @@ namespace EventManager
         // }
         // #endregion
 
-        // public static void Trigger(string eventName, dynamic data)
-        // {
-        //     if (eventDictionary.ContainsKey(eventName))
-        //     {
-        //         if (data is not null && eventDictionary[eventName].type != data.GetType())
-        //         {
-        //             throw new Exception("Event type mismatch. Tried to trigger event: " + eventName + " with type: " + data.GetType() + " but event is of type: " + eventDictionary[eventName].type);
-        //         }
-        //         foreach (Action<dynamic> eventFunction in eventDictionary[eventName].actions)
-        //         {
-        //             eventFunction(data);
-        //         }
-        //     }
-        // }
-        // public static void Trigger(string eventName)
-        // {
-        //     Trigger(eventName, null);
-        // }
+        public static void Trigger(dynamic data)
+        {
+            if (eventDictionary.ContainsKey(data.GetType().Name))
+            {
+                foreach (Action<dynamic> eventFunction in eventDictionary[data.GetType().Name].actions)
+                {
+                    eventFunction(data);
+                }
+            }
+        }
     }    
 }
