@@ -35,5 +35,6 @@ public class Tester : MonoBehaviour {
 
     private void TestOxygenUpdateHandler(OxygenLevel e) {
         Debug.Log("(From private method) Oxygen level is: " + (float)e);
+        Debug.Log("This method was called from: " + e.whoCalledMe);
     }
 }
