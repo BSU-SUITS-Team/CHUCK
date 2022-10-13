@@ -42,6 +42,9 @@ namespace EventManagerSystem
         public static void AddListener(Action<TestArsisIntEvent> eventFunction) {
             AddListener((dynamic evt) => {eventFunction((TestArsisIntEvent)evt); }, typeof(TestArsisIntEvent));
         }
+        public static void AddListener(Action<OxygenLevel> eventFunction) {
+            AddListener((dynamic evt) => {eventFunction((OxygenLevel)evt); }, typeof(TestArsisIntEvent));
+        }
 
         private static void RemoveListener(string eventName, Action<dynamic> eventFunction)
         {
