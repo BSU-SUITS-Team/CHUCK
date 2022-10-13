@@ -1,6 +1,6 @@
 using EventManager;
 using System;
-class TestArsisIntEvent : IArsisEvent
+public class TestArsisIntEvent : IArsisEvent
 {
     private int value;
     
