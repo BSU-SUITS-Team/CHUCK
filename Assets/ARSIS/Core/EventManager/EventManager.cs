@@ -24,28 +24,23 @@ namespace EventManager
 
         private static void AddListener(Action<IArsisEvent> eventFunction, Type type)
         {
-            MethodInfo delagateInfo = eventFunction.Method;
-            Debug.Log((delagateInfo.GetParameters()[0].ParameterType == typeof(TestArsisIntEvent)));
-            Debug.Log((delagateInfo.GetParameters()[0].ParameterType == typeof(IArsisEvent)));
-            string id = ((IArsisEvent)(delagateInfo.GetParameters()[0].ParameterType.GetConstructors()[0].Invoke(null))).eventId;
-            Debug.Log(id);
-            // if (eventDictionary.ContainsKey(id))
-            // {
-            //     if (type is not null && eventDictionary[id].type != type)
-            //     {
-            //         //This should never happen now
-            //         throw new Exception("Event type mismatch. Event tried to register to: " + id + " with argument type: " + type + " but event already exists with type: " + eventDictionary[id].type);
-            //     }
-            //     eventDictionary[id].actions.Add(eventFunction);
-            // }
-            // else
-            // {
-            //     eventDictionary.Add(id, new EventData(eventFunction, type));
-            // }
+            if (eventDictionary.ContainsKey(type.Name))
+            {
+                //This should never happen now
+                if (type is not null && eventDictionary[type.Name].type != type)
+                {
+                    throw new Exception("Event type mismatch. Event tried to register to: " + type.Name + " with argument type: " + type + " but event already exists with type: " + eventDictionary[type.Name].type);
+                }
+                eventDictionary[type.Name].actions.Add(eventFunction);
+            }
+            else
+            {
+                eventDictionary.Add(type.Name, new EventData(eventFunction, type));
+            }
         }
 
-        public static void AddListener(Action<IArsisEvent> eventFunction) {
-            AddListener(eventFunction, eventFunction.GetType());
+        public static void AddListener(Action<TestArsisIntEvent> eventFunction) {
+            AddListener((IArsisEvent evt) => {eventFunction((TestArsisIntEvent)evt); }, typeof(TestArsisIntEvent));
         }
 
         private static void RemoveListener(string eventName, Action<dynamic> eventFunction)
