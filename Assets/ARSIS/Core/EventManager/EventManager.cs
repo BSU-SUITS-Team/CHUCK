@@ -29,7 +29,7 @@ namespace EventManagerSystem
             AddListener(wrappers[eventFunction], typeof(EventType));
         }
 
-        private static void RemoveListener<EventType>(Action<EventType> eventFunction) where EventType : IArsisEvent
+        public static void RemoveListener<EventType>(Action<EventType> eventFunction) where EventType : IArsisEvent
         {
             if (eventDictionary.ContainsKey(typeof(EventType)))
             {
