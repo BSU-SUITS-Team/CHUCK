@@ -1,4 +1,4 @@
-using EventManager;
+using EventManagerSystem;
 using System;
 public class TestArsisIntEvent : IArsisEvent
 {
