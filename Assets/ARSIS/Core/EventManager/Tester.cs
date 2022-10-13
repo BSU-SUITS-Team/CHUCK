@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 public class Tester : MonoBehaviour {
     void Start() {
         EventManager.AddListener((TestArsisIntEvent e) => {
-            Debug.Log("Hello");
+            Debug.Log("The value is: " + (int)e);
         });
     }
 

@@ -16,4 +16,8 @@ public class TestArsisIntEvent : IArsisEvent
     {
         return (T)Convert.ChangeType(value, typeof(T));
     }
+
+    public static implicit operator int(TestArsisIntEvent e) {
+        return e.value;
+    }
 }
