@@ -12,10 +12,6 @@ public class Tester : MonoBehaviour {
     }
 
     void Update() {
-        if (Keyboard.current.spaceKey.wasPressedThisFrame) {
-            EventManager.Trigger(new TestArsisIntEvent(2));
-        }
-
         //every secondish randomly post a new oxygen level between 0 and 100
         if (Time.time % 1 < Time.deltaTime) {
             EventManager.Trigger(new OxygenLevel(Random.Range(0f, 100f)));
