@@ -8,8 +8,9 @@ public class Tester : MonoBehaviour {
     void Start() {
         //These are the two primary ways of adding event listeners
         EventManager.AddListener<OxygenLevel>(TestOxygenUpdateHandler);
+        // EventManager.AddListener<OxygenLevel>(TestOtherEventHandler); //This will throw a compile time type error
         EventManager.AddListener((OxygenLevel e) => {
-            Debug.Log("(From lambda) Oxygen level is: " + (float)e);
+            Debug.Log("(From lambda) Oxygen level is: " + e.value);
         });
 
         isAdded = true;
@@ -34,7 +35,18 @@ public class Tester : MonoBehaviour {
     }
 
     private void TestOxygenUpdateHandler(OxygenLevel e) {
-        Debug.Log("(From private method) Oxygen level is: " + (float)e);
+        Debug.Log("(From private method) Oxygen level is: " + e.value);
         Debug.Log("This method was called from: " + e.whoCalledMe);
+    }
+
+    // This is to test compile time type checking
+    class OtherEventType : IArsisEvent {
+        public string message;
+        public OtherEventType(string message) {
+            this.message = message;
+        }
+    }
+    private void TestOtherEventHandler(OtherEventType e) {
+        Debug.Log("This will never be called");
     }
 }

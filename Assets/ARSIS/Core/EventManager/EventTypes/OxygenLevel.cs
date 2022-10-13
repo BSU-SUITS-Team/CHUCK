@@ -2,7 +2,7 @@ using EventManagerSystem;
 
 public class OxygenLevel : IArsisEvent
 {
-    private float value;
+    public readonly float value;
     
     public OxygenLevel(float value) {
         this.value = value;
