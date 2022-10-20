@@ -51,7 +51,7 @@ namespace EventSystem
         /// <param name="eventFunction">The lister to remove.</param>
         public static void RemoveListener<EventType>(Action<EventType> eventFunction) where EventType : BaseArsisEvent
         {
-            if (eventDictionary.ContainsKey(typeof(EventType)))
+            if (eventDictionary.ContainsKey(typeof(EventType)) && wrappers.ContainsKey(eventFunction))
             {
                 eventDictionary[typeof(EventType)] -= wrappers[eventFunction];
                 wrappers.Remove(eventFunction);
