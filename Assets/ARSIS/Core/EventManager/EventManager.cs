@@ -84,13 +84,13 @@ namespace EventSystem
         /// Removes all listeners from the provided event type.
         /// </summary>
         /// <typeparam name="EventType">The type to deregister events from.</typeparam>
-        public static void RemoveAllListeners<EventType>() where EventType : BaseArsisEvent
-        {
-            if (eventDictionary.ContainsKey(typeof(EventType)))
-            {
-                eventDictionary.Remove(typeof(EventType));
-            }
-        }
+        // public static void RemoveAllListeners<EventType>() where EventType : BaseArsisEvent
+        // {
+        //     if (eventDictionary.ContainsKey(typeof(EventType)))
+        //     {
+        //         eventDictionary.Remove(typeof(EventType));
+        //     }
+        // } //This need to be worked on more to clear the wrappers, before it is ready to be used.
 
         /// <summary>
         /// Check if a provided listener is listening to a provided event type.
