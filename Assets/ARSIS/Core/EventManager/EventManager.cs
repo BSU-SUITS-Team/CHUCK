@@ -70,5 +70,14 @@ namespace EventSystem
                 eventDictionary[data.GetType()](data);
             }
         }
+
+        /// <summary>
+        /// Removes all listeners from all events.
+        /// </summary>
+        public static void RemoveAllListeners()
+        {
+            eventDictionary.Clear();
+            wrappers.Clear();
+        }
     }
 }
