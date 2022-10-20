@@ -79,5 +79,17 @@ namespace EventSystem
             eventDictionary.Clear();
             wrappers.Clear();
         }
+
+        /// <summary>
+        /// Removes all listeners from the provided event type.
+        /// </summary>
+        /// <typeparam name="EventType">The type to deregister events from.</typeparam>
+        public static void RemoveAllListeners<EventType>() where EventType : BaseArsisEvent
+        {
+            if (eventDictionary.ContainsKey(typeof(EventType)))
+            {
+                eventDictionary.Remove(typeof(EventType));
+            }
+        }
     }
 }
