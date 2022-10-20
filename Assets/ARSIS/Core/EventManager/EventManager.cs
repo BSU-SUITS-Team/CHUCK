@@ -91,5 +91,20 @@ namespace EventSystem
                 eventDictionary.Remove(typeof(EventType));
             }
         }
+
+        /// <summary>
+        /// Check if a provided listener is listening to a provided event type.
+        /// </summary>
+        /// <typeparam name="EventType">The event type to check.</typeparam>
+        /// <param name="eventFunction">The listener to check.</param>
+        /// <returns>True if the listener is listening to the event type.</returns>
+        public static bool IsListening<EventType>(Action<EventType> eventFunction) where EventType : BaseArsisEvent
+        {
+            if (wrappers.ContainsKey(eventFunction))
+            {
+                return Array.IndexOf(eventDictionary[typeof(EventType)].GetInvocationList(), wrappers[eventFunction]) > -1;
+            }
+            return false;
+        }
     }
 }
