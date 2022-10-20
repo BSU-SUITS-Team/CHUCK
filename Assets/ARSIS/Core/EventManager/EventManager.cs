@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace EventManagerSystem
+namespace EventSystem
 {
     /// <summary>
     /// This class contains the methods that are used to 
@@ -33,12 +33,14 @@ namespace EventManagerSystem
         /// <typeparam name="EventType">This is the type of the Event to add a listener to</typeparam>
         /// <param name="eventFunction">The Listener that will be called when the event is called.</param>
         /// <exception cref="Exception">That Listener is already listeneing to this event</exception>
-        public static void AddListener<EventType>(Action<EventType> eventFunction) where EventType : IArsisEvent {
-            if (wrappers.ContainsKey(eventFunction)) {
+        public static void AddListener<EventType>(Action<EventType> eventFunction) where EventType : BaseArsisEvent
+        {
+            if (wrappers.ContainsKey(eventFunction))
+            {
                 //This is just for demonstaration, we should change the error type
                 throw new Exception("You can't add the same listener twice!");
             }
-            wrappers.Add(eventFunction, (dynamic evt) => {eventFunction((EventType)evt); });
+            wrappers.Add(eventFunction, (dynamic evt) => { eventFunction((EventType)evt); });
             AddListener(wrappers[eventFunction], typeof(EventType));
         }
 
@@ -47,7 +49,7 @@ namespace EventManagerSystem
         /// </summary>
         /// <typeparam name="EventType">The event type to remove the listener from.</typeparam>
         /// <param name="eventFunction">The lister to remove.</param>
-        public static void RemoveListener<EventType>(Action<EventType> eventFunction) where EventType : IArsisEvent
+        public static void RemoveListener<EventType>(Action<EventType> eventFunction) where EventType : BaseArsisEvent
         {
             if (eventDictionary.ContainsKey(typeof(EventType)))
             {
@@ -56,7 +58,7 @@ namespace EventManagerSystem
             }
             //Might want to add an error if it does not exist or was already removed
         }
-        
+
         /// <summary>
         /// This triggers events that have the same datatype as the provided data using the provided data.
         /// </summary>
@@ -68,5 +70,5 @@ namespace EventManagerSystem
                 eventDictionary[data.GetType()](data);
             }
         }
-    }    
+    }
 }
