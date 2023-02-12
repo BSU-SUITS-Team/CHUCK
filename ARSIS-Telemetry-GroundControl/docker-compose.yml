@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  telemetry-api:
+    build: ./telemetry-api
+    ports:
+      - 8080:8080
+  groundcontrol-fe:
+    build: ./groundcontrol-fe
+    ports:
+      - 3000:3000
+  groundcontrol-api:
+    build: ./groundcontrol-api
+    ports:
+      - 8081:8081
+  groundcontrol-db:
+    image: "postgres" # use latest official postgres version
+    env_file:
+      - ./groundcontrol-db/database.env # configure postgres
+    volumes:
+      - ./groundcontrol-db/postgres-data:/var/lib/postgresql/data/ # persist data even if container shuts down
+    ports:
+      - "6543:5432"
