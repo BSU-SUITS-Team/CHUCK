@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.unity.nuget.newtonsoft-json": "3.0.1",
     "com.microsoft.mrtk.core": "file:MixedReality/com.microsoft.mrtk.core-3.0.0-pre.11.tgz",
     "com.microsoft.mrtk.graphicstools.unity": "file:MixedReality/com.microsoft.mrtk.graphicstools.unity-0.4.0.tgz",
     "com.microsoft.mrtk.input": "file:MixedReality/com.microsoft.mrtk.input-3.0.0-pre.11.tgz",
