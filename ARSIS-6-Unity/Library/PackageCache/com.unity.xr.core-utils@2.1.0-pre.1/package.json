@@ -1,0 +1,31 @@
+{
+  "name": "com.unity.xr.core-utils",
+  "displayName": "XR Core Utilities",
+  "version": "2.1.0-pre.1",
+  "unity": "2019.4",
+  "unityRelease": "0f1",
+  "description": "Common utility classes for XR projects\nRefer to API documentation for details. Some particularly useful utilities include:\n▪ Geometry Utilities\n  ▪ Point of closest approach\n  ▪ Closest edge of a polygon\n  ▪ Check if point inside of polygon\n  ▪ Compute 2D convex hull\n▪ Collection pool\n▪ Math Utilities\n  ▪ Bounds extensions\n  ▪ Quaternion extensions\n▪ Editor GUI\n  ▪ Flags Property Drawer\n▪ Scriptable Settings (serialized project settings)\n▪ Conditional Compilation Utility\n▪ XR Origin Implementation",
+  "keywords": [
+    "xr",
+    "ar",
+    "augmented",
+    "reality",
+    "utility",
+    "utilities",
+    "core"
+  ],
+  "dependencies": {
+    "com.unity.modules.xr": "1.0.0"
+  },
+  "upm": {
+    "changelog": "### Added\n\n- Add Project Validation for validating packages against package configuration correctness. See the [manual entry for project validation](xref:xr-core-utils-project-validation) for more details.\n\n### Removed\n\n- Removed the **GameObject** &gt; **XR** &gt; **XR Origin** menu item. To create a new XR Origin, users should instead use the menu items provided by [AR Foundation](https://docs.unity3d.com/Packages/com.unity.xr.arfoundation@5.0/manual/index.html#scene-setup) and/or [XR Interaction Toolkit](https://docs.unity3d.com/Packages/com.unity.xr.interaction.toolkit@latest?subfolder=/manual/general-setup.html).\n\n### Fixed\n\n- [NativeArrayUtils.EnsureCapacity](xref:Unity.XR.CoreUtils.NativeArrayUtils.EnsureCapacity*) now checks for unallocated array before disposing it and reallocating for a larger capacity.\n- Fixed compilation errors on platforms such as Stadia where the XR module is not available."
+  },
+  "upmCi": {
+    "footprint": "ede72d0f618d217f6377b0a5f868a0b3f159ca2c"
+  },
+  "repository": {
+    "url": "https://github.cds.internal.unity3d.com/unity/com.unity.xr.core-utils.git",
+    "type": "git",
+    "revision": "158c7a3ec82ee8e9a220c3a28a0e17b7bd6fb05a"
+  }
+}
