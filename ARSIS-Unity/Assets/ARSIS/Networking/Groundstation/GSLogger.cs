@@ -23,22 +23,32 @@ public class GSLogger : MonoBehaviour
     void GSLoggerCallback(dynamic data){
         byte[] loggingBytes = System.Text.Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(data));
         string loggingString = JsonConvert.SerializeObject(data);
-        StartCoroutine(GSLoggerCoroutine(loggingString));
+        /* StartCoroutine(GSLoggerCoroutine(loggingString)); */
+        StartCoroutine(GSLoggerCoroutine(loggingBytes));
     }
 
-    IEnumerator GSLoggerCoroutine(string loggingString){
-    /* IEnumerator GSLoggerCoroutine(byte[] loggingBytes){ */
-        Debug.Log("incoro");
-        List<IMultipartFormSection> formData = new List<IMultipartFormSection>();
-        formData.Add(new MultipartFormDataSection("data="+loggingString));
-        using (UnityWebRequest www = UnityWebRequest.Post(groundStationUrl, formData))
-        {
-            Debug.Log(www.url);
-            yield return www.SendWebRequest();
+    /* IEnumerator GSLoggerCoroutine(string loggingString){ */
+    IEnumerator GSLoggerCoroutine(byte[] loggingBytes){
+        Debug.Log(loggingBytes);
+        WWWForm form = new WWWForm();
+        form.AddField("data", "test");
 
+        /* List<IMultipartFormSection> formData = new List<IMultipartFormSection>(); */
+        /* formData.Add(new MultipartFormDataSection("data="+loggingString)); */
+        Debug.Log(form.ToString());
+        byte[] myData = System.Text.Encoding.UTF8.GetBytes("{\"data\": \"User01\"}");
+        using (UnityWebRequest www = UnityWebRequest.Put(groundStationUrl, myData))
+        {
+            www.SetRequestHeader("accept", "application/json");
+            www.SetRequestHeader("Content-Type", "application/json");
+            yield return www.SendWebRequest();
             if (www.result != UnityWebRequest.Result.Success)
             {
                 Debug.Log(www.error);
+                foreach (var kvp in www.GetResponseHeaders()) {
+                    Debug.Log("Key = "+ kvp.Key +", Value = "+ kvp.Value);
+                }
+                Debug.Log(www.downloadHandler.text);
             }
             else
             {
