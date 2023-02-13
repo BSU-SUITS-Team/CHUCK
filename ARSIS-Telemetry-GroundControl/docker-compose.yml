@@ -12,7 +12,7 @@ services:
   groundcontrol-api:
     build: ./groundcontrol-api
     ports:
-      - 8081:8081
+      - 8181:8181
   groundcontrol-db:
     image: "postgres" # use latest official postgres version
     env_file:
