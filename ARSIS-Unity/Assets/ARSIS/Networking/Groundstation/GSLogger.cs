@@ -23,20 +23,19 @@ public class GSLogger : MonoBehaviour
     void GSLoggerCallback(dynamic data){
         byte[] loggingBytes = System.Text.Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(data));
         string loggingString = JsonConvert.SerializeObject(data);
-        /* StartCoroutine(GSLoggerCoroutine(loggingString)); */
-        StartCoroutine(GSLoggerCoroutine(loggingBytes));
+        Debug.Log(loggingString);
+        string escapedString = loggingString.Replace("\"","\\\"");
+        Debug.Log(escapedString);
+        StartCoroutine(GSLoggerCoroutine(escapedString));
+        /* StartCoroutine(GSLoggerCoroutine(loggingBytes)); */
     }
 
-    /* IEnumerator GSLoggerCoroutine(string loggingString){ */
-    IEnumerator GSLoggerCoroutine(byte[] loggingBytes){
-        Debug.Log(loggingBytes);
-        WWWForm form = new WWWForm();
-        form.AddField("data", "test");
+    IEnumerator GSLoggerCoroutine(string loggingString){
+    /* IEnumerator GSLoggerCoroutine(byte[] loggingBytes){ */
 
-        /* List<IMultipartFormSection> formData = new List<IMultipartFormSection>(); */
-        /* formData.Add(new MultipartFormDataSection("data="+loggingString)); */
-        Debug.Log(form.ToString());
-        byte[] myData = System.Text.Encoding.UTF8.GetBytes("{\"data\": \"User01\"}");
+        string toSend = "{\"data\": \""+ loggingString +"\"}";
+        Debug.Log(toSend);
+        byte[] myData = System.Text.Encoding.UTF8.GetBytes(toSend);
         using (UnityWebRequest www = UnityWebRequest.Put(groundStationUrl, myData))
         {
             www.SetRequestHeader("accept", "application/json");
