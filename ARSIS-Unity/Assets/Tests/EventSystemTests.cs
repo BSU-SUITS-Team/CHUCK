@@ -29,7 +29,7 @@ public class EventSystemTests
     {
         Action<TestEvent> listener = (TestEvent e) => { };
         EventManager.AddListener<TestEvent>(listener);
-        
+
         Assert.IsTrue(EventManager.IsListening<TestEvent>(listener));
     }
 
