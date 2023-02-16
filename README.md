@@ -36,7 +36,7 @@ See section "Contributing To The Project" for local development instructions.
 5. To start the Telemetry and Ground Control servers, navigate to the ARSIS-Telemetry-GroundControl directory and run the command `docker-compose up`
 6. Become the ultimate NASA SUITS member!
 
-## Contributing To The Project - detailed steps to come
+## Contributing To The Project
 See more detailed [instructions here](https://www.tomasbeuzen.com/post/git-fork-branch-pull/)
 1. From the [main project page](https://github.com/BSU-SUITS-Team/ARSIS-6) click "Fork" near the top right to create your own variation of the project.
 2. Once your fork is created, click the green "Code" button on your fork's Github page and copy the HTTP link to your clipboard.
