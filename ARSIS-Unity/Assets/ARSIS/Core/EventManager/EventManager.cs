@@ -1,10 +1,11 @@
+using UnityEngine;
 using System;
 using System.Collections.Generic;
 
 namespace EventSystem
 {
     /// <summary>
-    /// This class contains the methods that are used to 
+    /// This class contains the methods that are used to
     /// add, remove, and trigger events. It is a static class
     /// so that it can be accessed from anywhere. All of the
     /// events should be of type (subclass of
@@ -14,6 +15,7 @@ namespace EventSystem
     {
         private static Dictionary<Delegate, Action<dynamic>> wrappers = new Dictionary<Delegate, Action<dynamic>>();
         private static Dictionary<Type, Action<dynamic>> eventDictionary = new Dictionary<Type, Action<dynamic>>();
+        private static List<Action<dynamic>> listenToAll = new List<Action<dynamic>>();
 
         private static void AddListener(Action<dynamic> eventFunction, Type type)
         {
@@ -25,6 +27,11 @@ namespace EventSystem
             {
                 eventDictionary.Add(type, eventFunction);
             }
+        }
+
+        public static void AddListenerToAll(Action<dynamic> eventFunction)
+        {
+            listenToAll.Add(eventFunction);
         }
 
         /// <summary>
@@ -68,6 +75,9 @@ namespace EventSystem
             if (eventDictionary.ContainsKey(data.GetType()))
             {
                 eventDictionary[data.GetType()](data);
+            }
+            foreach(Action<dynamic> e in listenToAll){
+                e(data);
             }
         }
 
