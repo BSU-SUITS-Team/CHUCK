@@ -31,9 +31,10 @@ See last year's [ARSIS project](https://github.com/NASA-SUITS-Teams/ARSIS-6).
 See section "Contributing To The Project" for local development instructions.
 1. Clone this repo with `git clone <repo-url-here>` and `cd` into the repo directory.
 2. Make sure you have [Unity Hub](https://unity.com/unity-hub) installed AND Unity Editor version 2020.3.8f1.
-3. Open Unity Hub and Click "Open" to open a project from your computer
-4. Telemetry Server local dev instructions here.
-5. Become the ultimate NASA SUITS member!
+3. Open Unity Hub and Click "Open" to open a project from your computer.
+4. Navigate to and click on the ARSIS-Unity folder inside the cloned project.
+5. To start the Telemetry and Ground Control servers, navigate to the ARSIS-Telemetry-GroundControl directory and run the command `docker-compose up`
+6. Become the ultimate NASA SUITS member!
 
 ## Contributing To The Project - detailed steps to come
 See a general [Overview](https://www.tomasbeuzen.com/post/git-fork-branch-pull/)
