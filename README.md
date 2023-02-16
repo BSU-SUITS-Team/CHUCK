@@ -37,15 +37,15 @@ See section "Contributing To The Project" for local development instructions.
 6. Become the ultimate NASA SUITS member!
 
 ## Contributing To The Project - detailed steps to come
-See a general [Overview](https://www.tomasbeuzen.com/post/git-fork-branch-pull/)
+See more detailed [instructions here](https://www.tomasbeuzen.com/post/git-fork-branch-pull/)
 1. From the [main project page](https://github.com/BSU-SUITS-Team/ARSIS-6) click "Fork" near the top right to create your own variation of the project.
 2. Once your fork is created, click the green "Code" button on your fork's Github page and copy the HTTP link to your clipboard.
 3. Open a terminal and navigate to the folder you would like your project to be in (ie, a folder called "Projects").
 4. Once in the folder, use `git clone <your-fork-repo-url-here>` to create a clone of the project in that directory.
 5. Add a remote repository called "upstream" pointing to the original repository with the command `git remote add upstream <original-repo-url-here>`
-6. Checkout a new branch with the command `git checkout -b new_feature`
+6. Create a new branch with the name "new_branch" with the command `git checkout -b new_feature`
 7. Make your desired changes to the project and add them to a commit with `git add -A` and commit your changes with `git commit -m "Descriptive commit message here"`
-8. If changes are made to the upstream project, you will want to update your fork with those changes to avoid merge conflicts. Do this with `git checkout master` and then `git pull upstream master`
-9. Now that your fork has been updated, you should update your current "new_feature" branch with `git checkout new_feature` and `git merge master`
+8. If changes are made to the upstream project, you will want to update your fork with those changes to avoid merge conflicts. Do this with `git checkout main` and then `git pull upstream main`
+9. Now that your fork has been updated, you should update your current "new_feature" branch with `git checkout new_feature` and `git merge main`
 10. When you believe your feature is production ready, push your branch to your fork with `git push origin new_feature`
 11. Open a pull request in Github to have your feature reviewed and hopefully merged!
