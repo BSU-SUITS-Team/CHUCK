@@ -144,11 +144,11 @@ MonoBehaviour:
   m_Name: MockRuntime Android
   m_EditorClassIdentifier: 
   m_enabled: 0
-  nameUi: 
-  version: 
-  featureIdInternal: 
-  openxrExtensionStrings: 
-  company: 
+  nameUi: Mock Runtime
+  version: 0.0.2
+  featureIdInternal: com.unity.openxr.feature.mockruntime
+  openxrExtensionStrings: XR_UNITY_null_gfx XR_UNITY_android_present
+  company: Unity
   priority: 0
   required: 0
   ignoreValidationErrors: 0
@@ -346,7 +346,9 @@ MonoBehaviour:
   - {fileID: -1676360225489710315}
   - {fileID: 1596441044480445061}
   - {fileID: 8658790512068920730}
+  - {fileID: 4239872448799726004}
   - {fileID: 2428708657595986744}
+  - {fileID: -5086156902515161808}
   - {fileID: -4192574263198973385}
   - {fileID: -8043443069978456844}
   - {fileID: -4762962241362927313}
@@ -797,11 +799,11 @@ MonoBehaviour:
   m_Name: MetaQuestFeature Android
   m_EditorClassIdentifier: 
   m_enabled: 0
-  nameUi: 
-  version: 
-  featureIdInternal: 
-  openxrExtensionStrings: 
-  company: 
+  nameUi: Meta Quest Support
+  version: 1.0.0
+  featureIdInternal: com.unity.openxr.feature.metaquest
+  openxrExtensionStrings: XR_OCULUS_android_initialize_loader
+  company: Unity
   priority: 0
   required: 0
   targetDevices:
