@@ -8,4 +8,4 @@ class Log(Base):
 
     uuid = Column(INTEGER, primary_key=True, index=True)
     timein = Column(TIMESTAMP, index=True)
-    log = Column(JSON)
+    data = Column(JSON)
