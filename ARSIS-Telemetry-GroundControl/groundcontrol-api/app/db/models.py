@@ -1,4 +1,4 @@
-from sqlalchemy import JSON, Column, ForeignKey, Serial, TIMESTAMP
+from sqlalchemy import JSON, Column, INTEGER, TIMESTAMP
 
 from .database import Base
 
@@ -6,6 +6,6 @@ from .database import Base
 class Log(Base):
     __tablename__ = "logs"
 
-    uuid = Column(Serial, primary_key=True, index=True)
-    timeIn = Column(TIMESTAMP, index=True)
+    uuid = Column(INTEGER, primary_key=True, index=True)
+    timein = Column(TIMESTAMP, index=True)
     log = Column(JSON)

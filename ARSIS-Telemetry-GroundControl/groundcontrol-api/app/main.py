@@ -23,15 +23,11 @@ def get_db():
 async def root():
     return {"message": "Ground Control API"}
 
-@app.post("/logger/", response_model=schemas.Log, status_code=200)
-def create_user(log: schemas.LogCreate, db: Session = Depends(get_db)):
+@app.put("/logger/", response_model=schemas.Log, status_code=201)
+def create_log(log: schemas.LogCreate, db: Session = Depends(get_db)):
     print(log)
     return crud.create_log(db=db, log=log)
 
-# class LoggingRequest(BaseModel):
-#     data: str
-
-# @app.put("/logger/", status_code=200)
-# async def gs_logger(data: LoggingRequest):
-#     print(data)
-#     return data
+@app.get("/logger/{uuid}", status_code=200)
+def get_log(uuid: int, db: Session = Depends(get_db)):
+    return crud.get_log(db, uuid)

@@ -1,7 +1,6 @@
 from pydantic import BaseModel
 
 class LogBase(BaseModel):
-    timeIn: str
     log: str
 
 class LogCreate(LogBase):

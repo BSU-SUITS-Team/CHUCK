@@ -1,6 +1,6 @@
 CREATE TABLE logs (
   uuid SERIAL PRIMARY KEY NOT NULL,
-  timeIn TIMESTAMP NOT NULL DEFAULT now(),
+  timeIn TIMESTAMP DEFAULT now(),
   log JSON NOT NULL
 );
 
