@@ -25,13 +25,15 @@ def evaluate_biometrics():
     elif o2 <= 0:
         o2 = 0
 
-@router.get("/biometrics/", tags=["biometrics"])
-async def get_biometrics():
+@router.get("/biometrics/{user}", tags=["biometrics"])
+async def get_biometrics(user: str):
+    print(user)
     evaluate_biometrics()
     return {"bpm": bpm, "o2": o2, "battery": battery}
 
-@router.get("/biometrics/{data_type}", tags=["biometrics"])
-async def get_biometrics(data_type: str):
+@router.get("/biometrics/{user}/{data_type}", tags=["biometrics"])
+async def get_biometrics(user: str, data_type: str):
+    print(user)
     evaluate_biometrics()
     if not data_type:
         return {"message": "No data type specified"}
