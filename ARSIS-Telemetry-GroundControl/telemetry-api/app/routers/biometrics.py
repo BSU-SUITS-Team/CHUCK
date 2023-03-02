@@ -40,13 +40,15 @@ async def get_biometrics():
         "users": []
     }
 
-    evaluate_biometrics()
-    data["users"].append({
-        "user": create_random_string(),
-        "bpm": bpm, 
-        "o2": o2, 
-        "battery": battery
-    })
+    for _ in range(random.randint(1, 20)):
+        evaluate_biometrics()
+        data["users"].append({
+            "user": create_random_string(),
+            "bpm": bpm, 
+            "o2": o2, 
+            "battery": battery
+        })
+
     return data
 
 @router.get("/{user}", tags=["biometrics"])
