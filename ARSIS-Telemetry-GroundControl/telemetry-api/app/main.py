@@ -1,18 +1,12 @@
 from fastapi import FastAPI
+from app.routers import location
 
 app = FastAPI()
-
+app.include_router(location.router)
 
 @app.get("/")
 async def root():
     return {"message": "Telemetry API"}
-
-
-# TODO: Move this into a locations module
-@app.get("/location/")
-async def location():
-    return {"lat": 10, "lon": 100}
-
 
 # TODO: Move this into a biometrics module
 @app.get("/biometrics/")
