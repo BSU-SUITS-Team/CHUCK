@@ -1,7 +1,13 @@
 from fastapi import APIRouter
+import string
 import random
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/biometrics",
+    tags=["biometrics"]
+)
+
+random.seed(20031101)
 
 bpm = 120
 o2 = 100
@@ -25,15 +31,31 @@ def evaluate_biometrics():
     elif o2 <= 0:
         o2 = 0
 
-@router.get("/biometrics/{user}", tags=["biometrics"])
+def create_random_string(characters = string.ascii_lowercase):
+    return ''.join(random.choice(characters) for _ in range(6))
+
+@router.get("/", tags=["biometrics"])
+async def get_biometrics():
+    data = {
+        "users": []
+    }
+
+    evaluate_biometrics()
+    data["users"].append({
+        "user": create_random_string(),
+        "bpm": bpm, 
+        "o2": o2, 
+        "battery": battery
+    })
+    return data
+
+@router.get("/{user}", tags=["biometrics"])
 async def get_biometrics(user: str):
-    print(user)
     evaluate_biometrics()
     return {"bpm": bpm, "o2": o2, "battery": battery}
 
-@router.get("/biometrics/{user}/{data_type}", tags=["biometrics"])
+@router.get("/{user}/{data_type}", tags=["biometrics"])
 async def get_biometrics(user: str, data_type: str):
-    print(user)
     evaluate_biometrics()
     if not data_type:
         return {"message": "No data type specified"}
@@ -46,5 +68,3 @@ async def get_biometrics(user: str, data_type: str):
             return { "battery": battery }
         case _:
             return {"error": "Invalid data type"}
-        
-        
