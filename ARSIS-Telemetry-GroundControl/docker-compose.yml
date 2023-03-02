@@ -7,17 +7,20 @@ services:
       - 8080:8080
   groundcontrol-fe:
     build: ./groundcontrol-fe
+    depends_on:
+      - groundcontrol-api
     ports:
       - 3000:3000
   groundcontrol-api:
+    command: sh -c "sleep 5; uvicorn app.main:app --host 0.0.0.0 --port 8181"
     build: ./groundcontrol-api
+    depends_on:
+      - groundcontrol-db
     ports:
       - 8181:8181
   groundcontrol-db:
-    image: "postgres" # use latest official postgres version
+    build: ./groundcontrol-db # use latest official postgres version
     env_file:
       - ./groundcontrol-db/database.env # configure postgres
-    volumes:
-      - ./groundcontrol-db/postgres-data:/var/lib/postgresql/data/ # persist data even if container shuts down
     ports:
-      - "6543:5432"
+      - "5432:5432"
