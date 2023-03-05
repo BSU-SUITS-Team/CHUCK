@@ -10,11 +10,11 @@ class MockProcedure:
             open("app/routers/on_server_procedures/NASASUITS-logo.png", "rb").read()
         )
         task_1_list = [
-            {"type": "image", "body": suits_image, "next_step": ""},
+            {"type": "image", "body": suits_image, "nextTask": None},
             {
                 "type": "text",
                 "body": "do this next thing and if it works goto otherwise",
-                "next_steps": {"procedure": "Mock Procedure", "step": 2},
+                "nextTask": {"procedure": "Mock Procedure", "task": 2},
             },
         ]
         task_1 = {
@@ -27,7 +27,7 @@ class MockProcedure:
             {
                 "type": "text",
                 "body": "2nd step of mock procedure",
-                # "next_steps": {"procedure": "Idle Procedure", "step": 0},
+                "nextTask": {"procedure": "Idle Procedure", "step": 0},
             },
         ]
         task_2 = {

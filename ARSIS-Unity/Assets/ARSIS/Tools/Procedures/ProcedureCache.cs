@@ -62,6 +62,19 @@ public class ProcedureCache : MonoBehaviour
         Debug.Log("ppe" + pe.name);
         Debug.Log(procedureCache.Count);
         numberOfProcedures = Count();
+        Task task0 = pe.taskList[0];
+        foreach(Step s in task0.stepList){
+            if (s.type == "image"){
+            }
+            if (s.type == "text"){
+                Debug.Log(s.body);
+            }
+            Debug.Log("next step: " + s.nextTask);
+            if(s.nextTask != null){
+                Debug.Log("next step procedure name" + s.nextTask.procedure);
+            }
+            Debug.Log(s.type);
+        }
     }
 
 }
