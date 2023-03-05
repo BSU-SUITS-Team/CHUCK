@@ -31,6 +31,9 @@ public class TelemetryClient : MonoBehaviour
             /* StartCoroutine(GetBiometrics()); */
             StartCoroutine(StartPollingEndpoint<BiometricsEvent>(telemetryServerBiometrics, telemetryPollingDelay));
             StartCoroutine(StartPollingEndpoint<LocationEvent>(telemetryServerLocation, telemetryPollingDelay));
+            StartCoroutine(StartPollingEndpoint<dynamic>(telemetryServerBiometricsBattery, telemetryPollingDelay));
+            StartCoroutine(StartPollingEndpoint<dynamic>(telemetryServerBiometricsO2, telemetryPollingDelay));
+            StartCoroutine(StartPollingEndpoint<dynamic>(telemetryServerBiometricsBPM, telemetryPollingDelay));
             yield return null;
     }
 
