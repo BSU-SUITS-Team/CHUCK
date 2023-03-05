@@ -8,6 +8,7 @@ public class ProcedureCache : MonoBehaviour
     public static ProcedureCache Instance { get; private set; }
     private Dictionary<string, ProcedureEvent> procedureCache;
     private WaitForSeconds procedurePollingDelay = new WaitForSeconds(1.0f);
+    public int numberOfProcedures = 0;
     // Start is called before the first frame update
     void Start()
     {
@@ -60,6 +61,7 @@ public class ProcedureCache : MonoBehaviour
         procedureCache[pe.name] = pe;
         Debug.Log("ppe" + pe.name);
         Debug.Log(procedureCache.Count);
+        numberOfProcedures = Count();
     }
 
 }
