@@ -25,8 +25,7 @@ CREATE TABLE location (
 
 CREATE TABLE users (
   uuid SERIAL PRIMARY KEY NOT NULL,
-  userid INTEGER UNIQUE NOT NULL,
-  callsign VARCHAR(20) NOT NULL
+  callsign VARCHAR(20) UNIQUE NOT NULL
   firstname VARCHAR(20) NOT NULL,
   lastname VARCHAR(20) NOT NULL,
 );
