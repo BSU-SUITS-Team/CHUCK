@@ -20,6 +20,9 @@ class UserCache:
             },
         }
 
+    def get_all(self):
+        return self.users
+
     def get(self, user_id):
         return self.users[user_id]
 
