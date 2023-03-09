@@ -15,11 +15,6 @@ public class ProcedureUpdate : MonoBehaviour
         EventManager.AddListener<ProcedureGet>(getProcedureTrigger);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
 
     void getProcedureTrigger(ProcedureGet pg){
         StartCoroutine(getProcedure(pg));
