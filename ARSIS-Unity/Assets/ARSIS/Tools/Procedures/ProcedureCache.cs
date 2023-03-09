@@ -38,11 +38,6 @@ public class ProcedureCache : MonoBehaviour
         return procedureCache.GetValueOrDefault(name, null);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
     IEnumerator PollProcedureApi() {
         while(procedureCache.Count < 1){
             StartCoroutine(fetchProcedure("Mock Procedure"));
