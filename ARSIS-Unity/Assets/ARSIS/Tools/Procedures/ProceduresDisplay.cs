@@ -9,12 +9,7 @@ using EventSystem;
 public class ProceduresDisplay : MonoBehaviour
 {
     // Start is called before the first frame update
-    bool notShown;
-    void Start()
-    {
-
-        notShown = true;
-    }
+    bool notShown = true;
 
     // Update is called once per frame
     void Update()
