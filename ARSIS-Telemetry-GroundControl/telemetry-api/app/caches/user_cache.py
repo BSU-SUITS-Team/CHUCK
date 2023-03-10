@@ -27,7 +27,10 @@ class UserCache:
         return self.users.get(user_id, None)
 
     def register(self, user_id):
+        if user_id in self.users:
+            return None
         self.users[user_id] = self.create_new_user_dict()
+        return user_id
 
     def update_location(self, user_id, new_location):
         self.users[user_id]["location"] = new_location

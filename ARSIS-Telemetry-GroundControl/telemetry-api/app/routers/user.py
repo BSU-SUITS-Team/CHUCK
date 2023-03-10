@@ -20,4 +20,8 @@ async def get_user(request: Request, user: str):
 
 @router.put("/{user}")
 async def put_user(request: Request, user: str):
-    request.app.user_cache.register(user)
+    user_id = request.app.user_cache.register(user)
+    to_return = status.HTTP_201_CREATED
+    if user_id is None:
+        to_return = status.HTTP_409_CONFLICT
+    return to_return
