@@ -40,7 +40,7 @@ def create_random_string(characters=string.ascii_lowercase):
 @router.get("/")
 async def location(request: Request):
     all_users = request.app.user_cache.get_all()
-    users_list = [{**{"user": k}, **v} for k, v in all_users.items()]
+    users_list = [{**{"user": k}, **v["location"]} for k, v in all_users.items()]
     data = {"users": users_list}
 
     return data
