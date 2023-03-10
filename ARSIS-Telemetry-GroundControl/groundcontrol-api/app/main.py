@@ -1,6 +1,6 @@
 from fastapi import Depends, FastAPI
 from sqlalchemy.orm import Session
-from app.routers import procedures
+from app.routers import procedures, devices
 
 from .db.database import SessionLocal, engine
 from .db import models, schemas
@@ -10,6 +10,7 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 app.include_router(procedures.router)
+app.include_router(devices.router)
 
 
 # Dependency
