@@ -24,7 +24,7 @@ class UserCache:
         return self.users
 
     def get(self, user_id):
-        return self.users[user_id]
+        return self.users.get(user_id, None)
 
     def register(self, user_id):
         self.users[user_id] = self.create_new_user_dict()
