@@ -1,7 +1,7 @@
 import random
 import string
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, status
 from pydantic import BaseModel
 
 router = APIRouter(prefix="/location", tags=["location"])
