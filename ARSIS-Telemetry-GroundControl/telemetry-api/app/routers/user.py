@@ -1,6 +1,4 @@
 from fastapi import APIRouter, Request, status
-import string
-import random
 
 router = APIRouter(prefix="/user", tags=["user"])
 
