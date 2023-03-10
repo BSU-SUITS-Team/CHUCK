@@ -48,7 +48,8 @@ async def location(request: Request):
 
 @router.get("/{user}")
 async def user_location(request: Request, user: str):
-    return request.app.user_cache.get(user)
+    user_info = request.app.user_cache.get(user)
+    return user_info["location"] if user_info else status.HTTP_404_NOT_FOUND
 
 
 @router.post("/{user}/update_location")
