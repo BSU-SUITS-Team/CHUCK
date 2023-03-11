@@ -39,19 +39,19 @@ async def remove_device(name: str):
 @router.post("/broadcast")
 async def broadcast_command(command: str):
     for device in devices:
-        requests.post(device, command)
+        requests.post(device + "/" + command)
     return 200
 
 @router.post("/send_command")
 async def send_command(names: list[str], command: str):
     for name in names:
         if name in devices.keys():
-            requests.post(devices[name], command)
+            requests.post(devices[name] + "/" + command)
     return 200
 
 @router.post("/send_command/{name}")
 async def send_command(name: str, command: str):
     if name in devices.keys():
-        requests.post(devices[name], command)
+        requests.post(devices[name] + "/" + command)
         return 200
     return 404
