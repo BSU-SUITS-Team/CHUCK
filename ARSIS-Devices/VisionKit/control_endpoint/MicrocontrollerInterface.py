@@ -3,7 +3,9 @@ import serial.tools.list_ports
 
 
 class MicrocontrollerInterface:
-    def __init__(self, port, baudrate=9600, timeout=.1) -> None:
+    def __init__(self, port=None, baudrate=9600, timeout=.1) -> None:
+        if port is None:
+            port = load_port()
         self.baudrate = baudrate
         self.timeout = timeout
         self._serial = serial.Serial(port, self.baudrate, timeout=self.timeout)
@@ -33,7 +35,7 @@ def save_port(port) -> None:
 
 def load_port() -> str:
     with open("./port", "rt") as f:
-        return f.read().trim()
+        return f.read().strip()
 
 def start_test(port):
     print("binding to port", port)
