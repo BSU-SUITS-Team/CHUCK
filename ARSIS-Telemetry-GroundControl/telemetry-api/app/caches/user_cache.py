@@ -28,12 +28,11 @@ class UserCache:
     
     def dump_to_db(self, db: Session):
         print("running")
-        for k, v in self.users:
+        for k, v in self.users.items():
             crud.create_user(db, k)
-            crud.create_user_biometrics(db, v["biometrics"])
-            # crud.create_user_location(db, v["location"])
-        # crud.create_user_biometrics(db, k, v["biometrics"])
-        # self.users.clear()
+            crud.create_user_biometrics(db, k, v["biometrics"])
+            crud.create_user_location(db, k, v["location"])
+        self.users.clear()
         
     def check_size(self, db: Session):
         size = sys.getsizeof(self) # returns size in bytes
@@ -47,10 +46,10 @@ class UserCache:
         return self.users.get(user_id, None)
 
     def register(self, user_id, db: Session):
-        self.check_size(db)
         if user_id in self.users:
             return None
         self.users[user_id] = self.create_new_user_dict()
+        self.check_size(db)
         return user_id
 
     def update_location(self, user_id, new_location):

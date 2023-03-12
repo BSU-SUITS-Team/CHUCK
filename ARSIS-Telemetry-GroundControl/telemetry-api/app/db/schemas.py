@@ -1,7 +1,10 @@
 from pydantic import BaseModel
 
 class BiometricBase(BaseModel):
-    data: str
+    user_id: str
+    o2: int
+    battery: int
+    bpm: int
 
 class BiometricCreate(BiometricBase):
     pass
@@ -10,7 +13,10 @@ class Biometric(BiometricBase):
     uuid: int
 
 class LocationBase(BaseModel):
-    data: str
+    latitude: int
+    longitude: int
+    altitude: int
+    heading: int
 
 class LocationCreate(LocationBase):
     pass
