@@ -1,6 +1,12 @@
+import sys
+from .. import crud
+from ..db.database import get_db
+from fastapi import Depends
+from sqlalchemy.orm import Session
 class UserCache:
     def __init__(self):
         self.users = {}
+        self.max_size = 1000000000; # 1 gigabyte
 
     def create_new_user_dict(self):
         bpm = 100
@@ -19,6 +25,20 @@ class UserCache:
                 "heading": heading,
             },
         }
+    
+    def dump_to_db(self, db: Session):
+        print("running")
+        for k, v in self.users:
+            crud.create_user(db, k)
+            crud.create_user_biometrics(db, v["biometrics"])
+            # crud.create_user_location(db, v["location"])
+        # crud.create_user_biometrics(db, k, v["biometrics"])
+        # self.users.clear()
+        
+    def check_size(self, db: Session):
+        size = sys.getsizeof(self) # returns size in bytes
+        if size >= self.max_size:
+            self.dump_to_db(db)
 
     def get_all(self):
         return self.users
@@ -26,7 +46,8 @@ class UserCache:
     def get(self, user_id):
         return self.users.get(user_id, None)
 
-    def register(self, user_id):
+    def register(self, user_id, db: Session):
+        self.check_size(db)
         if user_id in self.users:
             return None
         self.users[user_id] = self.create_new_user_dict()

@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Request, status
+from fastapi import APIRouter, Request, status, Depends
+from sqlalchemy.orm import Session
+from ..db.database import get_db
 
 router = APIRouter(prefix="/user", tags=["user"])
 
@@ -17,8 +19,8 @@ async def get_user(request: Request, user: str):
 
 
 @router.put("/{user}")
-async def put_user(request: Request, user: str):
-    user_id = request.app.user_cache.register(user)
+async def put_user(request: Request, user: str, db: Session = Depends(get_db)):
+    user_id = request.app.user_cache.register(user, db)
     to_return = status.HTTP_201_CREATED
     if user_id is None:
         to_return = status.HTTP_409_CONFLICT

@@ -1,12 +1,30 @@
 from pydantic import BaseModel
 
-class LogBase(BaseModel):
+class BiometricBase(BaseModel):
     data: str
 
-class LogCreate(LogBase):
+class BiometricCreate(BiometricBase):
+    pass
+
+class Biometric(BiometricBase):
+    uuid: int
+
+class LocationBase(BaseModel):
+    data: str
+
+class LocationCreate(LocationBase):
     pass
     
-class Log(LogBase):
+class Location(LocationBase):
+    uuid: int
+
+class UserBase(BaseModel):
+    user_id: str
+
+class UserCreate(UserBase):
+    pass
+
+class User(UserBase):
     uuid: int
 
     class Config:
