@@ -1,7 +1,7 @@
 import string
 import random
 
-from fastapi import APIRouter, Request, status
+from fastapi import APIRouter, Request, status, Response
 from pydantic import BaseModel
 
 router = APIRouter(
@@ -11,10 +11,10 @@ router = APIRouter(
 
 random.seed(20031101)
 
-class Biometric(BaseModel):
-    bpm: int
-    o2: int
-    battery: int
+class Biometrics(BaseModel):
+    bpm: float
+    o2: float
+    battery: float
 
 # bpm = 120
 # o2 = 100
@@ -41,18 +41,26 @@ class Biometric(BaseModel):
 # def create_random_string(characters = string.ascii_lowercase):
 #     return ''.join(random.choice(characters) for _ in range(6))
 
-@router.get("/", tags=["biometrics"])
+@router.get("/")
 async def get_biometrics(request: Request):
     all_users = request.app.user_cache.get_all()
     users_list = [{**{"user": k}, **v["biometrics"]} for k, v in all_users.items()]
     data = {"users": users_list}
+    
     return data
 
-@router.get("/{user}", tags=["biometrics"])
-async def get_biometrics(request: Request, user: str):
-    user_info = request.app.user_cache.get(user)
-    return user_info["biometrics"] if user_info else status.HTTP_404_NOT_FOUND
+@router.get("/{user}")
+async def user_biometrics(req: Request, res: Response, user: str):
+    user_info = req.app.user_cache.get(user)
+    if not user_info:
+        res.status_code = status.HTTP_404_NOT_FOUND
+        return {"error": f"User {user} not found"}
+    return user_info["biometrics"]
 
-@router.get("/{user}/update_biometrics", tags=["biometrics"])
-async def get_biometrics(request: Request, user: str, new_biometric: Biometric):
-    request.app.user_cache.update_biometrics(user, new_biometric)
+@router.post("/{user}/update_biometrics")
+async def update_user_biometrics(req: Request, res: Response, user: str, new_biometrics: Biometrics):
+    user_data = req.app.user_cache.update_biometrics(user, new_biometrics)
+    if user_data is None:
+        res.status_code = status.HTTP_404_NOT_FOUND
+        return {"error": f"User {user} not found"}
+    return { "message": f"Successfully updated biometrics for {user}"}

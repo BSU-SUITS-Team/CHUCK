@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 class UserCache:
     def __init__(self):
         self.users = {}
-        self.max_size = 48;
+        self.max_size = 50;
 
     def create_new_user_dict(self):
         bpm = 100
@@ -15,7 +15,11 @@ class UserCache:
         altitude = 0
         heading = 0
         return {
-            "biometrics": {"bpm": bpm, "o2": o2, "battery": battery},
+            "biometrics": {
+                "bpm": bpm, 
+                "o2": o2, 
+                "battery": battery
+            },
             "location": {
                 "latitude": latitude,
                 "longitude": longitude,
@@ -25,7 +29,6 @@ class UserCache:
         }
     
     def dump_to_db(self, db: Session):
-        print("running")
         for k, v in self.users.items():
             crud.create_user(db, k)
             crud.create_user_biometrics(db, k, v["biometrics"])
@@ -52,7 +55,13 @@ class UserCache:
         return user_id
 
     def update_location(self, user_id, new_location):
+        if user_id not in self.users:
+            return None
         self.users[user_id]["location"] = new_location
+        return new_location
 
     def update_biometrics(self, user_id, new_biometrics):
+        if user_id not in self.users:
+            return None
         self.users[user_id]["biometrics"] = new_biometrics
+        return new_biometrics

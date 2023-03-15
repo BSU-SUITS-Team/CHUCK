@@ -1,7 +1,7 @@
 import random
 import string
 
-from fastapi import APIRouter, Request, status
+from fastapi import APIRouter, Request, status, Response
 from pydantic import BaseModel
 
 router = APIRouter(prefix="/location", tags=["location"])
@@ -47,11 +47,18 @@ async def location(request: Request):
 
 
 @router.get("/{user}")
-async def user_location(request: Request, user: str):
-    user_info = request.app.user_cache.get(user)
-    return user_info["location"] if user_info else status.HTTP_404_NOT_FOUND
+async def user_location(req: Request, res: Response, user: str):
+    user_info = req.app.user_cache.get(user)
+    if not user_info:
+        res.status_code = status.HTTP_404_NOT_FOUND
+        return {"error": f"User {user} not found"}
+    return user_info["location"]
 
 
 @router.post("/{user}/update_location")
-async def update_user_location(request: Request, user: str, new_location: LocationLLAH):
-    request.app.user_cache.update_location(user, new_location)
+async def update_user_location(req: Request, res: Response, user: str, new_location: LocationLLAH):
+    user_data = req.app.user_cache.update_location(user, new_location)
+    if user_data is None:
+        res.status_code = status.HTTP_404_NOT_FOUND
+        return {"error": f"User {user} not found"}
+    return { "message": f"Successfully updated location for {user}"}

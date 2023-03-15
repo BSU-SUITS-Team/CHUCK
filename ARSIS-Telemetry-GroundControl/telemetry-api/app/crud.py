@@ -9,7 +9,6 @@ from .db import models, schemas
 #     return db.query(models.Log).offset(skip).all()
 
 def create_user(db: Session, user: schemas.UserCreate):
-    print("Creating user: " + user)
     db_user = models.User(user)
     db.add(db_user)
     db.commit()
