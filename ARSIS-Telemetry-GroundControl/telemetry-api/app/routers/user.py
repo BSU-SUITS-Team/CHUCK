@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Request, status, Depends
 from sqlalchemy.orm import Session
-from ..main import get_db
+from ..db.database import get_db
 
 router = APIRouter(prefix="/user", tags=["user"])
 

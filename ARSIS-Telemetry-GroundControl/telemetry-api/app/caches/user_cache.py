@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 class UserCache:
     def __init__(self):
         self.users = {}
-        self.max_size = 1000000000; # 1 gigabyte
+        self.max_size = 48;
 
     def create_new_user_dict(self):
         bpm = 100
@@ -34,6 +34,7 @@ class UserCache:
         
     def check_size(self, db: Session):
         size = sys.getsizeof(self) # returns size in bytes
+        print(size)
         if size >= self.max_size:
             self.dump_to_db(db)
 

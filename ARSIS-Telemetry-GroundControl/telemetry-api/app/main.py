@@ -2,17 +2,10 @@ from fastapi import FastAPI
 from app.routers import biometrics, location, user
 from app.caches.user_cache import UserCache
 
-from .db.database import engine, SessionLocal
+from .db.database import engine
 from .db import models
 
 models.Base.metadata.create_all(bind=engine)
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 app = FastAPI()
 app.include_router(location.router)
