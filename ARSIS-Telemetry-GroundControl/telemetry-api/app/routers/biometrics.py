@@ -1,10 +1,7 @@
-import string
 import random
 
-from fastapi import APIRouter, Request, status, Response, Depends
+from fastapi import APIRouter, Request, status, Response
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
-from ..db.database import get_db
 
 router = APIRouter(
     prefix="/biometrics",
