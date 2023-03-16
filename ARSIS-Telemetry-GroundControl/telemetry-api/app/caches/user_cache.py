@@ -45,7 +45,11 @@ class UserCache:
 
     def get(self, user_id, db: Session):
         user = self.users.get(user_id, None)
-        return user if user is not None else crud.get_user(db, user_id)
+        if user is not None:
+            return user
+        user = crud.get_user(db, user_id)
+        self.users[user_id] = user
+        return user
 
     def register(self, user_id, db: Session):
         if user_id in self.users:
