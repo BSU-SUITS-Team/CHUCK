@@ -11,7 +11,11 @@ class UserCache:
         altitude = 0
         heading = 0
         return {
-            "biometrics": {"bpm": bpm, "o2": o2, "battery": battery},
+            "biometrics": {
+                "bpm": bpm, 
+                "o2": o2, 
+                "battery": battery,
+            },
             "location": {
                 "latitude": latitude,
                 "longitude": longitude,
@@ -33,7 +37,9 @@ class UserCache:
         return user_id
 
     def update_location(self, user_id, new_location):
-        self.users[user_id]["location"] = new_location
+        self.users[user_id]["location"] = { "latitude": new_location.latitude, "longitude": new_location.longitude, "altitude": new_location.altitude, "heading": new_location.heading }
+        return new_location
 
     def update_biometrics(self, user_id, new_biometrics):
-        self.users[user_id]["biometrics"] = new_biometrics
+        self.users[user_id]["biometrics"] = { "o2": new_biometrics.o2, "battery": new_biometrics.battery, "bpm": new_biometrics.bpm }
+        return new_biometrics
