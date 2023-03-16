@@ -43,8 +43,9 @@ class UserCache:
     def get_all(self):
         return self.users
 
-    def get(self, user_id):
-        return self.users.get(user_id, None)
+    def get(self, user_id, db: Session):
+        user = self.users.get(user_id, None)
+        return user if user is not None else crud.get_user(db, user_id)
 
     def register(self, user_id, db: Session):
         if user_id in self.users:
@@ -53,14 +54,20 @@ class UserCache:
         self.check_size(db)
         return user_id
 
-    def update_location(self, user_id, new_location):
+    def update_location(self, user_id, new_location, db: Session):
         if user_id not in self.users:
-            return None
-        self.users[user_id]["location"] = { "lat": new_location.latitude, "lon": new_location.longitude, "alt": new_location.altitude, "heading": new_location.heading }
+            user = crud.get_user(db, user_id)
+            if not user:
+                return None
+            self.users[user_id] = user
+        self.users[user_id]["location"] = { "latitude": new_location.latitude, "longitude": new_location.longitude, "altitude": new_location.altitude, "heading": new_location.heading }
         return new_location
 
-    def update_biometrics(self, user_id, new_biometrics):
+    def update_biometrics(self, user_id, new_biometrics, db: Session):
         if user_id not in self.users:
-            return None
-        self.users[user_id]["biometrics"] = { "o2": new_biometrics.o2, "battery": new_biometrics.battery, "bpm": new_biometrics.bpm}
+            user = crud.get_user(db, user_id)
+            if not user:
+                return None
+            self.users[user_id] = user
+        self.users[user_id]["biometrics"] = { "o2": new_biometrics.o2, "battery": new_biometrics.battery, "bpm": new_biometrics.bpm }
         return new_biometrics

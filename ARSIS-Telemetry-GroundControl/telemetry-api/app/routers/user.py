@@ -11,8 +11,8 @@ def get_all_users(request: Request):
 
 
 @router.get("/{user}")
-async def get_user(request: Request, res: Response, user: str):
-    user_data = request.app.user_cache.get(user)
+async def get_user(request: Request, res: Response, user: str, db: Session = Depends(get_db)):
+    user_data = request.app.user_cache.get(user, db)
     if user_data is None:
         res.status_code = status.HTTP_404_NOT_FOUND
         return {"error": f"User {user} not found"}

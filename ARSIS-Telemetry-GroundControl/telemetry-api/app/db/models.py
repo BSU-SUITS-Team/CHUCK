@@ -1,5 +1,6 @@
 import time
-from sqlalchemy import Column, INTEGER, TIMESTAMP, String
+from sqlalchemy import Column, INTEGER, TIMESTAMP, String, ForeignKey
+from sqlalchemy.orm import relationship
 
 from .database import Base
 
@@ -15,7 +16,7 @@ class Biometrics(Base):
 
     uuid = Column(INTEGER, primary_key=True, index=True)
     timein = Column(TIMESTAMP, index=True)
-    user_id = Column(String(20), index=True)
+    user_id = Column(String(20), ForeignKey("users.user_id"))
     o2 = Column(INTEGER, index=True)
     battery = Column(INTEGER, index=True)
     bpm = Column(INTEGER, index=True)
@@ -27,13 +28,15 @@ class Biometrics(Base):
         self.battery = battery
         self.bpm = bpm
 
+    user = relationship("User", back_populates="biometrics")
+
     
 class Location(Base):
     __tablename__ = "location"
 
     uuid = Column(INTEGER, primary_key=True, index=True)
     timein = Column(TIMESTAMP, index=True)
-    user_id = Column(String(20), index=True)
+    user_id = Column(String(20), ForeignKey("users.user_id"))
     latitude = Column(INTEGER, index=True)
     longitude = Column(INTEGER, index=True)
     altitude = Column(INTEGER, index=True)
@@ -52,15 +55,20 @@ class Location(Base):
     
     def get_location(self):
         return dict(latitude=self.latitude, longitude=self.longitude, altitude=self.altitude, heading=self.heading)
+    
+    user = relationship("User", back_populates="location")
 
 class User(Base):
     __tablename__ = "users"
 
     uuid = Column(INTEGER, primary_key=True, index=True)
-    user_id = Column(String(20), index=True)
+    user_id = Column(String(20), index=True, unique=True)
 
     def __init__(self, user_id):
         self.user_id = user_id
 
     def to_json(self):
         return dict(user_id=self.user_id)
+    
+    biometrics = relationship("Biometrics", back_populates="user")
+    location = relationship("Location", back_populates="user")

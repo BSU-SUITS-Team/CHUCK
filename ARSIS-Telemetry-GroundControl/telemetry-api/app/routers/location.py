@@ -1,8 +1,10 @@
 import random
 import string
 
-from fastapi import APIRouter, Request, status, Response
+from fastapi import APIRouter, Request, status, Response, Depends
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
+from ..db.database import get_db
 
 router = APIRouter(prefix="/location", tags=["location"])
 
@@ -56,8 +58,8 @@ async def user_location(req: Request, res: Response, user: str):
 
 
 @router.post("/{user}/update_location")
-async def update_user_location(req: Request, res: Response, user: str, new_location: LocationLLAH):
-    user_data = req.app.user_cache.update_location(user, new_location)
+async def update_user_location(req: Request, res: Response, user: str, new_location: LocationLLAH, db: Session = Depends(get_db)):
+    user_data = req.app.user_cache.update_location(user, new_location, db)
     if user_data is None:
         res.status_code = status.HTTP_404_NOT_FOUND
         return {"error": f"User {user} not found"}

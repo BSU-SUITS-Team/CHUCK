@@ -1,8 +1,10 @@
 import string
 import random
 
-from fastapi import APIRouter, Request, status, Response
+from fastapi import APIRouter, Request, status, Response, Depends
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
+from ..db.database import get_db
 
 router = APIRouter(
     prefix="/biometrics",
@@ -58,8 +60,8 @@ async def user_biometrics(req: Request, res: Response, user: str):
     return user_info["biometrics"]
 
 @router.post("/{user}/update_biometrics")
-async def update_user_biometrics(req: Request, res: Response, user: str, new_biometrics: Biometrics):
-    user_data = req.app.user_cache.update_biometrics(user, new_biometrics)
+async def update_user_biometrics(req: Request, res: Response, user: str, new_biometrics: Biometrics, db: Session = Depends(get_db)):
+    user_data = req.app.user_cache.update_biometrics(user, new_biometrics, db)
     if user_data is None:
         res.status_code = status.HTTP_404_NOT_FOUND
         return {"error": f"User {user} not found"}

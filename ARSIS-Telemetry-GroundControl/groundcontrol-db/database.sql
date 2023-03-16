@@ -25,7 +25,7 @@ CREATE TABLE location (
 
 CREATE TABLE users (
   uuid SERIAL PRIMARY KEY NOT NULL,
-  user_id VARCHAR(20) NOT NULL
+  user_id VARCHAR(20) UNIQUE NOT NULL
 );
 
 -- INSERT INTO users (userid, callsign, firstname, lastname) VALUES (101, "Maverick", "Pete", "Mitchel"), (102, "Boxman", "Jim", "Boxman"), (103, "Goose", "Nick", "Bradshaw");
