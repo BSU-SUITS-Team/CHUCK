@@ -6,11 +6,11 @@ def get_user(db: Session, user_id: str):
     user = db.query(models.User).filter(models.User.user_id == user_id).first()
     if user is None:
         return None
-    loc = dict(user.location.__dict__)
-    loc.pop('_sa_instance_state', None)
-    bio = dict(user.biometrics.__dict__)
-    bio.pop('_sa_instance_state', None)
-    to_return = { "biometrics": bio, "location": loc }
+    loc = user.location.pop(0)
+    bio = user.biometrics.pop(0)
+    location = { "latitude": loc.latitude, "longitude": loc.longitude, "altitude": loc.altitude, "heading": loc.heading}
+    biometrics = { "o2": bio.o2, "battery": bio.battery, "bpm": bio.bpm }
+    to_return = { "biometrics": biometrics, "location": location }
     return to_return
 
 # def get_users(db: Session, skip: int = 0):
