@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, status
+from fastapi import APIRouter, Request, status, Response
 
 router = APIRouter(prefix="/user", tags=["user"])
 
@@ -9,17 +9,18 @@ def get_all_users(request: Request):
 
 
 @router.get("/{user}")
-async def get_user(request: Request, user: str):
+async def get_user(request: Request, res: Response, user: str):
+    user_data = request.app.user_cache.get(user)
+    if user_data is None:
+        res.status_code = status.HTTP_404_NOT_FOUND
+        return {"error": f"User {user} not found"}
+    return user_data
 
-    to_return = request.app.user_cache.get(user)
-    to_return = to_return if to_return is not None else status.HTTP_404_NOT_FOUND
-    return to_return
 
-
-@router.put("/{user}")
-async def put_user(request: Request, user: str):
-    user_id = request.app.user_cache.register(user)
-    to_return = status.HTTP_201_CREATED
+@router.put("/{user}", status_code=status.HTTP_201_CREATED)
+async def put_user(req: Request, res: Response, user: str):
+    user_id = req.app.user_cache.register(user)
     if user_id is None:
-        to_return = status.HTTP_409_CONFLICT
-    return to_return
+        res.status_code = status.HTTP_409_CONFLICT
+        return {"error": f"User {user} already exists"}
+    return { "message": f"User {user} registered" }
