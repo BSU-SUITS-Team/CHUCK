@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 class UserCache:
     def __init__(self):
         self.users = {}
-        self.max_size = 50;
+        self.max_size = 48
 
     def create_new_user_dict(self):
         bpm = 100
@@ -18,7 +18,7 @@ class UserCache:
             "biometrics": {
                 "bpm": bpm, 
                 "o2": o2, 
-                "battery": battery
+                "battery": battery,
             },
             "location": {
                 "latitude": latitude,
@@ -37,7 +37,6 @@ class UserCache:
         
     def check_size(self, db: Session):
         size = sys.getsizeof(self) # returns size in bytes
-        print(size)
         if size >= self.max_size:
             self.dump_to_db(db)
 
@@ -57,11 +56,11 @@ class UserCache:
     def update_location(self, user_id, new_location):
         if user_id not in self.users:
             return None
-        self.users[user_id]["location"] = new_location
+        self.users[user_id]["location"] = { "lat": new_location.latitude, "lon": new_location.longitude, "alt": new_location.altitude, "heading": new_location.heading }
         return new_location
 
     def update_biometrics(self, user_id, new_biometrics):
         if user_id not in self.users:
             return None
-        self.users[user_id]["biometrics"] = new_biometrics
+        self.users[user_id]["biometrics"] = { "o2": new_biometrics.o2, "battery": new_biometrics.battery, "bpm": new_biometrics.bpm}
         return new_biometrics

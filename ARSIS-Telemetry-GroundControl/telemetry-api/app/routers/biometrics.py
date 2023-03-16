@@ -12,9 +12,9 @@ router = APIRouter(
 random.seed(20031101)
 
 class Biometrics(BaseModel):
-    bpm: float
-    o2: float
-    battery: float
+    bpm: int
+    o2: int
+    battery: int
 
 # bpm = 120
 # o2 = 100

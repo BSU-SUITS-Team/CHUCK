@@ -1,15 +1,15 @@
 from pydantic import BaseModel
 
-class BiometricBase(BaseModel):
+class BiometricsBase(BaseModel):
     user_id: str
     o2: int
     battery: int
     bpm: int
 
-class BiometricCreate(BiometricBase):
+class BiometricsCreate(BiometricsBase):
     pass
 
-class Biometric(BiometricBase):
+class Biometrics(BiometricsBase):
     uuid: int
 
 class LocationBase(BaseModel):

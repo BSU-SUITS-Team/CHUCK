@@ -1,5 +1,5 @@
-import datetime
-from sqlalchemy import JSON, Column, INTEGER, TIMESTAMP, String
+import time
+from sqlalchemy import Column, INTEGER, TIMESTAMP, String
 
 from .database import Base
 
@@ -10,7 +10,7 @@ admin = [
 ]
 
 
-class Biometric(Base):
+class Biometrics(Base):
     __tablename__ = "biometrics"
 
     uuid = Column(INTEGER, primary_key=True, index=True)
@@ -22,6 +22,7 @@ class Biometric(Base):
 
     def __init__(self, userid, o2, battery, bpm):
         self.user_id = userid
+        self.timein = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time())) # year-month-day hour:minute:second
         self.o2 = o2
         self.battery = battery
         self.bpm = bpm
@@ -40,6 +41,7 @@ class Location(Base):
 
     def __init__(self, userid, latitude, longitude, altitude, heading):
         self.user_id = userid
+        self.timein = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time())) # year-month-day hour:minute:second
         self.latitude = latitude
         self.longitude = longitude
         self.altitude = altitude

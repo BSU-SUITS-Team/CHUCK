@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+import time
 from app.routers import biometrics, location, user
 from app.caches.user_cache import UserCache
 
