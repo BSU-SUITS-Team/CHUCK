@@ -49,17 +49,17 @@ async def get_biometrics(request: Request):
     return data
 
 @router.get("/{user}")
-async def user_biometrics(req: Request, res: Response, user: str):
-    user_info = req.app.user_cache.get(user)
+async def user_biometrics(req: Request, res: Response, user_id: int):
+    user_info = req.app.user_cache.get(user_id)
     if not user_info:
         res.status_code = status.HTTP_404_NOT_FOUND
-        return {"error": f"User {user} not found"}
+        return {"error": f"User with id: {user_id} not found"}
     return user_info["biometrics"]
 
 @router.post("/{user}/update_biometrics")
-async def update_user_biometrics(req: Request, res: Response, user: str, new_biometrics: Biometrics):
-    user_data = req.app.user_cache.update_biometrics(user, new_biometrics)
+async def update_user_biometrics(req: Request, res: Response, user_id: int, new_biometrics: Biometrics):
+    user_data = req.app.user_cache.update_biometrics(user_id, new_biometrics)
     if user_data is None:
         res.status_code = status.HTTP_400_BAD_REQUEST
-        return {"error": f"User {user} not found"}
-    return { "message": f"Successfully updated biometrics for {user}"}
+        return {"error": f"User with id: {user_id} not found"}
+    return { "message": f"Successfully updated biometrics for {user_id}"}

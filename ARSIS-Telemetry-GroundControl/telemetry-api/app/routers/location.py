@@ -46,18 +46,18 @@ async def location(request: Request):
 
 
 @router.get("/{user}")
-async def user_location(req: Request, res: Response, user: str):
-    user_info = req.app.user_cache.get(user)
+async def user_location(req: Request, res: Response, user_id: int):
+    user_info = req.app.user_cache.get(user_id)
     if not user_info:
         res.status_code = status.HTTP_404_NOT_FOUND
-        return {"error": f"User {user} not found"}
+        return {"error": f"User with id: {user_id} not found"}
     return user_info["location"]
 
 
 @router.post("/{user}/update_location")
-async def update_user_location(req: Request, res: Response, user: str, new_location: LocationLLAH):
-    user_data = req.app.user_cache.update_location(user, new_location)
+async def update_user_location(req: Request, res: Response, user_id: int, new_location: LocationLLAH):
+    user_data = req.app.user_cache.update_location(user_id, new_location)
     if user_data is None:
         res.status_code = status.HTTP_400_BAD_REQUEST
-        return {"error": f"User {user} not found"}
-    return { "message": f"Successfully updated location for {user}"}
+        return {"error": f"User with id: {user_id} not found"}
+    return { "message": f"Successfully updated location for {user_id}"}

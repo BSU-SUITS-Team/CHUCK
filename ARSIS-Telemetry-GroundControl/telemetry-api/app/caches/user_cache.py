@@ -3,9 +3,8 @@ class UserCache:
         self.users = {}
         self.current_id = 0
 
-    def create_new_user_dict(self):
-        self.current_id += 1
-        user_id = self.current_id
+    def create_new_user_dict(self, username):
+        name = username
         bpm = 100
         o2 = 100
         battery = 100
@@ -14,7 +13,7 @@ class UserCache:
         altitude = 0
         heading = 0
         return {
-            "user_id": user_id,
+            "name": name,
             "biometrics": {
                 "bpm": bpm, 
                 "o2": o2, 
@@ -35,8 +34,10 @@ class UserCache:
         return self.users.get(user_id, None)
 
     def register(self, username):
-        self.users[username] = self.create_new_user_dict()
-        return username
+        user_id = self.current_id
+        self.users[user_id] = self.create_new_user_dict(username)
+        self.current_id += 1
+        return user_id
 
     def update_location(self, user_id, new_location):
         if user_id not in self.users:
