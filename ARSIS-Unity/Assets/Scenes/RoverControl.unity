@@ -230,6 +230,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c059ff0a21acbd247bd575de5fb00b43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  lastActionTime: 0
+  postingRate: 1
   input:
     m_Name: Input
     m_Type: 0
@@ -287,6 +289,8 @@ MonoBehaviour:
       m_Action: Input
       m_Flags: 0
     m_Flags: 0
+  inputVector: {x: 0, y: 0}
+  lastInputVector: {x: 0, y: 0}
 --- !u!1 &405445055
 GameObject:
   m_ObjectHideFlags: 0

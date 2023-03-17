@@ -7,9 +7,11 @@ NAME="rover"
 
 app = FastAPI()
 rover = MicrocontrollerInterface.MicrocontrollerInterface()
-ip = socket.gethostbyname(socket.gethostname())
-GATEWAY_IP = "192.168.137.1"
+ip = input("My Ip Addr: ")
+GATEWAY_IP = input("Enter groundcontroll ip: ")
+print("connecting to: ", GATEWAY_IP)
 requests.post(f"http://{GATEWAY_IP}:8181/devices/configure/{NAME}?ip_address={ip}")
+
 
 @app.get("/")
 async def root():
@@ -18,7 +20,7 @@ async def root():
 @app.put("/{motors}")
 async def move(motors: str):
     # motors will be in the format byte:byte
-    # where byte is a integer between 0 and 255
+    # where byte is a number between 0 and 255
 
     # validate
     try:

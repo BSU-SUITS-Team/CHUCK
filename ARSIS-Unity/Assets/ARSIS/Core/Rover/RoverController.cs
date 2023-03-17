@@ -6,10 +6,29 @@ using UnityEngine.Networking;
 
 public class RoverController : MonoBehaviour
 {
+
+    public float lastActionTime = 0;
+    public int postingRate = 5;
     public InputAction input;
+    public Vector2 inputVector;
+    public Vector2 lastInputVector;
     // Update is called once per frame
     void Update()
-    {
+    {        
+        if (Time.time - lastActionTime > 1f / postingRate) {
+            lastActionTime = Time.time;
+            if (inputVector != lastInputVector) {
+                lastInputVector = inputVector;
+                Debug.Log("Posting: " + format(inputVector));
+                UnityWebRequest.Post("http://localhost:8181/devices/broadcast?command=" + format(inputVector), "").SendWebRequest();
+            }
+        }
+        if (!input.IsInProgress()) {
+            inputVector = Vector2.zero;
+        }
+    }
+
+    private void Start() {        
         input.performed += OnInput;
     }
 
@@ -26,7 +45,6 @@ public class RoverController : MonoBehaviour
     }
 
     private void OnInput(InputAction.CallbackContext context) {
-        Debug.Log(context.ReadValue<Vector2>());
-        UnityWebRequest.Post("http://localhost:8181/devices/broadcast?command=" + format(context.ReadValue<Vector2>()), "").SendWebRequest();
+        inputVector = context.ReadValue<Vector2>();
     }
 }
