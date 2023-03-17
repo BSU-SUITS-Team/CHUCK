@@ -58,6 +58,6 @@ async def user_location(req: Request, res: Response, user: str):
 async def update_user_location(req: Request, res: Response, user: str, new_location: LocationLLAH):
     user_data = req.app.user_cache.update_location(user, new_location)
     if user_data is None:
-        res.status_code = status.HTTP_404_NOT_FOUND
+        res.status_code = status.HTTP_400_BAD_REQUEST
         return {"error": f"User {user} not found"}
     return { "message": f"Successfully updated location for {user}"}
