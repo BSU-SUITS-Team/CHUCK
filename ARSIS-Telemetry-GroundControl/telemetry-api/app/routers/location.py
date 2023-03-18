@@ -1,44 +1,14 @@
-import random
-
-from fastapi import APIRouter, Request, status, Response
-from pydantic import BaseModel
+from fastapi import APIRouter, Request, status, Response, Depends
+from sqlalchemy.orm import Session
+from ..db.database import get_db
+from ..db.schemas import LocationBase
+from .. import crud
 
 router = APIRouter(prefix="/location", tags=["location"])
 
-random.seed(20031101)
-
-
-class LocationLLAH(BaseModel):
-    latitude: float
-    longitude: float
-    altitude: float
-    heading: float
-
-
-# def create_random_location(
-#     latitude_min=-90,
-#     latitude_max=90,
-#     longitude_min=-180,
-#     longitude_max=180,
-#     altitude_min=420,
-#     altitude_max=8848,
-#     heading_min=0,
-#     heading_max=360,
-# ):
-#     latitude = round(random.uniform(latitude_min, latitude_max), 6)
-#     longitude = round(random.uniform(longitude_min, longitude_max), 6)
-#     altitude = random.randint(altitude_min, altitude_max)
-#     heading = random.randint(heading_min, heading_max)
-#     return (latitude, longitude, altitude, heading)
-
-
-# def create_random_string(characters=string.ascii_lowercase):
-#     return "".join(random.choice(characters) for _ in range(6))
-
-
 @router.get("/")
-async def location(request: Request):
-    all_users = request.app.user_cache.get_all()
+async def location(db: Session = Depends(get_db)):
+    all_users = crud.get_users(db)
     users_list = [{**{"user": k}, **v["location"]} for k, v in all_users.items()]
     data = {"users": users_list}
 
@@ -46,17 +16,17 @@ async def location(request: Request):
 
 
 @router.get("/{user}")
-async def user_location(req: Request, res: Response, user_id: int):
-    user_info = req.app.user_cache.get(user_id)
-    if not user_info:
+async def user_location(res: Response, user_id: int, db: Session = Depends(get_db)):
+    user_data = crud.get_user(db, user_id)
+    if not user_data:
         res.status_code = status.HTTP_404_NOT_FOUND
         return {"error": f"User with id: {user_id} not found"}
-    return user_info["location"]
+    return user_data["location"]
 
 
 @router.post("/{user}/update_location")
-async def update_user_location(req: Request, res: Response, user_id: int, new_location: LocationLLAH):
-    user_data = req.app.user_cache.update_location(user_id, new_location)
+async def update_user_location(res: Response, user_id: int, new_location: LocationBase, db: Session = Depends(get_db)):
+    user_data = crud.update_user_location(db, user_id, new_location)
     if user_data is None:
         res.status_code = status.HTTP_400_BAD_REQUEST
         return {"error": f"User with id: {user_id} not found"}
