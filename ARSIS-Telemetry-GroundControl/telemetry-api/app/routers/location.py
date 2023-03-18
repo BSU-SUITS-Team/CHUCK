@@ -9,7 +9,9 @@ router = APIRouter(prefix="/location", tags=["location"])
 @router.get("/")
 async def location(db: Session = Depends(get_db)):
     all_users = crud.get_users(db)
-    users_list = [{**{"user": k}, **v["location"]} for k, v in all_users.items()]
+    users_list = []
+    for user in all_users:
+        users_list.append({ "name": user["name"], "location": user["location"] })
     data = {"users": users_list}
 
     return data
