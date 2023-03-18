@@ -13,7 +13,6 @@ async def location(db: Session = Depends(get_db)):
     for user in all_users:
         users_list.append({ "name": user["name"], "location": user["location"] })
     data = {"users": users_list}
-
     return data
 
 
