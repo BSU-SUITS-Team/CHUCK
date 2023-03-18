@@ -1,11 +1,11 @@
 CREATE TABLE logs (
-  uuid SERIAL PRIMARY KEY NOT NULL,
+  uuid SERIAL PRIMARY KEY,
   timein TIMESTAMP DEFAULT now(),
   data JSON NOT NULL
 );
 
 CREATE TABLE biometrics (
-  uuid SERIAL PRIMARY KEY NOT NULL,
+  uuid SERIAL PRIMARY KEY,
   timein TIMESTAMP DEFAULT now(),
   user_id VARCHAR(20) NOT NULL,
   o2 INTEGER NOT NULL,
@@ -14,7 +14,7 @@ CREATE TABLE biometrics (
 );
 
 CREATE TABLE location (
-  uuid SERIAL PRIMARY KEY NOT NULL,
+  uuid SERIAL PRIMARY KEY,
   timein TIMESTAMP DEFAULT now(),
   user_id VARCHAR(20) NOT NULL,
   latitude INTEGER NOT NULL,
@@ -24,8 +24,8 @@ CREATE TABLE location (
 );
 
 CREATE TABLE users (
-  uuid INTEGER PRIMARY KEY NOT NULL,
-  username VARCHAR(20) UNIQUE NOT NULL
+  uuid SERIAL PRIMARY KEY,
+  name VARCHAR(20) NOT NULL
 );
 
 -- INSERT INTO users (userid, callsign, firstname, lastname) VALUES (101, "Maverick", "Pete", "Mitchel"), (102, "Boxman", "Jim", "Boxman"), (103, "Goose", "Nick", "Bradshaw");

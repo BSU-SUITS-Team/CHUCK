@@ -2,7 +2,10 @@ version: "3.8"
 
 services:
   telemetry-api:
+    command: sh -c "sleep 5; uvicorn app.main:app --host 0.0.0.0 --port 8080"
     build: ./telemetry-api
+    depends_on:
+      - groundcontrol-db
     ports:
       - 8080:8080
   groundcontrol-fe:

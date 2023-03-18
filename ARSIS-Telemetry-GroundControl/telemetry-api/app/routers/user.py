@@ -1,4 +1,7 @@
-from fastapi import APIRouter, Request, status, Response
+from fastapi import APIRouter, Request, status, Response, Depends
+from sqlalchemy.orm import Session
+from ..db.database import get_db
+from .. import crud
 
 router = APIRouter(prefix="/user", tags=["user"])
 
@@ -18,6 +21,6 @@ async def get_user(request: Request, res: Response, user_id: int):
 
 
 @router.put("/{user}", status_code=status.HTTP_201_CREATED)
-async def put_user(req: Request, username: str):
-    user_id = req.app.user_cache.register(username)
+async def put_user(username: str, db: Session = Depends(get_db)):
+    user_id = crud.register_user(db=db, user=username)
     return { "user_id": user_id }
