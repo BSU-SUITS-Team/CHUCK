@@ -12,8 +12,8 @@ def get_user(db: Session, user_id: int):
     # to_return = { "biometrics": biometrics, "location": location }
     return user
 
-# def get_users(db: Session, skip: int = 0):
-#     return db.query(models.Log).offset(skip).all()
+def get_users(db: Session, skip: int = 0):
+    return db.query(models.User).offset(skip).all()
 
 def register_user(db: Session, user: schemas.UserBase):
     try:

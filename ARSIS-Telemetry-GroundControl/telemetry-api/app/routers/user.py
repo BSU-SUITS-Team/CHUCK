@@ -7,12 +7,12 @@ router = APIRouter(prefix="/user", tags=["user"])
 
 
 @router.get("/")
-def get_all_users(request: Request):
-    return request.app.user_cache.get_all()
+def get_all_users(db: Session = Depends(get_db)):
+    return crud.get_users(db)
 
 
 @router.get("/{user}")
-async def get_user(request: Request, res: Response, user_id: int, db: Session = Depends(get_db)):
+async def get_user(res: Response, user_id: int, db: Session = Depends(get_db)):
     user = crud.get_user(db=db, user_id=user_id)
     if user is None:
         res.status_code = status.HTTP_404_NOT_FOUND
