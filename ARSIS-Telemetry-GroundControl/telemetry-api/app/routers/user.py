@@ -40,4 +40,3 @@ async def put_user(user: User):
         db.execute("INSERT INTO users (name) VALUES (%s) RETURNING *;", (user.name,))
         (id, name, createdAt) = db.fetchone()
         return { "id": id, "name": name, "createdAt": createdAt}
-
