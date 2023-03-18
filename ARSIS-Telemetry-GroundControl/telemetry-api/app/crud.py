@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 from .db import models, schemas
 
-def get_user(db: Session, user_id: str):
-    user = db.query(models.User).filter(models.User.user_id == user_id).first()
+def get_user(db: Session, user_id: int):
+    user = db.query(models.User).filter(models.User.uuid == user_id).first()
     if user is None:
         return None
     # loc = user.location.pop(0)

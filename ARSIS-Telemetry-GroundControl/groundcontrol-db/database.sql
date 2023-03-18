@@ -7,7 +7,7 @@ CREATE TABLE logs (
 CREATE TABLE biometrics (
   uuid SERIAL PRIMARY KEY,
   timein TIMESTAMP DEFAULT now(),
-  user_id VARCHAR(20) NOT NULL,
+  user_id INTEGER NOT NULL,
   o2 INTEGER NOT NULL,
   battery INTEGER NOT NULL,
   bpm INTEGER NOT NULL
@@ -16,7 +16,7 @@ CREATE TABLE biometrics (
 CREATE TABLE location (
   uuid SERIAL PRIMARY KEY,
   timein TIMESTAMP DEFAULT now(),
-  user_id VARCHAR(20) NOT NULL,
+  user_id INTEGER NOT NULL,
   latitude INTEGER NOT NULL,
   longitude INTEGER NOT NULL,
   altitude INTEGER NOT NULL,
