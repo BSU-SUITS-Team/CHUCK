@@ -23,4 +23,11 @@ async def get_user(res: Response, user_id: int, db: Session = Depends(get_db)):
 @router.put("/{user}", status_code=status.HTTP_201_CREATED)
 async def put_user(username: str, db: Session = Depends(get_db)):
     user_id = crud.register_user(db=db, user=username).uuid
+    
+    init_bios = { "o2": 0, "battery": 0, "bpm": 0 }
+    init_loc = { "latitude": 0, "longitude": 0, "altitude": 0, "heading": 0 }
+
+    crud.update_user_biometrics(db=db, user_id=user_id, biometrics=init_bios)
+    crud.update_user_location(db=db, user_id=user_id, location=init_loc)
+    
     return { "user_id": user_id }

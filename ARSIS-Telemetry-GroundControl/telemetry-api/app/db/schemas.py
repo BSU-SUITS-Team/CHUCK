@@ -1,28 +1,21 @@
 from pydantic import BaseModel
 
-# class BiometricsBase(BaseModel):
-#     user_id: str
-#     o2: int
-#     battery: int
-#     bpm: int
+class BiometricsBase(BaseModel):
+    o2: int
+    battery: int
+    bpm: int
 
-# class BiometricsCreate(BiometricsBase):
-#     pass
+class Biometrics(BiometricsBase):
+    uuid: int
 
-# class Biometrics(BiometricsBase):
-#     uuid: int
-
-# class LocationBase(BaseModel):
-#     latitude: int
-#     longitude: int
-#     altitude: int
-#     heading: int
-
-# class LocationCreate(LocationBase):
-#     pass
+class LocationBase(BaseModel):
+    latitude: int
+    longitude: int
+    altitude: int
+    heading: int
     
-# class Location(LocationBase):
-#     uuid: int
+class Location(LocationBase):
+    uuid: int
 
 class UserBase(BaseModel):
     name: str

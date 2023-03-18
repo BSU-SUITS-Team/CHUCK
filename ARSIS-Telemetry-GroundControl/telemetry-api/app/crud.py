@@ -26,16 +26,16 @@ def register_user(db: Session, user: schemas.UserBase):
         print("Error creating user: ", e)
         return None
 
-# def create_user_biometrics(db: Session, user: schemas.UserCreate, biometrics: schemas.BiometricsCreate):
-#     db_biometrics = models.Biometrics(user, **biometrics)
-#     db.add(db_biometrics)
-#     db.commit()
-#     db.refresh(db_biometrics)
-#     return db_biometrics
+def update_user_biometrics(db: Session, user_id: int, biometrics: schemas.BiometricsBase):
+    db_biometrics = models.Biometrics(user_id, **biometrics)
+    db.add(db_biometrics)
+    db.commit()
+    db.refresh(db_biometrics)
+    return db_biometrics
 
-# def create_user_location(db: Session, user: schemas.UserCreate, location: schemas.LocationCreate):
-#     db_location = models.Location(user, **location)
-#     db.add(db_location)
-#     db.commit()
-#     db.refresh(db_location)
-#     return db_location
+def update_user_location(db: Session, user_id: int, location: schemas.LocationBase):
+    db_location = models.Location(user_id, **location)
+    db.add(db_location)
+    db.commit()
+    db.refresh(db_location)
+    return db_location
