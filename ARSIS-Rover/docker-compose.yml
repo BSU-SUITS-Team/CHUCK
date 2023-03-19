@@ -1,11 +1,5 @@
 version: "3.9"
 services:
-  gazebo-docker:
-    build: ./gazebo-docker
-    # ports:
-    #   - "11345:11345"
-    environment:
-      - DISPLAY=${DISPLAY}
-    volumes:
-      - /tmp/.X11-unix:/tmp/.X11-unix
-    network_mode: host
+  ros:
+    build: ./ros
+
