@@ -27,6 +27,15 @@ CREATE TABLE IF NOT EXISTS biometrics (
   heartrate INTEGER NOT NULL,
   createdAt TIMESTAMP DEFAULT now(),
   updatedAt TIMESTAMP DEFAULT now()
-)
+);
 
-INSERT INTO logs (timeIn, data) VALUES (now(), '{"test log": "This is a test log"}'), (now(), '{"test log": "This is another test log"}');
+CREATE TABLE IF NOT EXISTS uia (
+  id SERIAL PRIMARY KEY,
+  o2 BOOLEAN NOT NULL,
+  power_ BOOLEAN NOT NULL,
+  comm BOOLEAN NOT NULL,
+  updatedAt TIMESTAMP DEFAULT now()
+);
+
+INSERT INTO uia (o2, power_, comm) VALUES (TRUE, TRUE, TRUE);
+INSERT INTO logs (createdAt, data) VALUES (now(), '{"test log": "This is a test log"}'), (now(), '{"test log": "This is another test log"}');
