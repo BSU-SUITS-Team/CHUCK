@@ -10,7 +10,7 @@ packages = [{include = "telemetry_api"}]
 python = "^3.10"
 fastapi = "^0.89.1"
 uvicorn = {extras = ["standard"], version = "^0.20.0"}
-
+psycopg2 = "^2.9.5"
 
 [build-system]
 requires = ["poetry-core"]
