@@ -11,7 +11,8 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 CREATE TABLE IF NOT EXISTS locations (
-  id SERIAL PRIMARY KEY REFERENCES users,
+  uuid uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  id SERIAL REFERENCES users,
   longitude INTEGER NOT NULL,
   latitude INTEGER NOT NULL,
   altitude INTEGER NOT NULL,
@@ -21,12 +22,13 @@ CREATE TABLE IF NOT EXISTS locations (
 );
 
 CREATE TABLE IF NOT EXISTS biometrics (
-  id SERIAL PRIMARY KEY REFERENCES users,
+  uuid uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  id SERIAL REFERENCES users,
   o2 INTEGER NOT NULL,
   battery INTEGER NOT NULL,
   heartrate INTEGER NOT NULL,
   createdAt TIMESTAMP DEFAULT now(),
   updatedAt TIMESTAMP DEFAULT now()
-)
+);
 
-INSERT INTO logs (timeIn, data) VALUES (now(), '{"test log": "This is a test log"}'), (now(), '{"test log": "This is another test log"}');
+INSERT INTO logs (createdAt, data) VALUES (now(), '{"test log": "This is a test log"}'), (now(), '{"test log": "This is another test log"}');
