@@ -23,11 +23,6 @@ def get_all_users():
 
 @router.get("/{user}")
 async def get_user(user: int):
-    try:
-        user = int(user)
-    except Exception:
-        return status.HTTP_400_BAD_REQUEST
-
     with connection.cursor() as db:
         db.execute("SELECT * FROM users WHERE id = %s;", (user,))
         (id, name, createdAt) = db.fetchone()

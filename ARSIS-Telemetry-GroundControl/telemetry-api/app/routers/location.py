@@ -47,11 +47,6 @@ async def user_location(req: Request, res: Response, user_id: int):
         db.execute(query)
         row = db.fetchone()
         return {i: j for i, j in zip(keys, row[1:])}
-    user_info = req.app.user_cache.get(user_id)
-    if not user_info:
-        res.status_code = status.HTTP_404_NOT_FOUND
-        return {"error": f"User with id: {user_id} not found"}
-    return user_info["location"]
 
 
 @router.post("/{user_id}/update_location")
@@ -62,8 +57,6 @@ async def update_user_location(
         keys_post = f"{keys[0]}, {keys[1]}, {keys[2]}, {keys[3]}, {keys[4]}"
         values = f"{user_id}, {new_location.longitude}, {new_location.latitude}, {new_location.altitude}, {new_location.heading}"
         query = f"INSERT INTO locations ({keys_post}) VALUES ({values}) RETURNING *;"
-        logging.warn(keys_post)
-        logging.warn(values)
         db.execute(query)
         row = db.fetchone()
         connection.commit()
