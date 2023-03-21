@@ -9,38 +9,29 @@ class UIAStatusRequest(BaseModel):
     power: bool | None = None
     comm: bool | None = None
 
+keys = [
+    "id",
+    "power",
+    "comm",
+    "updatedAt"
+]
+
 @router.get("/")
 async def get_uia():
     with connection.cursor() as db:
         db.execute("SELECT * FROM uia WHERE id = 1;")
-        (id, o2, power, comm, updatedAt) = db.fetchone()
-        response = {
-            "o2": o2,
-            "power": power,
-            "comm": comm,
-            "updatedAt": updatedAt
-        }
-        return response
+        row = db.fetchone()
+        return {i: j for i, j in zip(keys, row[1:])}
 
 @router.post("/")
 async def post_uia(body: UIAStatusRequest):
     with connection.cursor() as db:
-        if body.o2 != None:
-            db.execute("UPDATE uia SET o2 = %s, updatedAt = now() WHERE id = 1;", (body.o2,))
-
-        if body.power != None:
-            db.execute("UPDATE uia SET power_ = %s, updatedAt = now() WHERE id = 1;", (body.power,))
-
-        if body.comm != None:
-            db.execute("UPDATE uia SET comm = %s, updatedAt = now() WHERE id = 1;", (body.comm,))
-
-        db.execute("SELECT * FROM uia WHERE id = 1;")
-        (id, o2, power, comm, updatedAt) = db.fetchone()
-
-        response = {
-            "o2": o2,
-            "power": power,
-            "comm": comm,
-            "updatedAt": updatedAt
-        }
-        return response
+        o2_update = f"o2 = {body.o2}, " if body.o2 != None else ""
+        power_update = f"power_ = {body.power}, " if body.power != None else ""
+        comm_update =f"comm = {body.comm}, " if body.comm != None else ""
+        values = f"{o2_update}{power_update}{comm_update}"
+        statement = f"UPDATE uia SET {values} updatedAt = now() WHERE id = 1 RETURNING *;"
+        db.execute(statement)
+        row = db.fetchone()
+        connection.commit()
+        return {i: j for i, j in zip(keys, row[1:])}
