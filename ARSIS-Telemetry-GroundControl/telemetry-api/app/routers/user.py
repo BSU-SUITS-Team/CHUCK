@@ -21,10 +21,10 @@ def get_all_users():
         return {"users": response}
 
 
-@router.get("/{user}")
-async def get_user(user: int):
+@router.get("/{user_id}")
+async def get_user(user_id: int):
     with connection.cursor() as db:
-        db.execute("SELECT * FROM users WHERE id = %s;", (user,))
+        db.execute("SELECT * FROM users WHERE id = %s;", (user_id,))
         (id, name, createdAt) = db.fetchone()
         if id and name and createdAt:
             return {"id": id, "name": name, "createdAt": createdAt}
@@ -37,5 +37,5 @@ async def put_user(user: User):
     with connection.cursor() as db:
         db.execute("INSERT INTO users (name) VALUES (%s) RETURNING *;", (user.name,))
         (id, name, createdAt) = db.fetchone()
-        connection.commit()
+        # connection.commit()
         return {"id": id, "name": name, "createdAt": createdAt}
