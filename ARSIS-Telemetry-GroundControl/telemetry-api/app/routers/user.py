@@ -37,5 +37,4 @@ async def put_user(user: User):
     with connection.cursor() as db:
         db.execute("INSERT INTO users (name) VALUES (%s) RETURNING *;", (user.name,))
         (id, name, createdAt) = db.fetchone()
-        # connection.commit()
         return {"id": id, "name": name, "createdAt": createdAt}
