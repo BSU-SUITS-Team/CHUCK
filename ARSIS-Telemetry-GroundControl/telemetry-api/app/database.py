@@ -10,9 +10,9 @@ connection = None
 
 
 try:
-    connection = psycopg2.connect(
-        dbname="groundcontrol", host="groundcontrol-db", user="SUITS", password="NASA"
-    )
+
+    connection = psycopg2.connect(dbname="groundcontrol", host="groundcontrol-db", user="SUITS", password="NASA")
+    connection.autocommit = True
     print("Established connection with ground control database!")
 except Exception as e:
     print("Unable to connect to database!")
