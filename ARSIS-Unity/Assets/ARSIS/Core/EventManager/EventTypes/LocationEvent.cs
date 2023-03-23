@@ -2,13 +2,17 @@ using EventSystem;
 
 public class LocationEvent : BaseArsisEvent
 {
-    public readonly float lat;
-    public readonly float lon;
+    public readonly float latitude;
+    public readonly float longitude;
+    public readonly float altitude;
+    public readonly float heading;
 
-    public LocationEvent(float lat, float lon)
+    public LocationEvent(float latitude, float longitude, float altitude, float heading)
     {
-        this.lat = lat;
-        this.lon = lon;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.altitude = altitude;
+        this.heading = heading;
     }
 }
 
