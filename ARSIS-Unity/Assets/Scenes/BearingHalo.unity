@@ -494,7 +494,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CompassImage: {fileID: 867971060}
-  Player: {fileID: 0}
+  Camera: {fileID: 963194228}
   TrueHeadingText: {fileID: 243485308}
 --- !u!1 &867971058
 GameObject:
@@ -667,7 +667,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5494879388d07e64396ca41f0606ea8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 0}
 --- !u!1 &1950534470
 GameObject:
   m_ObjectHideFlags: 0
