@@ -1,6 +1,7 @@
 from fastapi import APIRouter, status
 from pydantic import BaseModel
 from app.database import connection
+from psycopg2 import errors
 
 router = APIRouter(prefix="/user", tags=["user"])
 
@@ -30,11 +31,17 @@ async def get_user(user_id: int):
             return {"id": id, "name": name, "createdAt": createdAt}
         else:
             return status.HTTP_404_NOT_FOUND
+        connection.commit()
 
 
 @router.put("/")
 async def put_user(user: User):
     with connection.cursor() as db:
-        db.execute("INSERT INTO users (name) VALUES (%s) RETURNING *;", (user.name,))
-        (id, name, createdAt) = db.fetchone()
-        return {"id": id, "name": name, "createdAt": createdAt}
+        try:
+            db.execute("INSERT INTO users (name) VALUES (%s) RETURNING *;", (user.name,))
+            (id, name, createdAt) = db.fetchone()
+            return {"id": id, "name": name, "createdAt": createdAt}
+        except errors.UniqueViolation as err:
+            connection.rollback()
+        finally:
+            connection.commit()

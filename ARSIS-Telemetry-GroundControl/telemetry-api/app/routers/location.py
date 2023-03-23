@@ -46,6 +46,8 @@ async def user_location(req: Request, res: Response, user_id: int):
         query = f"SELECT * FROM locations WHERE id = {user_id} ORDER BY createdat DESC LIMIT 1;"
         db.execute(query)
         row = db.fetchone()
+        if row is None:
+            return status.HTTP_404_NOT_FOUND
         return {i: j for i, j in zip(keys, row[1:])}
 
 

@@ -21,13 +21,23 @@ public class RegisteredUser{
         this.createdAt = createdAt;
     }
 }
+public class RegisteredUsersDict {
+    public List<RegisteredUser> users;
+    public RegisteredUsersDict(List<RegisteredUser> users){
+        this.users = users;
+    }
+}
 public class TelemetryClient : MonoBehaviour
 {
     private static string userMockName = "user1";
     private static string telemetryServerUrl = "http://localhost:8080";
-    private static string registerUserUrl = telemetryServerUrl + "/user";
+    private static string telemetryServerUser = telemetryServerUrl + "/user";
     private string telemetryServerLocation = telemetryServerUrl + "/location/";
     private string telemetryServerBiometrics = telemetryServerUrl + "/biometrics/";
+
+    enum Endpoint {LOCATION, BIOMETRICS, USER};
+    private Dictionary<Endpoint, string> serverEndpointDict = new Dictionary<Endpoint, string>();
+
     private WaitForSeconds telemetryPollingDelay = new WaitForSeconds(1.0f);
 
     public RegisteredUser registeredUser;
@@ -35,21 +45,56 @@ public class TelemetryClient : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        StartCoroutine(RegisterWithApi());
+        updateServerEndpointDict();
+        StartCoroutine(PopulateRegisterdUser());
         StartCoroutine(StartPollingTelemetryApi());
     }
 
-    // Update is called once per frame
-    void Update()
-    {
+    void updateServerEndpointDict(){
+        string userId = "";
+        if (registeredUser != null){
+            userId = registeredUser.id.ToString();
+        }
+        Debug.Log(userId);
+        serverEndpointDict[Endpoint.USER] = telemetryServerUser;
+        serverEndpointDict[Endpoint.LOCATION] = telemetryServerLocation + userId;
+        serverEndpointDict[Endpoint.BIOMETRICS] = telemetryServerBiometrics + userId;
 
     }
+    IEnumerator PopulateRegisterdUser(){
+        StartCoroutine(CheckIfUsernameIsUsed());
+        yield return null;
+    }
+
+    IEnumerator CheckIfUsernameIsUsed(){
+        UnityWebRequest www = UnityWebRequest.Get(telemetryServerUser);
+        yield return www.SendWebRequest();
+
+        if (www.result != UnityWebRequest.Result.Success) {
+            Debug.Log(www.error);
+        }
+        else {
+            string resultString = www.downloadHandler.text;
+            /* Debug.Log(resultString); */
+            RegisteredUsersDict registeredUsersDict = JsonConvert.DeserializeObject<RegisteredUsersDict>(resultString);
+            foreach (RegisteredUser r in registeredUsersDict.users){
+                Debug.Log(r);
+                if (r.name == userMockName){
+                    registeredUser = r;
+                    updateServerEndpointDict();
+                }
+            }
+        }
+        StartCoroutine(RegisterWithApi());
+        yield return null;
+    }
     IEnumerator RegisterWithApi(){
+        Debug.Log(registeredUser);
         while(registeredUser == null){
             UserToRegister user = new UserToRegister(userMockName);
             string userData = JsonConvert.SerializeObject(user);
             byte[] myData = System.Text.Encoding.UTF8.GetBytes(userData);
-            using (UnityWebRequest www = UnityWebRequest.Put(registerUserUrl, myData))
+            using (UnityWebRequest www = UnityWebRequest.Put(telemetryServerUser, myData))
             {
                 www.SetRequestHeader("accept", "application/json");
                 www.SetRequestHeader("Content-Type", "application/json");
@@ -61,31 +106,33 @@ public class TelemetryClient : MonoBehaviour
                 else
                 {
                     string resultString = www.downloadHandler.text;
-                    Debug.Log(resultString);
                     registeredUser = JsonConvert.DeserializeObject<RegisteredUser>(resultString);
-
+                    updateServerEndpointDict();
                 }
             }
-            telemetryServerLocation += registeredUser.id;
-            telemetryServerBiometrics += registeredUser.id;
             yield return telemetryPollingDelay;
         }
     }
 
     IEnumerator StartPollingTelemetryApi() {
+        while(registeredUser == null){
+            yield return telemetryPollingDelay;
+        }
             /* StartCoroutine(StartPollingEndpoint<BiometricsEvent>(telemetryServerBiometrics, telemetryPollingDelay)); */
-            StartCoroutine(StartPollingEndpoint<LocationEvent>(telemetryServerLocation, telemetryPollingDelay));
+            StartCoroutine(StartPollingEndpoint<LocationEvent>(Endpoint.LOCATION, telemetryPollingDelay));
             yield return null;
     }
 
-    IEnumerator StartPollingEndpoint<Event>(string endpoint, WaitForSeconds telemetryPollingDelay){
+    IEnumerator StartPollingEndpoint<Event>(Endpoint endpoint, WaitForSeconds telemetryPollingDelay){
         while(true){
             yield return telemetryPollingDelay;
             if (registeredUser == null){
-                /* Debug.Log(registeredUser); */
+                Debug.Log(registeredUser);
                 continue;
             }
-            UnityWebRequest www = UnityWebRequest.Get(endpoint);
+            string endpointUrl = serverEndpointDict[endpoint];
+            Debug.Log(endpointUrl);
+            UnityWebRequest www = UnityWebRequest.Get(endpointUrl);
             yield return www.SendWebRequest();
 
             if (www.result != UnityWebRequest.Result.Success) {
