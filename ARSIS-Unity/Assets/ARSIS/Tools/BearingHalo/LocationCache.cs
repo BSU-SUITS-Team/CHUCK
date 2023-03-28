@@ -23,7 +23,6 @@ public class LocationCache : MonoBehaviour
     }
     void UpdateLocation(LocationEvent he){
         locationEvent = he;
-        Debug.Log(locationEvent);
     }
 
     public float getHeading(){
@@ -31,8 +30,6 @@ public class LocationCache : MonoBehaviour
         if(locationEvent != null){
             heading = locationEvent.heading;
         }
-        Debug.Log(heading);
-        Debug.Log(locationEvent);
         return heading;
     }
 
