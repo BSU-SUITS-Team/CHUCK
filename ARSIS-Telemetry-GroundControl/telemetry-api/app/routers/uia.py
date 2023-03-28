@@ -11,26 +11,39 @@ class UIAStatusRequest(BaseModel):
 
 keys = [
     "id",
+    "o2",
     "power",
     "comm",
+    "createdAt",
     "updatedAt"
 ]
 
 @router.get("/")
 async def get_uia():
     with connection.cursor() as db:
-        db.execute("SELECT * FROM uia WHERE id = 1;")
-        row = db.fetchone()
-        return {i: j for i, j in zip(keys, row[1:])}
+        db.execute("SELECT * FROM uia ORDER BY updatedAt DESC;")
+        rows = db.fetchall()
+        return [{i: j for i, j in zip(keys, row[1:])} for row in rows]
 
-@router.post("/")
-async def post_uia(body: UIAStatusRequest):
+@router.get("/{user_id}")
+async def get_uia(user_id):
     with connection.cursor() as db:
-        o2_update = f"o2 = {body.o2}, " if body.o2 != None else ""
-        power_update = f"power_ = {body.power}, " if body.power != None else ""
-        comm_update =f"comm = {body.comm}, " if body.comm != None else ""
-        values = f"{o2_update}{power_update}{comm_update}"
-        statement = f"UPDATE uia SET {values} updatedAt = now() WHERE id = 1 RETURNING *;"
+        statement = f"SELECT * FROM uia WHERE id = {user_id} ORDER BY updatedAt DESC LIMIT 1;"
+        db.execute(statement)
+        rows = db.fetchall()
+        return [{i: j for i, j in zip(keys, row[1:])} for row in rows]
+
+@router.post("/{user_id}")
+async def post_uia(user_id, body: UIAStatusRequest):
+    with connection.cursor() as db:
+        updates = [("id", user_id)]
+        if body.o2 != None:
+            updates.append(("o2", body.o2))
+        if body.power != None:
+            updates.append(("power_", body.power))
+        if body.comm != None:
+            updates.append(("comm", body.comm))
+        statement = f"INSERT INTO uia ({', '.join([column for (column, _) in updates])}) VALUES ({', '.join([str(value) for (_, value) in updates])}) RETURNING *;"
         db.execute(statement)
         row = db.fetchone()
         connection.commit()
