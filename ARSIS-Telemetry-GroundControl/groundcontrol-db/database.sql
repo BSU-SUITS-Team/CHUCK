@@ -13,10 +13,10 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS locations (
   uuid uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   id SERIAL REFERENCES users,
-  longitude INTEGER NOT NULL,
-  latitude INTEGER NOT NULL,
-  altitude INTEGER NOT NULL,
-  heading INTEGER NOT NULL,
+  longitude DECIMAL NOT NULL,
+  latitude DECIMAL NOT NULL,
+  altitude DECIMAL NOT NULL,
+  heading DECIMAL NOT NULL,
   createdAt TIMESTAMP DEFAULT now(),
   updatedAt TIMESTAMP DEFAULT now()
 );

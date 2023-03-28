@@ -35,6 +35,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN apt-get update && apt-get install make
 RUN sudo apt-get update && sudo apt-get install -y build-essential
 RUN sudo apt-get update && sudo apt-get install -y python3
+RUN sudo apt-get install -y python3-pip
+RUN pip install requests
 # setup entrypoint
 COPY ./ros_entrypoint.sh /
 RUN mkdir /catkin_ws/
