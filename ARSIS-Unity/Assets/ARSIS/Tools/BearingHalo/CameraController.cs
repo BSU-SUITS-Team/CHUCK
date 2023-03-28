@@ -4,17 +4,16 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
-    public GameObject player;
-    // Start is called before the first frame update
+    LocationCache locationCache;
     void Start()
     {
-        
+        locationCache = LocationCache.LocationCacheSingleton;
     }
 
     // Update is called once per frame
     void Update()
     {
-        transform.position = player.transform.position;
-        transform.rotation = player.transform.rotation;
+        float headingAngle = locationCache.getHeading();
+        transform.rotation = Quaternion.Euler(0.0f, headingAngle, 0.0f);
     }
 }
