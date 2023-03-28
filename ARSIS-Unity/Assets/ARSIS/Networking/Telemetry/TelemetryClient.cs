@@ -55,7 +55,6 @@ public class TelemetryClient : MonoBehaviour
         if (registeredUser != null){
             userId = registeredUser.id.ToString();
         }
-        Debug.Log(userId);
         serverEndpointDict[Endpoint.USER] = telemetryServerUser;
         serverEndpointDict[Endpoint.LOCATION] = telemetryServerLocation + userId;
         serverEndpointDict[Endpoint.BIOMETRICS] = telemetryServerBiometrics + userId;
@@ -75,10 +74,8 @@ public class TelemetryClient : MonoBehaviour
         }
         else {
             string resultString = www.downloadHandler.text;
-            /* Debug.Log(resultString); */
             RegisteredUsersDict registeredUsersDict = JsonConvert.DeserializeObject<RegisteredUsersDict>(resultString);
             foreach (RegisteredUser r in registeredUsersDict.users){
-                Debug.Log(r);
                 if (r.name == userMockName){
                     registeredUser = r;
                     updateServerEndpointDict();
@@ -89,7 +86,6 @@ public class TelemetryClient : MonoBehaviour
         yield return null;
     }
     IEnumerator RegisterWithApi(){
-        Debug.Log(registeredUser);
         while(registeredUser == null){
             UserToRegister user = new UserToRegister(userMockName);
             string userData = JsonConvert.SerializeObject(user);
@@ -127,11 +123,9 @@ public class TelemetryClient : MonoBehaviour
         while(true){
             yield return telemetryPollingDelay;
             if (registeredUser == null){
-                Debug.Log(registeredUser);
                 continue;
             }
             string endpointUrl = serverEndpointDict[endpoint];
-            Debug.Log(endpointUrl);
             UnityWebRequest www = UnityWebRequest.Get(endpointUrl);
             yield return www.SendWebRequest();
 
@@ -140,7 +134,6 @@ public class TelemetryClient : MonoBehaviour
             }
             else {
                 string resultString = www.downloadHandler.text;
-                Debug.Log(resultString);
                 Event newEvent = JsonConvert.DeserializeObject<Event>(resultString);
                 EventManager.Trigger(newEvent);
             }

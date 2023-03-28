@@ -1,6 +1,10 @@
+#!/bin/python3
 import requests
 import argparse
 import time
+import logging
+
+logging.basicConfig(level=logging.NOTSET)
 
 
 def main():
@@ -11,9 +15,8 @@ def main():
     while True:
         heading += 1
         heading %= 360
-        print(heading)
         data = {"latitude": 0, "longitude": 0, "altitude": 0, "heading": heading}
-        print(data)
+        logging.info(data)
         headers = {"Content-Type": "application/json", "accept": "application/json"}
 
         r = requests.post(
@@ -21,8 +24,7 @@ def main():
             json=data,
             headers=headers,
         )
-        print(r)
-        print(r.content)
+        logging.info(r.content)
 
         time.sleep(1)
 
