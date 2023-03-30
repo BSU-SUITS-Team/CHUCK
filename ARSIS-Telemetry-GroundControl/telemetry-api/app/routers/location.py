@@ -1,8 +1,10 @@
 import random
-import string
 
-from fastapi import APIRouter, Request, status
+from fastapi import APIRouter, Request, status, Response
 from pydantic import BaseModel
+from app.database import connection
+from app.routers.user import get_user
+import logging
 
 router = APIRouter(prefix="/location", tags=["location"])
 
@@ -16,42 +18,48 @@ class LocationLLAH(BaseModel):
     heading: float
 
 
-def create_random_location(
-    latitude_min=-90,
-    latitude_max=90,
-    longitude_min=-180,
-    longitude_max=180,
-    altitude_min=420,
-    altitude_max=8848,
-    heading_min=0,
-    heading_max=360,
-):
-    latitude = round(random.uniform(latitude_min, latitude_max), 6)
-    longitude = round(random.uniform(longitude_min, longitude_max), 6)
-    altitude = random.randint(altitude_min, altitude_max)
-    heading = random.randint(heading_min, heading_max)
-    return (latitude, longitude, altitude, heading)
-
-
-def create_random_string(characters=string.ascii_lowercase):
-    return "".join(random.choice(characters) for _ in range(6))
+keys = [
+    "id",
+    "longitude",
+    "latitude",
+    "altitude",
+    "heading",
+    "createdAt",
+    "updatedAt",
+]
 
 
 @router.get("/")
 async def location(request: Request):
-    all_users = request.app.user_cache.get_all()
-    users_list = [{**{"user": k}, **v["location"]} for k, v in all_users.items()]
-    data = {"users": users_list}
-
-    return data
-
-
-@router.get("/{user}")
-async def user_location(request: Request, user: str):
-    user_info = request.app.user_cache.get(user)
-    return user_info["location"] if user_info else status.HTTP_404_NOT_FOUND
+    with connection.cursor() as db:
+        db.execute("SELECT * FROM locations;")
+        result = db.fetchall()
+        response = []
+        for row in result:
+            response.append({i: j for i, j in zip(keys, row[1:])})
+        return {"users": response}
 
 
-@router.post("/{user}/update_location")
-async def update_user_location(request: Request, user: str, new_location: LocationLLAH):
-    request.app.user_cache.update_location(user, new_location)
+@router.get("/{user_id}")
+async def user_location(req: Request, res: Response, user_id: int):
+    with connection.cursor() as db:
+        query = f"SELECT * FROM locations WHERE id = {user_id} ORDER BY createdat DESC LIMIT 1;"
+        db.execute(query)
+        row = db.fetchone()
+        if row is None:
+            return status.HTTP_404_NOT_FOUND
+        return {i: j for i, j in zip(keys, row[1:])}
+
+
+@router.post("/{user_id}/update_location")
+async def update_user_location(
+    req: Request, res: Response, user_id: int, new_location: LocationLLAH
+):
+    with connection.cursor() as db:
+        keys_post = f"{keys[0]}, {keys[1]}, {keys[2]}, {keys[3]}, {keys[4]}"
+        values = f"{user_id}, {new_location.longitude}, {new_location.latitude}, {new_location.altitude}, {new_location.heading}"
+        query = f"INSERT INTO locations ({keys_post}) VALUES ({values}) RETURNING *;"
+        db.execute(query)
+        row = db.fetchone()
+        connection.commit()
+        return {i: j for i, j in zip(keys, row[1:])}
