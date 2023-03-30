@@ -1,3 +1,4 @@
+from asyncio import Queue
 import json
 from fastapi import APIRouter
 import requests
@@ -8,6 +9,7 @@ import ipaddress
 router = APIRouter(prefix="/devices", tags=["devices"])
 
 devices = {}
+commands = {}
 
 
 @router.get("/get_configured")
@@ -48,6 +50,7 @@ async def configure_device(name: str, ip_address: str):
     try:
         ip_address = ipaddress.ip_address(ip_address)
         devices[name] = ip_address
+        commands[name] = Queue()
     except ValueError:
         return 400
     return 200
@@ -80,7 +83,7 @@ async def broadcast_command(command: str):
         (int): The status code of the request. 200 if the command was sent successfully.
     """
     for device in devices:
-        requests.put("http://" + str(devices[device]) + ":8282/" + command)
+        commands[device].put(command)
     return 200
 
 
@@ -97,7 +100,7 @@ async def send_command(names: list[str], command: str):
     """
     for name in names:
         if name in devices.keys():
-            requests.put("http://" + str(devices[name]) + ":8282/" + command)
+            commands[name].put(command)
     return 200
 
 
@@ -113,6 +116,30 @@ async def send_command(name: str, command: str):
         (int): The status code of the request. 200 if the command was sent successfully, 404 if the device was not configured.
     """
     if name in devices.keys():
-        requests.put(devices[name] + "/" + command)
+        commands[name].put(command)
         return 200
+    return 404
+
+@router.get("/get_commands/{name}")
+async def get_commands(name: str):
+    """This function gets the commands for a configured device.
+    It is used by the device to get commands from ground control.
+
+    Args:
+        name (str): The name of the device to get commands for.
+    """
+    if name in devices.keys():
+        return commands[name].get()
+    return 404
+
+@router.get("/has_commands")
+async def has_commands(name: str):
+    """This function gets whether or not a configured device has commands.
+    It is used by the device to get commands from ground control.
+
+    Args:
+        name (str): The name of the device to get commands for.
+    """
+    if name in devices.keys():
+        return not commands[name].empty()
     return 404
