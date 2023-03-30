@@ -68,6 +68,7 @@ async def remove_device(name: str):
     """
     if name in devices.keys():
         del devices[name]
+        del commands[name]
         return 200
     return 400
 
