@@ -73,8 +73,8 @@ async def remove_device(name: str):
     return 400
 
 
-@router.post("/broadcast")
-async def broadcast_command(command: str):
+@router.post("/broadcast/{topic}")
+async def broadcast_command(topic: str, command: str):
     """This function sends a command to all configured devices.
 
     Args:
@@ -84,12 +84,12 @@ async def broadcast_command(command: str):
         (int): The status code of the request. 200 if the command was sent successfully.
     """
     for device in devices:
-        commands[device].put(command)
+        commands[device].put([topic, command])
     return 200
 
 
-@router.post("/send_command")
-async def send_command(names: list[str], command: str):
+@router.post("/send_command/{topic}")
+async def send_command(names: list[str], topic: str, command: str):
     """This function sends a command to a list of configured devices.
 
     Args:
@@ -101,12 +101,12 @@ async def send_command(names: list[str], command: str):
     """
     for name in names:
         if name in devices.keys():
-            commands[name].put(command)
+            commands[name].put([topic, command])
     return 200
 
 
-@router.post("/send_command/{name}")
-async def send_command(name: str, command: str):
+@router.post("/send_command/{name}/{topic}")
+async def send_command(name: str, topic: str, command: str):
     """This function sends a command to a configured device.
 
     Args:
@@ -117,9 +117,10 @@ async def send_command(name: str, command: str):
         (int): The status code of the request. 200 if the command was sent successfully, 404 if the device was not configured.
     """
     if name in devices.keys():
-        commands[name].put(command)
+        commands[name].put([topic, command])
         return 200
     return 404
+
 
 @router.get("/get_commands/{name}")
 async def get_commands(name: str):
@@ -128,10 +129,14 @@ async def get_commands(name: str):
 
     Args:
         name (str): The name of the device to get commands for.
+
+    Returns:
+        (list[str]): A list of commands for the device. The array has the format [topic, command].
     """
     if name in devices.keys():
         return commands[name].get()
     return 404
+
 
 @router.get("/has_commands")
 async def has_commands(name: str):
@@ -140,6 +145,9 @@ async def has_commands(name: str):
 
     Args:
         name (str): The name of the device to get commands for.
+
+    Returns:
+        (bool): True if the device has commands, False if it does not.
     """
     if name in devices.keys():
         return not commands[name].empty()

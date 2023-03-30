@@ -12,7 +12,7 @@ class GroundControlCommands:
     def __init__(self):
         self.gc = os.environ.get("GROUND_CONTROL_API", "0.0.0.0")
         self.user_id = os.environ.get("USER_ID", 1)
-        self.publisher = None
+        self.publishers = {}
 
     def sync(self):
         """Syncs commands from the ground control API to the ROS network"""
@@ -22,15 +22,16 @@ class GroundControlCommands:
             data = requests.get(
                 f"http://{self.gc}/devices/get_commands/{DEVICE_NAME}").json()
             rospy.loginfo(rospy.get_caller_id() + " New Command: %s", data)
-            self.publisher.publish(data)
+            if data[0] not in self.publishers:
+                self.publishers[data[0]] = rospy.Publisher(
+                    data[0], String, queue_size=QUEUE_SIZE)
+            self.publishers[data[0]].publish(data[1])
             data = requests.get(
                 f"http://{self.gc}/devices/has_commands/{DEVICE_NAME}").json()
 
     def register(self):
         """Registers the device with the ground control API"""
         rospy.init_node("ground_control_sync", anonymous=True)
-        self.publisher = rospy.Publisher(
-            "ground_control_commands", String, queue_size=10)
         
         # get the ip address of the device. TODO: This WILL NOT WORK on our local-only network. This is for testing only.
         my_ip = requests.get("https://api.ipify.org").text
