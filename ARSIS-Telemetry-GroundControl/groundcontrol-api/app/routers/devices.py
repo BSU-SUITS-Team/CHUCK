@@ -102,6 +102,8 @@ async def send_command(names: list[str], topic: str, command: str):
     for name in names:
         if name in devices.keys():
             commands[name].put([topic, command])
+        else:
+            return 404
     return 200
 
 
