@@ -36,7 +36,7 @@ async def user_biometrics(res: Response, user_id: int):
         row = db.fetchone()
         if row is None:
             res.status_code = status.HTTP_404_NOT_FOUND
-            return {"error": f"User with id: {user_id} not found"}
+            return {"error": f"Biometrics data for user with id: {user_id} not found"}
         return {i: j for i, j in zip(keys, row[1:])}
 
 @router.post("/{user_id}/update_biometrics")
