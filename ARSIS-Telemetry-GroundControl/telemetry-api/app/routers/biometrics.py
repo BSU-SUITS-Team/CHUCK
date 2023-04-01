@@ -1,6 +1,6 @@
 import random
 
-from fastapi import APIRouter, Request, status, Response
+from fastapi import APIRouter, status, Response
 from pydantic import BaseModel
 from app.database import connection
 
@@ -19,15 +19,17 @@ class Biometrics(BaseModel):
 keys = ['id', 'bpm', 'o2', 'battery', 'createdAt', 'updatedAt']
 
 @router.get("/")
-async def get_biometrics(request: Request):
-    all_users = request.app.user_cache.get_all()
-    users_list = [{**{"user": k}, **v["biometrics"]} for k, v in all_users.items()]
-    data = {"users": users_list}
-    
-    return data
+async def get_biometrics():
+    with connection.cursor() as db:
+        db.execute("SELECT * FROM biometrics;")
+        result = db.fetchall()
+        response = []
+        for row in result:
+            response.append({i: j for i, j in zip(keys, row[1:])})
+        return {"users": response}
 
 @router.get("/{user_id}")
-async def user_biometrics(req: Request, res: Response, user_id: int):
+async def user_biometrics(res: Response, user_id: int):
     with connection.cursor() as db:
         query = f"SELECT * FROM biometrics WHERE id = {user_id} ORDER BY createdat DESC LIMIT 1"
         db.execute(query)
@@ -38,7 +40,7 @@ async def user_biometrics(req: Request, res: Response, user_id: int):
         return {i: j for i, j in zip(keys, row[1:])}
 
 @router.post("/{user_id}/update_biometrics")
-async def update_user_biometrics(req: Request, res: Response, user_id: int, new_biometrics: Biometrics):
+async def update_user_biometrics(user_id: int, new_biometrics: Biometrics):
     with connection.cursor() as db:
         keys_post = f"{keys[0]}, {keys[1]}, {keys[2]}, {keys[3]}"
         values = f"{user_id}, {new_biometrics.bpm}, {new_biometrics.o2}, {new_biometrics.battery}"
