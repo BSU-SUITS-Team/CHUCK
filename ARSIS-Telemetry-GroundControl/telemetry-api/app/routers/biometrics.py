@@ -2,6 +2,7 @@ import random
 
 from fastapi import APIRouter, Request, status, Response
 from pydantic import BaseModel
+from app.database import connection
 
 router = APIRouter(
     prefix="/biometrics",
@@ -15,30 +16,7 @@ class Biometrics(BaseModel):
     o2: int
     battery: int
 
-# bpm = 120
-# o2 = 100
-# battery = 100
-
-# o2_drop_chance = 25
-# battery_drop_chance = 25
-
-# def evaluate_biometrics():
-#     global bpm
-#     global battery
-#     global o2
-
-#     bpm = random.randrange(95, 162)
-#     if random.randint(0, 100) < battery_drop_chance and battery > 0:
-#         battery -= random.randrange(0, 2)
-#     elif battery <= 0:
-#         battery = 0
-#     if random.randint(0, 100) < o2_drop_chance and o2 > 0:
-#         o2 -= random.randrange(0, 2)
-#     elif o2 <= 0:
-#         o2 = 0
-
-# def create_random_string(characters = string.ascii_lowercase):
-#     return ''.join(random.choice(characters) for _ in range(6))
+keys = ['id', 'bpm', 'o2', 'battery', 'createdAt', 'updatedAt']
 
 @router.get("/")
 async def get_biometrics(request: Request):
@@ -48,18 +26,24 @@ async def get_biometrics(request: Request):
     
     return data
 
-@router.get("/{user}")
+@router.get("/{user_id}")
 async def user_biometrics(req: Request, res: Response, user_id: int):
-    user_info = req.app.user_cache.get(user_id)
-    if not user_info:
-        res.status_code = status.HTTP_404_NOT_FOUND
-        return {"error": f"User with id: {user_id} not found"}
-    return user_info["biometrics"]
+    with connection.cursor() as db:
+        query = f"SELECT * FROM biometrics WHERE id = {user_id} ORDER BY createdat DESC LIMIT 1"
+        db.execute(query)
+        row = db.fetchone()
+        if row is None:
+            res.status_code = status.HTTP_404_NOT_FOUND
+            return {"error": f"User with id: {user_id} not found"}
+        return {i: j for i, j in zip(keys, row[1:])}
 
-@router.post("/{user}/update_biometrics")
+@router.post("/{user_id}/update_biometrics")
 async def update_user_biometrics(req: Request, res: Response, user_id: int, new_biometrics: Biometrics):
-    user_data = req.app.user_cache.update_biometrics(user_id, new_biometrics)
-    if user_data is None:
-        res.status_code = status.HTTP_400_BAD_REQUEST
-        return {"error": f"User with id: {user_id} not found"}
-    return { "message": f"Successfully updated biometrics for {user_id}"}
+    with connection.cursor() as db:
+        keys_post = f"{keys[0]}, {keys[1]}, {keys[2]}, {keys[3]}"
+        values = f"{user_id}, {new_biometrics.bpm}, {new_biometrics.o2}, {new_biometrics.battery}"
+        query = f"INSERT INTO biometrics ({keys_post}) VALUES ({values}) RETURNING *;"
+        db.execute(query)
+        row = db.fetchone()
+        connection.commit()
+        return {i: j for i, j in zip(keys, row[1:])}
