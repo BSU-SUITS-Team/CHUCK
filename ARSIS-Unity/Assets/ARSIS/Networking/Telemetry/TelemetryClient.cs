@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using EventSystem;
+using ARSISEventSystem;
 using UnityEngine.Networking;
 using Newtonsoft.Json;
 
@@ -30,7 +30,7 @@ public class RegisteredUsersDict {
 public class TelemetryClient : MonoBehaviour
 {
     private static string userMockName = "user1";
-    private static string telemetryServerUrl = "http://localhost:8080";
+    private static string telemetryServerUrl = "http://192.168.0.107:8080";
     private static string telemetryServerUser = telemetryServerUrl + "/user";
     private string telemetryServerLocation = telemetryServerUrl + "/location/";
     private string telemetryServerBiometrics = telemetryServerUrl + "/biometrics/";
