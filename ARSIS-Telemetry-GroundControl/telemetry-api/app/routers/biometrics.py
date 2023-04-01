@@ -12,11 +12,11 @@ router = APIRouter(
 random.seed(20031101)
 
 class Biometrics(BaseModel):
-    bpm: int
+    heartrate: int
     o2: int
     battery: int
 
-keys = ['id', 'bpm', 'o2', 'battery', 'createdAt', 'updatedAt']
+keys = ['id', 'heartrate', 'o2', 'battery', 'createdAt', 'updatedAt']
 
 @router.get("/")
 async def get_biometrics():
@@ -43,7 +43,7 @@ async def user_biometrics(res: Response, user_id: int):
 async def update_user_biometrics(user_id: int, new_biometrics: Biometrics):
     with connection.cursor() as db:
         keys_post = f"{keys[0]}, {keys[1]}, {keys[2]}, {keys[3]}"
-        values = f"{user_id}, {new_biometrics.bpm}, {new_biometrics.o2}, {new_biometrics.battery}"
+        values = f"{user_id}, {new_biometrics.heartrate}, {new_biometrics.o2}, {new_biometrics.battery}"
         query = f"INSERT INTO biometrics ({keys_post}) VALUES ({values}) RETURNING *;"
         db.execute(query)
         row = db.fetchone()
