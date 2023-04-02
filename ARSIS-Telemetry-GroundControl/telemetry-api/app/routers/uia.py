@@ -10,7 +10,7 @@ class UIAStatusRequest(BaseModel):
     comm: bool | None = None
 
 keys = [
-    "id",
+    "panel_id",
     "o2",
     "power",
     "comm",
@@ -25,18 +25,18 @@ async def get_uia():
         rows = db.fetchall()
         return [{i: j for i, j in zip(keys, row[1:])} for row in rows]
 
-@router.get("/{user_id}")
-async def get_uia(user_id):
+@router.get("/{panel_id}")
+async def get_uia(panel_id):
     with connection.cursor() as db:
-        statement = f"SELECT * FROM uia WHERE id = {user_id} ORDER BY updatedAt DESC LIMIT 1;"
+        statement = f"SELECT * FROM uia WHERE panel_id = {panel_id} ORDER BY updatedAt DESC LIMIT 1;"
         db.execute(statement)
         rows = db.fetchall()
         return [{i: j for i, j in zip(keys, row[1:])} for row in rows]
 
-@router.post("/{user_id}")
-async def post_uia(user_id, body: UIAStatusRequest):
+@router.post("/{panel_id}")
+async def post_uia(panel_id, body: UIAStatusRequest):
     with connection.cursor() as db:
-        updates = [("id", user_id)]
+        updates = [("panel_id", panel_id)]
         if body.o2 != None:
             updates.append(("o2", body.o2))
         if body.power != None:
