@@ -4,23 +4,25 @@ using TMPro;
 public class Compass : MonoBehaviour
 {
 	public RawImage CompassImage;
-	public Transform Player;
+	public Transform Camera;
 	public TextMeshProUGUI TrueHeadingText;
 
+    public void Start() {
+    }
 	public void Update()
 	{
 		//Get a handle on the Image's uvRect
-		CompassImage.uvRect = new Rect(Player.localEulerAngles.y / 360, 0, 1, 1);
+		CompassImage.uvRect = new Rect(Camera.localEulerAngles.y / 360, 0, 1, 1);
 
 		// Get a copy of your forward vector
-		Vector3 forward = Player.transform.forward;
+		Vector3 forward = Camera.transform.forward;
 
 		// Zero out the y component of your forward vector to only get the direction in the X,Z plane
 		forward.y = 0;
 
 		//Clamp our angles to only 5 degree increments
 		float headingAngle = Quaternion.LookRotation(forward).eulerAngles.y;
-		headingAngle = 5 * (Mathf.RoundToInt(headingAngle / 5.0f));
+		headingAngle = 1 * (Mathf.RoundToInt(headingAngle / 1.0f));
 
 		//Convert float to int for switch
 		int displayangle;
