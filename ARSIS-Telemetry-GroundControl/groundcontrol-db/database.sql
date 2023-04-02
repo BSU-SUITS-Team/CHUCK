@@ -31,4 +31,15 @@ CREATE TABLE IF NOT EXISTS biometrics (
   updatedAt TIMESTAMP DEFAULT now()
 );
 
+CREATE TABLE IF NOT EXISTS uia (
+  uuid uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  panel_id INTEGER NOT NULL,
+  o2 BOOLEAN NOT NULL,
+  power_ BOOLEAN NOT NULL,
+  comm BOOLEAN NOT NULL,
+  createdAt TIMESTAMP DEFAULT now(),
+  updatedAt TIMESTAMP DEFAULT now()
+);
+
+INSERT INTO uia (panel_id, o2, power_, comm) VALUES (1, TRUE, TRUE, TRUE);
 INSERT INTO logs (createdAt, data) VALUES (now(), '{"test log": "This is a test log"}'), (now(), '{"test log": "This is another test log"}');
