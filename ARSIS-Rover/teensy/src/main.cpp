@@ -16,22 +16,25 @@ ros::Publisher chatter("heading", &str_msg);
 
 double heading = 0;
 
-void messageCb( const std_msgs::Empty& toggle_msg){
+void messageCb( const std_msgs::Empty& toggle_msg) {
   digitalWrite(LED_BUILTIN, HIGH-digitalRead(LED_BUILTIN));   // blink the led
 }
 
 ros::Subscriber<std_msgs::Empty> sub("blink", &messageCb );
-void setup(){
+
+void setup() {
   bno.begin();
+
   nh.initNode();
   nh.advertise(chatter);
   nh.subscribe(sub);
+
   delay(1000);
 
   bno.setExtCrystalUse(true);
 }
 
-void loop(){
+void loop() {
   sensors_event_t event;
   bno.getEvent(&event);
   heading = event.orientation.x;
