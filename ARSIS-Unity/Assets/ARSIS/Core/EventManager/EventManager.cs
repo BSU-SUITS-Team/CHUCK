@@ -2,7 +2,7 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 
-namespace EventSystem
+namespace ARSISEventSystem
 {
     /// <summary>
     /// This class contains the methods that are used to

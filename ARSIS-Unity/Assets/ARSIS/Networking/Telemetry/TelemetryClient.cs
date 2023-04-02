@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using EventSystem;
+using ARSISEventSystem;
 using UnityEngine.Networking;
 using Newtonsoft.Json;
 
@@ -11,6 +11,7 @@ public class UserToRegister {
         this.name = name;
     }
 }
+
 public class RegisteredUser{
     public int id;
     public string name;
@@ -21,16 +22,19 @@ public class RegisteredUser{
         this.createdAt = createdAt;
     }
 }
+
 public class RegisteredUsersDict {
     public List<RegisteredUser> users;
     public RegisteredUsersDict(List<RegisteredUser> users){
         this.users = users;
     }
 }
+
 public class TelemetryClient : MonoBehaviour
 {
+    public static string ip = "localhost";
     private static string userMockName = "user1";
-    private static string telemetryServerUrl = "http://localhost:8080";
+    private static string telemetryServerUrl = "http://" + ip + ":8080";
     private static string telemetryServerUser = telemetryServerUrl + "/user";
     private string telemetryServerLocation = telemetryServerUrl + "/location/";
     private string telemetryServerBiometrics = telemetryServerUrl + "/biometrics/";

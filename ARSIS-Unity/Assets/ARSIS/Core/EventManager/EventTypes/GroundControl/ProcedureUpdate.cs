@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace EventSystem{
+namespace ARSISEventSystem{
     public class ProcedureList : BaseArsisEvent
     {
         public ProcedureList(){

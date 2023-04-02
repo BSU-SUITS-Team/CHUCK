@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace EventSystem {
+namespace ARSISEventSystem {
     public class NextTask : BaseArsisEvent
     {
         public readonly string procedure;
