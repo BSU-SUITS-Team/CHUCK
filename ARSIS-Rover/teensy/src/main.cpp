@@ -1,8 +1,3 @@
-/*
- * rosserial Publisher Example
- * Prints "hello world!"
- */
-
 #include <ros.h>
 #include <std_msgs/Float32.h>
 #include <std_msgs/Empty.h>
@@ -26,8 +21,7 @@ void messageCb( const std_msgs::Empty& toggle_msg){
 }
 
 ros::Subscriber<std_msgs::Empty> sub("blink", &messageCb );
-void setup()
-{
+void setup(){
   bno.begin();
   nh.initNode();
   nh.advertise(chatter);
@@ -37,8 +31,7 @@ void setup()
   bno.setExtCrystalUse(true);
 }
 
-void loop()
-{
+void loop(){
   sensors_event_t event;
   bno.getEvent(&event);
   heading = event.orientation.x;
