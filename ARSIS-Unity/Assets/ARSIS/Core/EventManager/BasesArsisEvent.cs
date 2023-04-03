@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Reflection;
 
-namespace EventSystem
+namespace ARSISEventSystem
 {
     /// <summary>
     /// This is an interface that is used to ensure a level of

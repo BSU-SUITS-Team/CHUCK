@@ -37,6 +37,7 @@ RUN sudo apt-get update && sudo apt-get install -y build-essential
 RUN sudo apt-get update && sudo apt-get install -y python3
 RUN sudo apt-get install -y python3-pip
 RUN pip install requests
+RUN apt-get install -y ros-noetic-rosserial-arduino
 # setup entrypoint
 COPY ./ros_entrypoint.sh /
 RUN mkdir /catkin_ws/

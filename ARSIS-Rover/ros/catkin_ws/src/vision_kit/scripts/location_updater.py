@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 import os
 
 import requests
@@ -49,7 +49,6 @@ def main():
     rospy.Subscriber("heading", Float32, location_updater.heading_callback)
     rospy.Subscriber("lla", LLA, location_updater.lla_callback)
 
-    # spin() simply keeps python from exiting until this node is stopped
     rate = rospy.Rate(10)  # 10hz
     while not rospy.is_shutdown():
         location_updater.publish()

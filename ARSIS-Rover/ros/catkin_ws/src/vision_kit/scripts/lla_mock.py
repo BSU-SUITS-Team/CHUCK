@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 import rospy
 from vision_kit.msg import LLA
 import random
