@@ -21,9 +21,10 @@ def get_logs(limit: int=10):
 @router.get("/{uuid}", status_code=200)
 def get_log(uuid: int, res: Response):
     with connection.cursor() as db:
-        db.execute(f"SELECT * FROM logs WHERE uuid = {uuid};")
-        (id, data, createdAt) = db.fetchone()
-        if id and data and createdAt:
+        db.execute(f"SELECT * FROM logs WHERE uuid='{uuid}';")
+        returned = db.fetchone()
+        if returned is not None:
+            (id, data, createdAt) = returned
             return {"id": id, "data": data, "createdAt": createdAt}
         else:
             res.status = status.HTTP_404_NOT_FOUND
