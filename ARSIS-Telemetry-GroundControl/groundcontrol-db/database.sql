@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS logs (
-  uuid SERIAL PRIMARY KEY NOT NULL,
-  createdAt TIMESTAMP DEFAULT now(),
-  data JSON NOT NULL
+  uuid SERIAL PRIMARY KEY,
+  data JSON NOT NULL,
+  createdAt TIMESTAMP DEFAULT now()
 );
 
 CREATE TABLE IF NOT EXISTS users (
@@ -31,4 +31,4 @@ CREATE TABLE IF NOT EXISTS biometrics (
   updatedAt TIMESTAMP DEFAULT now()
 );
 
-INSERT INTO logs (createdAt, data) VALUES (now(), '{"test log": "This is a test log"}'), (now(), '{"test log": "This is another test log"}');
+INSERT INTO logs (createdAt, data) VALUES (DEFAULT, '{"test log": "This is a test log"}'), (DEFAULT, '{"test log": "This is another test log"}');
