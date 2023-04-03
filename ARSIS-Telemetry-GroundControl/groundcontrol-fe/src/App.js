@@ -1,14 +1,14 @@
-import logo from './logo.svg';
-import './App.css';
-
-import TaskRow from './components/TaskRow';
+import "./App.css";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { HomePage } from "./pages";
 
 function App() {
   return (
-    <div className="App">
-      <h1>landing page</h1>
-      <TaskRow></TaskRow>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
