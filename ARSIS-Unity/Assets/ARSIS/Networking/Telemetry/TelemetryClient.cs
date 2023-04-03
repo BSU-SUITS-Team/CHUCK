@@ -32,7 +32,7 @@ public class RegisteredUsersDict {
 
 public class TelemetryClient : MonoBehaviour
 {
-    public static string ip = "localhost";
+    public static string ip = "192.168.0.107";
     private static string userMockName = "user1";
     private static string telemetryServerUrl = "http://" + ip + ":8080";
     private static string telemetryServerUser = telemetryServerUrl + "/user";
