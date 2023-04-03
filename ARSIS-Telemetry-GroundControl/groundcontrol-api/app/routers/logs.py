@@ -33,10 +33,15 @@ def get_log(uuid: int, res: Response):
 @router.put("/", status_code=201)
 def create_log(log: Log):
     with connection.cursor() as db:
-        to_insert = log.data
-        to_replace = '\''
-        replacer = '\"'
-        query = f"INSERT INTO logs (createdAt, data) VALUES (DEFAULT, \'{to_insert.replace(to_replace, replacer)}\') RETURNING *;"
-        db.execute(query)
-        (uuid, data, createdAt) = db.fetchone()
-        return {"uuid": uuid, "data": data, "createdAt": createdAt}
+        try:
+            to_insert = log.data
+            to_replace = '\''
+            replacer = '\"'
+            query = f"INSERT INTO logs (createdAt, data) VALUES (DEFAULT, \'{to_insert.replace(to_replace, replacer)}\') RETURNING *;"
+            db.execute(query)
+            (uuid, data, createdAt) = db.fetchone()
+            return {"uuid": uuid, "data": data, "createdAt": createdAt}
+        except:
+            connection.rollback()
+        finally:
+            connection.commit()
