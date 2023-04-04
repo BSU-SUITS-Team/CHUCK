@@ -1,5 +1,4 @@
 import React from "react";
-import TaskRow from "../components/TaskRow";
 import SideNav from "../components/SideNav";
 
 const Dashboard = () => {
@@ -7,10 +6,8 @@ const Dashboard = () => {
     <>
       <SideNav />
       <div className="Page">
-        <div className="Container-primary">
-          <TaskRow />
-          <TaskRow />
-        </div>
+        <h1>BSU NASA SUITS</h1>
+        <p>Ground Control Panel</p>
       </div>
     </>
   );

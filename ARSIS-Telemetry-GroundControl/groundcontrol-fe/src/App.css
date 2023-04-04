@@ -1,6 +1,11 @@
 .Page {
-  text-align: center;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   padding: 1rem 5rem;
+  position: fixed;
+  top: 0;
+  left: 15vw;
 }
 
 .App-logo {
@@ -14,27 +19,28 @@
   background-color: white;
   padding: 10px;
 }
+.Container-primary form {
+  display: flex;
+  flex-direction: column;
+}
 
-.Side-Nav-open {
+.Container-primary input {
+  margin-bottom: 1rem;
+}
+
+.Container-primary label {
+  margin-bottom: 1rem;
+}
+
+.Pretty-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.Side-Nav {
   position: fixed;
   top: 0;
   left: 0;
-  width: 15vw;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  padding-top: 2rem;
-  align-items: center;
-  background-color: #00123a;
-  z-index: 10;
-  color: white;
-  transition: 1s ease-in-out;
-}
-
-.Side-Nav-closed {
-  position: fixed;
-  top: 0;
-  left: -12vw;
   width: 15vw;
   height: 100%;
   display: flex;

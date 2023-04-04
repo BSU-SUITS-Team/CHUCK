@@ -1,11 +1,9 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React from "react";
 import logo from "../assets/logo.png";
-import { AiOutlineRight, AiOutlineLeft, AiFillDashboard } from "react-icons/ai";
+import { AiFillDashboard } from "react-icons/ai";
 import { FcProcess } from "react-icons/fc";
 import { FaUserAstronaut } from "react-icons/fa";
 import { GiSettingsKnobs, GiTankTread } from "react-icons/gi";
-import { IoRocketSharp } from "react-icons/io";
 import {
   BsGem,
   BsTextParagraph,
@@ -14,22 +12,10 @@ import {
 } from "react-icons/bs";
 
 const SideNav = () => {
-  const [isOpen, setIsOpen] = useState(true);
-
-  const handleOpen = () => {
-    setIsOpen(!isOpen);
-  };
 
   return (
-    <div className={isOpen ? "Side-Nav-open" : "Side-Nav-closed"}>
-      <div className="Menu-icon">
-        {isOpen ? (
-          <AiOutlineLeft onClick={handleOpen} />
-        ) : (
-          <AiOutlineRight onClick={handleOpen} />
-        )}
-      </div>
-        <img src={logo} alt="app logo" className="App-logo" />
+    <div className="Side-Nav">
+      <img src={logo} alt="app logo" className="App-logo" />
       <div className="Nav-menu">
         <a href="/" className="Nav-link">
           <AiFillDashboard size={"20px"} />

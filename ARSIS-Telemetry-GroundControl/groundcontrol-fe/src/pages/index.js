@@ -1,3 +1,4 @@
 import Dashboard from './Dashboard'
+import Procedures from './Procedures'
 
-export {Dashboard}
+export {Dashboard, Procedures}
