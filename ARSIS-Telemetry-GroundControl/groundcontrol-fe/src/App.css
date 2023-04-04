@@ -1,10 +1,88 @@
-.App {
+.Page {
   text-align: center;
+  padding: 1rem 5rem;
 }
 
 .App-logo {
-  height: 40vmin;
+  width: 8vw;
   pointer-events: none;
+}
+
+.Container-primary {
+  display: flex;
+  border-radius: 10px;
+  background-color: white;
+  padding: 10px;
+}
+
+.Side-Nav-open {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 15vw;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding-top: 2rem;
+  align-items: center;
+  background-color: #00123a;
+  z-index: 10;
+  color: white;
+  transition: 1s ease-in-out;
+}
+
+.Side-Nav-closed {
+  position: fixed;
+  top: 0;
+  left: -12vw;
+  width: 15vw;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding-top: 2rem;
+  align-items: center;
+  background-color: #00123a;
+  z-index: 10;
+  color: white;
+  transition: 1s ease-in-out;
+}
+
+.Nav-menu {
+  display: flex;
+  flex-direction: column;
+  margin-top: 2rem;
+  width: 100%;
+}
+
+.Menu-icon {
+  position: absolute;
+  top: 0;
+  right: 0px;
+  background-color: #00123a;
+  padding: 20px;
+}
+
+.Nav-link {
+  width: auto;
+  height: auto;
+  padding: 1.5rem;
+  padding-left: 4rem;
+  display: flex;
+  align-items: center;
+  color: white;
+  text-decoration: none;
+  transition: 0.3s ease-in-out;
+  background-color: #00123a;
+}
+
+.Nav-link p {
+  margin: 0rem;
+  margin-left: .8rem;
+}
+
+.Nav-link:hover {
+  background-color: #001f63 !important;
+  transition: 0.3s ease-in-out;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -26,13 +104,4 @@
 
 .App-link {
   color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
 }

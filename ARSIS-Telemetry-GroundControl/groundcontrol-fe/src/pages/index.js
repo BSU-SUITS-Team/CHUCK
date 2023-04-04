@@ -1,3 +1,3 @@
-import HomePage from './Home'
+import Dashboard from './Dashboard'
 
-export {HomePage}
+export {Dashboard}
