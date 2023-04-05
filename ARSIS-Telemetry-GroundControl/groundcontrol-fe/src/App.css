@@ -32,6 +32,14 @@
   margin-bottom: 1rem;
 }
 
+.Task-list {
+  margin-left: 1rem;
+}
+
+.Step-list {
+  margin-left: 2rem;
+}
+
 .Pretty-form {
   display: flex;
   flex-direction: column;
