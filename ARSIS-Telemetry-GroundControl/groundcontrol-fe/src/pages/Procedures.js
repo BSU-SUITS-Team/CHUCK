@@ -16,9 +16,33 @@ const Procedures = () => {
   const [newProcedure, setNewProcedure] = useState(defaultProc);
 
   const handleCreate = (e) => {
-    // e.preventDefault();
-    // procedureData.name = e.target["proc-name"].value;
-    // procedureData.summary = e.target["proc-summary"].value;
+    e.preventDefault();
+    let procedureData = { ...newProcedure };
+    procedureData.name = e.target["proc-name"].value;
+    procedureData.summary = e.target["proc-summary"].value;
+    procedureData.taskList.map((task, i) => {
+      task.name = e.target["task-name" + i].value;
+      task.summary = e.target["task-summary" + i].value;
+      task.stepList.map((step, j) => {
+        step.type = e.target["step-type" + i + j].value;
+        step.body = e.target["step-type" + i + j].value;
+        step.nextTask =
+          j === task.stepList.length - 1
+            ? { procedure: e.target["proc-name"].value, task: i + 1 }
+            : null;
+      });
+    });
+    console.log("Before Fetch: " + procedureData);
+    fetch("http://localhost:8181/procedures/", {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(procedureData),
+    })
+      .then((res) => res.json())
+      .then((data) => console.log("After Fetch: " + data));
   };
 
   const handleAddTask = () => {
@@ -52,10 +76,6 @@ const Procedures = () => {
     setNewProcedure(procedureData);
   };
 
-  useEffect(() => {
-    console.log(newProcedure);
-  }, [setNewProcedure])
-
   return (
     <>
       <SideNav />
@@ -63,13 +83,20 @@ const Procedures = () => {
         <h1>Procedures</h1>
         <p>Ground Control Panel</p>
         <div className="Container-primary">
-          <form onSubmit={() => handleCreate}>
+          <form onSubmit={handleCreate}>
             <h3>Create Procedure</h3>
             <label>Procedure Details</label>
             <input type="text" name="proc-name" placeholder="Name" />
             <input type="text" name="proc-summary" placeholder="Summary" />
             <label>Tasks</label>
-            <div className="Task-list" style={{display: "flex", flexDirection: "row", flexWrap: "wrap"}}>
+            <div
+              className="Task-list"
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                flexWrap: "wrap",
+              }}
+            >
               {newProcedure.taskList.length > 0 ? (
                 newProcedure.taskList.map((task, i) => {
                   return (
@@ -96,13 +123,13 @@ const Procedures = () => {
                                 <label>Step {j + 1}</label>
                                 <input
                                   type="text"
-                                  name={"step-type" + j}
+                                  name={"step-type" + i + j}
                                   defaultValue={step.type}
                                   placeholder="Type"
                                 />
                                 <input
                                   type="text"
-                                  name={"step-body" + j}
+                                  name={"step-body" + i + j}
                                   defaultValue={step.body}
                                   placeholder="Body"
                                 />
