@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace EventSystem {
+namespace ARSISEventSystem {
     public class ProcedureEvent : BaseArsisEvent
     {
         public readonly string name;

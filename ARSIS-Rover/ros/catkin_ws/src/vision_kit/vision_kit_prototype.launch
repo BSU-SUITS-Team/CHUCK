@@ -1,6 +1,6 @@
 <launch>
   <!-- <node name="listener_node" pkg="vision_kit" type="listener.py" output="screen"/> -->
-  <!-- <node name="talker_node" pkg="vision_kit" type="talker.py" output="screen"/> -->
+  <node name="talker_node" pkg="vision_kit" type="talker.py" output="screen"/>
   <node name="location_updater" pkg="vision_kit" type="location_updater.py" output="screen"/>
   <node name="heading_publisher_mock" pkg="vision_kit" type="heading_publisher_mock.py" output="screen"/>
   <node name="lla_mock" pkg="vision_kit" type="lla_mock.py" output="screen"/>

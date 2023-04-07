@@ -4,6 +4,9 @@ services:
     build: ./ros
     env_file:
       - rover.env
+    devices:
+      - "/dev/ttyACM0:/dev/ttyACM0"
+
     # ports:
     #   - 8080:8080
     #

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using EventSystem;
+using ARSISEventSystem;
 
 public class ProceduresDisplay : MonoBehaviour
 {
