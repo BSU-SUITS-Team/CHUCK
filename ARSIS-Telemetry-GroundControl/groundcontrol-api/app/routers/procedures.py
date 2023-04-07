@@ -9,9 +9,6 @@ mock_procedure = MockProcedure()
 
 in_mem_procedures = {mock_procedure.get_name(): mock_procedure.get_task_list_encoded()}
 
-class Procedure(BaseModel):
-    data: str
-
 @router.get("/")
 async def procedures():
     return in_mem_procedures
@@ -28,6 +25,6 @@ def procedure(name: str):
     return {"name": "Not found", "taskList": []}
 
 @router.post("/")
-def procedure(procedure: Procedure):
+def procedure(procedure: dict):
     print(procedure)
     return procedure

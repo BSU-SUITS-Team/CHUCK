@@ -86,8 +86,8 @@ const Procedures = () => {
           <form onSubmit={handleCreate}>
             <h3>Create Procedure</h3>
             <label>Procedure Details</label>
-            <input type="text" name="proc-name" placeholder="Name" />
-            <input type="text" name="proc-summary" placeholder="Summary" />
+            <input type="text" style={{maxWidth: "300px"}} name="proc-name" placeholder="Name" />
+            <textarea type="text" style={{maxWidth: "300px"}} name="proc-summary" placeholder="Summary" />
             <label>Tasks</label>
             <div
               className="Task-list"
@@ -100,7 +100,7 @@ const Procedures = () => {
               {newProcedure.taskList.length > 0 ? (
                 newProcedure.taskList.map((task, i) => {
                   return (
-                    <div key={i} className="Pretty-form">
+                    <div key={i} className="Task">
                       <label>Task {i + 1}</label>
                       <input
                         type="text"
@@ -108,18 +108,17 @@ const Procedures = () => {
                         defaultValue={task.name}
                         placeholder="Name"
                       />
-                      <input
-                        type="text"
+                      <textarea
                         name={"task-summary" + i}
                         defaultValue={task.summary}
                         placeholder="Summary"
                       />
                       <label>Steps</label>
-                      <div className="Step-list">
+                      <div className="Task-list">
                         {newProcedure.taskList[i].stepList.length > 0 ? (
                           newProcedure.taskList[i].stepList.map((step, j) => {
                             return (
-                              <div key={j} className="Pretty-form">
+                              <div key={j} className="Step">
                                 <label>Step {j + 1}</label>
                                 <input
                                   type="text"
@@ -127,11 +126,12 @@ const Procedures = () => {
                                   defaultValue={step.type}
                                   placeholder="Type"
                                 />
-                                <input
-                                  type="text"
+                                <textarea
                                   name={"step-body" + i + j}
                                   defaultValue={step.body}
                                   placeholder="Body"
+                                  row="5"
+                                  cols="20"
                                 />
                               </div>
                             );
