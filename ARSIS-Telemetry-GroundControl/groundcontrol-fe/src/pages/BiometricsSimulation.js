@@ -25,7 +25,7 @@ const BiometricsSimulation = () => {
             <br />
             <input type="range" min="0" max="25" value={updateIntveral} onChange={(e) => setUpdateInterval(e.target.value)}/>
             <div className='userPanel'>
-                {users.map(user => <UserBiometricsSimulation id={user.id} name={user.name}/>)}
+                {users.map(user => <UserBiometricsSimulation id={user.id} name={user.name} updateIntveral={updateIntveral}/>)}
             </div>
         </>
     );

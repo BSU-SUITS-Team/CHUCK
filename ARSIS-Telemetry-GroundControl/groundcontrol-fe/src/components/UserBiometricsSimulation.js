@@ -1,6 +1,24 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
-const UserBiometrics = ({ id, name }) => {
+const useInterval = (callback, delay) => {
+    const savedCallback = useRef();
+
+    useEffect(() => {
+        savedCallback.current = callback;
+    }, [callback]);
+
+    useEffect(() => {
+        const tick = () => {
+            savedCallback.current();
+        }
+        if (delay !== null) {
+            let id = setInterval(tick, delay);
+            return () => clearInterval(id);
+        }
+    }, [delay]);
+};
+
+const UserBiometrics = ({ id, name, updateInterval }) => {
     const [o2, setO2] = useState(0);
     const [heartrate, setHeartrate] = useState(0);
     const [battery, setBattery] = useState(0);
@@ -16,15 +34,58 @@ const UserBiometrics = ({ id, name }) => {
         setBattery(battery);
     };
 
+    const putUpdates = async () => {
+        const updates = {
+            'o2': o2,
+            'heartrate': heartrate,
+            'battery': battery
+        }
+
+        const options = {
+            method: 'POST',
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'DELETE, POST, GET, OPTION',
+                'accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updates)
+        }
+
+        try {
+            await fetch(`http://localhost:8080/biometrics/${id}`, options)
+                .then(response => {
+                    if (!response.ok) {
+                        setBattery('N/A');
+                        setO2('N/A');
+                        setHeartrate('N/A');
+                    } else {
+                        const values = response.json();
+                        setBattery(values.battery);
+                        setO2(values.o2);
+                        setHeartrate(values.heartrate);
+                    }
+                });
+        } catch (e) {
+            setBattery('N/A');
+            setO2('N/A');
+            setHeartrate('N/A');
+        }
+    };
+
     useEffect(() => {
         fetchBiometrics();
-    }, [])
+    }, []);
+
+    // useInterval(() => {
+    //     putUpdates();
+    // }, updateInterval * 10000);
 
     return (
         <div className='user'>
             <h2>ID: {id}, Name: {name}</h2>
             <table>
-                <th colspan='3'>Current Values</th>
+                <th colSpan='3'>Current Values</th>
                 <tr>
                     <th>Oxygen</th>
                     <th>Heartrate</th>
@@ -37,7 +98,7 @@ const UserBiometrics = ({ id, name }) => {
                 </tr>
             </table>
             <table>
-                <th colspan='3'>Update Values</th>
+                <th colSpan='3'>Update Values</th>
                 <tr>
                     <th>Oxygen</th>
                     <th>Heartrate</th>
