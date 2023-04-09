@@ -4,7 +4,12 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/BearingHalo.unity
+    guid: 610cbc9f34306464088cb4f3a955e1f3
   m_configObjects:
+    Unity.XR.Oculus.Settings: {fileID: 11400000, guid: ecbfc706c8abd54448378ecabff8db77, type: 2}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 14f474ce6360ae94c94d9bd2cb3a7b24, type: 2}
     com.unity.xr.openxr.settings4: {fileID: 11400000, guid: 9938789dac6754e40b7ceab29cd44b54, type: 2}
+    xr.sdk.mock-hmd.settings: {fileID: 11400000, guid: 34a84dd31d57a8d4f9665e72c165b4c3, type: 2}
