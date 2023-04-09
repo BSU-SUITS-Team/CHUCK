@@ -36,36 +36,38 @@ const UserBiometrics = ({ id, name, updateInterval }) => {
 
     const putUpdates = async () => {
         const updates = {
-            'o2': o2,
-            'heartrate': heartrate,
-            'battery': battery
+            'heartrate': parseInt(updateHeartrate),
+            'o2': parseInt(updateO2),
+            'battery': parseInt(updateBattery)
         }
 
         const options = {
             method: 'POST',
             headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'DELETE, POST, GET, OPTION',
                 'accept': 'application/json',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST,PATCH,OPTIONS'
             },
             body: JSON.stringify(updates)
         }
 
         try {
-            await fetch(`http://localhost:8080/biometrics/${id}`, options)
+            const values = await fetch(`http://localhost:8080/biometrics/${id}/update_biometrics`, options)
                 .then(response => {
                     if (!response.ok) {
-                        setBattery('N/A');
-                        setO2('N/A');
-                        setHeartrate('N/A');
+                        return {
+                            'battery': 'N/A',
+                            'o2': 'N/A',
+                            'heartrate': 'N/A'
+                        }
                     } else {
-                        const values = response.json();
-                        setBattery(values.battery);
-                        setO2(values.o2);
-                        setHeartrate(values.heartrate);
+                        return response.json();
                     }
                 });
+            setO2(values['o2']);
+            setHeartrate(values['heartrate']);
+            setBattery(values['battery']);
         } catch (e) {
             setBattery('N/A');
             setO2('N/A');
@@ -83,8 +85,11 @@ const UserBiometrics = ({ id, name, updateInterval }) => {
 
     return (
         <div className='user'>
+            <button onClick={() => putUpdates()}>Put Updates</button>
             <h2>ID: {id}, Name: {name}</h2>
             <table>
+                <tbody>
+
                 <th colSpan='3'>Current Values</th>
                 <tr>
                     <th>Oxygen</th>
@@ -96,8 +101,10 @@ const UserBiometrics = ({ id, name, updateInterval }) => {
                     <td>{heartrate ?? 'N/A'}</td>
                     <td>{battery ?? 'N/A'}</td>
                 </tr>
+                </tbody>
             </table>
             <table>
+                <tbody>
                 <th colSpan='3'>Update Values</th>
                 <tr>
                     <th>Oxygen</th>
@@ -105,10 +112,11 @@ const UserBiometrics = ({ id, name, updateInterval }) => {
                     <th>Battery</th>
                 </tr>
                 <tr>
-                    <td>{updateO2}<br/><input type="range" min="0" max="25" value={updateO2} onChange={(e) => setUpdateO2(e.target.value)} /></td>
-                    <td>{updateHeartrate}<br /><input type="range" min="0" max="25" value={updateHeartrate} onChange={(e) => setUpdateHeartrate(e.target.value)} /></td>
-                    <td>{updateBattery}<br /><input type="range" min="0" max="25" value={updateBattery} onChange={(e) => setUpdateBattery(e.target.value)} /></td>
+                    <td>{updateO2}<br/><input type="range" min="0" max="100" value={updateO2} onChange={(e) => setUpdateO2(e.target.value)} /></td>
+                    <td>{updateHeartrate}<br /><input type="range" min="0" max="300" value={updateHeartrate} onChange={(e) => setUpdateHeartrate(e.target.value)} /></td>
+                    <td>{updateBattery}<br /><input type="range" min="0" max="100" value={updateBattery} onChange={(e) => setUpdateBattery(e.target.value)} /></td>
                 </tr>
+                </tbody>
             </table>
         </div>
     )
