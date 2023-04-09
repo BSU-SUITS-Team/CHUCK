@@ -1,10 +1,9 @@
 from fastapi import APIRouter
 
-from .on_server_procedures.mock_procedure import MockProcedure
+from .on_server_procedures.mock_procedure import mock_procedure
 
 router = APIRouter(prefix="/procedures", tags=["procedures"])
 
-mock_procedure = MockProcedure()
 
 in_mem_procedures = {mock_procedure.get_name(): mock_procedure.get_task_list_encoded()}
 
