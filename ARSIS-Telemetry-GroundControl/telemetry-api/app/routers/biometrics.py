@@ -15,7 +15,7 @@ class Biometrics(BaseModel):
     battery: int
 
 
-keys = ["id", "o2", "battery", "heartrate", "createdAt", "updatedAt"]
+keys = ["id", "heartrate", "o2", "battery", "createdAt", "updatedAt"]
 
 
 @router.get("/")
