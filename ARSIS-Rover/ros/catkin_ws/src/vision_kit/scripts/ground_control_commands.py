@@ -28,6 +28,10 @@ class GroundControlCommands:
             self.publishers[data[0]].publish(data[1])
             data = requests.get(
                 f"http://{self.gc}/devices/has_commands/{DEVICE_NAME}").json()
+            
+        # Send the list of topics that ROS has to the ground control API
+        requests.post(
+            f"http://{self.gc}/devices/update_topics/{DEVICE_NAME}?topics={rospy.get_published_topics()}")
 
     def register(self):
         """Registers the device with the ground control API"""

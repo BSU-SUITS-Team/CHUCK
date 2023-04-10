@@ -10,6 +10,7 @@ router = APIRouter(prefix="/devices", tags=["devices"])
 
 devices = {}
 commands = {}
+device_topics = {}
 
 
 @router.get("/get_configured")
@@ -153,4 +154,38 @@ async def has_commands(name: str):
     """
     if name in devices.keys():
         return not commands[name].empty()
+    return 404
+
+
+@router.post("/update_topics/{name}")
+async def update_topics(name: str, topics: str):
+    """This function updates the topics for a configured device.
+
+    Args:
+        name (str): The name of the device to update the topics for.
+        topics (str): The topics to update the device with. This is a stringified JSON array of the format [[topic, type], [topic, type], ...]
+
+    Returns:
+        (int): The status code of the request. 200 if the topics were updated successfully, 404 if the device was not configured.
+    """
+    if name in devices.keys():
+        device_topics[name] = json.loads(topics)
+        return 200
+    return 404
+
+
+@router.get("/get_topics/{name}")
+async def get_topics(name: str):
+    """This function gets the topics for a configured device.
+
+    Args:
+        name (str): The name of the device to get the topics for.
+
+    Returns:
+        (str): The topics for the device. This is a stringified JSON array of the format [[topic, type], [topic, type], ...]
+    """
+    if name in devices.keys():
+        if name in device_topics.keys():
+            return json.dumps(device_topics[name])
+        return json.dumps([])
     return 404
