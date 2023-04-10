@@ -16,7 +16,7 @@ task_1_list = [
     },
 ]
 task_1_name = "Name of Task"
-task_1_summary = ("Summary of what task is meant to do",)
+task_1_summary = "Summary of what task is meant to do"
 mock_procedure.add_task(task_1_name, task_1_summary, task_1_list)
 
 task_2_list = [
@@ -27,6 +27,6 @@ task_2_list = [
     },
 ]
 task_2_name = "Name of Task"
-task_2_summary = ("Summary of what task is meant to do",)
+task_2_summary = "Summary of what task is meant to do"
 
 mock_procedure.add_task(task_2_name, task_2_summary, task_2_list)
