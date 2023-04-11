@@ -27,8 +27,14 @@ def procedure(name: str):
 
 @router.patch("/")
 def procedure(updated_procedure: dict):
-
-    return { "procedure": { "name": procedure.name, "summary": procedure.summary, "taskList": procedure.task_list}}
+    proc_to_update = in_mem_procedures.get(updated_procedure["name"], None)
+    if proc_to_update is None:
+        return { "message": f"Procedure with name: {updated_procedure['name']} not found"}
+    updated_proc = CreateProcedure(updated_procedure["name"], updated_procedure["summary"])
+    for task in updated_procedure["taskList"]:
+        updated_proc.add_task(task["name"], task["summary"], task["stepList"])
+    in_mem_procedures[proc_to_update["name"]] = updated_proc.get_task_list_encoded()
+    return { "message": "Procedure successfully updated"}
 
 @router.post("/")
 def procedure(new_procedure: dict):
@@ -36,4 +42,4 @@ def procedure(new_procedure: dict):
     for task in new_procedure["taskList"]:
         procedure.add_task(task["name"], task["summary"], task["stepList"])
     in_mem_procedures["procedure.get_name()"] = procedure.get_task_list_encoded()
-    return { "procedure": { "name": procedure.get_name(), "taskList": procedure.get_task_list_encoded() }}
+    return { "message": "Procedure successfully created"}
