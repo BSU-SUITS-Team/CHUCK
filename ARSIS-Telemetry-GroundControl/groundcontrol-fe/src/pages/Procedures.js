@@ -27,7 +27,7 @@ const Procedures = () => {
         step.type = e.target["step-type" + i + j].value;
         step.body = e.target["step-type" + i + j].value;
         step.nextTask =
-          j === task.stepList.length - 1
+          j === task.stepList.length - 1 && i !== taskList.length - 1
             ? { procedure: e.target["proc-name"].value, task: i + 1 }
             : null;
       });
@@ -86,8 +86,18 @@ const Procedures = () => {
           <form onSubmit={handleCreate}>
             <h3>Create Procedure</h3>
             <label>Procedure Details</label>
-            <input type="text" style={{maxWidth: "300px"}} name="proc-name" placeholder="Name" />
-            <textarea type="text" style={{maxWidth: "300px"}} name="proc-summary" placeholder="Summary" />
+            <input
+              type="text"
+              style={{ maxWidth: "300px" }}
+              name="proc-name"
+              placeholder="Name"
+            />
+            <textarea
+              type="text"
+              style={{ maxWidth: "300px" }}
+              name="proc-summary"
+              placeholder="Summary"
+            />
             <label>Tasks</label>
             <div
               className="Task-list"
