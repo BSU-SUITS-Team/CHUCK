@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
+from app.routers.on_server_procedures.create_procedure import CreateProcedure
 
 from .on_server_procedures.mock_procedure import MockProcedure
 
@@ -24,7 +25,15 @@ def procedure(name: str):
         }
     return {"name": "Not found", "taskList": []}
 
+@router.patch("/")
+def procedure(updated_procedure: dict):
+
+    return { "procedure": { "name": procedure.name, "summary": procedure.summary, "taskList": procedure.task_list}}
+
 @router.post("/")
-def procedure(procedure: dict):
-    print(procedure)
-    return procedure
+def procedure(new_procedure: dict):
+    procedure = CreateProcedure(new_procedure["name"], new_procedure["summary"])
+    for task in new_procedure["taskList"]:
+        procedure.add_task(task["name"], task["summary"], task["stepList"])
+    in_mem_procedures["procedure.get_name()"] = procedure.get_task_list_encoded()
+    return { "procedure": { "name": procedure.get_name(), "taskList": procedure.get_task_list_encoded() }}
