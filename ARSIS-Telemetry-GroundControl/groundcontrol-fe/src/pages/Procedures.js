@@ -32,7 +32,6 @@ const Procedures = () => {
             : null;
       });
     });
-    console.log("Before Fetch: " + procedureData);
     fetch("http://localhost:8181/procedures/", {
       method: "POST",
       mode: "cors",
@@ -40,9 +39,11 @@ const Procedures = () => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(procedureData),
+    }).catch((err) => {
+      if (err) {
+        console.log(err)
+      }
     })
-      .then((res) => res.json())
-      .then((data) => console.log("After Fetch: " + data));
   };
 
   const handleAddTask = () => {
