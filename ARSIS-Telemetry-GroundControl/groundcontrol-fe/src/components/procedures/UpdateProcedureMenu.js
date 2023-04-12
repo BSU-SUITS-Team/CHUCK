@@ -3,7 +3,7 @@ import React, { useState } from "react";
 const UpdateProcedureMenu = (props) => {
   const [proc, setProc] = useState(props.selectedProc);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     let procedureData = { ...proc };
     procedureData.summary = e.target["proc-summary"].value;
@@ -20,7 +20,7 @@ const UpdateProcedureMenu = (props) => {
             : null;
       });
     });
-    fetch("http://localhost:8181/procedures/", {
+    const result = await fetch("http://localhost:8181/procedures/", {
       method: "PATCH",
       mode: "cors",
       headers: {
@@ -32,7 +32,9 @@ const UpdateProcedureMenu = (props) => {
         console.log(err);
       }
     });
-    props.onChangeIsEditing(false);
+    const data = await result.json()
+    alert(data.message)
+    props.onChangeTab()
   };
 
   const handleAddTask = () => {
@@ -66,19 +68,18 @@ const UpdateProcedureMenu = (props) => {
     setProc(procedureData);
   };
 
-  const handleDelete = () => {
-    fetch("http://localhost:8181/procedures/", {
+  const handleDelete = async () => {
+    const result = await fetch(`http://localhost:8181/procedures/${proc.name}`, {
       method: "DELETE",
-      mode: "cors",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ name: proc.name }),
+      mode: "cors"
     }).catch((err) => {
       if (err) {
         console.log(err);
       }
     });
+    const data = await result.json()
+    alert(data.message)
+    props.onChangeTab()
   };
 
   return (

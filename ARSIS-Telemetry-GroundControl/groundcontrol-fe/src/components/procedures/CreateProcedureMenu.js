@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const CreateProcedureMenu = () => {
+const CreateProcedureMenu = (props) => {
   const defaultProc = {
     name: "",
     summary: "",
@@ -24,7 +24,7 @@ const CreateProcedureMenu = () => {
   };
   const [newProcedure, setNewProcedure] = useState(defaultProc);
 
-  const handleCreate = (e) => {
+  const handleCreate = async (e) => {
     e.preventDefault();
     let procedureData = { ...newProcedure };
     procedureData.name = e.target["proc-name"].value;
@@ -42,7 +42,7 @@ const CreateProcedureMenu = () => {
             : null;
       });
     });
-    fetch("http://localhost:8181/procedures/", {
+    const result = await fetch("http://localhost:8181/procedures/", {
       method: "POST",
       mode: "cors",
       headers: {
@@ -54,6 +54,9 @@ const CreateProcedureMenu = () => {
         console.log(err);
       }
     });
+    const data = await result.json()
+    alert(data.message)
+    props.onChangeTab()
   };
 
   const handleAddTask = () => {

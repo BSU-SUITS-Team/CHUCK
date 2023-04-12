@@ -22,7 +22,7 @@ const ViewProceduresMenu = (props) => {
 
   const handleEditProcedure = (proc) => {
     props.onChangeSelectedProc(proc);
-    props.onChangeIsEditing(true);
+    props.onChangeTab(2)
   };
 
   return (
