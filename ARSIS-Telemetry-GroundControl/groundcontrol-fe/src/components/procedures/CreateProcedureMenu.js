@@ -1,10 +1,20 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 const CreateProcedureMenu = () => {
   const defaultProc = {
     name: "",
     summary: "",
     taskList: [
+      {
+        name: "",
+        summary: "",
+        stepList: [{ type: "", body: "", nextTask: "" }],
+      },
+      {
+        name: "",
+        summary: "",
+        stepList: [{ type: "", body: "", nextTask: "" }],
+      },
       {
         name: "",
         summary: "",
