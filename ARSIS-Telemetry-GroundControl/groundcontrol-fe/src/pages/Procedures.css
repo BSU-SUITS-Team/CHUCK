@@ -2,6 +2,15 @@
   min-height: 2rem;
 }
 
+.Procedure {
+  margin-bottom: 1rem;
+  font-size: large;
+}
+
+.Procedure-list {
+  
+}
+
 .Task {
   display: flex;
   flex-direction: column;

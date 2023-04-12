@@ -4,4 +4,4 @@ import ViewProceduresMenu from "./procedures/ViewProcedureMenu"
 import SideNav from "./navigation/SideNav"
 import UserBiometricsSimulation from "./biometrics/UserBiometricsSimulation"
 
-export { CreateProcedureMenu, UpdateProcedureMenu, ViewProceduresMenu, TaskRow, SideNav, UserBiometricsSimulation }
+export { CreateProcedureMenu, UpdateProcedureMenu, ViewProceduresMenu, SideNav, UserBiometricsSimulation }

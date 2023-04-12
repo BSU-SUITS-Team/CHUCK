@@ -1,21 +1,18 @@
 import React, { useEffect, useState } from "react";
+import Procedure from "./Procedure"
 
 const UpdateProcedureMenu = () => {
   const [procedures, setProcedures] = useState([{ "name": "Fake Proc", "taskList": [{ 'name': 'Fake Task list' }] }]);
 
   const handleRefreshProcedures = async () => {
-    const proceduresList = [];
-    const response = await fetch("http://localhost:8181/procedures/");
-    const data = await response.json();
+    const proceduresList = []
+    const response = await fetch("http://localhost:8181/procedures/")
+    const data = await response.json()
     for (const [key, value] of Object.entries(data)) {
-      proceduresList.push({ "name": key, "taskList": [...value] });
+      proceduresList.push({ "name": key, "taskList": [...value] })
     }
-    setProcedures(proceduresList);
+    setProcedures(proceduresList)
   };
-
-  const handleEditProcedure = () => {
-    console.log("Edit Procedure")
-  }
 
   useEffect(() => {
     handleRefreshProcedures()
@@ -25,23 +22,13 @@ const UpdateProcedureMenu = () => {
 
   return (
     <div className="Container-primary">
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="Procedure-list">
         <h3>View Procedure Menu</h3>
         <div>
           {procedures.length > 0 ? (
             procedures.map((proc, i) => {
               return (
-                <div key={i}>
-                  <label>{proc.name}</label>
-                  {proc.taskList.map((task, j) => {
-                    return (
-                      <div key={j}>
-                        {task.name}
-                      </div>
-                    )
-                  })}
-                  <button type="button" onClick={handleEditProcedure}>Edit Procedure</button>
-                </div>
+                <Procedure key={i} name={proc.name} taskList={proc.taskList} />
               );
             })
           ) : (

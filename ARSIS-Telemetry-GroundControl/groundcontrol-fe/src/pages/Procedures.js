@@ -1,6 +1,5 @@
-import React from "react";
-import { UpdateProcedureMenu, ViewProceduresMenu, CreateProcedureMenu } from "../components"
-import SideNav from "../components/navigation/SideNav";
+import React, { useState } from "react";
+import { UpdateProcedureMenu, ViewProceduresMenu, CreateProcedureMenu, SideNav } from "../components"
 import "./Procedures.css";
 
 const Procedures = () => {
@@ -17,9 +16,9 @@ const Procedures = () => {
           <button onClick={() => setTab(1)}>Create</button>
           <button onClick={() => setTab(2)}>Update</button>
         </div>
-        {tab == 0 ? <ViewProceduresMenu /> : <></>}
-        {tab == 1 ? <CreateProcedureMenu /> : <></>}
-        {tab == 2 ? <UpdateProcedureMenu /> : <></>}
+        {tab === 0 ? <ViewProceduresMenu /> : <></>}
+        {tab === 1 ? <CreateProcedureMenu /> : <></>}
+        {tab === 2 ? <UpdateProcedureMenu /> : <></>}
       </div>
     </>
   );
