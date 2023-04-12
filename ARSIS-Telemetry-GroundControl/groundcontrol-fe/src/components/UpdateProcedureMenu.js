@@ -8,7 +8,6 @@ const UpdateProcedureMenu = () => {
     const response = await fetch("http://localhost:8181/procedures/");
     const data = await response.json();
     for (const [key, value] of Object.entries(data)) {
-      console.log(key, value)
       proceduresList.push({ "name": key, "taskList": [...value] });
     }
     setProcedures(proceduresList);
@@ -41,7 +40,7 @@ const UpdateProcedureMenu = () => {
                       </div>
                     )
                   })}
-                  <button onClick={handleEditProcedure}>Edit Procedure</button>
+                  <button type="button" onClick={handleEditProcedure}>Edit Procedure</button>
                 </div>
               );
             })
