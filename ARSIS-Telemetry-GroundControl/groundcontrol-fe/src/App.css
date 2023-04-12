@@ -20,6 +20,7 @@
   background-color: white;
   padding: 10px;
 }
+
 .Container-primary form {
   display: flex;
   flex-direction: column;
@@ -36,14 +37,10 @@
   margin: 0.5rem 0rem 0.8rem 0rem;
 }
 
-
-
 .Button-group button {
   margin: 0.2rem 0.2rem;
   padding: 0.2rem 0.5rem;
 }
-
-
 
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {

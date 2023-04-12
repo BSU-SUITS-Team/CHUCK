@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-const UpdateProcedureMenu = () => {
+const UpdateProcedureMenu = (props) => {
 
   const handleSubmit = (e) => {};
 

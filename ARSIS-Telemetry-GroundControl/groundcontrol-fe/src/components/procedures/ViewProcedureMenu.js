@@ -22,9 +22,9 @@ const UpdateProcedureMenu = () => {
 
   return (
     <div className="Container-primary">
-      <form onSubmit={handleSubmit} className="Procedure-list">
-        <h3>View Procedure Menu</h3>
-        <div>
+      <form onSubmit={handleSubmit}>
+        <h3>All Procedures</h3>
+        <div className="Wrapped-list">
           {procedures.length > 0 ? (
             procedures.map((proc, i) => {
               return (

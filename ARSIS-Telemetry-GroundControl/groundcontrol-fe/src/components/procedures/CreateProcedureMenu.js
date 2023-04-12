@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from "react";
 
 const CreateProcedureMenu = () => {
   const defaultProc = {
@@ -26,7 +26,8 @@ const CreateProcedureMenu = () => {
         step.type = e.target["step-type" + i + j].value;
         step.body = e.target["step-type" + i + j].value;
         step.nextTask =
-          j === task.stepList.length - 1 && i !== procedureData.taskList.length - 1
+          j === task.stepList.length - 1 &&
+          i !== procedureData.taskList.length - 1
             ? { procedure: e.target["proc-name"].value, task: i + 1 }
             : null;
       });
@@ -40,9 +41,9 @@ const CreateProcedureMenu = () => {
       body: JSON.stringify(procedureData),
     }).catch((err) => {
       if (err) {
-        console.log(err)
+        console.log(err);
       }
-    })
+    });
   };
 
   const handleAddTask = () => {
@@ -77,96 +78,93 @@ const CreateProcedureMenu = () => {
   };
   return (
     <div className="Container-primary">
-          <form onSubmit={handleCreate}>
-            <h3>Create Procedure</h3>
-            <label>Procedure Details</label>
-            <input type="text" style={{maxWidth: "300px"}} name="proc-name" placeholder="Name" />
-            <textarea type="text" style={{maxWidth: "300px"}} name="proc-summary" placeholder="Summary" />
-            <label>Tasks</label>
-            <div
-              className="Task-list"
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                flexWrap: "wrap",
-              }}
-            >
-              {newProcedure.taskList.length > 0 ? (
-                newProcedure.taskList.map((task, i) => {
-                  return (
-                    <div key={i} className="Task">
-                      <label>Task {i + 1}</label>
-                      <input
-                        type="text"
-                        name={"task-name" + i}
-                        defaultValue={task.name}
-                        placeholder="Name"
-                      />
-                      <textarea
-                        name={"task-summary" + i}
-                        defaultValue={task.summary}
-                        placeholder="Summary"
-                      />
-                      <label>Steps</label>
-                      <div className="Task-list">
-                        {newProcedure.taskList[i].stepList.length > 0 ? (
-                          newProcedure.taskList[i].stepList.map((step, j) => {
-                            return (
-                              <div key={j} className="Step">
-                                <label>Step {j + 1}</label>
-                                <input
-                                  type="text"
-                                  name={"step-type" + i + j}
-                                  defaultValue={step.type}
-                                  placeholder="Type"
-                                />
-                                <textarea
-                                  name={"step-body" + i + j}
-                                  defaultValue={step.body}
-                                  placeholder="Body"
-                                  row="5"
-                                  cols="20"
-                                />
-                              </div>
-                            );
-                          })
-                        ) : (
-                          <p>No Steps</p>
-                        )}
-                        <div className="Button-group">
-                          <button
-                            type="button"
-                            onClick={() => handleAddStep(i)}
-                          >
-                            Add Step
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveStep(i)}
-                          >
-                            Remove Step
-                          </button>
-                        </div>
-                      </div>
+      <form onSubmit={handleCreate}>
+        <h3>Create Procedure</h3>
+        <label>Procedure Details</label>
+        <input
+          type="text"
+          style={{ maxWidth: "300px" }}
+          name="proc-name"
+          placeholder="Name"
+        />
+        <textarea
+          type="text"
+          style={{ maxWidth: "300px" }}
+          name="proc-summary"
+          placeholder="Summary"
+        />
+        <label>Tasks</label>
+        <div className="Wrapped-list">
+          {newProcedure.taskList.length > 0 ? (
+            newProcedure.taskList.map((task, i) => {
+              return (
+                <div key={i} className="Task">
+                  <label>Task {i + 1}</label>
+                  <input
+                    type="text"
+                    name={"task-name" + i}
+                    defaultValue={task.name}
+                    placeholder="Name"
+                  />
+                  <textarea
+                    name={"task-summary" + i}
+                    defaultValue={task.summary}
+                    placeholder="Summary"
+                  />
+                  <label>Steps</label>
+                  <div>
+                    {newProcedure.taskList[i].stepList.length > 0 ? (
+                      newProcedure.taskList[i].stepList.map((step, j) => {
+                        return (
+                          <div key={j} className="Step">
+                            <label>Step {j + 1}</label>
+                            <input
+                              type="text"
+                              name={"step-type" + i + j}
+                              defaultValue={step.type}
+                              placeholder="Type"
+                            />
+                            <textarea
+                              name={"step-body" + i + j}
+                              defaultValue={step.body}
+                              placeholder="Body"
+                              row="5"
+                              cols="20"
+                            />
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <p>No Steps</p>
+                    )}
+                    <div className="Button-group">
+                      <button type="button" onClick={() => handleAddStep(i)}>
+                        Add Step
+                      </button>
+                      <button type="button" onClick={() => handleRemoveStep(i)}>
+                        Remove Step
+                      </button>
                     </div>
-                  );
-                })
-              ) : (
-                <p>No tasks</p>
-              )}
-            </div>
-            <div className="Button-group">
-              <button type="button" onClick={handleAddTask}>
-                Add Task
-              </button>
-              <button type="button" onClick={handleRemoveTask}>
-                Remove Task
-              </button>
-              <button type="submit">Create</button>
-            </div>
-          </form>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <p>No tasks</p>
+          )}
         </div>
-  )
-}
+        <div className="Button-group">
+          <button type="button" onClick={handleAddTask}>
+            Add Task
+          </button>
+          <button type="button" onClick={handleRemoveTask}>
+            Remove Task
+          </button>
+          <button type="submit">Create</button>
+        </div>
+      </form>
+    </div>
+  );
+};
 
-export default CreateProcedureMenu
+export default CreateProcedureMenu;
