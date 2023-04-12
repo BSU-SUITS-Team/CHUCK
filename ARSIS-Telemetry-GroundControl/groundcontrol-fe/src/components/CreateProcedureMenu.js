@@ -26,7 +26,7 @@ const CreateProcedureMenu = () => {
         step.type = e.target["step-type" + i + j].value;
         step.body = e.target["step-type" + i + j].value;
         step.nextTask =
-          j === task.stepList.length - 1 && i !== taskList.length - 1
+          j === task.stepList.length - 1 && i !== procedureData.taskList.length - 1
             ? { procedure: e.target["proc-name"].value, task: i + 1 }
             : null;
       });

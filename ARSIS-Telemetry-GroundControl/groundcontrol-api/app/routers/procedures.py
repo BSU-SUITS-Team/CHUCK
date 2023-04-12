@@ -41,5 +41,5 @@ def procedure(new_procedure: dict):
     procedure = CreateProcedure(new_procedure["name"], new_procedure["summary"])
     for task in new_procedure["taskList"]:
         procedure.add_task(task["name"], task["summary"], task["stepList"])
-    in_mem_procedures["procedure.get_name()"] = procedure.get_task_list_encoded()
+    in_mem_procedures[procedure.get_name()] = procedure.get_task_list_encoded()
     return { "message": "Procedure successfully created"}
