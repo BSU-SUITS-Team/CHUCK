@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from pydantic import BaseModel
 
 from .on_server_procedures.mock_procedure import MockProcedure
 
@@ -7,7 +8,6 @@ router = APIRouter(prefix="/procedures", tags=["procedures"])
 mock_procedure = MockProcedure()
 
 in_mem_procedures = {mock_procedure.get_name(): mock_procedure.get_task_list_encoded()}
-
 
 @router.get("/")
 async def procedures():
@@ -23,3 +23,8 @@ def procedure(name: str):
             "taskList": res,
         }
     return {"name": "Not found", "taskList": []}
+
+@router.post("/")
+def procedure(procedure: dict):
+    print(procedure)
+    return procedure
