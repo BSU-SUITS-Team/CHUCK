@@ -1,6 +1,7 @@
 import React, { useContext, useState } from "react";
 import Task from "./Task";
 import { ProcedureContext } from "../../pages/Procedures";
+import Procedure from "./Procedure";
 
 const UpdateProcedureMenu = () => {
   const { func, tabs } = useContext(ProcedureContext);
@@ -41,22 +42,6 @@ const UpdateProcedureMenu = () => {
     setTab();
   };
 
-  const handleAddTask = () => {
-    let procedureData = { ...procedure };
-    procedureData.taskList.push({
-      name: "",
-      summary: "",
-      stepList: [{ type: "", body: "", nextTask: "" }],
-    });
-    setProcedure(procedureData);
-  };
-
-  const handleRemoveTask = () => {
-    let procedureData = { ...procedure };
-    procedureData.taskList.pop();
-    setProcedure(procedureData);
-  };
-
   const handleDelete = async () => {
     const result = await fetch(
       `http://localhost:8181/procedures/${procedure.name}`,
@@ -75,42 +60,19 @@ const UpdateProcedureMenu = () => {
   };
 
   return (
-      <div className="Container-primary">
-        <form onSubmit={handleSubmit}>
-          <h3>Update Procedure Menu</h3>
-          <label>Procedure Details</label>
-          <label>Editing Procedure: {procedure.name}</label>
-          <textarea
-            type="text"
-            style={{ maxWidth: "300px" }}
-            name="proc-summary"
-            placeholder="Summary"
-            defaultValue={procedure.summary}
-          />
-          <label>Tasks</label>
-          <div className="Wrapped-list">
-            {procedure.taskList.length > 0 ? (
-              procedure.taskList.map((task, i) => {
-                return <Task key={i} task={task} i={i} />;
-              })
-            ) : (
-              <p>No tasks</p>
-            )}
-          </div>
-          <div className="Button-group">
-            <button type="button" onClick={handleAddTask}>
-              Add Task
-            </button>
-            <button type="button" onClick={handleRemoveTask}>
-              Remove Task
-            </button>
-            <button type="button" onClick={handleDelete}>
-              Delete Procedure
-            </button>
-            <button type="submit">Save Changes</button>
-          </div>
-        </form>
-      </div>
+    <div className="Container-primary">
+      <form onSubmit={handleSubmit}>
+        <h3>Update Procedure Menu</h3>
+        <label>Procedure Details</label>
+        <Procedure />
+        <div className="Button-group">
+          <button type="button" onClick={handleDelete}>
+            Delete Procedure
+          </button>
+          <button type="submit">Save Changes</button>
+        </div>
+      </form>
+    </div>
   );
 };
 

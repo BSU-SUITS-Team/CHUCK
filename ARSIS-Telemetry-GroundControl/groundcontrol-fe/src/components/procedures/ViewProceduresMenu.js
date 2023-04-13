@@ -38,8 +38,11 @@ const ViewProceduresMenu = () => {
           {procedures.length > 0 ? (
             procedures.map((proc, i) => {
               return (
-                <div key={i}>
-                  <p>{proc.name}</p>
+                <div key={i} className="Procedure">
+                  <h2>{proc.name}</h2>
+                  {proc.taskList.map((task, j) => {
+                    return (<p key={j}>{task.name}</p>)
+                  })}
                   <button
                     type="button"
                     onClick={() => handleEditProcedure(proc)}
