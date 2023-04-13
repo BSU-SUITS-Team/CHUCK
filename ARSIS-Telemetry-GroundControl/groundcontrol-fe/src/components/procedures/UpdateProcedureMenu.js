@@ -1,11 +1,15 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
+import Task from "./Task";
+import { ProcedureContext } from "../../pages/Procedures";
 
-const UpdateProcedureMenu = (props) => {
-  const [proc, setProc] = useState(props.selectedProc);
+const UpdateProcedureMenu = () => {
+  const { func, tabs } = useContext(ProcedureContext);
+  const [procedure, setProcedure] = func;
+  const [tab, setTab] = tabs;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    let procedureData = { ...proc };
+    let procedureData = { ...procedure };
     procedureData.summary = e.target["proc-summary"].value;
     procedureData.taskList.map((task, i) => {
       task.name = e.target["task-name" + i].value;
@@ -32,143 +36,81 @@ const UpdateProcedureMenu = (props) => {
         console.log(err);
       }
     });
-    const data = await result.json()
-    alert(data.message)
-    props.onChangeTab()
+    const data = await result.json();
+    alert(data.message);
+    setTab();
   };
 
   const handleAddTask = () => {
-    let procedureData = { ...proc };
+    let procedureData = { ...procedure };
     procedureData.taskList.push({
       name: "",
       summary: "",
       stepList: [{ type: "", body: "", nextTask: "" }],
     });
-    setProc(procedureData);
+    setProcedure(procedureData);
   };
 
   const handleRemoveTask = () => {
-    let procedureData = { ...proc };
+    let procedureData = { ...procedure };
     procedureData.taskList.pop();
-    setProc(procedureData);
-  };
-
-  const handleAddStep = (index) => {
-    let procedureData = { ...proc };
-    procedureData.taskList[index].stepList.push({
-      type: "",
-      body: "",
-      nextTask: "",
-    });
-    setProc(procedureData);
-  };
-  const handleRemoveStep = (index) => {
-    let procedureData = { ...proc };
-    procedureData.taskList[index].stepList.pop();
-    setProc(procedureData);
+    setProcedure(procedureData);
   };
 
   const handleDelete = async () => {
-    const result = await fetch(`http://localhost:8181/procedures/${proc.name}`, {
-      method: "DELETE",
-      mode: "cors"
-    }).catch((err) => {
+    const result = await fetch(
+      `http://localhost:8181/procedures/${procedure.name}`,
+      {
+        method: "DELETE",
+        mode: "cors",
+      }
+    ).catch((err) => {
       if (err) {
         console.log(err);
       }
     });
-    const data = await result.json()
-    alert(data.message)
-    props.onChangeTab()
+    const data = await result.json();
+    alert(data.message);
+    setTab();
   };
 
   return (
-    <div className="Container-primary">
-      <form onSubmit={handleSubmit}>
-        <h3>Update Procedure Menu</h3>
-        <label>Procedure Details</label>
-        <label>Editing Procedure: {proc.name}</label>
-        <textarea
-          type="text"
-          style={{ maxWidth: "300px" }}
-          name="proc-summary"
-          placeholder="Summary"
-          defaultValue={proc.summary}
-        />
-        <label>Tasks</label>
-        <div className="Wrapped-list">
-          {proc.taskList.length > 0 ? (
-            proc.taskList.map((task, i) => {
-              return (
-                <div key={i} className="Task">
-                  <label>Task {i + 1}</label>
-                  <input
-                    type="text"
-                    name={"task-name" + i}
-                    defaultValue={task.name}
-                    placeholder="Name"
-                  />
-                  <textarea
-                    name={"task-summary" + i}
-                    defaultValue={task.summary}
-                    placeholder="Summary"
-                  />
-                  <label>Steps</label>
-                  <div>
-                    {proc.taskList[i].stepList.length > 0 ? (
-                      proc.taskList[i].stepList.map((step, j) => {
-                        return (
-                          <div key={j} className="Step">
-                            <label>Step {j + 1}</label>
-                            <input
-                              type="text"
-                              name={"step-type" + i + j}
-                              defaultValue={step.type}
-                              placeholder="Type"
-                            />
-                            <textarea
-                              name={"step-body" + i + j}
-                              defaultValue={step.body}
-                              placeholder="Body"
-                              row="5"
-                              cols="20"
-                            />
-                          </div>
-                        );
-                      })
-                    ) : (
-                      <p>No Steps</p>
-                    )}
-                    <div className="Button-group">
-                      <button type="button" onClick={() => handleAddStep(i)}>
-                        Add Step
-                      </button>
-                      <button type="button" onClick={() => handleRemoveStep(i)}>
-                        Remove Step
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })
-          ) : (
-            <p>No tasks</p>
-          )}
-        </div>
-        <div className="Button-group">
-          <button type="button" onClick={handleAddTask}>
-            Add Task
-          </button>
-          <button type="button" onClick={handleRemoveTask}>
-            Remove Task
-          </button>
-          <button type="button" onClick={handleDelete}>
-            Delete Procedure
-          </button>
-          <button type="submit">Save Changes</button>
-        </div>
-      </form>
-    </div>
+      <div className="Container-primary">
+        <form onSubmit={handleSubmit}>
+          <h3>Update Procedure Menu</h3>
+          <label>Procedure Details</label>
+          <label>Editing Procedure: {procedure.name}</label>
+          <textarea
+            type="text"
+            style={{ maxWidth: "300px" }}
+            name="proc-summary"
+            placeholder="Summary"
+            defaultValue={procedure.summary}
+          />
+          <label>Tasks</label>
+          <div className="Wrapped-list">
+            {procedure.taskList.length > 0 ? (
+              procedure.taskList.map((task, i) => {
+                return <Task key={i} task={task} i={i} />;
+              })
+            ) : (
+              <p>No tasks</p>
+            )}
+          </div>
+          <div className="Button-group">
+            <button type="button" onClick={handleAddTask}>
+              Add Task
+            </button>
+            <button type="button" onClick={handleRemoveTask}>
+              Remove Task
+            </button>
+            <button type="button" onClick={handleDelete}>
+              Delete Procedure
+            </button>
+            <button type="submit">Save Changes</button>
+          </div>
+        </form>
+      </div>
   );
 };
 

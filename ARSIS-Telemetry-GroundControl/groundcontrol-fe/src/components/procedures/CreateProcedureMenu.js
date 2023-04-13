@@ -1,32 +1,15 @@
-import React, { useState } from "react";
+import React, { useContext } from "react";
+import { ProcedureContext } from "../../pages/Procedures";
+import Task from "./Task"
 
 const CreateProcedureMenu = (props) => {
-  const defaultProc = {
-    name: "",
-    summary: "",
-    taskList: [
-      {
-        name: "",
-        summary: "",
-        stepList: [{ type: "", body: "", nextTask: "" }],
-      },
-      {
-        name: "",
-        summary: "",
-        stepList: [{ type: "", body: "", nextTask: "" }],
-      },
-      {
-        name: "",
-        summary: "",
-        stepList: [{ type: "", body: "", nextTask: "" }],
-      },
-    ],
-  };
-  const [newProcedure, setNewProcedure] = useState(defaultProc);
+  const { func, tabs } = useContext(ProcedureContext)
+  const [procedure, setProcedure] = func
+  const [tab, setTab] = tabs
 
   const handleCreate = async (e) => {
     e.preventDefault();
-    let procedureData = { ...newProcedure };
+    let procedureData = { ...procedure };
     procedureData.name = e.target["proc-name"].value;
     procedureData.summary = e.target["proc-summary"].value;
     procedureData.taskList.map((task, i) => {
@@ -54,40 +37,40 @@ const CreateProcedureMenu = (props) => {
         console.log(err);
       }
     });
-    const data = await result.json()
-    alert(data.message)
-    props.onChangeTab()
+    const data = await result.json();
+    alert(data.message);
+    setTab();
   };
 
   const handleAddTask = () => {
-    let procedureData = { ...newProcedure };
+    let procedureData = { ...procedure };
     procedureData.taskList.push({
       name: "",
       summary: "",
       stepList: [{ type: "", body: "", nextTask: "" }],
     });
-    setNewProcedure(procedureData);
+    setProcedure(procedureData);
   };
 
   const handleRemoveTask = () => {
-    let procedureData = { ...newProcedure };
+    let procedureData = { ...procedure };
     procedureData.taskList.pop();
-    setNewProcedure(procedureData);
+    setProcedure(procedureData);
   };
 
   const handleAddStep = (index) => {
-    let procedureData = { ...newProcedure };
+    let procedureData = { ...procedure };
     procedureData.taskList[index].stepList.push({
       type: "",
       body: "",
       nextTask: "",
     });
-    setNewProcedure(procedureData);
+    setProcedure(procedureData);
   };
   const handleRemoveStep = (index) => {
-    let procedureData = { ...newProcedure };
+    let procedureData = { ...procedure };
     procedureData.taskList[index].stepList.pop();
-    setNewProcedure(procedureData);
+    setProcedure(procedureData);
   };
   return (
     <div className="Container-primary">
@@ -108,59 +91,9 @@ const CreateProcedureMenu = (props) => {
         />
         <label>Tasks</label>
         <div className="Wrapped-list">
-          {newProcedure.taskList.length > 0 ? (
-            newProcedure.taskList.map((task, i) => {
-              return (
-                <div key={i} className="Task">
-                  <label>Task {i + 1}</label>
-                  <input
-                    type="text"
-                    name={"task-name" + i}
-                    defaultValue={task.name}
-                    placeholder="Name"
-                  />
-                  <textarea
-                    name={"task-summary" + i}
-                    defaultValue={task.summary}
-                    placeholder="Summary"
-                  />
-                  <label>Steps</label>
-                  <div>
-                    {newProcedure.taskList[i].stepList.length > 0 ? (
-                      newProcedure.taskList[i].stepList.map((step, j) => {
-                        return (
-                          <div key={j} className="Step">
-                            <label>Step {j + 1}</label>
-                            <input
-                              type="text"
-                              name={"step-type" + i + j}
-                              defaultValue={step.type}
-                              placeholder="Type"
-                            />
-                            <textarea
-                              name={"step-body" + i + j}
-                              defaultValue={step.body}
-                              placeholder="Body"
-                              row="5"
-                              cols="20"
-                            />
-                          </div>
-                        );
-                      })
-                    ) : (
-                      <p>No Steps</p>
-                    )}
-                    <div className="Button-group">
-                      <button type="button" onClick={() => handleAddStep(i)}>
-                        Add Step
-                      </button>
-                      <button type="button" onClick={() => handleRemoveStep(i)}>
-                        Remove Step
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
+          {procedure.taskList.length > 0 ? (
+            procedure.taskList.map((task, i) => {
+              return <Task key={i} task={task} i={i} />;
             })
           ) : (
             <p>No tasks</p>

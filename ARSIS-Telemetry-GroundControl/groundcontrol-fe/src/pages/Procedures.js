@@ -1,21 +1,43 @@
-import React, { useState } from "react";
+import React, { createContext, useState } from "react";
 import { ViewProceduresMenu, CreateProcedureMenu, UpdateProcedureMenu, SideNav } from "../components"
 import "./Procedures.css";
 
+export const ProcedureContext = createContext();
+
 const Procedures = () => {
+  const defaultProc = {
+    name: "",
+    summary: "",
+    taskList: [
+      {
+        name: "",
+        summary: "",
+        stepList: [{ type: "", body: "", nextTask: "" }],
+      },
+      {
+        name: "",
+        summary: "",
+        stepList: [{ type: "", body: "", nextTask: "" }],
+      },
+      {
+        name: "",
+        summary: "",
+        stepList: [{ type: "", body: "", nextTask: "" }],
+      },
+    ],
+  };
   const [tab, setTab] = useState(0);
-  const [selectedProc, setSelectedProc] = useState({})
+  const [procedure, setProcedure] = useState(defaultProc)
 
   function handleChangeTab(value = 0) {
+    if (value === 1) {
+      setProcedure(defaultProc)
+    }
     setTab(value)
-  }
-
-  function handleChangeSelectedProc(value) {
-    setSelectedProc(value)
   }
   
   return (
-    <>
+    <ProcedureContext.Provider value={{ func: [procedure, setProcedure], tabs: [tab, handleChangeTab]}}>
       <SideNav />
       <div className="Page">
         <h1>Procedures</h1>
@@ -24,11 +46,11 @@ const Procedures = () => {
           <button onClick={() => handleChangeTab(0)}>View All</button>
           <button onClick={() => handleChangeTab(1)}>Create</button>
         </div>
-        {tab === 0 ? <ViewProceduresMenu onChangeSelectedProc={handleChangeSelectedProc} onChangeTab={handleChangeTab} /> : <></>}
-        {tab === 1 ? <CreateProcedureMenu onChangeTab={handleChangeTab} /> : <></>}
-        {tab === 2 ? <UpdateProcedureMenu selectedProc={selectedProc} onChangeTab={handleChangeTab}/> : <></>}
+        {tab === 0 ? <ViewProceduresMenu/> : <></>}
+        {tab === 1 ? <CreateProcedureMenu /> : <></>}
+        {tab === 2 ? <UpdateProcedureMenu /> : <></>}
       </div>
-    </>
+    </ProcedureContext.Provider>
   );
 };
 

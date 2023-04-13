@@ -1,17 +1,22 @@
-import React, { useEffect, useState } from "react";
-import Procedure from "./Procedure";
+import React, { useContext, useEffect, useState } from "react";
+import { ProcedureContext } from "../../pages/Procedures";
 
-const ViewProceduresMenu = (props) => {
-  const [procedures, setProcedures] = useState([
-    { name: "Fake Proc", summary: "Fake summary", taskList: [{ name: "Fake Task list" }] },
-  ]);
+const ViewProceduresMenu = () => {
+  const [procedures, setProcedures] = useState([]);
+  const { func, tabs } = useContext(ProcedureContext);
+  const [procedure, setProcedure] = func;
+  const [tab, setTab] = tabs;
 
   const handleRefreshProcedures = async () => {
     const proceduresList = [];
     const response = await fetch("http://localhost:8181/procedures/");
     const data = await response.json();
     for (const [key, value] of Object.entries(data)) {
-      proceduresList.push({ name: key, summary: value.summary, taskList: [...value.taskList] });
+      proceduresList.push({
+        name: key,
+        summary: value.summary,
+        taskList: [...value.taskList],
+      });
     }
     setProcedures(proceduresList);
   };
@@ -21,8 +26,8 @@ const ViewProceduresMenu = (props) => {
   }, []);
 
   const handleEditProcedure = (proc) => {
-    props.onChangeSelectedProc(proc);
-    props.onChangeTab(2)
+    setProcedure(proc);
+    setTab(2);
   };
 
   return (
@@ -34,7 +39,7 @@ const ViewProceduresMenu = (props) => {
             procedures.map((proc, i) => {
               return (
                 <div key={i}>
-                  <Procedure name={proc.name} taskList={proc.taskList} />
+                  <p>{proc.name}</p>
                   <button
                     type="button"
                     onClick={() => handleEditProcedure(proc)}

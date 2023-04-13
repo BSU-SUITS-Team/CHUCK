@@ -2,11 +2,12 @@ import React from "react";
 import Task from "./Task"
 
 const Procedure = (props) => {
+  const {name, taskList} = props
   return (
     <div className="Procedure">
-      <label>{props.name}</label>
-      {props.taskList.map((task, j) => {
-        return <Task key={j} name={task.name}/>
+      <label>{name}</label>
+      {taskList.map((task, i) => {
+        return <Task key={i} task={task} i={i} />
       })}
     </div>
   );
