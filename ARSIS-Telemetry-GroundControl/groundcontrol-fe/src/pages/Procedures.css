@@ -44,4 +44,12 @@
   color: white;
   font-weight: bold;
   background-color: rgb(0, 87, 201);
+  max-width: 150px;
+}
+
+.Image-upload {
+  display: flex;
+}
+.Image-upload img {
+  width: 100px;
 }

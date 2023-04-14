@@ -12,17 +12,17 @@ const Procedures = () => {
       {
         name: "",
         summary: "",
-        stepList: [{ type: "", body: "", nextTask: "" }],
+        stepList: [{ type: "image", body: "", nextTask: "" }],
       },
       {
         name: "",
         summary: "",
-        stepList: [{ type: "", body: "", nextTask: "" }],
+        stepList: [{ type: "image", body: "", nextTask: "" }],
       },
       {
         name: "",
         summary: "",
-        stepList: [{ type: "", body: "", nextTask: "" }],
+        stepList: [{ type: "image", body: "", nextTask: "" }],
       },
     ],
   };

@@ -17,7 +17,7 @@ const CreateProcedureMenu = () => {
       task.summary = e.target["task-summary" + i].value;
       task.stepList.map((step, j) => {
         step.type = e.target["step-type" + i + j].value;
-        step.body = e.target["step-type" + i + j].value;
+        step.body = step.type === "image" ? e.target["step-body" + i + j].src : e.target["step-body" + i + j].value;
         step.nextTask =
           j === task.stepList.length - 1 &&
           i !== procedureData.taskList.length - 1
