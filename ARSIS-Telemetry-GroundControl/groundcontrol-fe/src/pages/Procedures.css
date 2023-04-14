@@ -44,11 +44,13 @@
   color: white;
   font-weight: bold;
   background-color: rgb(0, 87, 201);
-  max-width: 150px;
+  max-width: 200px;
 }
 
 .Image-upload {
   display: flex;
+  flex-direction: column;
+  margin-top: 0.5rem;
 }
 .Image-upload img {
   width: 100px;

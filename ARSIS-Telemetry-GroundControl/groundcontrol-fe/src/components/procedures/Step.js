@@ -9,10 +9,22 @@ const Step = (props) => {
     const file = e.target.files[0];
     const reader = new FileReader();
 
+    const possibleHeaders = [
+      "data:image/png;base64,",
+      "data:image/jpg;base64,",
+      "data:image/jpeg;base64,",
+    ]
+
     reader.addEventListener(
       "load",
       () => {
-        setPreview(reader.result.replace("data:*/*;base64,", ""));
+        possibleHeaders.forEach(header => {
+          if (reader.result.startsWith(header)) {
+            setPreview(reader.result.replace(header, ""));
+            return;
+          }
+        });
+        alert("File type not supported.")
       },
       false
     );
@@ -28,7 +40,6 @@ const Step = (props) => {
       <select
         name={"step-type" + i + j}
         defaultValue={step.type}
-        value={stepType}
         onChange={(e) => setStepType(e.target.value)}
       >
         <option value="text">text</option>
@@ -47,7 +58,7 @@ const Step = (props) => {
           <input type="file" onChange={(e) => previewFile(e)} />
           <img
             name={"step-body" + i + j}
-            src={preview}
+            src={"data:*/*;base64," + preview}
             alt="uploaded image preview"
           />
         </div>
