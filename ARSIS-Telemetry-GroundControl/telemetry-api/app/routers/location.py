@@ -1,13 +1,8 @@
-import random
-
 from fastapi import APIRouter, status, Response
 from pydantic import BaseModel
 from app.database import connection
 
 router = APIRouter(prefix="/location", tags=["location"])
-
-random.seed(20031101)
-
 
 class LocationLLAH(BaseModel):
     latitude: float
