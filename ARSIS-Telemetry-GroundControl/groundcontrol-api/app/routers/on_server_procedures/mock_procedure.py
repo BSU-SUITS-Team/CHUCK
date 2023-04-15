@@ -11,6 +11,16 @@ task_1_list = [
     {"type": "image", "body": suits_image, "nextTask": None},
     {
         "type": "text",
+        "body": "this is the first thing to do",
+        "nextTask": None,
+    },
+    {
+        "type": "text",
+        "body": "this is the second thing to do",
+        "nextTask": None,
+    },
+    {
+        "type": "text",
         "body": "do this next thing and if it works goto otherwise",
         "nextTask": {"procedure": "Mock Procedure", "task": 2},
     },
