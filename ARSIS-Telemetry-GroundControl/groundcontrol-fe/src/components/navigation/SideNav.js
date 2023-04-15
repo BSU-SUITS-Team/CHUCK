@@ -1,5 +1,5 @@
 import React from "react";
-import logo from "../assets/logo.png";
+import logo from "../../assets/logo.png";
 import { AiFillDashboard } from "react-icons/ai";
 import { FcProcess } from "react-icons/fc";
 import { FaUserAstronaut } from "react-icons/fa";
@@ -11,6 +11,7 @@ import {
   BsFillQuestionCircleFill,
   BsFillHeartPulseFill
 } from "react-icons/bs";
+import "./SideNav.css"
 
 const SideNav = () => {
 
