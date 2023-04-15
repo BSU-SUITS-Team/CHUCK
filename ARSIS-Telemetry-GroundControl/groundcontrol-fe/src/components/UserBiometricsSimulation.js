@@ -36,21 +36,22 @@ const UserBiometrics = ({ id, name, updateInterval }) => {
 
     const putUpdates = async () => {
         const updates = {
-            'heartrate': parseInt(updateHeartrate),
-            'o2': parseInt(updateO2),
-            'battery': parseInt(updateBattery)
+            heartrate: parseInt(updateHeartrate),
+            o2: parseInt(updateO2),
+            battery: parseInt(updateBattery)
         }
 
         const options = {
-            method: 'POST',
+            method: "POST",
+            mode: "cors",
             headers: {
-                'accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'POST,PATCH,OPTIONS'
+                "accept": "application/json",
+                "Content-Type": "application/json",
             },
-            body: JSON.stringify(updates)
+            body: JSON.stringify(updates),
         }
+
+        console.log(options.body);
 
         try {
             const values = await fetch(`http://localhost:8080/biometrics/${id}/update_biometrics`, options)
@@ -113,7 +114,7 @@ const UserBiometrics = ({ id, name, updateInterval }) => {
                 </tr>
                 <tr>
                     <td>{updateO2}<br/><input type="range" min="0" max="100" value={updateO2} onChange={(e) => setUpdateO2(e.target.value)} /></td>
-                    <td>{updateHeartrate}<br /><input type="range" min="0" max="300" value={updateHeartrate} onChange={(e) => setUpdateHeartrate(e.target.value)} /></td>
+                    <td>{updateHeartrate}<br /><input type="range" min="0" max="250" value={updateHeartrate} onChange={(e) => setUpdateHeartrate(e.target.value)} /></td>
                     <td>{updateBattery}<br /><input type="range" min="0" max="100" value={updateBattery} onChange={(e) => setUpdateBattery(e.target.value)} /></td>
                 </tr>
                 </tbody>

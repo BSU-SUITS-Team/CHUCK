@@ -1,6 +1,6 @@
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Dashboard, Procedures } from "./pages";
+import { Dashboard, Procedures, BiometricsSimulation, Biometrics } from "./pages";
 
 function App() {
   return (
@@ -8,6 +8,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/procedures" element={<Procedures />} />
+        <Route path="/biometrics" element={<Biometrics />} />
+        <Route path="/simulation/biometrics" element={<BiometricsSimulation />} />
       </Routes>
     </BrowserRouter>
   );

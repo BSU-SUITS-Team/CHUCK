@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import SideNav from '../components/SideNav';
 import UserBiometricsSimulation from '../components/UserBiometricsSimulation';
 import './BiometricsSimulation.css';
 
@@ -18,14 +19,17 @@ const BiometricsSimulation = () => {
 
     return (
         <>
-            <h1>Biometrics Simulation</h1>
-            <button onClick={fetchUsers}>Refresh Users</button>
-            <br />
-            <label>Update Interval: {updateIntveral} update(s) per second</label>
-            <br />
-            <input type="range" min="0" max="25" value={updateIntveral} onChange={(e) => setUpdateInterval(e.target.value)}/>
-            <div className='userPanel'>
-                {users.map(user => <UserBiometricsSimulation id={user.id} name={user.name} updateIntveral={updateIntveral}/>)}
+            <SideNav />
+            <div className='Page'>
+                <h1>Biometrics Simulation</h1>
+                <button onClick={fetchUsers}>Fetch Users</button>
+                {/* <br />
+                <label>Update Interval: {updateIntveral} update(s) per second</label>
+                <br /> */}
+                <input type="range" min="0" max="25" value={updateIntveral} onChange={(e) => setUpdateInterval(e.target.value)}/>
+                <div className='userPanel'>
+                    {users.map(user => <UserBiometricsSimulation key={user.id} id={user.id} name={user.name}/>)}
+                </div>
             </div>
         </>
     );
