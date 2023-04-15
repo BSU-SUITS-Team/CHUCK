@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from pydantic import BaseModel
+from app.routers.on_server_procedures.create_procedure import CreateProcedure
 
 from .on_server_procedures.mock_procedure import MockProcedure
 
@@ -7,7 +7,7 @@ router = APIRouter(prefix="/procedures", tags=["procedures"])
 
 mock_procedure = MockProcedure()
 
-in_mem_procedures = {mock_procedure.get_name(): mock_procedure.get_task_list_encoded()}
+in_mem_procedures = {mock_procedure.get_name(): { "summary": mock_procedure.get_summary(), "taskList": mock_procedure.get_task_list_encoded()}}
 
 @router.get("/")
 async def procedures():
@@ -24,7 +24,29 @@ def procedure(name: str):
         }
     return {"name": "Not found", "taskList": []}
 
+@router.patch("/")
+def procedure(incoming_procedure: dict):
+    proc_to_update = in_mem_procedures.get(incoming_procedure["name"], None)
+    if proc_to_update is None:
+        return { "error": f"Procedure with name: {incoming_procedure['name']} not found"}
+    updated_proc = CreateProcedure(incoming_procedure["name"], incoming_procedure["summary"])
+    for task in incoming_procedure["taskList"]:
+        updated_proc.add_task(task["name"], task["summary"], task["stepList"])
+    in_mem_procedures[incoming_procedure["name"]] = updated_proc.to_json()
+    return { "message": "Procedure successfully updated"}
+
+@router.delete("/{name}")
+def procedure(name: str):
+    proc_to_delete = in_mem_procedures.get(name, None)
+    if proc_to_delete is None:
+        return { "error": f"Procedure with name: {name} not found"}
+    in_mem_procedures.pop(name)
+    return { "message": "Procedure successfully deleted"}
+
 @router.post("/")
-def procedure(procedure: dict):
-    print(procedure)
-    return procedure
+def procedure(new_procedure: dict):
+    procedure = CreateProcedure(new_procedure["name"], new_procedure["summary"])
+    for task in new_procedure["taskList"]:
+        procedure.add_task(task["name"], task["summary"], task["stepList"])
+    in_mem_procedures[procedure.get_name()] = procedure.to_json()
+    return { "message": "Procedure successfully created"}
