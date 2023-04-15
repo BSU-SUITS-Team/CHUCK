@@ -24,9 +24,9 @@ CREATE TABLE IF NOT EXISTS locations (
 CREATE TABLE IF NOT EXISTS biometrics (
   uuid uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   id SERIAL REFERENCES users,
+  heartrate INTEGER NOT NULL,
   o2 INTEGER NOT NULL,
   battery INTEGER NOT NULL,
-  heartrate INTEGER NOT NULL,
   createdAt TIMESTAMP DEFAULT now(),
   updatedAt TIMESTAMP DEFAULT now()
 );

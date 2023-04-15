@@ -118,7 +118,7 @@ public class TelemetryClient : MonoBehaviour
         while(registeredUser == null){
             yield return telemetryPollingDelay;
         }
-            /* StartCoroutine(StartPollingEndpoint<BiometricsEvent>(telemetryServerBiometrics, telemetryPollingDelay)); */
+            StartCoroutine(StartPollingEndpoint<BiometricsEvent>(Endpoint.BIOMETRICS, telemetryPollingDelay));
             StartCoroutine(StartPollingEndpoint<LocationEvent>(Endpoint.LOCATION, telemetryPollingDelay));
             yield return null;
     }
