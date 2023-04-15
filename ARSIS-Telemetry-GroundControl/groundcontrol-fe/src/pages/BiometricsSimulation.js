@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import UserBiometricsSimulation from '../components/UserBiometricsSimulation';
+import { UserBiometricsSimulation } from '../components';
 import './BiometricsSimulation.css';
 
 const BiometricsSimulation = () => {
