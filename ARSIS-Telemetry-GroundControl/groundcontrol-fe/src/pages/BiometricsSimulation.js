@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import SideNav from '../components/SideNav';
-import UserBiometricsSimulation from '../components/UserBiometricsSimulation';
+import SideNav from '../components/navigation/SideNav';
+import UserBiometricsSimulation from '../components/biometrics/UserBiometricsSimulation';
 import './BiometricsSimulation.css';
 
 const BiometricsSimulation = () => {

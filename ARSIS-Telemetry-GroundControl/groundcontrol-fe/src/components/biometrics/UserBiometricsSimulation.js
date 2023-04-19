@@ -43,7 +43,7 @@ const UserBiometrics = ({ id, name, updateInterval }) => {
 
         const options = {
             method: "POST",
-            mode: "cors",
+            mode: "no-cors",
             headers: {
                 "accept": "application/json",
                 "Content-Type": "application/json",
