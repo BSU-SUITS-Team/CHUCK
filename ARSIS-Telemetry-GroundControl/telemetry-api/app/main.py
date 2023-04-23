@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import biometrics, location, user, uia
-from app.caches.user_cache import UserCache
 
 app = FastAPI()
 app.include_router(location.router)
