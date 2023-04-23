@@ -27,6 +27,11 @@ CREATE TABLE IF NOT EXISTS biometrics (
   heartrate INTEGER NOT NULL,
   o2 INTEGER NOT NULL,
   battery INTEGER NOT NULL,
+  fan INTEGER NOT NULL,
+  vent BOOLEAN NOT NULL,
+  co2 INTEGER NOT NULL,
+  sop BOOLEAN NOT NULL,
+  suitPressure INTEGER NOT NULL,
   createdAt TIMESTAMP DEFAULT now(),
   updatedAt TIMESTAMP DEFAULT now()
 );

@@ -15,8 +15,13 @@ class Biometrics(BaseModel):
     heartrate: int
     o2: int
     battery: int
+    fan: int
+    vent: bool
+    co2: int
+    sop: bool
+    suitPressure: int
 
-keys = ['id', 'heartrate', 'o2', 'battery', 'createdAt', 'updatedAt']
+keys = ['id', 'heartrate', 'o2', 'battery', 'fan', 'vent', 'co2', 'sop', 'suitPressure', 'createdAt', 'updatedAt']
 
 @router.get("/")
 async def get_biometrics():
@@ -43,7 +48,7 @@ async def user_biometrics(res: Response, user_id: int):
 async def update_user_biometrics(user_id: int, new_biometrics: Biometrics):
     with connection.cursor() as db:
         keys_post = f"{keys[0]}, {keys[1]}, {keys[2]}, {keys[3]}"
-        values = f"{user_id}, {new_biometrics.heartrate}, {new_biometrics.o2}, {new_biometrics.battery}"
+        values = f"{user_id}, {new_biometrics.heartrate}, {new_biometrics.o2}, {new_biometrics.battery}, {new_biometrics.fan}, {new_biometrics.vent}, {new_biometrics.co2}, {new_biometrics.sop}, {new_biometrics.suitPressure}"
         query = f"INSERT INTO biometrics ({keys_post}) VALUES ({values}) RETURNING *;"
         db.execute(query)
         row = db.fetchone()
