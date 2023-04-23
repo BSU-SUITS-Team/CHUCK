@@ -9,7 +9,7 @@ public class BiometricsCache : MonoBehaviour
     public BiometricsEvent BiometricsEvent;
     private static int MINUTES = 5;
     private static int MAX_ENTRYS = 60*MINUTES;
-    private List<BiometricsEvent> BiometricsList;eee
+    private List<BiometricsEvent> BiometricsList;
     public static BiometricsCache BiometricsCacheSingleton { get; private set; }
     private void Awake()
     {
@@ -45,5 +45,29 @@ public class BiometricsCache : MonoBehaviour
 
     public string getBiometricsString(){
         return BiometricsEvent.heartrate.ToString();
+    }
+
+    public List<float> getHeartrateList{
+        List<float> heartrateList = new List<float>()
+        foreach (BiometricsEvent biometricsEvent in BiometricsList){
+            heartrateList.append(biometricsEvent.heartrate);
+        }
+        return heartrateList;
+    }
+
+    public List<float> getO2List{
+        List<float> o2List = new List<float>()
+        foreach (BiometricsEvent biometricsEvent in BiometricsList){
+            o2List.append(biometricsEvent.o2);
+        }
+        return o2List;
+    }
+
+    public List<float> getBatteryList{
+        List<float> batteryList = new List<float>()
+        foreach (BiometricsEvent biometricsEvent in BiometricsList){
+            batteryList.append(biometricsEvent.battery);
+        }
+        return batteryList;
     }
 }

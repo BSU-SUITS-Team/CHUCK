@@ -13,6 +13,7 @@ public class LocationCache : MonoBehaviour
     public static LocationCache LocationCacheSingleton { get; private set; }
     private void Awake()
     {
+        LocationList = new List<LocationEvent>();
         if (LocationCacheSingleton != null && LocationCacheSingleton != this)
         {
             Destroy(this);
@@ -43,5 +44,12 @@ public class LocationCache : MonoBehaviour
 
     public string getLocationString(){
         return locationEvent.heading.ToString();
+    }
+    public List<float> getLocationList{
+        List<float> locationList = new List<float>()
+        foreach (LocationEvent locationEvent in LocationList){
+            locationList.append(locationEvent.location);
+        }
+        return locationList;
     }
 }
