@@ -1,10 +1,44 @@
-.App {
-  text-align: center;
+.Page {
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem 2rem;
+  position: absolute;
+  top: 0;
+  left: 15vw;
 }
 
 .App-logo {
-  height: 40vmin;
-  pointer-events: none;
+  width: 8vw;
+  pointer-events: none; 
+}
+
+.Container-primary {
+  display: flex;
+  border-radius: 10px;
+  background-color: white;
+  padding: 10px;
+}
+
+.Container-primary form {
+  display: flex;
+  flex-direction: column;
+  border-style: solid;
+  border-width: 1px;
+  padding: 1rem;
+}
+
+.Container-primary input {
+  margin-bottom: 1rem;
+}
+
+.Container-primary label {
+  margin: 0.5rem 0rem 0.8rem 0rem;
+}
+
+.Button-group button {
+  margin: 0.2rem 0.2rem;
+  padding: 0.2rem 0.5rem;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -26,13 +60,4 @@
 
 .App-link {
   color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
 }

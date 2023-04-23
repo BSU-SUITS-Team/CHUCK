@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 public class GSLogger : MonoBehaviour
 {
     // Start is called before the first frame update
-    private static string groundStationUrl = "http://localhost:8181/logger/";
+    private static string groundStationUrl = "http://localhost:8181/logs/";
     void Start()
     {
         EventManager.AddListenerToAll(GSLoggerCallback);

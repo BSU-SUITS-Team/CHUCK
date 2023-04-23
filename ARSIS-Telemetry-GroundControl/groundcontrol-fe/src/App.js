@@ -1,14 +1,15 @@
-import logo from './logo.svg';
-import './App.css';
-
-import TaskRow from './components/TaskRow';
+import "./App.css";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Dashboard, Procedures } from "./pages";
 
 function App() {
   return (
-    <div className="App">
-      <h1>landing page</h1>
-      <TaskRow></TaskRow>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/procedures" element={<Procedures />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
