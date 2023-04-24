@@ -39,6 +39,9 @@ class MockProcedure:
 
     def get_name(self):
         return self.name
+    
+    def get_summary(self):
+        return self.summary
 
     def get_task_list(self):
         return self.task_list
