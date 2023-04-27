@@ -18,7 +18,7 @@ const useInterval = (callback, delay) => {
     }, [delay]);
 };
 
-const UserBiometrics = ({ id, name, updateInterval }) => {
+const UserBiometricsSimulation = ({ id, name }) => {
     const [o2, setO2] = useState(0);
     const [heartrate, setHeartrate] = useState(0);
     const [battery, setBattery] = useState(0);
@@ -27,7 +27,7 @@ const UserBiometrics = ({ id, name, updateInterval }) => {
     const [updateBattery, setUpdateBattery] = useState(battery);
 
     const fetchBiometrics = async () => {
-        const response = await fetch(`http://localhost:8080/biometrics/${id}`);
+        const response = await fetch(`http://localhost:8080/biometrics/${id}/`);
         const { o2, heartrate, battery } = await response.json();
         setO2(o2);
         setHeartrate(heartrate);
@@ -43,18 +43,16 @@ const UserBiometrics = ({ id, name, updateInterval }) => {
 
         const options = {
             method: "POST",
-            mode: "no-cors",
+            mode: "cors",
             headers: {
-                "accept": "application/json",
+                "Accept": "application/json",
                 "Content-Type": "application/json",
             },
             body: JSON.stringify(updates),
         }
 
-        console.log(options.body);
-
         try {
-            const values = await fetch(`http://localhost:8080/biometrics/${id}/update_biometrics`, options)
+            const values = await fetch(`http://localhost:8080/biometrics/${id}/update_biometrics/`, options)
                 .then(response => {
                     if (!response.ok) {
                         return {
@@ -80,9 +78,9 @@ const UserBiometrics = ({ id, name, updateInterval }) => {
         fetchBiometrics();
     }, []);
 
-    // useInterval(() => {
-    //     putUpdates();
-    // }, updateInterval * 10000);
+    useInterval(async () => {
+        await putUpdates();
+    }, 1000);
 
     return (
         <div className='user'>
@@ -90,37 +88,40 @@ const UserBiometrics = ({ id, name, updateInterval }) => {
             <h2>ID: {id}, Name: {name}</h2>
             <table>
                 <tbody>
-
-                <th colSpan='3'>Current Values</th>
-                <tr>
-                    <th>Oxygen</th>
-                    <th>Heartrate</th>
-                    <th>Battery</th>
-                </tr>
-                <tr>
-                    <td>{o2 ?? 'N/A'}</td>
-                    <td>{heartrate ?? 'N/A'}</td>
-                    <td>{battery ?? 'N/A'}</td>
-                </tr>
+                    <tr>
+                        <th colSpan='3'>Current Values</th>
+                    </tr>
+                    <tr>
+                        <th>Oxygen</th>
+                        <th>Heartrate</th>
+                        <th>Battery</th>
+                    </tr>
+                    <tr>
+                        <td>{o2 ?? 'N/A'}</td>
+                        <td>{heartrate ?? 'N/A'}</td>
+                        <td>{battery ?? 'N/A'}</td>
+                    </tr>
                 </tbody>
             </table>
             <table>
                 <tbody>
-                <th colSpan='3'>Update Values</th>
-                <tr>
-                    <th>Oxygen</th>
-                    <th>Heartrate</th>
-                    <th>Battery</th>
-                </tr>
-                <tr>
-                    <td>{updateO2}<br/><input type="range" min="0" max="100" value={updateO2} onChange={(e) => setUpdateO2(e.target.value)} /></td>
-                    <td>{updateHeartrate}<br /><input type="range" min="0" max="250" value={updateHeartrate} onChange={(e) => setUpdateHeartrate(e.target.value)} /></td>
-                    <td>{updateBattery}<br /><input type="range" min="0" max="100" value={updateBattery} onChange={(e) => setUpdateBattery(e.target.value)} /></td>
-                </tr>
+                    <tr>
+                        <th colSpan='3'>Update Values</th>
+                    </tr>
+                    <tr>
+                        <th>Oxygen</th>
+                        <th>Heartrate</th>
+                        <th>Battery</th>
+                    </tr>
+                    <tr>
+                        <td>{updateO2}<br/><input type="range" min="0" max="100" value={updateO2} onChange={(e) => setUpdateO2(e.target.value)} /></td>
+                        <td>{updateHeartrate}<br /><input type="range" min="0" max="250" value={updateHeartrate} onChange={(e) => setUpdateHeartrate(e.target.value)} /></td>
+                        <td>{updateBattery}<br /><input type="range" min="0" max="100" value={updateBattery} onChange={(e) => setUpdateBattery(e.target.value)} /></td>
+                    </tr>
                 </tbody>
             </table>
         </div>
     )
 };
 
-export default UserBiometrics;
+export default UserBiometricsSimulation;

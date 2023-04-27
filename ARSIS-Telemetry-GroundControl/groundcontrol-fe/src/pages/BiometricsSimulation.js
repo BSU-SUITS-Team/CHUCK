@@ -23,9 +23,6 @@ const BiometricsSimulation = () => {
             <div className='Page'>
                 <h1>Biometrics Simulation</h1>
                 <button onClick={fetchUsers}>Fetch Users</button>
-                {/* <br />
-                <label>Update Interval: {updateIntveral} update(s) per second</label>
-                <br /> */}
                 <input type="range" min="0" max="25" value={updateIntveral} onChange={(e) => setUpdateInterval(e.target.value)}/>
                 <div className='userPanel'>
                     {users.map(user => <UserBiometricsSimulation key={user.id} id={user.id} name={user.name}/>)}

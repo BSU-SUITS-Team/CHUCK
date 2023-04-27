@@ -9,16 +9,12 @@ app.include_router(biometrics.router)
 app.include_router(user.router)
 app.include_router(uia.router)
 
-origins = [
-    "http://localhost:3000/"
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=[""],
-    allow_headers=[""],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 @app.get("/")
