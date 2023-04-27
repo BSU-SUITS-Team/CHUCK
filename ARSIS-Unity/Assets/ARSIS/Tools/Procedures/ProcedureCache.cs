@@ -56,4 +56,12 @@ public class ProcedureCache : MonoBehaviour
         procedureCache[pe.name] = pe;
         numberOfProcedures = Count();
     }
+
+    Dictionary<string, ProcedureEvent> getProcedures(){
+        return new Dictionary<string, ProcedureEvent>(procedureCache);
+    }
+
+    List<string> getProcedureNames(){
+        return new List<string>(procedureCache.Keys);
+    }
 }
