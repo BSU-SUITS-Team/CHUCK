@@ -52,6 +52,12 @@ public class ProcedureCache : MonoBehaviour
         yield return null;
     }
 
+    IEnumerator updateProcedures(){
+        UpdateProceduresEvent up = new UpdateProceduresEvent();
+        EventManager.Trigger(up);
+        yield return null;
+    }
+
     void proccessProcedureEvent(ProcedureEvent pe){
         procedureCache[pe.name] = pe;
         numberOfProcedures = Count();
