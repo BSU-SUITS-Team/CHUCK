@@ -1,4 +1,4 @@
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, Response
 from pydantic import BaseModel
 from app.database import connection
 from psycopg2 import errors
@@ -23,15 +23,15 @@ def get_all_users():
 
 
 @router.get("/{user_id}")
-async def get_user(user_id: int):
+async def get_user(res: Response, user_id: int):
     with connection.cursor() as db:
         db.execute("SELECT * FROM users WHERE id = %s;", (user_id,))
         (id, name, createdAt) = db.fetchone()
         if id and name and createdAt:
             return {"id": id, "name": name, "createdAt": createdAt}
         else:
-            return status.HTTP_404_NOT_FOUND
-        connection.commit()
+            res.status_code = status.HTTP_404_NOT_FOUND
+            return {"error": f"User with id: {user_id} not found"}
 
 
 @router.put("/")
