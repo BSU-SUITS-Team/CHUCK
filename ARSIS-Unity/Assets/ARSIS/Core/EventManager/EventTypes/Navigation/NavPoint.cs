@@ -1,18 +1,17 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public class NavPoint : MonoBehaviour
-{
-    // Start is called before the first frame update
-    void Start()
+namespace ARSISEventSystem {
+    public class NavPoint : BaseArsisEvent
     {
-        
-    }
+        public readonly string name;
+        public readonly float lat;
+        public readonly float lon;
+        public readonly float altitude;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+
+        public NavPoint(string name, float lat, float lon, float altitude){
+            this.name = name;
+            this.lat = lat;
+            this.lon = lon;
+            this.altitude = altitude;
+        }
     }
 }

@@ -13,12 +13,16 @@ class CreatePath:
     def add_point(self, point):
         self.points.append(point)
 
-    def as_json(self):
-        to_retun_as_json = {
+    def get_dict(self):
+        to_return = {
             "type": self.type,
             "points": [p.get_dict() for p in self.points],
         }
-        return json.dumps(to_retun_as_json)
+        return to_return
+
+    def as_json(self):
+        to_return_as_json = self.get_dict
+        return json.dumps(to_return_as_json)
 
 
 class CreatePoint:

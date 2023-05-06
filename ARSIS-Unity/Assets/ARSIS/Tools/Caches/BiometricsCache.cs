@@ -27,12 +27,10 @@ public class BiometricsCache : MonoBehaviour
     }
     void UpdateBiometrics(BiometricsEvent be){
         BiometricsEvent = be;
-        Debug.Log(BiometricsEvent.heartrate);
         if (BiometricsList.Count > MAX_ENTRYS){
             BiometricsList.RemoveAt(0);
         }
         BiometricsList.Add(be);
-        Debug.Log(BiometricsList.Count);
     }
 
     public float getHeartrate(){
@@ -41,10 +39,6 @@ public class BiometricsCache : MonoBehaviour
             heartrate = BiometricsEvent.heartrate;
         }
         return heartrate;
-    }
-
-    public string getBiometricsString(){
-        return BiometricsEvent.heartrate.ToString();
     }
 
     public List<float> getHeartrateList(){

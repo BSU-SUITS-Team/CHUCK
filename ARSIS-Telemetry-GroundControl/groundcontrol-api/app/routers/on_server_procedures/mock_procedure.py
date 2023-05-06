@@ -39,7 +39,7 @@ class MockProcedure:
 
     def get_name(self):
         return self.name
-    
+
     def get_summary(self):
         return self.summary
 
@@ -48,3 +48,6 @@ class MockProcedure:
 
     def get_task_list_encoded(self):
         return self.task_list
+
+    def get_dict(self):
+        return {"name": self.name, "summary": self.summary, "taskList": self.task_list}

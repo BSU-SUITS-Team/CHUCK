@@ -20,7 +20,7 @@ public class NaviagtionUpdate : MonoBehaviour
         StartCoroutine(getNavigation(pg));
     }
     IEnumerator getNavigation(NavigationGet navigationToGet){
-        string name = navigationToGet.navigationName;
+        string name = navigationToGet.navigationPathName;
         Debug.Log(name);
         UnityWebRequest www = UnityWebRequest.Get(navigationEndpoint+name);
         yield return www.SendWebRequest();

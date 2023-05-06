@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 
 namespace ARSISEventSystem{
-    public class ProcedureGet : BaseArsisEvent
+    public class NavigationGet : BaseArsisEvent
     {
         public string navigationPathName;
-        public ProcedureGet(string navigationPathName){
+        public NavigationGet(string navigationPathName){
             this.navigationPathName = navigationPathName;
         }
     }
