@@ -23,7 +23,7 @@ def procedure(name: str):
 
 
 @router.patch("/")
-def procedure(incoming_procedure: dict):
+def procedure_PATCH(incoming_procedure: dict):
     proc_to_update = in_mem_procedures.get(incoming_procedure["name"], None)
     if proc_to_update is None:
         return {"error": f"Procedure with name: {incoming_procedure['name']} not found"}
@@ -37,7 +37,7 @@ def procedure(incoming_procedure: dict):
 
 
 @router.delete("/{name}")
-def procedure(name: str):
+def procedure_DELETE(name: str):
     proc_to_delete = in_mem_procedures.get(name, None)
     if proc_to_delete is None:
         return {"error": f"Procedure with name: {name} not found"}
@@ -46,7 +46,7 @@ def procedure(name: str):
 
 
 @router.post("/")
-def procedure(new_procedure: dict):
+def procedure_POST(new_procedure: dict):
     procedure = CreateProcedure(new_procedure["name"], new_procedure["summary"])
     for task in new_procedure["taskList"]:
         procedure.add_task(task["name"], task["summary"], task["stepList"])

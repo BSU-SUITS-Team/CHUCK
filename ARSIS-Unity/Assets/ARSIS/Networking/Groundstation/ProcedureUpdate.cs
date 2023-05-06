@@ -30,11 +30,8 @@ public class ProcedureUpdate : MonoBehaviour
         else {
             // Show results as text
             string resultString = www.downloadHandler.text;
-
-            Debug.Log(resultString);
             Dictionary<string, ProcedureEvent> dictOnly = JsonConvert.DeserializeObject<Dictionary<string, ProcedureEvent>>(resultString);
             ProcedureDictionary newProcedureDictionary = new ProcedureDictionary(dictOnly);
-            Debug.Log(newProcedureDictionary.procedureDictionary);
             EventManager.Trigger(newProcedureDictionary);
         }
     }
