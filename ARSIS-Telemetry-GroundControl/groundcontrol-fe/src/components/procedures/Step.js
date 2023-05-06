@@ -15,16 +15,21 @@ const Step = (props) => {
       "data:image/jpeg;base64,",
     ]
 
+    let cantRead = true;
+
     reader.addEventListener(
       "load",
       () => {
         possibleHeaders.forEach(header => {
           if (reader.result.startsWith(header)) {
             setPreview(reader.result.replace(header, ""));
+            cantRead = false
             return;
           }
         });
-        alert("File type not supported.")
+        if (cantRead) {
+          alert("File type not supported.")
+        }
       },
       false
     );
