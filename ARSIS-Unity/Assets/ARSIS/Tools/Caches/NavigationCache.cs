@@ -55,7 +55,6 @@ public class NavigationCache : MonoBehaviour
     IEnumerator updateNavigation(){
         UpdateNavigationEvent up = new UpdateNavigationEvent();
         EventManager.Trigger(up);
-        Debug.Log("test");
         yield return null;
     }
 

@@ -17,12 +17,10 @@ public class NavigationUpdate : MonoBehaviour
     }
 
     void updateNavigationTrigger(UpdateNavigationEvent up){
-        Debug.Log("asdfasdf");
         StartCoroutine(updateNavigation());
     }
 
     IEnumerator updateNavigation(){
-        Debug.Log("asdf");
         UnityWebRequest www = UnityWebRequest.Get(navigationEndpoint);
         yield return www.SendWebRequest();
 
@@ -32,7 +30,6 @@ public class NavigationUpdate : MonoBehaviour
         else {
             // Show results as text
             string resultString = www.downloadHandler.text;
-            Debug.Log(resultString);
             Dictionary<string, NavigationEvent> dictOnly = JsonConvert.DeserializeObject<Dictionary<string, NavigationEvent>>(resultString);
             NavigationDictionary newNavigationDictionary = new NavigationDictionary(dictOnly);
             EventManager.Trigger(newNavigationDictionary);
@@ -44,7 +41,6 @@ public class NavigationUpdate : MonoBehaviour
     }
     IEnumerator getNavigation(NavigationGet navigationToGet){
         string name = navigationToGet.navigationPathName;
-        Debug.Log(name);
         UnityWebRequest www = UnityWebRequest.Get(navigationEndpoint+name);
         yield return www.SendWebRequest();
 
@@ -54,9 +50,7 @@ public class NavigationUpdate : MonoBehaviour
         else {
             // Show results as text
             string resultString = www.downloadHandler.text;
-            Debug.Log(resultString);
             NavigationEvent newNavigationEvent = JsonConvert.DeserializeObject<NavigationEvent>(resultString);
-            Debug.Log("before trigger" + newNavigationEvent.name);
             EventManager.Trigger(newNavigationEvent);
         }
     }
