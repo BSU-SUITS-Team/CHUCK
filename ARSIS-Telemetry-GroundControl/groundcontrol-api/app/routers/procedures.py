@@ -6,7 +6,7 @@ from .on_server_procedures.mock_procedure import mock_procedure
 router = APIRouter(prefix="/procedures", tags=["procedures"])
 
 procedure_list = [mock_procedure]
-in_mem_procedures = {p.get_name(): p for p in procedure_list}
+in_mem_procedures = {p.get_name(): p.to_dict() for p in procedure_list}
 
 
 @router.get("/")

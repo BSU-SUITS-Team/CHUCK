@@ -22,7 +22,7 @@ public class ProceduresDisplay : MonoBehaviour
             GameObject textGO = new GameObject();
             TextMeshProUGUI text = textGO.AddComponent<TextMeshProUGUI>();
             text.text = pe.taskList.Count.ToString();
-            Task task0 = pe.taskList[0];
+            ARSISTask task0 = pe.taskList[0];
             foreach(Step s in task0.stepList){
                 GameObject taskGO = new GameObject();
                 taskGO.transform.SetParent(this.transform);

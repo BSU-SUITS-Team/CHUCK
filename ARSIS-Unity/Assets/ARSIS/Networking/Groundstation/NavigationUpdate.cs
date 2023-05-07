@@ -4,11 +4,13 @@ using UnityEngine;
 using ARSISEventSystem;
 using UnityEngine.Networking;
 using Newtonsoft.Json;
-
+using System.Net.Http;
+using System.Threading.Tasks;
 
 public class NavigationUpdate : MonoBehaviour
 {
-    private static string navigationEndpoint = "http://0.0.0.0:8181/navigation/";
+    private static string navigationEndpoint = "http://127.0.0.1:8181/navigation/";
+    private readonly HttpClient httpClient = new HttpClient();
     // Start is called before the first frame update
     void Start()
     {
@@ -17,19 +19,24 @@ public class NavigationUpdate : MonoBehaviour
     }
 
     void updateNavigationTrigger(UpdateNavigationEvent up){
-        StartCoroutine(updateNavigation());
+        Debug.Log("updateNavigationTrigger");
+        Task updateTask = Task.Run(() => updateNavigation());
+        updateTask.GetAwaiter().GetResult();
     }
 
-    IEnumerator updateNavigation(){
-        UnityWebRequest www = UnityWebRequest.Get(navigationEndpoint);
-        yield return www.SendWebRequest();
+    public async Task updateNavigation(){
+        var response = await httpClient.GetAsync(navigationEndpoint);
+        var content = await response.Content.ReadAsStringAsync();
+        /* UnityWebRequest www = UnityWebRequest.Get(navigationEndpoint); */
+        /* yield return www.SendWebRequest(); */
 
-        if (www.result != UnityWebRequest.Result.Success) {
-            Debug.Log(www.error);
+        if (response.StatusCode != System.Net.HttpStatusCode.OK) {
+            Debug.Log(response.StatusCode);
         }
         else {
             // Show results as text
-            string resultString = www.downloadHandler.text;
+            string resultString = content;
+            Debug.Log(resultString);
             Dictionary<string, NavigationEvent> dictOnly = JsonConvert.DeserializeObject<Dictionary<string, NavigationEvent>>(resultString);
             NavigationDictionary newNavigationDictionary = new NavigationDictionary(dictOnly);
             EventManager.Trigger(newNavigationDictionary);
@@ -37,9 +44,9 @@ public class NavigationUpdate : MonoBehaviour
     }
 
     void getNavigationTrigger(NavigationGet pg){
-        StartCoroutine(getNavigation(pg));
+        StartCoroutine(getNavigation(pg).GetEnumerator());
     }
-    IEnumerator getNavigation(NavigationGet navigationToGet){
+    IEnumerable getNavigation(NavigationGet navigationToGet){
         string name = navigationToGet.navigationPathName;
         UnityWebRequest www = UnityWebRequest.Get(navigationEndpoint+name);
         yield return www.SendWebRequest();

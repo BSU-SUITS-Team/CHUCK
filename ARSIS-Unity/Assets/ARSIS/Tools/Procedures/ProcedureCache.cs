@@ -62,9 +62,10 @@ public class ProcedureCache : MonoBehaviour
         if (pd.procedureDictionary == null){
             return;
         }
-        foreach(KeyValuePair<string, ProcedureEvent> entry in pd.procedureDictionary){
-            procedureCache[entry.Key] = entry.Value;
-        }
+        /* foreach(KeyValuePair<string, ProcedureEvent> entry in pd.procedureDictionary){ */
+        /*     procedureCache[entry.Key] = entry.Value; */
+        /* } */
+        procedureCache = pd.procedureDictionary;
         numberOfProcedures = Count();
     }
 

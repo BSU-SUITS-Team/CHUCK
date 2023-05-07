@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 using WebSocketSharp;
 using ARSISEventSystem;
@@ -6,7 +7,7 @@ using ARSISEventSystem;
 public class UpdateWebSocket : MonoBehaviour
 {
     private WebSocket ws;
-    Dictionary<string, Type> updateDict;
+    Dictionary<string, object> updateDict;
 
     private static string ws_update_url = "ws://127.0.0.1:8181/ws/updates";
     private void Start()
@@ -17,8 +18,10 @@ public class UpdateWebSocket : MonoBehaviour
         {
             ParseWSData(e);
         };
+        updateDict = new Dictionary<string, object>();
 
-        updateDict.Add("NAVIGATION", ARSISEventSystem.UpdateNavigationEvent());
+        updateDict.Add("NAVIGATION",new UpdateNavigationEvent());
+        updateDict.Add("PROCEDURES",new UpdateProceduresEvent());
     }
     private void Update()
     {
@@ -26,10 +29,10 @@ public class UpdateWebSocket : MonoBehaviour
     }
     private void ParseWSData(WebSocketSharp.MessageEventArgs e)
     {
-        /* SuitsEventType suitsEventType = (SuitsEventType)SuitsEventTelemetry.CreateFromJSON(e.Data); */
         Debug.Log(e.Data);
-        /* Debug.Log("in wsclient " + suitsEventType.Type); */
-        /* EventManager.TriggerEvent(suitsEventType); */
+        object EventToTrigger = updateDict.GetValueOrDefault(e.Data);
+        Debug.Log(EventToTrigger.GetType());
+        EventManager.Trigger(EventToTrigger);
     }
 
 }

@@ -4,11 +4,14 @@ using UnityEngine;
 using ARSISEventSystem;
 using UnityEngine.Networking;
 using Newtonsoft.Json;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 
 public class ProcedureUpdate : MonoBehaviour
 {
-    private static string procedureEndpoint = "http://0.0.0.0:8181/procedures/";
+    private static string procedureEndpoint = "http://127.0.0.1:8181/procedures/";
+    private readonly HttpClient httpClient = new HttpClient();
     // Start is called before the first frame update
     void Start()
     {
@@ -17,29 +20,34 @@ public class ProcedureUpdate : MonoBehaviour
     }
 
     void updateProceduresTrigger(UpdateProceduresEvent up){
-        StartCoroutine(updateProcedures());
+        Debug.Log("update procedures trigger");
+        Task updateTask = Task.Run(() => updateProcedures());
+        updateTask.GetAwaiter().GetResult();
     }
 
-    IEnumerator updateProcedures(){
-        UnityWebRequest www = UnityWebRequest.Get(procedureEndpoint);
-        yield return www.SendWebRequest();
+    public async Task updateProcedures(){
+        var response = await httpClient.GetAsync(procedureEndpoint);
+        var content = await response.Content.ReadAsStringAsync();
+        /* UnityWebRequest www = UnityWebRequest.Get(navigationEndpoint); */
+        /* yield return www.SendWebRequest(); */
 
-        if (www.result != UnityWebRequest.Result.Success) {
-            Debug.Log(www.error);
+        if (response.StatusCode != System.Net.HttpStatusCode.OK) {
+            Debug.Log(response.StatusCode);
         }
         else {
             // Show results as text
-            string resultString = www.downloadHandler.text;
+            string resultString = content;
+            Debug.Log(resultString);
             Dictionary<string, ProcedureEvent> dictOnly = JsonConvert.DeserializeObject<Dictionary<string, ProcedureEvent>>(resultString);
             ProcedureDictionary newProcedureDictionary = new ProcedureDictionary(dictOnly);
             EventManager.Trigger(newProcedureDictionary);
         }
     }
     void getProcedureTrigger(ProcedureGet pg){
-        StartCoroutine(getProcedure(pg));
+        StartCoroutine(getProcedure(pg).GetEnumerator());
     }
 
-    IEnumerator getProcedure(ProcedureGet procedureToGet){
+    IEnumerable getProcedure(ProcedureGet procedureToGet){
         string name = procedureToGet.procedureName;
         UnityWebRequest www = UnityWebRequest.Get(procedureEndpoint+name);
         yield return www.SendWebRequest();
