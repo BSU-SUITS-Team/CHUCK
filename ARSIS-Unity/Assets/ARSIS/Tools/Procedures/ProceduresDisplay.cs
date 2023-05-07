@@ -16,7 +16,6 @@ public class ProceduresDisplay : MonoBehaviour
     {
         if (ProcedureCache.Instance.Count() > 0 && notShown){
             notShown = false;
-            Debug.Log("Procedures not empty");
             ProcedureEvent pe = ProcedureCache.Instance.getProcedure("Mock Procedure");
 
             GameObject textGO = new GameObject();
@@ -38,7 +37,6 @@ public class ProceduresDisplay : MonoBehaviour
                     TextMeshProUGUI newText = taskGO.AddComponent<TextMeshProUGUI>();
                     newText.text = s.body;
                 }
-                Debug.Log(s.type);
             }
         }
     }

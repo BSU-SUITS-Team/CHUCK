@@ -19,6 +19,7 @@ public class ProcedureUpdate : MonoBehaviour
         EventManager.AddListener<UpdateProceduresEvent>(updateProceduresTrigger);
     }
 
+    // TODO: Make this something that deals with generics
     void updateProceduresTrigger(UpdateProceduresEvent up){
         Debug.Log("update procedures trigger");
         Task updateTask = Task.Run(() => updateProcedures());
@@ -43,6 +44,8 @@ public class ProcedureUpdate : MonoBehaviour
             EventManager.Trigger(newProcedureDictionary);
         }
     }
+
+    // TODO ASYNC THIS
     void getProcedureTrigger(ProcedureGet pg){
         StartCoroutine(getProcedure(pg).GetEnumerator());
     }

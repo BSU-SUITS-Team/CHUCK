@@ -18,6 +18,7 @@ public class NavigationUpdate : MonoBehaviour
         EventManager.AddListener<UpdateNavigationEvent>(updateNavigationTrigger);
     }
 
+    // TODO: Make this something that deals with generics
     void updateNavigationTrigger(UpdateNavigationEvent up){
         Debug.Log("updateNavigationTrigger");
         Task updateTask = Task.Run(() => updateNavigation());
@@ -43,6 +44,7 @@ public class NavigationUpdate : MonoBehaviour
         }
     }
 
+    // TODO ASYNC THIS
     void getNavigationTrigger(NavigationGet pg){
         StartCoroutine(getNavigation(pg).GetEnumerator());
     }

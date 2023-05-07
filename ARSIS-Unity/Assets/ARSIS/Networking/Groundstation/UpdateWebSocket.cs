@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System;
+using Newtonsoft.Json;
 using UnityEngine;
 using WebSocketSharp;
 using ARSISEventSystem;
@@ -25,14 +26,13 @@ public class UpdateWebSocket : MonoBehaviour
     }
     private void Update()
     {
-        /* Debug.Log(ws.IsAlive); */
     }
     private void ParseWSData(WebSocketSharp.MessageEventArgs e)
     {
-        Debug.Log(e.Data);
-        object EventToTrigger = updateDict.GetValueOrDefault(e.Data);
-        Debug.Log(EventToTrigger.GetType());
+        string eData = e.Data;
+        dynamic websocketJson = JsonConvert.DeserializeObject(eData);
+        string eventName = websocketJson.name;
+        object EventToTrigger = updateDict.GetValueOrDefault(eventName);
         EventManager.Trigger(EventToTrigger);
     }
-
 }
