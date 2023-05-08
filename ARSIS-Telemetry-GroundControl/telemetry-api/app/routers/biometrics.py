@@ -47,7 +47,7 @@ async def user_biometrics(res: Response, user_id: int):
 @router.post("/{user_id}/update_biometrics")
 async def update_user_biometrics(user_id: int, new_biometrics: Biometrics):
     with connection.cursor() as db:
-        keys_post = f"{keys[0]}, {keys[1]}, {keys[2]}, {keys[3]}"
+        keys_post = f"{keys[0]}, {keys[1]}, {keys[2]}, {keys[3]}, {keys[4]}, {keys[5]}, {keys[6]}, {keys[7]}, {keys[8]}"
         values = f"{user_id}, {new_biometrics.heartrate}, {new_biometrics.o2}, {new_biometrics.battery}, {new_biometrics.fan}, {new_biometrics.vent}, {new_biometrics.co2}, {new_biometrics.sop}, {new_biometrics.suitPressure}"
         query = f"INSERT INTO biometrics ({keys_post}) VALUES ({values}) RETURNING *;"
         db.execute(query)
