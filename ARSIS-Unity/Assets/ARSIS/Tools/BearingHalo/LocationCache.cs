@@ -45,10 +45,10 @@ public class LocationCache : MonoBehaviour
     public string getLocationString(){
         return locationEvent.heading.ToString();
     }
-    public List<float> getLocationList{
-        List<float> locationList = new List<float>()
+    public List<LocationEvent> getLocationList(){
+        List<LocationEvent> locationList = new List<LocationEvent>();
         foreach (LocationEvent locationEvent in LocationList){
-            locationList.append(locationEvent.location);
+            locationList.Add(locationEvent);
         }
         return locationList;
     }

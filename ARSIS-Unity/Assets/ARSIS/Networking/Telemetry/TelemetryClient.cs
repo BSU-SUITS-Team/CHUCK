@@ -138,7 +138,6 @@ public class TelemetryClient : MonoBehaviour
             }
             else {
                 string resultString = www.downloadHandler.text;
-                Debug.Log(resultString);
                 Event newEvent = JsonConvert.DeserializeObject<Event>(resultString);
                 EventManager.Trigger(newEvent);
             }

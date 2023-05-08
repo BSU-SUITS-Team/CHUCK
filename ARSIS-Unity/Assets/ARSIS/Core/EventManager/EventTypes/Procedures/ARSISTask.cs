@@ -2,16 +2,16 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace ARSISEventSystem {
-    public class ProcedureEvent : BaseArsisEvent
+    public class ARSISTask : BaseArsisEvent
     {
         public readonly string name;
         public readonly string summary;
-        public readonly List<Task> taskList;
+        public readonly List<Step> stepList;
 
-        public ProcedureEvent(string name, string summary, List<Task> taskList){
+        public ARSISTask(string name, string summary, List<Step> stepList){
             this.name = name;
             this.summary = summary;
-            this.taskList = taskList;
+            this.stepList = stepList;
         }
     }
 }
