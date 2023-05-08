@@ -9,13 +9,13 @@ public class ProcedureCache : MonoBehaviour
     private Dictionary<string, ProcedureEvent> procedureCache;
     private WaitForSeconds procedurePollingDelay = new WaitForSeconds(1.0f);
     public int numberOfProcedures = 0;
-    // Start is called before the first frame update
+
     void Start()
     {
         EventManager.AddListener<ProcedureEvent>(proccessProcedureEvent);
+        EventManager.AddListener<ProcedureDictionary>(proccessProcedureDictionary);
         procedureCache = new Dictionary<string, ProcedureEvent>();
-        fetchProcedure("Mock Procedure");
-        StartCoroutine(PollProcedureApi());
+        StartCoroutine(StartProcedureCache());
     }
 
     private void Awake()
@@ -38,9 +38,9 @@ public class ProcedureCache : MonoBehaviour
         return procedureCache.GetValueOrDefault(name, null);
     }
 
-    IEnumerator PollProcedureApi() {
+    IEnumerator StartProcedureCache() {
         while(procedureCache.Count < 1){
-            StartCoroutine(fetchProcedure("Mock Procedure"));
+            StartCoroutine(updateProcedures());
             yield return procedurePollingDelay;
         }
     }
@@ -51,6 +51,21 @@ public class ProcedureCache : MonoBehaviour
         EventManager.Trigger(pg);
         yield return null;
     }
+
+    IEnumerator updateProcedures(){
+        UpdateProceduresEvent up = new UpdateProceduresEvent();
+        EventManager.Trigger(up);
+        yield return null;
+    }
+
+    void proccessProcedureDictionary(ProcedureDictionary pd){
+        if (pd.procedureDictionary == null){
+            return;
+        }
+        procedureCache = pd.procedureDictionary;
+        numberOfProcedures = Count();
+    }
+
 
     void proccessProcedureEvent(ProcedureEvent pe){
         procedureCache[pe.name] = pe;

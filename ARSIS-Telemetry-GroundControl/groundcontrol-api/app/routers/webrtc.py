@@ -1,13 +1,13 @@
 from fastapi import APIRouter
 
-router = APIRouter(prefix="/procedures", tags=["procedures"])
+router = APIRouter(prefix="/webrtc", tags=["webrtc"])
 
 @router.get("/")
-async def procedures():
+async def webrtc():
     return None
 
 
 @router.get("/{name}")
-def procedure(name: str):
+def webrtc(name: str):
     return {"name": "Not found", "taskList": []}
 
