@@ -43,10 +43,6 @@ public class BiometricsCache : MonoBehaviour
         return heartrate;
     }
 
-    public string getBiometricsString(){
-        return BiometricsEvent.heartrate.ToString();
-    }
-
     public List<float> getHeartrateList(){
         List<float> heartrateList = new List<float>();
         foreach (BiometricsEvent biometricsEvent in BiometricsList){
