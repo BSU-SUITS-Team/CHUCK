@@ -1,5 +1,3 @@
-import random
-
 from fastapi import APIRouter, status, Response
 from pydantic import BaseModel
 from app.database import connection
@@ -8,8 +6,6 @@ router = APIRouter(
     prefix="/biometrics",
     tags=["biometrics"]
 )
-
-random.seed(20031101)
 
 class Biometrics(BaseModel):
     heartrate: int
