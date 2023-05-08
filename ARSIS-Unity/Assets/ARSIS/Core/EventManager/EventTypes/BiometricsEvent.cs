@@ -13,12 +13,6 @@ public class BiometricsEvent : BaseArsisEvent
     public readonly bool sop;
     public readonly int suitPressure;
 
-    /* fan: int */
-    /* vent: bool */
-    /* co2: int */
-    /* sop: bool */
-    /* suitPressure: int */
-
     public BiometricsEvent(int heartrate, int o2, int battery, int fan, bool vent, int co2, bool sop, int suitPressure)
     {
         this.heartrate = heartrate;

@@ -2,10 +2,8 @@ from fastapi import APIRouter, status, Response
 from pydantic import BaseModel
 from app.database import connection
 
-router = APIRouter(
-    prefix="/biometrics",
-    tags=["biometrics"]
-)
+router = APIRouter(prefix="/biometrics", tags=["biometrics"])
+
 
 class Biometrics(BaseModel):
     heartrate: int
@@ -17,7 +15,21 @@ class Biometrics(BaseModel):
     sop: bool
     suitPressure: int
 
-keys = ['id', 'heartrate', 'o2', 'battery', 'fan', 'vent', 'co2', 'sop', 'suitPressure', 'createdAt', 'updatedAt']
+
+keys = [
+    "id",
+    "heartrate",
+    "o2",
+    "battery",
+    "fan",
+    "vent",
+    "co2",
+    "sop",
+    "suitPressure",
+    "createdAt",
+    "updatedAt",
+]
+
 
 @router.get("/")
 async def get_biometrics():
@@ -29,6 +41,7 @@ async def get_biometrics():
             response.append({i: j for i, j in zip(keys, row[1:])})
         return {"users": response}
 
+
 @router.get("/{user_id}")
 async def user_biometrics(res: Response, user_id: int):
     with connection.cursor() as db:
@@ -39,6 +52,7 @@ async def user_biometrics(res: Response, user_id: int):
             res.status_code = status.HTTP_404_NOT_FOUND
             return {"error": f"Biometrics data for user with id: {user_id} not found"}
         return {i: j for i, j in zip(keys, row[1:])}
+
 
 @router.post("/{user_id}/update_biometrics")
 async def update_user_biometrics(user_id: int, new_biometrics: Biometrics):

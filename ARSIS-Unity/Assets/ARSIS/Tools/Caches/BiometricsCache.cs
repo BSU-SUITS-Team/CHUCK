@@ -11,6 +11,7 @@ public class BiometricsCache : MonoBehaviour
     private static int MAX_ENTRYS = 60*MINUTES;
     private List<BiometricsEvent> BiometricsList;
     public static BiometricsCache BiometricsCacheSingleton { get; private set; }
+    public int Count;
     private void Awake()
     {
         BiometricsList = new List<BiometricsEvent>();
@@ -27,12 +28,11 @@ public class BiometricsCache : MonoBehaviour
     }
     void UpdateBiometrics(BiometricsEvent be){
         BiometricsEvent = be;
-        Debug.Log(BiometricsEvent.heartrate);
         if (BiometricsList.Count > MAX_ENTRYS){
             BiometricsList.RemoveAt(0);
         }
         BiometricsList.Add(be);
-        Debug.Log(BiometricsList.Count);
+        Count = BiometricsList.Count;
     }
 
     public float getHeartrate(){
