@@ -3,18 +3,45 @@ import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 
 const UserBiometrics = ({ id, name }) => {
-    const [options, setOptions] = useState({
-        xAxis: {
-            type: 'datetime'
+    const [vent, setVent] = useState(true);
+    const [sop, setSOP] = useState(true);
+    const [options, setOptions] = useState([
+        {
+            chart: {
+                width: 500
+            },
+            xAxis: {
+                type: 'datetime'
+            },
+            title: {
+                text: `Biometrics for ID: ${id}, Name: ${name}`
+            },
+            series: [
+                { type: 'spline', name: 'o2', data: [] },
+                { type: 'spline', name: 'heartrate', data: [] },
+                { type: 'spline', name: 'battery', data: [] },
+                { type: 'spline', name: 'co2', data: [] },
+                { type: 'spline', name: 'suitPressure', data: [] },
+            ],
         },
-        title: {
-            text: `Biometrics for ID: ${id}, Name: ${name}`
-        },
-        series: [
-            { type: 'spline', name: 'o2', data: [] },
-            { type: 'spline', name: 'heartrate', data: [] },
-            { type: 'spline', name: 'battery', data: [] }
-        ]
+        {
+            chart: {
+                width: 500
+            },
+            xAxis: {
+                type: 'datetime'
+            },
+            title: {
+                text: `Fan Speed`
+            },
+            series: [
+                { type: 'spline', name: 'fan', data: [] }
+            ]
+        }
+    ])
+
+    const [fanOptions, setFanOptions] = useState({
+        
     })
 
     const requestData = async () => {
@@ -23,25 +50,45 @@ const UserBiometrics = ({ id, name }) => {
             const response = await request.json();
             const timestamp = Date.now()
 
-            let updatedSeries = options.series;
+            setVent(response['vent'])
+            setSOP(response['sop'])
+
+            let updatedSeries = options[0].series;
             updatedSeries.forEach((value, index) => {
                 updatedSeries[index].data.push([timestamp, response[value.name]])
-                console.log(response[value.name])
 
                 if (value.data.length > 25) {
                     updatedSeries[index].data = updatedSeries[index].data.slice(1);
                 }
             });
 
-            setOptions({
-                xAxis: {
-                    type: 'datetime'
+            let fanSeries = options[1].series;
+            fanSeries[0].data.push([timestamp, response['fan']]);
+
+            if (fanSeries[0].data.length > 25) {
+                fanSeries[0].data = fanSeries[0].data.slice(1);
+            }
+
+            setOptions([
+                {
+                    xAxis: {
+                        type: 'datetime'
+                    },
+                    title: {
+                        text: `Biometrics for ID: ${id}, Name: ${name}`
+                    },
+                    series: updatedSeries
                 },
-                title: {
-                    text: `Biometrics for ID: ${id}, Name: ${name}`
-                },
-                series: updatedSeries
-            });
+                {
+                    xAxis: {
+                        type: 'datetime'
+                    },
+                    title: {
+                        text: `Fan Speed`
+                    },
+                    series: fanSeries
+                }
+            ]);
         } catch (e) {
             console.log(e)
         } finally {
@@ -56,10 +103,16 @@ const UserBiometrics = ({ id, name }) => {
     return (
         <div className='user'>
             {/* <h2>ID: {id}, Name: {name}</h2> */}
-            <HighchartsReact
-                highcharts={Highcharts}
-                options={options}
-            />
+            <div>
+                <p>Vent: {vent ? '✅' : '❌'}</p>
+                <p>Secondary O2: {sop ? '✅' : '❌'}</p>
+            </div>
+            {options.map(i => 
+                <HighchartsReact
+                    highcharts={Highcharts}
+                    options={i}
+                />
+            )}
             {/* <table>
                 <tbody>
                     <tr>
