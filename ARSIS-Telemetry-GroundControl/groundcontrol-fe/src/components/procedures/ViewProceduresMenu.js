@@ -1,11 +1,14 @@
 import React, { useContext, useEffect, useState } from "react";
 import { ProcedureContext } from "../../pages/Procedures";
+import { w3cwebsocket as W3CWebSocket } from "websocket"
 
 const ViewProceduresMenu = () => {
   const [procedures, setProcedures] = useState([]);
   const { func, tabs } = useContext(ProcedureContext);
   const [procedure, setProcedure] = func;
   const [tab, setTab] = tabs;
+
+  const client = new W3CWebSocket('ws://localhost:8181/ws/updates');
 
   const handleRefreshProcedures = async () => {
     const proceduresList = [];
@@ -21,7 +24,22 @@ const ViewProceduresMenu = () => {
     setProcedures(proceduresList);
   };
 
+  const handleSyncProcedures = async () => {
+    const message = '{"name": "PROCEDURES"}'
+    client.send(message)
+  }
+
   useEffect(() => {
+    client.onopen = () => {
+        console.log('WebSocket Client Connected');
+    };
+  
+    client.onmessage = (message) => {
+        console.log(message);
+    };
+    client.onerror = function() {
+        console.log('Connection Error');
+    };
     handleRefreshProcedures();
   }, []);
 
@@ -58,6 +76,9 @@ const ViewProceduresMenu = () => {
         </div>
         <button type="button" onClick={handleRefreshProcedures}>
           Refresh
+        </button>
+        <button type="button" onClick={handleSyncProcedures}>
+          Sync
         </button>
       </form>
     </div>

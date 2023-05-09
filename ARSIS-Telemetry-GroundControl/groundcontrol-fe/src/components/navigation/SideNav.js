@@ -9,6 +9,7 @@ import {
   BsTextParagraph,
   BsFillGearFill,
   BsFillQuestionCircleFill,
+  BsFillHeartPulseFill
 } from "react-icons/bs";
 import "./SideNav.css"
 
@@ -25,6 +26,10 @@ const SideNav = () => {
         <a href="/procedures" className="Nav-link">
           <FcProcess size={"20px"} />
           <p>Procedures</p>
+        </a>
+        <a href="/biometrics" className="Nav-link">
+          <BsFillHeartPulseFill size={"20px"} />
+          <p>Biometrics</p>
         </a>
         <a href="/astronauts" className="Nav-link">
           <FaUserAstronaut size={"20px"} />
