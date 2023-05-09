@@ -4,12 +4,14 @@ from app.routers import procedures
 from app.routers import logs
 from app.routers import navigation
 from app.routers import ws
+from app.routers import chat
 
 app = FastAPI()
 app.include_router(procedures.router)
 app.include_router(logs.router)
 app.include_router(navigation.router)
 app.include_router(ws.router)
+app.include_router(chat.router)
 
 
 origins = [
