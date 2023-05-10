@@ -35,7 +35,8 @@ public class NavigationCache : MonoBehaviour
     }
 
     public NavigationEvent getNavigation(string name){
-        return navigationCache.GetValueOrDefault(name, null);
+        //return navigationCache.GetValueOrDefault(name, null);
+        return null;
     }
 
     IEnumerator StartNavigationCache() {

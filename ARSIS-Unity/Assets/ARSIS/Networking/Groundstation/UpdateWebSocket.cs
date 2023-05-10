@@ -2,17 +2,18 @@ using System.Collections.Generic;
 using System;
 using Newtonsoft.Json;
 using UnityEngine;
-using WebSocketSharp;
+//using WebSocketSharp;
 using ARSISEventSystem;
 
 public class UpdateWebSocket : MonoBehaviour
 {
-    private WebSocket ws;
+    //private WebSocket ws;
     Dictionary<string, object> updateDict;
 
     private static string ws_update_url = "ws://127.0.0.1:8181/ws/updates";
     private void Start()
     {
+        /*
         ws = new WebSocket(ws_update_url);
         ws.Connect();
         ws.OnMessage += (sender, e) =>
@@ -23,10 +24,12 @@ public class UpdateWebSocket : MonoBehaviour
 
         updateDict.Add("NAVIGATION",new UpdateNavigationEvent());
         updateDict.Add("PROCEDURES",new UpdateProceduresEvent());
+        */
     }
     private void Update()
     {
     }
+    /*
     private void ParseWSData(WebSocketSharp.MessageEventArgs e)
     {
         string eData = e.Data;
@@ -35,4 +38,5 @@ public class UpdateWebSocket : MonoBehaviour
         object EventToTrigger = updateDict.GetValueOrDefault(eventName);
         EventManager.Trigger(EventToTrigger);
     }
+    */
 }
