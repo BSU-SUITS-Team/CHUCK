@@ -14,28 +14,40 @@ public class ChatQueryManager : MonoBehaviour
         public GameObject messagePrefab;
     }
 
+    public static ChatQueryManager instance;
+
     // The URL of the webserver endpoint
     [SerializeField]
-    private static string url = "http://localhost:8181/chat/";
-    public static string username = "rover";
-    private static string fullUrl { get { return url + username; } }
+    private string url = "http://localhost:8181/chat/";
+    public string username = "rover";
+    private string fullUrl { get { return url + username; } }
     [SerializeField]
     private static string postUrl = "http://localhost:8181/chat/";
     public static string postUsername = "user1";
-    private static string fullPostUrl { get { return postUrl + postUsername + "/" + username + "?type=text"; } }
+    private static string fullPostUrl { get { return postUrl + postUsername + "/" + instance.username + "?type=text"; } }
 
     // The frequency of the queries in seconds
     [SerializeField]
-    private const float QUERY_SECONDS = 3600f;
+    private const float QUERY_SECONDS = 1f;
 
     [SerializeField]
     private GameObject messagesParentObejct;
     [SerializeField]
     private Message[] messageTypes;
 
+    private string lastMessage = "";
+
 
     private void Start()
     {
+        if (instance == null)
+        {
+            instance = this;
+        }
+        else
+        {
+            Debug.LogError("There should only be one ChatQueryManager in the scene");
+        }
         StartCoroutine(QueryRoutine());
     }
 
@@ -63,6 +75,10 @@ public class ChatQueryManager : MonoBehaviour
 
     private void ParseJson(string jsonString)
     {
+        if (jsonString == lastMessage)
+        {
+            return;
+        }
         //delete all childrern of the parent object
         foreach (Transform child in messagesParentObejct.transform)
         {
@@ -80,6 +96,7 @@ public class ChatQueryManager : MonoBehaviour
                 }
             }
         }
+        lastMessage = jsonString;
     }
     public static void SendChoiceResponse(string jsonString)
     {
