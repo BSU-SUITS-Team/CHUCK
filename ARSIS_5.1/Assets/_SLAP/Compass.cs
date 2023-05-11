@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-
+/*
 public class Compass : MonoBehaviour
 {
     public static Compass instance;
@@ -73,7 +73,7 @@ public class Compass : MonoBehaviour
             }
             //PromoteNeedle(closest_needle);
         }
-        */
+        
         
         #endregion
 
@@ -120,3 +120,4 @@ public class Compass : MonoBehaviour
     }
     #endregion
 }
+*/

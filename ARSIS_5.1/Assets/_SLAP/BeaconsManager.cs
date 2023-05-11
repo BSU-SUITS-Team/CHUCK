@@ -35,7 +35,7 @@ public class BeaconsManager : MonoBehaviour
             this.mission_object.latlon = latlon;
             this.gameobject.transform.position = SLAPUtils.LatLonToUnityCoords(latlon);
 
-            Compass.instance.needles.Add(new Compass.PointerObject(mission_object, is_main));
+            // Compass.instance.needles.Add(new Compass.PointerObject(mission_object, is_main));
         }
     }
     #endregion
