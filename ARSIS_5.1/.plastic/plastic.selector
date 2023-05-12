@@ -1,4 +1,0 @@
-repository "ARSIS 5.1@bsu_suits@cloud"
-  path "/"
-    br "/main"
-    co "/main"

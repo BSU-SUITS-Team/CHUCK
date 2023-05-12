@@ -359,6 +359,11 @@ public class VoiceManager : MonoBehaviour
     {
         mc.addMenu(mc.m_beaconListMenu);
     }
+    
+    public void RoverMenu()
+    {
+        mc.addMenu(mc.m_RoverMenu);
+    }
 
     /*Functions to add Diagrams to the scene*/
     private void Diagram1()
