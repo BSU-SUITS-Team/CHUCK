@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  telemetry-api:
+    build: ./telemetry-api
+    ports:
+      - 8080:8080
+  groundcontrol-fe:
+    build: ./groundcontrol-fe
+    depends_on:
+      - groundcontrol-api
+    ports:
+      - 3000:3000
+  groundcontrol-api:
+    command: sh -c "sleep 5; uvicorn app.main:app --host 0.0.0.0 --port 8181"
+    build: ./groundcontrol-api
+    depends_on:
+      - groundcontrol-db
+    ports:
+      - 8181:8181
+  groundcontrol-db:
+    build: ./groundcontrol-db # use latest official postgres version
+    env_file:
+      - ./groundcontrol-db/database.env # configure postgres
+    ports:
+      - "5432:5432"

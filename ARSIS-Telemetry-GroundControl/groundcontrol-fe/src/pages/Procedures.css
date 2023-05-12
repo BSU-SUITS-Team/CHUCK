@@ -1,0 +1,57 @@
+.Summary {
+  min-height: 2rem;
+}
+
+.Procedure {
+  display: flex;
+  flex-direction: column;
+  padding: 0.8rem;
+  margin: 0.5rem 1rem 1rem 0rem;
+}
+
+.Procedure-simple {
+  display: flex;
+  flex-direction: column;
+  padding: 0.8rem;
+  margin: 0.5rem 1rem 1rem 0rem;
+  color: white;
+  background-color: rgb(0, 87, 201);
+}
+
+.Wrapped-list {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.Task {
+  display: flex;
+  flex-direction: column;
+  padding: 0.8rem;
+  margin: 0.5rem 1rem 1rem 0rem;
+  border-style: solid;
+  border-width: 1px;
+  font-weight: bold;
+}
+
+.Step {
+  display: flex;
+  flex-direction: column;
+  padding: 0.8rem;
+  margin-bottom: 0.5rem;
+  border-style: solid;
+  border-width: 1px;
+  color: white;
+  font-weight: bold;
+  background-color: rgb(0, 87, 201);
+  max-width: 200px;
+}
+
+.Image-upload {
+  display: flex;
+  flex-direction: column;
+  margin-top: 0.5rem;
+}
+.Image-upload img {
+  width: 100px;
+}
