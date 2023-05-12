@@ -15,7 +15,7 @@ public class ChoiceMessageSetter : MonoBehaviour, IMessageSetter
         {
             GameObject choiceButton = Instantiate(_choicePrefab, transform);
             choiceButton.transform.GetChild(1).GetComponent<TMPro.TMP_Text>().text = choice;
-            choiceButton.GetComponent<Button>().onClick.AddListener(() => ChatQueryManager.SendChoiceResponse("{\"content\":\"" + choice + "\"}"));
+            choiceButton.GetComponent<Button>().onClick.AddListener(() => { ChatQueryManager.SendChoiceResponse("{\"content\":\"" + choice + "\"}"); ChatQueryManager.instance.DisplaySentResponse(choice, true); });
         }
     }
 }

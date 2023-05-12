@@ -35,7 +35,12 @@ public class ChatQueryManager : MonoBehaviour
     [SerializeField]
     private Message[] messageTypes;
 
+    public GameObject choicePrefab;
+
     private string lastMessage = "";
+
+    private string lastMessageReceived = "";
+    Dictionary<string, string[]> responseCache = new Dictionary<string, string[]>();
 
 
     private void Start()
@@ -93,11 +98,42 @@ public class ChatQueryManager : MonoBehaviour
                 {
                     GameObject messageObject = Instantiate(messageType.messagePrefab, messagesParentObejct.transform);
                     messageObject.GetComponent<IMessageSetter>().SetMessage(message.content);
+                    lastMessageReceived = message.content;
+                    if (responseCache.ContainsKey(message.content))
+                    {
+                        foreach (string responseString in responseCache[message.content])
+                        {
+                            DisplaySentResponse(responseString);
+                        }
+                    }
                 }
             }
         }
         lastMessage = jsonString;
     }
+
+    public void DisplaySentResponse(string response, bool add = false)
+    {
+        GameObject messageObject = Instantiate(choicePrefab, messagesParentObejct.transform);
+        messageObject.GetComponent<IMessageSetter>().SetMessage(response);
+        //set the width of the rect transform to the width of the parent obj
+        RectTransform rect = messageObject.GetComponent<RectTransform>();
+        rect.sizeDelta = new Vector2(messagesParentObejct.GetComponent<RectTransform>().rect.width - 12, rect.rect.height);
+        if (add)
+        {
+            if (responseCache.ContainsKey(lastMessageReceived))
+            {
+                List<string> responses = new List<string>(responseCache[lastMessageReceived]);
+                responses.Add(response);
+                responseCache[lastMessageReceived] = responses.ToArray();
+            }
+            else
+            {
+                responseCache.Add(lastMessageReceived, new string[] { response });
+            }
+        }
+    }
+
     public static void SendChoiceResponse(string jsonString)
     {
         byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonString);

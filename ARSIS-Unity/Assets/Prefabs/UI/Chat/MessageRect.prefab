@@ -84,13 +84,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   url: http://localhost:8181/chat/
-  username: rover
+  username: arsisuser1
   messagesParentObejct: {fileID: 6370606839327071133}
   messageTypes:
   - type: text
     messagePrefab: {fileID: 8161763047590253510, guid: d41a7a343456b6f459b5c43f4c4b683c, type: 3}
   - type: options
     messagePrefab: {fileID: 1878270678852174797, guid: 8087df0287d55744dacf3eef64ef6dfd, type: 3}
+  choicePrefab: {fileID: 7074005906056144501, guid: c0de13d166e43604bb089c79d07e21d6, type: 3}
 --- !u!1 &6370606838090574637
 GameObject:
   m_ObjectHideFlags: 0
@@ -126,8 +127,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.000015258789, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -10.18503, y: 0}
+  m_SizeDelta: {x: -20.36994, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &6370606838090574635
 MonoBehaviour:
@@ -417,10 +418,10 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 0}
-  m_Pivot: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &6370606839327071131
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -434,7 +435,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Padding:
-    m_Left: 0
+    m_Left: 7
     m_Right: 0
     m_Top: 2
     m_Bottom: 2
