@@ -128,7 +128,44 @@ PlayerSettings:
     16:9: 1
     Others: 1
   bundleVersion: 0.1
+<<<<<<< Updated upstream:ProjectSettings/ProjectSettings.asset
   preloadedAssets: []
+=======
+  preloadedAssets:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: -7174519180333673058, guid: b8118541635592946a584e7b23a9ccad, type: 2}
+  - {fileID: 1842555959923870066, guid: 1876c78ed3280fd4b9edbf62fd134787, type: 2}
+  - {fileID: -8225008430870555192, guid: 419a5c1f8f5d688489d60909859d461f, type: 2}
+  - {fileID: 0}
+>>>>>>> Stashed changes:ARSIS_5.1/ProjectSettings/ProjectSettings.asset
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -621,10 +658,59 @@ PlayerSettings:
   metroSplashScreenUseBackgroundColor: 0
   platformCapabilities:
     WindowsStoreApps:
+<<<<<<< Updated upstream:ProjectSettings/ProjectSettings.asset
       GazeInput: True
       SpatialPerception: True
       WebCam: True
   metroTargetDeviceFamilies: {}
+=======
+      CodeGeneration: False
+      OfflineMapsManagement: False
+      HumanInterfaceDevice: False
+      Location: False
+      Chat: False
+      Bluetooth: False
+      AllJoyn: False
+      MusicLibrary: False
+      LowLevelDevices: False
+      PrivateNetworkClientServer: False
+      InternetClientServer: False
+      VideosLibrary: False
+      Objects3D: False
+      RemoteSystem: False
+      BlockedChatMessages: False
+      PhoneCall: False
+      UserDataTasks: False
+      Appointments: False
+      SystemManagement: False
+      SpatialPerception: True
+      Microphone: True
+      SharedUserCertificates: False
+      InputInjectionBrokered: False
+      PicturesLibrary: False
+      RemovableStorage: False
+      WebCam: True
+      VoipCall: False
+      GazeInput: True
+      UserAccountInformation: False
+      UserNotificationListener: False
+      PhoneCallHistoryPublic: False
+      PointOfService: False
+      RecordedCallsFolder: False
+      Contacts: False
+      InternetClient: True
+      Proximity: False
+      BackgroundMediaPlayback: False
+      EnterpriseAuthentication: False
+  metroTargetDeviceFamilies:
+    Desktop: False
+    Holographic: False
+    IoT: False
+    IoTHeadless: False
+    Mobile: False
+    Team: False
+    Xbox: False
+>>>>>>> Stashed changes:ARSIS_5.1/ProjectSettings/ProjectSettings.asset
   metroFTAName: 
   metroFTAFileTypes: []
   metroProtocolName: 
