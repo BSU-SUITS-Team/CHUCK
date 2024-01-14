@@ -10,3 +10,18 @@ get = {
 
 def get_telemetry():
     pass
+
+def get_rover():
+    pass
+
+def get_imu():
+    pass
+
+def get_uia():
+    pass
+
+def get_dci():
+    pass
+
+def get_eva():
+    pass
