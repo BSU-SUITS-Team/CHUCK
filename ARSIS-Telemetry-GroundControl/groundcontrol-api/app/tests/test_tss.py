@@ -1,7 +1,7 @@
 import requests
 import responses
 import json
-from app.tss import endpoint, get, get_dcu, get_telemetry, get_imu, get_rover, get_uia
+from app.tss import endpoint, get, get_dcu, get_eva, get_telemetry, get_imu, get_rover, get_uia
 
 class TestTSSRequests:
 
@@ -73,4 +73,18 @@ class TestTSSRequests:
                 "content_type": "application/json",
             })
             response = get_uia()
+            assert response.status_code == 200
+
+    @responses.activate
+    def test_get_eva(self):
+        with open("app/tests/json/sample_eva.json") as file:
+            body = json.load(file)
+            responses.add(**{
+                "method": responses.GET,
+                "url": endpoint + get["eva"],
+                "body": str(body),
+                "status": 200,
+                "content_type": "application/json",
+            })
+            response = get_eva()
             assert response.status_code == 200
