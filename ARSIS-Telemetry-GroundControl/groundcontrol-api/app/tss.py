@@ -20,7 +20,7 @@ def get_imu():
 def get_uia():
     pass
 
-def get_dci():
+def get_dcu():
     pass
 
 def get_eva():
