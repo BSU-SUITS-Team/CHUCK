@@ -1,4 +1,6 @@
-endpoint = "localhost:14141"
+import requests
+
+endpoint = "http://localhost:14141"
 get = {
     "telemetry" : "/json_data/teams/0/TELEMETRY.json",
     "rover"     : "/json_data/ROVER.json",
@@ -9,7 +11,8 @@ get = {
 }
 
 def get_telemetry():
-    pass
+    response = requests.get(endpoint + get["telemetry"])
+    return response
 
 def get_rover():
     pass
