@@ -8,6 +8,10 @@ services:
       - groundcontrol-db
     ports:
       - 8181:8181
+  lmcc:
+    build: ./GCSiteTest
+    ports:
+      - 3000:3000
   groundcontrol-db:
     build: ./groundcontrol-db # use latest official postgres version
     env_file:
