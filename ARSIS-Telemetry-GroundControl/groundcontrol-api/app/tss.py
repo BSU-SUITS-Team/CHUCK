@@ -1,6 +1,7 @@
 import requests
 
-endpoint = "http://localhost:14141"
+from os import getenv
+endpoint = getenv("TSS_ENDPOINT")
 get = {
     "telemetry" : "/json_data/teams/0/TELEMETRY.json",
     "rover"     : "/json_data/ROVER.json",
