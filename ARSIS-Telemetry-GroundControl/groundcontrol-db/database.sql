@@ -10,6 +10,19 @@ CREATE TABLE IF NOT EXISTS users (
   createdAt TIMESTAMP DEFAULT now()
 );
 
+CREATE TABLE IF NOT EXISTS dcu (
+  uuid uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  id INTEGER NOT NULL, -- differentiate between eva1 and eva2
+  batt BOOLEAN NOT NULL,
+  oxy BOOLEAN NOT NULL,
+  COMM BOOLEAN NOT NULL,
+  FAN BOOLEAN NOT NULL,
+  PUMP BOOLEAN NOT NULL,
+  CO2 BOOLEAN NOT NULL,
+  createdAt TIMESTAMP DEFAULT now(),
+  updatedAt TIMESTAMP DEFAULT now()
+)
+
 CREATE TABLE IF NOT EXISTS locations (
   uuid uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   id SERIAL REFERENCES users,
