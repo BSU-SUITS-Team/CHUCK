@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS dcu (
   uuid uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  id INTEGER NOT NULL, -- differentiate between eva1 and eva2
+  eva INTEGER NOT NULL, -- differentiate between eva1 and eva2
   batt BOOLEAN NOT NULL,
   oxy BOOLEAN NOT NULL,
   COMM BOOLEAN NOT NULL,
