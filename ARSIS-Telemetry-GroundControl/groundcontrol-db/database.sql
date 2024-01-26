@@ -33,6 +33,15 @@ CREATE TABLE IF NOT EXISTS imu (
   updatedAt TIMESTAMP DEFAULT now()
 )
 
+CREATE TABLE IF NOT EXISTS rover (
+  uuid uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  posx DECIMAL NOT NULL,
+  posy DECIMAL NOT NULL,
+  qr_id INTEGER NOT NULL,
+  createdAt TIMESTAMP DEFAULT now(),
+  updatedAt TIMESTAMP DEFAULT now()
+)
+
 CREATE TABLE IF NOT EXISTS locations (
   uuid uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   id SERIAL REFERENCES users,
