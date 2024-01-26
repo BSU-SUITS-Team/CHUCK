@@ -70,13 +70,19 @@ CREATE TABLE IF NOT EXISTS biometrics (
 
 CREATE TABLE IF NOT EXISTS uia (
   uuid uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  panel_id INTEGER NOT NULL,
-  o2 BOOLEAN NOT NULL,
-  power_ BOOLEAN NOT NULL,
-  comm BOOLEAN NOT NULL,
+  eva1_power BOOLEAN NOT NULL,
+  eva1_oxy  BOOLEAN NOT NULL,
+  eva1_water_supply BOOLEAN NOT NULL,
+  eva1_water_waste BOOLEAN NOT NULL,
+  eva2_power BOOLEAN NOT NULL,
+  eva2_oxy  BOOLEAN NOT NULL,
+  eva2_water_supply BOOLEAN NOT NULL,
+  eva2_water_waste BOOLEAN NOT NULL,
+  oxy_vent BOOLEAN NOT NULL,
+  depress BOOLEAN NOT NULL,
   createdAt TIMESTAMP DEFAULT now(),
   updatedAt TIMESTAMP DEFAULT now()
 );
 
-INSERT INTO uia (panel_id, o2, power_, comm) VALUES (1, TRUE, TRUE, TRUE);
+-- INSERT INTO uia (panel_id, o2, power_, comm) VALUES (1, TRUE, TRUE, TRUE);
 INSERT INTO logs (createdAt, data) VALUES (now(), '{"test log": "This is a test log"}'), (now(), '{"test log": "This is another test log"}');
