@@ -23,6 +23,16 @@ CREATE TABLE IF NOT EXISTS dcu (
   updatedAt TIMESTAMP DEFAULT now()
 )
 
+CREATE TABLE IF NOT EXISTS imu (
+  uuid uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  eva INTEGER NOT NULL, -- differentiate between eva1 and eva2
+  posx DECIMAL NOT NULL,
+  posy DECIMAL NOT NULL,
+  heading DECIMAL NOT NULL,
+  createdAt TIMESTAMP DEFAULT now(),
+  updatedAt TIMESTAMP DEFAULT now()
+)
+
 CREATE TABLE IF NOT EXISTS locations (
   uuid uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   id SERIAL REFERENCES users,
