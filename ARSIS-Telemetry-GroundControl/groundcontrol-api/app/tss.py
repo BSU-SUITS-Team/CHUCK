@@ -1,6 +1,9 @@
 import requests
-
+import logging
 from os import getenv
+
+logging.basicConfig(level=logging.NOTSET)
+
 endpoint = getenv("TSS_ENDPOINT")
 get = {
     "telemetry" : "/json_data/teams/0/TELEMETRY.json",
@@ -12,6 +15,7 @@ get = {
 }
 
 def get_telemetry():
+    logging.info("MCP: GET request to", endpoint + get["telemetry"])
     response = requests.get(endpoint + get["telemetry"])
     return response
 
