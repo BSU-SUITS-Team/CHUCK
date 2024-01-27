@@ -2,8 +2,6 @@ import requests
 import logging
 from os import getenv
 
-logging.basicConfig(level=logging.NOTSET)
-
 endpoint = getenv("TSS_ENDPOINT")
 get = {
     "telemetry" : "/json_data/teams/0/TELEMETRY.json",
