@@ -13,7 +13,7 @@ get = {
 }
 
 def get_telemetry():
-    logging.info(f"MCP: GET request to {endpoint + get["telemetry"]}")
+    logging.info(f"MCP: GET request to {endpoint + get['telemetry']}")
     response = requests.get(endpoint + get["telemetry"])
     return response
 
