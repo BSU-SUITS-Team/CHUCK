@@ -10,6 +10,38 @@ CREATE TABLE IF NOT EXISTS users (
   createdAt TIMESTAMP DEFAULT now()
 );
 
+CREATE TABLE IF NOT EXISTS dcu (
+  uuid uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  eva INTEGER NOT NULL, -- differentiate between eva1 and eva2
+  batt BOOLEAN NOT NULL,
+  oxy BOOLEAN NOT NULL,
+  COMM BOOLEAN NOT NULL,
+  FAN BOOLEAN NOT NULL,
+  PUMP BOOLEAN NOT NULL,
+  CO2 BOOLEAN NOT NULL,
+  createdAt TIMESTAMP DEFAULT now(),
+  updatedAt TIMESTAMP DEFAULT now()
+)
+
+CREATE TABLE IF NOT EXISTS imu (
+  uuid uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  eva INTEGER NOT NULL, -- differentiate between eva1 and eva2
+  posx DECIMAL NOT NULL,
+  posy DECIMAL NOT NULL,
+  heading DECIMAL NOT NULL,
+  createdAt TIMESTAMP DEFAULT now(),
+  updatedAt TIMESTAMP DEFAULT now()
+)
+
+CREATE TABLE IF NOT EXISTS rover (
+  uuid uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  posx DECIMAL NOT NULL,
+  posy DECIMAL NOT NULL,
+  qr_id INTEGER NOT NULL,
+  createdAt TIMESTAMP DEFAULT now(),
+  updatedAt TIMESTAMP DEFAULT now()
+)
+
 CREATE TABLE IF NOT EXISTS locations (
   uuid uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   id SERIAL REFERENCES users,
@@ -38,13 +70,68 @@ CREATE TABLE IF NOT EXISTS biometrics (
 
 CREATE TABLE IF NOT EXISTS uia (
   uuid uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  panel_id INTEGER NOT NULL,
-  o2 BOOLEAN NOT NULL,
-  power_ BOOLEAN NOT NULL,
-  comm BOOLEAN NOT NULL,
+  eva INTEGER NOT NULL, -- differentiate between eva1 and eva2
+  eva_power BOOLEAN NOT NULL,
+  eva_oxy  BOOLEAN NOT NULL,
+  eva_water_supply BOOLEAN NOT NULL,
+  eva_water_waste BOOLEAN NOT NULL,
+  oxy_vent BOOLEAN NOT NULL,
+  depress BOOLEAN NOT NULL,
   createdAt TIMESTAMP DEFAULT now(),
   updatedAt TIMESTAMP DEFAULT now()
 );
 
-INSERT INTO uia (panel_id, o2, power_, comm) VALUES (1, TRUE, TRUE, TRUE);
+CREATE TABLE IF NOT EXISTS telemetry (
+  uuid uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  eva_time INTEGER NOT NULL,
+  eva INTEGER NOT NULL, -- differentiate between eva1 and eva2
+  eva_batt_time_left DECIMAL NOT NULL,
+  eva_oxy_pri_storage DECIMAL NOT NULL,
+  eva_oxy_sec_storage DECIMAL NOT NULL,
+  eva_oxy_pri_pressure DECIMAL NOT NULL,
+  eva_oxy_sec_pressure DECIMAL NOT NULL,
+  eva_oxy_time_left DECIMAL NOT NULL,
+  eva_heart_rate DECIMAL NOT NULL,
+  eva_oxy_consumption DECIMAL NOT NULL,
+  eva_co2_production DECIMAL NOT NULL,
+  eva_suit_pressure_oxy DECIMAL NOT NULL,
+  eva_suit_pressure_co2 DECIMAL NOT NULL,
+  eva_suit_pressure_other DECIMAL NOT NULL,
+  eva_suit_pressure_total DECIMAL NOT NULL,
+  eva_fan_pri_rpm DECIMAL NOT NULL,
+  eva_fan_sec_rpm DECIMAL NOT NULL,
+  eva_helmet_pressure_co2 DECIMAL NOT NULL,
+  eva_scrubber_a_co2_storage DECIMAL NOT NULL,
+  eva_scrubber_b_co2_storage DECIMAL NOT NULL,
+  eva_temperature DECIMAL NOT NULL,
+  eva_coolant_ml DECIMAL NOT NULL,
+  eva_coolant_gas_pressure DECIMAL NOT NULL,
+  eva_coolant_liquid_pressure DECIMAL NOT NULL,
+  createdAt TIMESTAMP DEFAULT now(),
+  updatedAt TIMESTAMP DEFAULT now()
+)
+
+CREATE TABLE IF NOT EXISTS eva (
+  uuid uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  started BOOLEAN NOT NULL,
+  paused BOOLEAN NOT NULL,
+  completed BOOLEAN NOT NULL,
+  total_time INTEGER NOT NULL,
+  uia_started BOOLEAN NOT NULL,
+  uia_completed BOOLEAN NOT NULL,
+  uia_time INTEGER NOT NULL,
+  dcu_started BOOLEAN NOT NULL,
+  dcu_completed BOOLEAN NOT NULL,
+  dcu_time INTEGER NOT NULL,
+  rover_started BOOLEAN NOT NULL,
+  rover_completed BOOLEAN NOT NULL,
+  rover_time INTEGER NOT NULL,
+  spec_started BOOLEAN NOT NULL,
+  spec_completed BOOLEAN NOT NULL,
+  spec_time INTEGER NOT NULL,
+  createdAt TIMESTAMP DEFAULT now(),
+  updatedAt TIMESTAMP DEFAULT now()
+)
+
+-- INSERT INTO uia (panel_id, o2, power_, comm) VALUES (1, TRUE, TRUE, TRUE);
 INSERT INTO logs (createdAt, data) VALUES (now(), '{"test log": "This is a test log"}'), (now(), '{"test log": "This is another test log"}');
