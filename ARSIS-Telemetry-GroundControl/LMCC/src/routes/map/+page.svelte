@@ -13,5 +13,5 @@
 	maxScale="20"
 	xRange={[-1000, 0]}
 	yRange={[-1000, 0]}
-	initalPosition={[-1300,  -900]}
+	initalPosition={[-1300, -900]}
 />

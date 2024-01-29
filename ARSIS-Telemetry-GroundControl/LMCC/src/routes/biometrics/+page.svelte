@@ -8,9 +8,7 @@
 		TableBody,
 		TableBodyRow,
 		TableBodyCell,
-
 		Table
-
 	} from 'flowbite-svelte';
 
 	let astronauts = [
@@ -95,39 +93,34 @@
 	}
 
 	//This code is appaling, but it works
-	function GetWorst(astonaut){
+	function GetWorst(astonaut) {
 		let worst = goodColor;
-		if (OxygenValidation(astonaut.oxygen) == errorColor){
+		if (OxygenValidation(astonaut.oxygen) == errorColor) {
 			worst = errorColor;
-		}
-		else if (OxygenValidation(astonaut.oxygen) == warningColor && worst != errorColor){
+		} else if (OxygenValidation(astonaut.oxygen) == warningColor && worst != errorColor) {
 			worst = warningColor;
 		}
-		if (BatteryValidation(astonaut.battery) == errorColor){
+		if (BatteryValidation(astonaut.battery) == errorColor) {
 			worst = errorColor;
-		}
-		else if (BatteryValidation(astonaut.battery) == warningColor && worst != errorColor){
+		} else if (BatteryValidation(astonaut.battery) == warningColor && worst != errorColor) {
 			worst = warningColor;
 		}
-		if (CO2Validation(astonaut.co2) == errorColor){
+		if (CO2Validation(astonaut.co2) == errorColor) {
 			worst = errorColor;
-		}
-		else if (CO2Validation(astonaut.co2) == warningColor && worst != errorColor){
+		} else if (CO2Validation(astonaut.co2) == warningColor && worst != errorColor) {
 			worst = warningColor;
 		}
-		if (HeartRateValidation(astonaut.heartRate) == errorColor){
+		if (HeartRateValidation(astonaut.heartRate) == errorColor) {
 			worst = errorColor;
-		}
-		else if (HeartRateValidation(astonaut.heartRate) == warningColor && worst != errorColor){
+		} else if (HeartRateValidation(astonaut.heartRate) == warningColor && worst != errorColor) {
 			worst = warningColor;
 		}
-		if (TemperatureValidation(astonaut.temperature) == errorColor){
+		if (TemperatureValidation(astonaut.temperature) == errorColor) {
 			worst = errorColor;
-		}
-		else if (TemperatureValidation(astonaut.temperature) == warningColor && worst != errorColor){
+		} else if (TemperatureValidation(astonaut.temperature) == warningColor && worst != errorColor) {
 			worst = warningColor;
 		}
-		
+
 		// const bgError = 'bg-red-400';
 		// const bgWarning = 'bg-orange-400';
 
@@ -142,28 +135,17 @@
 		// }
 		return worst;
 	}
-
 </script>
 
 <div class="h-full mr-24 overflow-auto pt-8">
 	<Table hoverable>
 		<TableHead>
 			<TableHeadCell>Name</TableHeadCell>
-			<TableHeadCell>
-				Oxygen
-			</TableHeadCell>
-			<TableHeadCell>
-				Battery
-			</TableHeadCell>
-			<TableHeadCell>
-				CO2
-			</TableHeadCell>
-			<TableHeadCell>
-				Heart Rate
-			</TableHeadCell>
-			<TableHeadCell>
-				Temperature
-			</TableHeadCell>
+			<TableHeadCell>Oxygen</TableHeadCell>
+			<TableHeadCell>Battery</TableHeadCell>
+			<TableHeadCell>CO2</TableHeadCell>
+			<TableHeadCell>Heart Rate</TableHeadCell>
+			<TableHeadCell>Temperature</TableHeadCell>
 		</TableHead>
 		<TableBody class="divide-y">
 			{#each astronauts as astro}
@@ -173,25 +155,25 @@
 							{astro.name}
 						</span>
 					</TableBodyCell>
-					<TableBodyCell >
+					<TableBodyCell>
 						<span class={OxygenValidation(astro.oxygen)}>
 							{astro.oxygen.toLocaleString()}%
 						</span>
 					</TableBodyCell>
-					<TableBodyCell >
+					<TableBodyCell>
 						<span class={BatteryValidation(astro.battery)}>
 							{astro.battery.toLocaleString()}%
 						</span>
 					</TableBodyCell>
-					<TableBodyCell >
+					<TableBodyCell>
 						<span class={CO2Validation(astro.co2)}>{astro.co2.toLocaleString()} PPM</span>
 					</TableBodyCell>
-					<TableBodyCell >
+					<TableBodyCell>
 						<span class={HeartRateValidation(astro.heartRate)}>
 							{astro.heartRate.toLocaleString()} BPM
 						</span>
 					</TableBodyCell>
-					<TableBodyCell >
+					<TableBodyCell>
 						<span class={TemperatureValidation(astro.temperature)}>
 							{astro.temperature.toLocaleString()} &deg;F
 						</span>

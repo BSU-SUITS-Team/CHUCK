@@ -61,10 +61,10 @@
 	<br />
 	<div class="flex flex-row">
 		<div class="p-2">
-			<EmptyVideo name="Main Camera"/>
+			<EmptyVideo name="Main Camera" />
 		</div>
 		<div class="p-2">
-			<EmptyVideo name="Realsense Camera "/>
+			<EmptyVideo name="Realsense Camera " />
 		</div>
 	</div>
 	<br />
@@ -73,10 +73,12 @@
 	<br />
 	<div class="flex flex-row flex-wrap">
 		{#each graphs as graph}
-			<button class="w-96 p-2" on:click={() => graphdata.addGraph("ROVER", graph.name, graph.graphdata)}>
-				<Graph {...graph}/>
+			<button
+				class="w-96 p-2"
+				on:click={() => graphdata.addGraph('ROVER', graph.name, graph.graphdata)}
+			>
+				<Graph {...graph} />
 			</button>
 		{/each}
 	</div>
-	
 </div>

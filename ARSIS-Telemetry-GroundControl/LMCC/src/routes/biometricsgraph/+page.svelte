@@ -38,7 +38,7 @@
 			temperature: 4,
 			location: 'Mars',
 			fanSpeed: 94
-		},		
+		},
 		{
 			name: 'Bob Doe',
 			oxygen: 90,
