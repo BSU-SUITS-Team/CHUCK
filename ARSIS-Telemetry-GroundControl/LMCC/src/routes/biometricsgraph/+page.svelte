@@ -1,22 +1,7 @@
 <script>
-	/** @type {import('./$types').PageData} */
-	export let data;
-	import {
-		TableSearch,
-		TableHead,
-		TableHeadCell,
-		TableBody,
-		TableBodyRow,
-		TableBodyCell,
-		Card,
-		Heading
-	} from 'flowbite-svelte';
+	import { Card } from 'flowbite-svelte';
 	import Chart from './chart.svelte';
-	import {
-		CheckCircleOutline,
-		ExclamationCircleOutline,
-		XCircleOutline
-	} from 'flowbite-svelte-icons';
+	import { CheckCircleOutline, ExclamationCircleOutline } from 'flowbite-svelte-icons';
 
 	let astronauts = [
 		{

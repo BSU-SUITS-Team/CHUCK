@@ -7,9 +7,7 @@
 	import {
 		TrashBinOutline,
 		FileEditSolid,
-		CheckCircleSolid,
 		ExclamationCircleOutline,
-		CheckCircleOutline,
 		AnnotationOutline,
 		LightbulbOutline
 	} from 'flowbite-svelte-icons';
