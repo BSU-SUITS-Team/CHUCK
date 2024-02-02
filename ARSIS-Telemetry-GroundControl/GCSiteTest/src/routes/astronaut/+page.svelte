@@ -1,5 +1,14 @@
 <script>
-	import { Heading, Span, Button, Card, Table, TableBody, TableBodyRow, TableBodyCell } from 'flowbite-svelte';
+	import {
+		Heading,
+		Span,
+		Button,
+		Card,
+		Table,
+		TableBody,
+		TableBodyRow,
+		TableBodyCell
+	} from 'flowbite-svelte';
 	import Graph from '../graph.svelte';
 	import { keepables, graphdata } from '../store';
 	import EmptyVideo from '../EmptyVideo.svelte';
@@ -17,8 +26,8 @@
 		{
 			graphdata: [14.1, 13.9, 13.8, 13.7, 12.7, 12.3],
 			lastDelta: '-12.3%',
-			name: "Battery",
-			status: "12.3V"
+			name: 'Battery',
+			status: '12.3V'
 		},
 		{
 			graphdata: [98.4, 97.3, 97, 96.5, 96, 96],
@@ -43,7 +52,7 @@
 
 <div class="h-fit m-4">
 	<br />
-	<div class="border-b p-2  dark:border-gray-700">
+	<div class="border-b p-2 dark:border-gray-700">
 		<Heading tag="h1">ASTRONAUT</Heading>
 	</div>
 	<!-- <Button color="alternative">Battery 1: &nbsp <Span highlight>72%</Span></Button>
@@ -54,14 +63,18 @@
 			<Heading tag="h3" class="pb-2">Stats</Heading>
 			<div class="flex-row">
 				{#each data as item}
-					<Button color="alternative" on:click={() => keepables.addElement('ROVER', item)} class="m-1">
+					<Button
+						color="alternative"
+						on:click={() => keepables.addElement('ROVER', item)}
+						class="m-1"
+					>
 						{item[0]} &nbsp
 						<Span highlight>{item[1]}</Span>
 					</Button>
 				{/each}
 			</div>
 			<br />
-			<Heading tag="h3"  class="pb-2">Actions</Heading>
+			<Heading tag="h3" class="pb-2">Actions</Heading>
 			<div class="flex-row">
 				<Button class="m-0.5" color="dark">Collect Sample</Button>
 				<Button class="m-0.5" color="dark">Drop Sample</Button>
@@ -75,38 +88,53 @@
 				<Heading tag="h3" class="mb-5">Quick Access</Heading>
 				<Table>
 					<TableBody class="divide-y">
-					  <TableBodyRow>
-						<TableBodyCell>Open Biometrics</TableBodyCell>
-						<TableBodyCell>
-						  <a href="/tables" class="font-medium text-red-600 hover:underline dark:text-primary-500">Remove</a>
-						</TableBodyCell>
-					  </TableBodyRow>
-					  <TableBodyRow>
-						<TableBodyCell>Open Map</TableBodyCell>
-						<TableBodyCell>
-						  <a href="/tables" class="font-medium text-red-600 hover:underline dark:text-primary-500">Remove</a>
-						</TableBodyCell>
-					  </TableBodyRow>
-					  <TableBodyRow>
-						<TableBodyCell>Ingress Procedure</TableBodyCell>
-						<TableBodyCell>
-						  <a href="/tables" class="font-medium text-red-600 hover:underline dark:text-primary-500">Remove</a>
-						</TableBodyCell>
-					  </TableBodyRow>
-					  <TableBodyRow>
-						<TableBodyCell>Repair Procedure</TableBodyCell>
-						<TableBodyCell>
-						  <a href="/tables" class="font-medium text-red-600 hover:underline dark:text-primary-500">Remove</a>
-						</TableBodyCell>
-					  </TableBodyRow>
-					  <TableBodyRow>
-						<TableBodyCell>Move Rover</TableBodyCell>
-						<TableBodyCell>
-						  <a href="/tables" class="font-medium text-red-600 hover:underline dark:text-primary-500">Remove</a>
-						</TableBodyCell>
-					  </TableBodyRow>
+						<TableBodyRow>
+							<TableBodyCell>Open Biometrics</TableBodyCell>
+							<TableBodyCell>
+								<a
+									href="/tables"
+									class="font-medium text-red-600 hover:underline dark:text-primary-500">Remove</a
+								>
+							</TableBodyCell>
+						</TableBodyRow>
+						<TableBodyRow>
+							<TableBodyCell>Open Map</TableBodyCell>
+							<TableBodyCell>
+								<a
+									href="/tables"
+									class="font-medium text-red-600 hover:underline dark:text-primary-500">Remove</a
+								>
+							</TableBodyCell>
+						</TableBodyRow>
+						<TableBodyRow>
+							<TableBodyCell>Ingress Procedure</TableBodyCell>
+							<TableBodyCell>
+								<a
+									href="/tables"
+									class="font-medium text-red-600 hover:underline dark:text-primary-500">Remove</a
+								>
+							</TableBodyCell>
+						</TableBodyRow>
+						<TableBodyRow>
+							<TableBodyCell>Repair Procedure</TableBodyCell>
+							<TableBodyCell>
+								<a
+									href="/tables"
+									class="font-medium text-red-600 hover:underline dark:text-primary-500">Remove</a
+								>
+							</TableBodyCell>
+						</TableBodyRow>
+						<TableBodyRow>
+							<TableBodyCell>Move Rover</TableBodyCell>
+							<TableBodyCell>
+								<a
+									href="/tables"
+									class="font-medium text-red-600 hover:underline dark:text-primary-500">Remove</a
+								>
+							</TableBodyCell>
+						</TableBodyRow>
 					</TableBody>
-				  </Table>
+				</Table>
 			</Card>
 		</div>
 	</div>
@@ -115,7 +143,7 @@
 	<br />
 	<div class="flex flex-row">
 		<div class="p-2">
-			<EmptyVideo name="Hololens"/>
+			<EmptyVideo name="Hololens" />
 		</div>
 	</div>
 	<br />
@@ -124,8 +152,11 @@
 	<br />
 	<div class="flex flex-row flex-wrap">
 		{#each graphs as graph}
-			<button class="w-96 p-2" on:click={() => graphdata.addGraph("ASTRONAUT", graph.name, graph.graphdata)}>
-				<Graph {...graph}/>
+			<button
+				class="w-96 p-2"
+				on:click={() => graphdata.addGraph('ASTRONAUT', graph.name, graph.graphdata)}
+			>
+				<Graph {...graph} />
 			</button>
 		{/each}
 	</div>

@@ -4,7 +4,7 @@
 	import ProcedureStep from './ProcedureStep.svelte';
 
 	export let name;
-	
+
 	let allSteps = [
 		{
 			title: 'Install Jetpack',

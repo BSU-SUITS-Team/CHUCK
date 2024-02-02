@@ -40,12 +40,10 @@
 		class="h-16 border-b p-4 flex flex-row justify-between dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 text-lg"
 	>
 		<div class="flex flex-row">
-			<p class="pr-12">Oxygen: <span class="text-blue-600 font-bold">96 Minuties<span></p>
+			<p class="pr-12">Oxygen: <span class="text-blue-600 font-bold">96 Minuties<span /></span></p>
 			<p>32 Minuties Elapsed</p>
 		</div>
-		<p>
-			Other Important Text That Is Longer and Sort of Just Sits at the Top Providing Status
-		</p>
+		<p>Other Important Text That Is Longer and Sort of Just Sits at the Top Providing Status</p>
 	</div>
 	<div class="dark:bg-gray-900 flex overflow-hidden h-full">
 		<aside

@@ -1,21 +1,21 @@
 <script>
 	import { Button, Heading } from 'flowbite-svelte';
-	import {notifications} from './store.js'
+	import { notifications } from './store.js';
 
 	function doProblem() {
-		notifications.addNotification("Oxygen Tank Has Exploaded", "error")
+		notifications.addNotification('Oxygen Tank Has Exploaded', 'error');
 	}
 	function doStatus() {
-		notifications.addNotification("It is Fall Right Now", "info")
+		notifications.addNotification('It is Fall Right Now', 'info');
 	}
 	function doNotify() {
-		notifications.addNotification("Rocket Fell Over", "warn")
+		notifications.addNotification('Rocket Fell Over', 'warn');
 	}
 </script>
 
 <svelte:head>
 	<title>Home Page</title>
-	<meta name="description" content="ARSIS ground station"/>
+	<meta name="description" content="ARSIS ground station" />
 </svelte:head>
 
 <section>

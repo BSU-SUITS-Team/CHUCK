@@ -75,9 +75,8 @@
 
 <Card>
 	<div class="flex justify-between">
-    <p class="text-base font-normal text-gray-500 dark:text-gray-400">{name}</p>
+		<p class="text-base font-normal text-gray-500 dark:text-gray-400">{name}</p>
 		<h5 class="leading-none text-2xl font-bold text-gray-900 dark:text-white">{status}</h5>
 	</div>
 	<Chart {options} />
-  
 </Card>

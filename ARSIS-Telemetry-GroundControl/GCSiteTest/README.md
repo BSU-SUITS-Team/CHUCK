@@ -3,9 +3,11 @@
 Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
 
 ## Installing Node.js
+
 To run this project, you need to install Node.js. You can download it from [here](https://nodejs.org/en/download/).
 
 ## Setup
+
 This needs to be done only once.
 
 ```bash

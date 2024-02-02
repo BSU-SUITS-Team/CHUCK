@@ -17,7 +17,7 @@
 	]);
 	let nominalStart = scaleValue(nominalRange[0], fullRange);
 
-	let position = Math.min(Math.max(scaleValue(value, fullRange), .1), 9.9);
+	let position = Math.min(Math.max(scaleValue(value, fullRange), 0.1), 9.9);
 </script>
 
 <div class="w-40 h-6 bg-red-600 rounded-lg relative shadow-lg overflow-clip">
