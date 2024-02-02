@@ -1,4 +1,5 @@
 <script>
+<<<<<<< HEAD:ARSIS-Telemetry-GroundControl/GCSiteTest/src/routes/biometricsgraph/+page.svelte
 	import {
 		TableSearch,
 		TableHead,
@@ -9,12 +10,11 @@
 		Card,
 		Heading
 	} from 'flowbite-svelte';
+=======
+	import { Card } from 'flowbite-svelte';
+>>>>>>> main:ARSIS-Telemetry-GroundControl/LMCC/src/routes/biometricsgraph/+page.svelte
 	import Chart from './chart.svelte';
-	import {
-		CheckCircleOutline,
-		ExclamationCircleOutline,
-		XCircleOutline
-	} from 'flowbite-svelte-icons';
+	import { CheckCircleOutline, ExclamationCircleOutline } from 'flowbite-svelte-icons';
 
 	let astronauts = [
 		{

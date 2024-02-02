@@ -1,44 +1,6 @@
 import { writable } from 'svelte/store';
 
-// This has a dataformat of:
-// {
-//     roverName: [
-//         [elementKey, element],
-//         [elementKey, element],
-//         ...
-//     ],
-//     roverName: [
-//         [elementKey, element],
-//         [elementKey, element],
-//         ...
-//     ],
-//     ...
-// }
 const initialKeepables = {};
-// This has a dataformat of:
-// {
-//     roverName: {
-//         graphName: {
-//             data: [y1, y2, y3, ...],
-//             },
-//         },
-//         graphName: {
-//             data: [y1, y2, y3, ...],
-//             }
-//         },
-//     },
-//     roverName: {
-//         graphName: {
-//             data: [y1, y2, y3, ...],
-//             }
-//         },
-//         graphName: {
-//             data: [y1, y2, y3, ...],
-//             }
-//         },
-//     },
-//     ...
-// }
 const initialGraphs = {};
 
 // This has a dataformat of:

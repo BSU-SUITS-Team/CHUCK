@@ -1,7 +1,5 @@
 <script>
-	/** @type {import('./$types').PageData} */
 	import {
-		TableSearch,
 		TableHead,
 		TableHeadCell,
 		TableBody,
