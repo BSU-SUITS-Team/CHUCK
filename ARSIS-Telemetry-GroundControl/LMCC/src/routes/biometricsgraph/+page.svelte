@@ -1,18 +1,5 @@
 <script>
-<<<<<<< HEAD:ARSIS-Telemetry-GroundControl/GCSiteTest/src/routes/biometricsgraph/+page.svelte
-	import {
-		TableSearch,
-		TableHead,
-		TableHeadCell,
-		TableBody,
-		TableBodyRow,
-		TableBodyCell,
-		Card,
-		Heading
-	} from 'flowbite-svelte';
-=======
 	import { Card } from 'flowbite-svelte';
->>>>>>> main:ARSIS-Telemetry-GroundControl/LMCC/src/routes/biometricsgraph/+page.svelte
 	import Chart from './chart.svelte';
 	import { CheckCircleOutline, ExclamationCircleOutline } from 'flowbite-svelte-icons';
 
