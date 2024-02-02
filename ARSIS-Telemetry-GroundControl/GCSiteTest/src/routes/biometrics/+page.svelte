@@ -1,6 +1,5 @@
 <script>
 	/** @type {import('./$types').PageData} */
-	export let data;
 	import {
 		TableSearch,
 		TableHead,
