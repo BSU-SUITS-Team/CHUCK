@@ -1,3 +1,4 @@
 
 *.apiupaterconfigs
 ARSIS-Unity/Library/
+*.cache
