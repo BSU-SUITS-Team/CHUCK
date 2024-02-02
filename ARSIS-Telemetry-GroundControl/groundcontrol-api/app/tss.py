@@ -18,10 +18,14 @@ def get_telemetry():
     return response
 
 def get_rover():
-    pass
+    logging.info(f"MCP: GET request to {endpoint + get['rover']}")
+    response = requests.get(endpoint + get['rover'])
+    return response
 
 def get_imu():
-    pass
+    logging.info(f"MCP: GET request to {endpoint + get['imu']}")
+    response = requests.get(endpoint + get['imu'])
+    return response
 
 def get_uia():
     pass
