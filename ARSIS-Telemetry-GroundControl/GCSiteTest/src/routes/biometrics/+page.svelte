@@ -12,29 +12,7 @@
 		Table
 
 	} from 'flowbite-svelte';
-
-	let astronauts = [
-		{
-			name: 'EV-1',
-			oxygen: 99,
-			battery: 14,
-			co2: 178,
-			heartRate: 90,
-			temperature: 98,
-			location: 'Mars',
-			fanSpeed: 68
-		},
-		{
-			name: 'EV-2',
-			oxygen: 70,
-			battery: 100,
-			co2: 178,
-			heartRate: 100,
-			temperature: 100,
-			location: 'Mars',
-			fanSpeed: 94
-		}
-	];
+	import { biometrics } from '$lib/biometrics.js';
 
 	const errorColor = 'p-2 text-align-left rounded-md text-red-500';
 	const warningColor = 'p-2 text-align-left rounded-md text-orange-400';
@@ -166,7 +144,7 @@
 			</TableHeadCell>
 		</TableHead>
 		<TableBody class="divide-y">
-			{#each astronauts as astro}
+			{#each $biometrics as astro}
 				<TableBodyRow>
 					<TableBodyCell>
 						<span>
