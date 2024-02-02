@@ -8,28 +8,28 @@
 		Table
 	} from 'flowbite-svelte';
 
-	let astronauts = [
-		{
-			name: 'EV-1',
-			oxygen: 99,
-			battery: 14,
-			co2: 178,
-			heartRate: 90,
-			temperature: 98,
-			location: 'Mars',
-			fanSpeed: 68
-		},
-		{
-			name: 'EV-2',
-			oxygen: 70,
-			battery: 100,
-			co2: 178,
-			heartRate: 100,
-			temperature: 100,
-			location: 'Mars',
-			fanSpeed: 94
-		}
-	];
+	// let astronauts = [
+	// 	{
+	// 		name: 'EV-1',
+	// 		oxygen: 99,
+	// 		battery: 14,
+	// 		co2: 178,
+	// 		heartRate: 90,
+	// 		temperature: 98,
+	// 		location: 'Mars',
+	// 		fanSpeed: 68
+	// 	},
+	// 	{
+	// 		name: 'EV-2',
+	// 		oxygen: 70,
+	// 		battery: 100,
+	// 		co2: 178,
+	// 		heartRate: 100,
+	// 		temperature: 100,
+	// 		location: 'Mars',
+	// 		fanSpeed: 94
+	// 	}
+	// ];
 
 	const errorColor = 'p-2 text-align-left rounded-md text-red-500';
 	const warningColor = 'p-2 text-align-left rounded-md text-orange-400';
@@ -137,12 +137,28 @@
 <div class="h-full mr-24 overflow-auto pt-8">
 	<Table hoverable>
 		<TableHead>
-			<TableHeadCell>Name</TableHeadCell>
-			<TableHeadCell>Oxygen</TableHeadCell>
-			<TableHeadCell>Battery</TableHeadCell>
-			<TableHeadCell>CO2</TableHeadCell>
+			<TableHeadCell>EVA</TableHeadCell>
 			<TableHeadCell>Heart Rate</TableHeadCell>
 			<TableHeadCell>Temperature</TableHeadCell>
+			<TableHeadCell>Primary O2 Storage</TableHeadCell>
+			<TableHeadCell>Primary O2 Pressure</TableHeadCell>
+			<TableHeadCell>Secondary O2 Storage</TableHeadCell>
+			<TableHeadCell>Secondary O2 Pressure</TableHeadCell>
+			<TableHeadCell>Suit O2 Pressure</TableHeadCell>
+			<TableHeadCell>Suit CO2 Pressure</TableHeadCell>
+			<TableHeadCell>Suit Other Pressure</TableHeadCell>
+			<TableHeadCell>Suit Total Pressure</TableHeadCell>
+			<TableHeadCell>Helmet CO2 Pressure</TableHeadCell>
+			<TableHeadCell>Scrubber A Pressure</TableHeadCell>
+			<TableHeadCell>Scrubber B Pressure</TableHeadCell>
+			<TableHeadCell>Primary Fan</TableHeadCell>
+			<TableHeadCell>Secondary Fan</TableHeadCell>
+			<TableHeadCell>H2O Gas Pressure</TableHeadCell>
+			<TableHeadCell>H2O Liquid Pressure</TableHeadCell>
+			<TableHeadCell>CO2 Production</TableHeadCell>
+			<TableHeadCell>O2 Time Left</TableHeadCell>
+			<TableHeadCell>O2 Consumption</TableHeadCell>
+			<TableHeadCell>Coolant</TableHeadCell>
 		</TableHead>
 		<TableBody class="divide-y">
 			{#each astronauts as astro}
