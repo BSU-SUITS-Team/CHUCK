@@ -14,7 +14,7 @@ services:
     ports:
       - 8181:8181
   lmcc:
-    build: ./GCSiteTest
+    build: ./LMCC
     ports:
       - 3000:3000
   groundcontrol-db:
