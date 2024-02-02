@@ -31,6 +31,59 @@
 	// 	}
 	// ];
 
+	let data = [
+		{
+			eva: 1,
+			batt_time_left: 5077.148926,
+			oxy_pri_storage: 23.755802,
+			oxy_sec_storage: 15.489529,
+			oxy_pri_pressure: 0.0,
+			oxy_sec_pressure: 0.0,
+			oxy_time_left: 4238,
+			heart_rate: 90.0,
+			oxy_consumption: 0.0,
+			co2_production: 0.0,
+			suit_pressure_oxy: 3.0723,
+			suit_pressure_co2: 0.0059,
+			suit_pressure_other: 11.5542,
+			suit_pressure_total: 14.632401,
+			fan_pri_rpm: 0.0,
+			fan_sec_rpm: 0.0,
+			helmet_pressure_co2: 0.0,
+			scrubber_a_co2_storage: 0.0,
+			scrubber_b_co2_storage: 0.0,
+			temperature: 70.0,
+			coolant_ml: 20.508068,
+			coolant_gas_pressure: 0.0,
+			coolant_liquid_pressure: 0.0
+		},
+		{
+			eva: 2,
+			batt_time_left: 3384.893799,
+			oxy_pri_storage: 24.231962,
+			oxy_sec_storage: 19.419136,
+			oxy_pri_pressure: 0.0,
+			oxy_sec_pressure: 0.0,
+			oxy_time_left: 4714,
+			heart_rate: 90.0,
+			oxy_consumption: 0.0,
+			co2_production: 0.0,
+			suit_pressure_oxy: 3.0723,
+			suit_pressure_co2: 0.0059,
+			suit_pressure_other: 11.5542,
+			suit_pressure_total: 14.632401,
+			fan_pri_rpm: 0.0,
+			fan_sec_rpm: 0.0,
+			helmet_pressure_co2: 0.0,
+			scrubber_a_co2_storage: 0.0,
+			scrubber_b_co2_storage: 0.0,
+			temperature: 70.0,
+			coolant_ml: 22.034748,
+			coolant_gas_pressure: 0.0,
+			coolant_liquid_pressure: 0.0
+		}
+	];
+
 	const errorColor = 'p-2 text-align-left rounded-md text-red-500';
 	const warningColor = 'p-2 text-align-left rounded-md text-orange-400';
 	const goodColor = 'p-2 text-align-left rounded-md ';
@@ -138,59 +191,154 @@
 	<Table hoverable>
 		<TableHead>
 			<TableHeadCell>EVA</TableHeadCell>
-			<TableHeadCell>Heart Rate</TableHeadCell>
-			<TableHeadCell>Temperature</TableHeadCell>
-			<TableHeadCell>Primary O2 Storage</TableHeadCell>
-			<TableHeadCell>Primary O2 Pressure</TableHeadCell>
-			<TableHeadCell>Secondary O2 Storage</TableHeadCell>
-			<TableHeadCell>Secondary O2 Pressure</TableHeadCell>
-			<TableHeadCell>Suit O2 Pressure</TableHeadCell>
-			<TableHeadCell>Suit CO2 Pressure</TableHeadCell>
-			<TableHeadCell>Suit Other Pressure</TableHeadCell>
-			<TableHeadCell>Suit Total Pressure</TableHeadCell>
-			<TableHeadCell>Helmet CO2 Pressure</TableHeadCell>
-			<TableHeadCell>Scrubber A Pressure</TableHeadCell>
-			<TableHeadCell>Scrubber B Pressure</TableHeadCell>
-			<TableHeadCell>Primary Fan</TableHeadCell>
-			<TableHeadCell>Secondary Fan</TableHeadCell>
-			<TableHeadCell>H2O Gas Pressure</TableHeadCell>
-			<TableHeadCell>H2O Liquid Pressure</TableHeadCell>
-			<TableHeadCell>CO2 Production</TableHeadCell>
-			<TableHeadCell>O2 Time Left</TableHeadCell>
-			<TableHeadCell>O2 Consumption</TableHeadCell>
-			<TableHeadCell>Coolant</TableHeadCell>
+			<TableHeadCell>Heart Rate (BPM)</TableHeadCell>
+			<TableHeadCell>Temperature (&deg;F)</TableHeadCell>
+			<TableHeadCell>Primary O2 Storage (%)</TableHeadCell>
+			<TableHeadCell>Primary O2 Pressure (PSI)</TableHeadCell>
+			<TableHeadCell>Secondary O2 Storage (%)</TableHeadCell>
+			<TableHeadCell>Secondary O2 Pressure (PSI)</TableHeadCell>
+			<TableHeadCell>O2 Consumption (PSI/min)</TableHeadCell>
+			<TableHeadCell>CO2 Production (PSI/min)</TableHeadCell>
+			<TableHeadCell>O2 Time Left (hh:mm:ss)</TableHeadCell>
+			<TableHeadCell>Suit O2 Pressure (PSI)</TableHeadCell>
+			<TableHeadCell>Suit CO2 Pressure (PSI)</TableHeadCell>
+			<TableHeadCell>Suit Other Pressure (PSI)</TableHeadCell>
+			<TableHeadCell>Suit Total Pressure (PSI)</TableHeadCell>
+			<TableHeadCell>Helmet CO2 Pressure (PSI)</TableHeadCell>
+			<TableHeadCell>Scrubber A Pressure (PSI)</TableHeadCell>
+			<TableHeadCell>Scrubber B Pressure (PSI)</TableHeadCell>
+			<TableHeadCell>Primary Fan (RPM)</TableHeadCell>
+			<TableHeadCell>Secondary Fan (RPM)</TableHeadCell>
+			<TableHeadCell>Coolant Gas Pressure (PSI)</TableHeadCell>
+			<TableHeadCell>Coolant Liquid Pressure (PSI)</TableHeadCell>
+			<TableHeadCell>Coolant Volume (mL)</TableHeadCell>
 		</TableHead>
 		<TableBody class="divide-y">
-			{#each astronauts as astro}
+			{#each data as astro}
 				<TableBodyRow>
 					<TableBodyCell>
 						<span>
-							{astro.name}
+							{astro.eva}
 						</span>
 					</TableBodyCell>
 					<TableBodyCell>
-						<span class={OxygenValidation(astro.oxygen)}>
-							{astro.oxygen.toLocaleString()}%
-						</span>
-					</TableBodyCell>
-					<TableBodyCell>
-						<span class={BatteryValidation(astro.battery)}>
-							{astro.battery.toLocaleString()}%
-						</span>
-					</TableBodyCell>
-					<TableBodyCell>
-						<span class={CO2Validation(astro.co2)}>{astro.co2.toLocaleString()} PPM</span>
-					</TableBodyCell>
-					<TableBodyCell>
-						<span class={HeartRateValidation(astro.heartRate)}>
-							{astro.heartRate.toLocaleString()} BPM
+						<span class={HeartRateValidation(astro.heart_rate)}>
+							{astro.heart_rate.toLocaleString()}
 						</span>
 					</TableBodyCell>
 					<TableBodyCell>
 						<span class={TemperatureValidation(astro.temperature)}>
-							{astro.temperature.toLocaleString()} &deg;F
+							{astro.temperature.toLocaleString()}
 						</span>
 					</TableBodyCell>
+					<TableBodyCell>
+						<span>
+							{astro.oxy_pri_storage}
+						</span>
+					</TableBodyCell>
+					<TableBodyCell>
+						<span>
+							{astro.oxy_pri_pressure}
+						</span>
+					</TableBodyCell>
+					<TableBodyCell>
+						<span>
+							{astro.oxy_sec_storage}
+						</span>
+					</TableBodyCell>
+					<TableBodyCell>
+						<span>
+							{astro.oxy_sec_pressure}
+						</span>
+					</TableBodyCell>
+					<TableBodyCell>
+						<span>
+							{astro.oxy_consumption}
+						</span>
+					</TableBodyCell>
+					<TableBodyCell>
+						<span>
+							{astro.co2_production}
+						</span>
+					</TableBodyCell>
+					<TableBodyCell>
+						<span>
+							{astro.oxy_time_left}
+						</span>
+					</TableBodyCell>
+					<TableBodyCell>
+						<span>
+							{astro.suit_pressure_oxy}
+						</span>
+					</TableBodyCell>
+					<TableBodyCell>
+						<span>
+							{astro.suit_pressure_co2}
+						</span>
+					</TableBodyCell>
+					<TableBodyCell>
+						<span>
+							{astro.suit_pressure_other}
+						</span>
+					</TableBodyCell>
+					<TableBodyCell>
+						<span>
+							{astro.suit_pressure_total}
+						</span>
+					</TableBodyCell>
+					<TableBodyCell>
+						<span>
+							{astro.helmet_pressure_co2}
+						</span>
+					</TableBodyCell>
+					<TableBodyCell>
+						<span>
+							{astro.scrubber_a_co2_storage}
+						</span>
+					</TableBodyCell>
+					<TableBodyCell>
+						<span>
+							{astro.scrubber_b_co2_storage}
+						</span>
+					</TableBodyCell>
+					<TableBodyCell>
+						<span>
+							{astro.fan_pri_rpm}
+						</span>
+					</TableBodyCell>
+					<TableBodyCell>
+						<span>
+							{astro.fan_sec_rpm}
+						</span>
+					</TableBodyCell>
+					<TableBodyCell>
+						<span>
+							{astro.coolant_gas_pressure}
+						</span>
+					</TableBodyCell>
+					<TableBodyCell>
+						<span>
+							{astro.coolant_liquid_pressure}
+						</span>
+					</TableBodyCell>
+					<TableBodyCell>
+						<span>
+							{astro.coolant_ml}
+						</span>
+					</TableBodyCell>
+					<!-- <TableBodyCell>
+						<span class={OxygenValidation(astro.oxygen)}>
+							{astro.oxygen.toLocaleString()}%
+						</span>
+					</TableBodyCell> -->
+					<!-- <TableBodyCell>
+						<span class={BatteryValidation(astro.battery)}>
+							{astro.battery.toLocaleString()}%
+						</span>
+					</TableBodyCell> -->
+					<!-- <TableBodyCell>
+						<span class={CO2Validation(astro.co2)}>{astro.co2.toLocaleString()} PPM</span>
+					</TableBodyCell> -->
 				</TableBodyRow>
 			{/each}
 		</TableBody>
