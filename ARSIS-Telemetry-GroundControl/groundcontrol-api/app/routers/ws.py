@@ -7,14 +7,19 @@ router = APIRouter(prefix="/ws", tags=["ws"])
 
 class WebSocketManager:
     def __init__(self):
-        self.websockets = []
+        self.websockets = {}
 
-    async def connect(self, ws):
+    async def connect(self, path, ws):
         await ws.accept()
-        self.websockets.append(ws)
+        if path not in self.websockets:
+            self.websockets[path] = []
+        self.websockets[path].append(ws)
 
-    def disconnect(self, ws):
-        self.websockets.remove(ws)
+    def disconnect(self, path, ws):
+        self.websockets[path].remove(ws)
+
+    async def async_receive(self, path):
+        pass
 
     async def broadcast(self, ws, data):
         for ws_conn in self.websockets:
@@ -32,7 +37,7 @@ ws_manager = WebSocketManager()
 
 @router.websocket("/events")
 async def connect_to_events(websocket: WebSocket):
-    await ws_manager.connect(websocket)
+    await ws_manager.connect("events", websocket)
     try:
         while True:
             to_update = await websocket.app.state.datastore.get_updates()
@@ -47,7 +52,7 @@ async def connect_to_events(websocket: WebSocket):
 
 @router.websocket("/updates")
 async def connect_to_updates(websocket: WebSocket):
-    await ws_manager.connect(websocket)
+    await ws_manager.connect("updates", websocket)
     try:
         while True:
             data = await websocket.receive_text()
