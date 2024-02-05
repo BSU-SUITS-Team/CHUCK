@@ -1,12 +1,12 @@
 import requests
 import responses
 import json
-from app.tss import endpoint, get, get_dcu, get_eva, get_telemetry, get_imu, get_rover, get_uia
+from app.tss import endpoint, get, get_from_tss
 
 class TestTSSRequests:
 
     @responses.activate
-    def test_get_telemetry(self):
+    async def test_get_telemetry(self):
         with open("app/tests/json/sample_telemetry.json") as file:
             body = json.load(file)
             responses.add(**{
@@ -16,11 +16,11 @@ class TestTSSRequests:
                 "status": 200,
                 "content_type": "application/json",
             })
-            response = get_telemetry()
+            response = await get_from_tss("telemetry")
             assert response.status_code == 200
-    
+
     @responses.activate
-    def test_get_imu(self):
+    async def test_get_imu(self):
         with open("app/tests/json/sample_imu.json") as file:
             body = json.load(file)
             responses.add(**{
@@ -30,11 +30,11 @@ class TestTSSRequests:
                 "status": 200,
                 "content_type": "application/json",
             })
-            response = get_imu()
+            response = await get_from_tss("imu")
             assert response.status_code == 200
 
     @responses.activate
-    def test_get_rover(self):
+    async def test_get_rover(self):
         with open("app/tests/json/sample_rover.json") as file:
             body = json.load(file)
             responses.add(**{
@@ -44,11 +44,11 @@ class TestTSSRequests:
                 "status": 200,
                 "content_type": "application/json",
             })
-            response = get_rover()
+            response = await get_from_tss("rover")
             assert response.status_code == 200
 
     @responses.activate
-    def test_get_dcu(self):
+    async def test_get_dcu(self):
         with open("app/tests/json/sample_dcu.json") as file:
             body = json.load(file)
             responses.add(**{
@@ -58,11 +58,11 @@ class TestTSSRequests:
                 "status": 200,
                 "content_type": "application/json",
             })
-            response = get_dcu()
+            response = await get_from_tss("dcu")
             assert response.status_code == 200
 
     @responses.activate
-    def test_get_uia(self):
+    async def test_get_uia(self):
         with open("app/tests/json/sample_uia.json") as file:
             body = json.load(file)
             responses.add(**{
@@ -72,11 +72,11 @@ class TestTSSRequests:
                 "status": 200,
                 "content_type": "application/json",
             })
-            response = get_uia()
+            response = await get_from_tss("uia")
             assert response.status_code == 200
 
     @responses.activate
-    def test_get_eva(self):
+    async def test_get_eva(self):
         with open("app/tests/json/sample_eva.json") as file:
             body = json.load(file)
             responses.add(**{
@@ -86,5 +86,5 @@ class TestTSSRequests:
                 "status": 200,
                 "content_type": "application/json",
             })
-            response = get_eva()
+            response = await get_from_tss("eva")
             assert response.status_code == 200

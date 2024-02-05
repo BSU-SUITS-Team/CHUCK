@@ -7,12 +7,14 @@ services:
       - TSS_ENDPOINT=http://localhost:14141
     build: ./groundcontrol-api
   groundcontrol-api:
-    command: sh -c "sleep 5; uvicorn app.main:app --host 0.0.0.0 --port 8181"
+    command: sh -c "sleep 3; uvicorn app.main:app --host 0.0.0.0 --port 8181"
     build: ./groundcontrol-api
     depends_on:
       - groundcontrol-db
     ports:
       - 8181:8181
+    environment:
+      - TSS_ENDPOINT=http://tss:14141
   lmcc:
     build: ./LMCC
     ports:
@@ -25,5 +27,5 @@ services:
       - "5432:5432"
   tss:
     build: ./TSSExtras
-    ports: 
+    ports:
       - 14141:14141
