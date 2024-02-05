@@ -35,13 +35,12 @@ async def connect_to_events(websocket: WebSocket):
     await ws_manager.connect(websocket)
     try:
         while True:
-            data = await websocket.receive_text()
             to_update = await websocket.app.state.datastore.get_updates()
             if len(to_update) > 0:
                 print(to_update)
                 for update in to_update:
                     await ws_manager.broadcast_to_all(update)
-            await asyncio.sleep(1)
+            await asyncio.sleep(0.1)
     except WebSocketDisconnect:
         ws_manager.disconnect(websocket)
 
