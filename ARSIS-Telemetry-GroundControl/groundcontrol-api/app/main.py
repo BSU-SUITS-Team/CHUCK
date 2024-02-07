@@ -2,7 +2,6 @@ import asyncio
 
 from app.datastore import Datastore
 from app.routers import chat, logs, navigation, procedures, ws
-from app.tss import get_from_tss, tss_keys
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 

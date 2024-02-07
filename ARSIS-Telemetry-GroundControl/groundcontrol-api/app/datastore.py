@@ -1,36 +1,36 @@
-from collections import deque
 from app.tss import get_from_tss, tss_keys
 import asyncio
-import json
 
 
 class Datastore:
     def __init__(self):
-        self.new_data_deques = {}
+        self.new_data_queue = asyncio.Queue(maxsize=100)
         self.cached_deque = {}
 
-    async def append(self, dqs, key, value):
-        if key not in dqs:
-            dqs[key] = deque(maxlen=100)
-        dqs[key].append(value)
+    async def append(self, key, value):
+        if key not in self.cached_deque:
+            self.cached_deque[key] = asyncio.Queue(maxsize=100)
+        await self.cached_deque[key].put(value)
 
     async def get(self, key):
         return list(self.new_data_deques[key])
 
-    async def start_polling(self):
+    async def start_polling_key(self, key):
         while True:
-            for key in tss_keys:
-                response = await get_from_tss(key)
-                await self.append(self.new_data_deques, key, response.json())
+            response = await get_from_tss(key)
+            if response.status_code == 200:
+                await self.new_data_queue.put((key, response.json()))
             await asyncio.sleep(1)
-            print([len(self.new_data_deques[k]) for k in self.new_data_deques.keys()])
 
-    async def get_updates(self):
-        to_send = []
-        for key in self.new_data_deques.keys():
-            dq = self.new_data_deques[key]
-            while dq:
-                update_data = dq.popleft()
-                await self.append(self.cached_deque, key, update_data)
-                to_send.append(json.dumps(update_data))
-        return to_send
+    async def start_polling(self):
+        for key in tss_keys:
+            asyncio.create_task(self.start_polling_key(key))
+
+    def make_async_gen(self):
+        async def gen():
+            while True:
+                key, update_data = await self.new_data_queue.get()
+                await self.append(key, update_data)
+                yield update_data
+
+        return gen()
