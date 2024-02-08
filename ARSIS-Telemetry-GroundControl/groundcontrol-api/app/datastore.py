@@ -34,3 +34,10 @@ class Datastore:
                 yield update_data
 
         return gen()
+
+    def get_all(self):
+        to_return = []
+        for key, value in self.cached_deque.items():
+            to_return += list(value)
+        return to_return
+

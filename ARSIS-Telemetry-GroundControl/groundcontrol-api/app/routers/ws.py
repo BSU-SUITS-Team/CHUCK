@@ -38,6 +38,9 @@ async def connect_to_events(websocket: WebSocket):
     ds = websocket.app.state.datastore
     ds_update_gen = ds.make_async_gen()
     try:
+        all_data = await ds.get_all()
+        for a in all_data:
+            await websocket.send_json(a)
         while True:
             update = await ds_update_gen.__anext__()
             await ws_manager.broadcast_to_all("events", update)
