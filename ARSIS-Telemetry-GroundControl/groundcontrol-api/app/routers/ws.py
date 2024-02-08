@@ -42,4 +42,4 @@ async def connect_to_events(websocket: WebSocket):
             update = await ds_update_gen.__anext__()
             await ws_manager.broadcast_to_all("events", update)
     except WebSocketDisconnect:
-        ws_manager.disconnect(websocket)
+        ws_manager.disconnect("events", websocket)
