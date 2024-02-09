@@ -1,5 +1,7 @@
-from app.tss import get_from_tss, tss_keys
 import asyncio
+import time
+
+from app.tss import get_from_tss, tss_keys
 
 
 class Datastore:
@@ -16,7 +18,8 @@ class Datastore:
         while True:
             response = await get_from_tss(key)
             if response.status_code == 200:
-                await self.new_data_queue.put((key, response.json()))
+                new_event = {"type": key, "time": time.time() ,"data": response.json()}
+                await self.new_data_queue.put((key, new_event))
             await asyncio.sleep(1)
 
     async def start_polling(self):
