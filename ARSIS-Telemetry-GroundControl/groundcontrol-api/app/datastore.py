@@ -4,16 +4,13 @@ import asyncio
 
 class Datastore:
     def __init__(self):
-        self.new_data_queue = asyncio.Queue(maxsize=100)
-        self.cached_deque = {}
+        self.new_data_queue = asyncio.Queue(maxsize=500)
+        self.cache = {}
 
     async def append(self, key, value):
-        if key not in self.cached_deque:
-            self.cached_deque[key] = asyncio.Queue(maxsize=100)
-        await self.cached_deque[key].put(value)
-
-    async def get(self, key):
-        return list(self.new_data_deques[key])
+        if key not in self.cache:
+            self.cache[key] = []
+        self.cache[key].append(value)
 
     async def start_polling_key(self, key):
         while True:
@@ -35,9 +32,9 @@ class Datastore:
 
         return gen()
 
-    def get_all(self):
+    async def get_all(self):
         to_return = []
-        for key, value in self.cached_deque.items():
+        for key, value in self.cache.items():
             to_return += list(value)
         return to_return
 
