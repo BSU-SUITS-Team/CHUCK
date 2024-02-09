@@ -18,7 +18,11 @@ class Datastore:
         while True:
             response = await get_from_tss(key)
             if response.status_code == 200:
-                new_event = {"type": key, "time": time.time_ns() ,"data": response.json()}
+                new_event = {
+                    "type": key,
+                    "time": time.time_ns(),
+                    "data": response.json(),
+                }
                 await self.new_data_queue.put((key, new_event))
             await asyncio.sleep(1)
 
@@ -40,4 +44,3 @@ class Datastore:
         for key, value in self.cache.items():
             to_return += list(value)
         return to_return
-
