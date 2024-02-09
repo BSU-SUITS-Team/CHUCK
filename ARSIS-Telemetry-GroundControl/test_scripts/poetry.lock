@@ -122,6 +122,17 @@ files = [
 ]
 
 [[package]]
+name = "rel"
+version = "0.4.9.5"
+description = "Registered Event Listener. Provides standard (pyevent) interface and functionality without external dependencies"
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "rel-0.4.9.5-py2.py3-none-any.whl", hash = "sha256:8849d170b3f874da97a993be8fe5cac647574d1e306695dbf1f2297a007110c3"},
+]
+
+[[package]]
 name = "requests"
 version = "2.28.2"
 description = "Python HTTP for Humans."
@@ -160,7 +171,24 @@ brotli = ["brotli (>=1.0.9)", "brotlicffi (>=0.8.0)", "brotlipy (>=0.6.0)"]
 secure = ["certifi", "cryptography (>=1.3.4)", "idna (>=2.0.0)", "ipaddress", "pyOpenSSL (>=0.14)", "urllib3-secure-extra"]
 socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 
+[[package]]
+name = "websocket-client"
+version = "1.7.0"
+description = "WebSocket client for Python with low level API options"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "websocket-client-1.7.0.tar.gz", hash = "sha256:10e511ea3a8c744631d3bd77e61eb17ed09304c413ad42cf6ddfa4c7787e8fe6"},
+    {file = "websocket_client-1.7.0-py3-none-any.whl", hash = "sha256:f4c3d22fec12a2461427a29957ff07d35098ee2d976d3ba244e688b8b4057588"},
+]
+
+[package.extras]
+docs = ["Sphinx (>=6.0)", "sphinx-rtd-theme (>=1.1.0)"]
+optional = ["python-socks", "wsaccel"]
+test = ["websockets"]
+
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "854f747502d78669268831979f7b021d6af5ba27ed4109288e4135e0e8b234ab"
+content-hash = "b64ab6ef454ba3ba194bdaedb7a178cb8320503416adb052195e8299c77e3c30"
