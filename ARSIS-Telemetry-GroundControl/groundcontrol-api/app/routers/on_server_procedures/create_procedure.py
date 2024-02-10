@@ -1,6 +1,3 @@
-import json
-
-
 class CreateProcedure:
     def __init__(self, name, summary):
         self.name = name

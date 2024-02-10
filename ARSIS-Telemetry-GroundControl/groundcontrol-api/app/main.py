@@ -4,11 +4,6 @@ from app.datastore import ds
 from app.routers import chat, logs, navigation, procedures, ws
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import procedures
-from app.routers import logs
-from app.routers import navigation
-from app.routers import ws
-from app.routers import chat
 
 app = FastAPI()
 app.include_router(procedures.router)

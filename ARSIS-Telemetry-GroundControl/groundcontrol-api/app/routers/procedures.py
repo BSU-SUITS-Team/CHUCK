@@ -3,7 +3,6 @@ from app.event import Event
 from app.routers.on_server_procedures.create_procedure import CreateProcedure
 from fastapi import APIRouter
 import asyncio
-import json
 
 from .on_server_procedures.mock_procedure import mock_procedure
 
