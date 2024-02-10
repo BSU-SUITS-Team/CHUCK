@@ -1,4 +1,5 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from app.datastore import ds
 
 router = APIRouter(prefix="/ws", tags=["ws"])
 
@@ -35,11 +36,11 @@ ws_manager = WebSocketManager()
 @router.websocket("/events")
 async def connect_to_events(websocket: WebSocket):
     await ws_manager.connect("events", websocket)
-    ds = websocket.app.state.datastore
     ds_update_gen = ds.make_async_gen()
     try:
         all_data = await ds.get_all()
         for a in all_data:
+            print(a)
             await websocket.send_json(a)
         while True:
             update = await ds_update_gen.__anext__()

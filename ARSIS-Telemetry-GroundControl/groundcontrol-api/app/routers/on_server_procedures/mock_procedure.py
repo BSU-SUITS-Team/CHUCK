@@ -7,6 +7,8 @@ mock_procedure_summary = "This is a 100% fake procedure that only exists to make
 suits_image = base64.b64encode(
     open("app/routers/on_server_procedures/NASASUITS-logo.png", "rb").read()
 )
+suits_image = open("app/routers/on_server_procedures/NASASUITS-logo.png", "rb").read().decode()
+
 task_1_list = [
     {"type": "image", "body": suits_image, "nextTask": None},
     {

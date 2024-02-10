@@ -2,10 +2,14 @@ import websocket
 import _thread
 import time
 import rel
+import json
 
 
 def on_message(ws, message):
-    print(message)
+    json_message = json.loads(message)
+    print(json_message["type"])
+    if json_message["type"] == "procedure":
+        print(json_message["data"])
 
 
 def on_error(ws, error):
@@ -21,7 +25,7 @@ def on_open(ws):
 
 
 if __name__ == "__main__":
-    websocket.enableTrace(True)
+    websocket.enableTrace(False)
     ws = websocket.WebSocketApp(
         "ws://groundcontrol-api:8181/ws/events",
         on_open=on_open,

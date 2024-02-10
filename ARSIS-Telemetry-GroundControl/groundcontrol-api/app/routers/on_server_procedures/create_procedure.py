@@ -21,4 +21,4 @@ class CreateProcedure:
         return self.task_list
 
     def to_dict(self):
-        return {"name": self.name, "summary": self.summary, "taskList": self.get_task_list_encoded()}
+        return {"name": self.name, "summary": self.summary, "taskList": self.task_list}
