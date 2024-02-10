@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS dcu (
   CO2 BOOLEAN NOT NULL,
   createdAt TIMESTAMP DEFAULT now(),
   updatedAt TIMESTAMP DEFAULT now()
-)
+);
 
 CREATE TABLE IF NOT EXISTS imu (
   uuid uuid DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS imu (
   heading DECIMAL NOT NULL,
   createdAt TIMESTAMP DEFAULT now(),
   updatedAt TIMESTAMP DEFAULT now()
-)
+);
 
 CREATE TABLE IF NOT EXISTS rover (
   uuid uuid DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS rover (
   qr_id INTEGER NOT NULL,
   createdAt TIMESTAMP DEFAULT now(),
   updatedAt TIMESTAMP DEFAULT now()
-)
+);
 
 CREATE TABLE IF NOT EXISTS locations (
   uuid uuid DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -109,7 +109,7 @@ CREATE TABLE IF NOT EXISTS telemetry (
   coolant_liquid_pressure DECIMAL NOT NULL,
   createdAt TIMESTAMP DEFAULT now(),
   updatedAt TIMESTAMP DEFAULT now()
-)
+);
 
 CREATE TABLE IF NOT EXISTS eva (
   uuid uuid DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -131,7 +131,7 @@ CREATE TABLE IF NOT EXISTS eva (
   spec_time INTEGER NOT NULL,
   createdAt TIMESTAMP DEFAULT now(),
   updatedAt TIMESTAMP DEFAULT now()
-)
+);
 
 -- INSERT INTO uia (panel_id, o2, power_, comm) VALUES (1, TRUE, TRUE, TRUE);
 INSERT INTO logs (createdAt, data) VALUES (now(), '{"test log": "This is a test log"}'), (now(), '{"test log": "This is another test log"}');
