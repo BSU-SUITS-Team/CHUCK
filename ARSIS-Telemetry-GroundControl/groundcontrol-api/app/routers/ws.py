@@ -13,6 +13,7 @@ class WebSocketManager:
         if path not in self.websockets:
             self.websockets[path] = []
         self.websockets[path].append(ws)
+        print(f"connected to {path} websockets: {len(self.websockets[path])}")
 
     def disconnect(self, path, ws):
         self.websockets[path].remove(ws)
@@ -27,7 +28,11 @@ class WebSocketManager:
 
     async def broadcast_to_all(self, path, data):
         for ws_conn in self.websockets[path]:
-            await ws_conn.send_json(data)
+            try:
+                await ws_conn.send_json(data)
+            except Exception as e:
+                print(e)
+                self.websockets[path].remove(ws_conn)
 
 
 ws_manager = WebSocketManager()
@@ -40,8 +45,8 @@ async def connect_to_events(websocket: WebSocket):
     try:
         all_data = await ds.get_all()
         for a in all_data:
-            print(a)
             await websocket.send_json(a)
+        print("sent all data")
         while True:
             update = await ds_update_gen.__anext__()
             await ws_manager.broadcast_to_all("events", update)

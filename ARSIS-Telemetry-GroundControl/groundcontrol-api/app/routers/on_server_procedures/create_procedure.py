@@ -1,3 +1,6 @@
+import json
+
+
 class CreateProcedure:
     def __init__(self, name, summary):
         self.name = name
@@ -22,3 +25,4 @@ class CreateProcedure:
 
     def to_dict(self):
         return {"name": self.name, "summary": self.summary, "taskList": self.task_list}
+

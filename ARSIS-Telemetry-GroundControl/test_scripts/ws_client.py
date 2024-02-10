@@ -7,7 +7,7 @@ import json
 
 def on_message(ws, message):
     json_message = json.loads(message)
-    print(json_message["type"])
+    print(json_message.keys())
     if json_message["type"] == "procedure":
         print(json_message["data"])
 
@@ -17,6 +17,7 @@ def on_error(ws, error):
 
 
 def on_close(ws, close_status_code, close_msg):
+    # ws.close()
     print("### closed ###")
 
 

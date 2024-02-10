@@ -46,7 +46,6 @@ class Datastore:
     async def get_all(self):
         to_return = []
         for key, value in self.cache.items():
-            print(key)
             to_return += list(value)
         return to_return
 
