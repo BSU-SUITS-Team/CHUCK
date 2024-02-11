@@ -1,12 +1,12 @@
-<script>
+<script lang="ts">
 	import { Timeline, TimelineItem, Button, Textarea } from 'flowbite-svelte';
-	import { ArrowRightOutline, PlusSolid } from 'flowbite-svelte-icons';
+	import { PlusSolid } from 'flowbite-svelte-icons';
 
-	export let title;
-	export let date;
-	export let description;
-	export let links = [];
-	export let problemLinks = [];
+	export let title: string;
+	export let date: string;
+	export let description: string;
+	export let links: Array<string> = [];
+	export let problemLinks: Array<string> = [];
 
 	export let substeps = [];
 

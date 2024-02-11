@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { page } from '$app/stores';
 	import {
 		Sidebar,
@@ -11,15 +11,9 @@
 	} from 'flowbite-svelte';
 	import {
 		ChartPieSolid,
-		GridSolid,
-		MailBoxSolid,
-		UserSolid,
-		ArrowRightToBracketSolid,
-		FileEditSolid,
 		MapPinAltSolid,
 		UserGroupSolid,
 		ExclamationCircleSolid,
-		QuestionCircleSolid,
 		AdjustmentsHorizontalSolid,
 		BookSolid
 	} from 'flowbite-svelte-icons';
@@ -44,7 +38,7 @@
 					/>
 				</svelte:fragment>
 			</SidebarItem>
-			<SidebarDropdownWrapper label="Entities" isOpen="true">
+			<SidebarDropdownWrapper label="Entities" isOpen={true}>
 				<svelte:fragment slot="icon">
 					<UserGroupSolid
 						class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"

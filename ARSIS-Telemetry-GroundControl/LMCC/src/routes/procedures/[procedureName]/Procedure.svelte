@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { Timeline, TimelineItem, Button, Card, Heading } from 'flowbite-svelte';
 	import { ArrowRightOutline, PlusSolid } from 'flowbite-svelte-icons';
 	import ProcedureStep from './ProcedureStep.svelte';

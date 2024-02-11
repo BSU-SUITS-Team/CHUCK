@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { Chart, Card, A, Button, Dropdown, DropdownItem } from 'flowbite-svelte';
 	import { ChevronRightSolid, ChevronDownSolid, ChevronUpSolid } from 'flowbite-svelte-icons';
 
@@ -100,7 +100,7 @@
 				class="text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 text-center inline-flex items-center dark:hover:text-white bg-transparent hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent focus:ring-transparent dark:focus:ring-transparent py-0"
 				>Last Hour<ChevronDownSolid class="w-2.5 m-2.5 ml-1.5" /></Button
 			>
-			<Dropdown class="w-40" offset="-6">
+			<Dropdown class="w-40" offset={-6}>
 				<DropdownItem>Last 5 Minuites</DropdownItem>
 				<DropdownItem>Last 15 Minuites</DropdownItem>
 				<DropdownItem>Last Hour</DropdownItem>
