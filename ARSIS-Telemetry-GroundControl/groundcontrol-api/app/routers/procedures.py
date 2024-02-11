@@ -1,5 +1,8 @@
-from fastapi import APIRouter
+from app.datastore import ds
+from app.event import Event
 from app.routers.on_server_procedures.create_procedure import CreateProcedure
+from fastapi import APIRouter
+import asyncio
 
 from .on_server_procedures.mock_procedure import mock_procedure
 
@@ -7,6 +10,18 @@ router = APIRouter(prefix="/procedures", tags=["procedures"])
 
 procedure_list = [mock_procedure]
 in_mem_procedures = {p.get_name(): p.to_dict() for p in procedure_list}
+
+
+async def add_procedure_to_ds(procedure):
+    procedure_event = Event.create_event("procedure", procedure.to_dict())
+    await ds.add_event("procedure", procedure_event)
+
+
+ts = []
+for p in procedure_list:
+    t = asyncio.create_task(add_procedure_to_ds(p))
+    ts.append(t)
+asyncio.gather(*ts)
 
 
 @router.get("/")

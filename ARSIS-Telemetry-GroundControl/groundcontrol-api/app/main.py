@@ -1,6 +1,6 @@
 import asyncio
 
-from app.datastore import Datastore
+from app.datastore import ds
 from app.routers import chat, logs, navigation, procedures, ws
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,10 +12,10 @@ app.include_router(navigation.router)
 app.include_router(ws.router)
 app.include_router(chat.router)
 
-datastore = Datastore()
-app.state.datastore = datastore
 
-origins = ["http://localhost:3000"]
+origins = [
+    "http://localhost:3000"
+]
 
 app.add_middleware(
     CORSMiddleware,
@@ -28,7 +28,7 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def startup_event():
-    asyncio.create_task(datastore.start_polling())
+    asyncio.create_task(ds.start_polling())
 
 
 @app.get("/")
