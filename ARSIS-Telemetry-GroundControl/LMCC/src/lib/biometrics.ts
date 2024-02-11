@@ -9,7 +9,7 @@ type Astronaut = {
 	temperature: number;
 	location: string;
 	fanSpeed: number;
-}
+};
 
 export const numberofastronauts = 3;
 function getastros() {

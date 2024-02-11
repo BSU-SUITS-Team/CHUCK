@@ -6,10 +6,9 @@ const initialGraphs = {};
 type Notfication = {
 	name: string;
 	status: string;
-}
+};
 // [{notification_name: 'warning'}, {notification_name: 'error'}, ...]
 const initialNotifications: Array<Notfication> = [];
-
 
 function createKeepablesStore() {
 	const { subscribe, set, update } = writable(initialKeepables);
