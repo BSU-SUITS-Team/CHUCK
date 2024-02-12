@@ -1,8 +1,19 @@
 import { readable } from 'svelte/store';
 
+type Astronaut = {
+	name: string;
+	oxygen: number;
+	battery: number;
+	co2: number;
+	heartRate: number;
+	temperature: number;
+	location: string;
+	fanSpeed: number;
+};
+
 export const numberofastronauts = 3;
 function getastros() {
-	let astronauts = [];
+	let astronauts: Array<Astronaut> = [];
 	for (let i = 0; i < numberofastronauts; i++) {
 		astronauts.push({
 			name: `EV-${i + 1}`,

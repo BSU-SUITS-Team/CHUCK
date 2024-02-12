@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { onMount } from 'svelte';
 	import PinButton from './PinButton.svelte';
 	import BoxButton from './BoxButton.svelte';

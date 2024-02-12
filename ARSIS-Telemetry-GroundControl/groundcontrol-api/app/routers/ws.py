@@ -1,4 +1,5 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from app.datastore import ds
 
 router = APIRouter(prefix="/ws", tags=["ws"])
 
@@ -12,6 +13,7 @@ class WebSocketManager:
         if path not in self.websockets:
             self.websockets[path] = []
         self.websockets[path].append(ws)
+        print(f"connected to {path} websockets: {len(self.websockets[path])}")
 
     def disconnect(self, path, ws):
         self.websockets[path].remove(ws)
@@ -26,7 +28,11 @@ class WebSocketManager:
 
     async def broadcast_to_all(self, path, data):
         for ws_conn in self.websockets[path]:
-            await ws_conn.send_json(data)
+            try:
+                await ws_conn.send_json(data)
+            except Exception as e:
+                print(e)
+                self.websockets[path].remove(ws_conn)
 
 
 ws_manager = WebSocketManager()
@@ -35,7 +41,6 @@ ws_manager = WebSocketManager()
 @router.websocket("/events")
 async def connect_to_events(websocket: WebSocket):
     await ws_manager.connect("events", websocket)
-    ds = websocket.app.state.datastore
     ds_update_gen = ds.make_async_gen()
     try:
         all_data = await ds.get_all()

@@ -9,4 +9,7 @@ services:
   script-test:
     command: tail -F anything
     build: ./test_scripts # use latest official postgres version
-
+  tss-mock:
+    build: ./TSSMock
+    environment:
+      - TSS_ENDPOINT=http://tss:14141

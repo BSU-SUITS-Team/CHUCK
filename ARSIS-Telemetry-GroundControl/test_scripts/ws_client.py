@@ -1,11 +1,15 @@
 import websocket
-import _thread
-import time
 import rel
+import json
+import argparse
 
 
-def on_message(ws, message):
-    print(message)
+def filter_on(event):
+    def on_message(ws, message):
+        json_message = json.loads(message)
+        if json_message["type"] == event or event==None:
+            print(json_message["data"])
+    return on_message
 
 
 def on_error(ws, error):
@@ -13,6 +17,7 @@ def on_error(ws, error):
 
 
 def on_close(ws, close_status_code, close_msg):
+    # ws.close()
     print("### closed ###")
 
 
@@ -21,11 +26,17 @@ def on_open(ws):
 
 
 if __name__ == "__main__":
-    websocket.enableTrace(True)
+    # Initialize parser
+    parser = argparse.ArgumentParser(description="Websocket client for groundcontrol-api")
+    parser.add_argument("-e", "--Event", help = "Event string to filter on", type = str, default = None)
+    args = parser.parse_args()
+    event_to_filter_in = args.Event
+    websocket.enableTrace(False)
+    filtered_on_message = filter_on(event_to_filter_in)
     ws = websocket.WebSocketApp(
         "ws://groundcontrol-api:8181/ws/events",
         on_open=on_open,
-        on_message=on_message,
+        on_message=filtered_on_message,
         on_error=on_error,
         on_close=on_close,
     )

@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import {
 		Heading,
 		Span,
@@ -87,7 +87,7 @@
 			<Card class="w-96">
 				<Heading tag="h3" class="mb-5">Quick Access</Heading>
 				<Table>
-					<TableBody class="divide-y">
+					<TableBody>
 						<TableBodyRow>
 							<TableBodyCell>Open Biometrics</TableBodyCell>
 							<TableBodyCell>

@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { Breadcrumb, BreadcrumbItem, Heading, Span } from 'flowbite-svelte';
 	import Procedure from './Procedure.svelte';
 

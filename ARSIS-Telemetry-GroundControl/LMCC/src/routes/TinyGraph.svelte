@@ -1,6 +1,5 @@
-<script>
-	import { Chart, Card, A, Button, Dropdown, DropdownItem } from 'flowbite-svelte';
-	import { ChevronRightSolid, ChevronDownSolid, ChevronUpSolid } from 'flowbite-svelte-icons';
+<script lang="ts">
+	import { Chart, Card } from 'flowbite-svelte';
 
 	export let name = 'Power Level';
 	export let status = '12.1V';
