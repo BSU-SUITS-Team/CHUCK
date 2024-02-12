@@ -1,8 +1,8 @@
-<script>
+<script lang="ts">
 	import '../app.postcss';
 	import Sidebar from './Sidebar.svelte';
 	import { slide } from 'svelte/transition';
-	import { graphdata, keepables, notifications } from './store.js';
+	import { graphdata, keepables, notifications } from './store';
 	import { Heading, DarkMode, Button, Span, Toast } from 'flowbite-svelte';
 	import {
 		TrashBinOutline,

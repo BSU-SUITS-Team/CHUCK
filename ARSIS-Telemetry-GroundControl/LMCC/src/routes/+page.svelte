@@ -1,6 +1,6 @@
-<script>
+<script lang="ts">
 	import { Button, Heading } from 'flowbite-svelte';
-	import { notifications } from './store.js';
+	import { notifications } from './store';
 
 	function doProblem() {
 		notifications.addNotification('Oxygen Tank Has Exploaded', 'error');

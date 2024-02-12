@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { Card, Heading, Spinner } from 'flowbite-svelte';
 
 	export let name = 'TestCameraFeed';

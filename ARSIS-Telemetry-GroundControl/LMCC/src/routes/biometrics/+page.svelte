@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import {
 		TableHead,
 		TableHeadCell,
@@ -122,7 +122,7 @@
 			<TableHeadCell>Heart Rate</TableHeadCell>
 			<TableHeadCell>Temperature</TableHeadCell>
 		</TableHead>
-		<TableBody class="divide-y">
+		<TableBody>
 			{#each $biometrics as astro}
 				<TableBodyRow>
 					<TableBodyCell>
