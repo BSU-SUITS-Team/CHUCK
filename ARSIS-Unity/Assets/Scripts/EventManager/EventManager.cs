@@ -1,45 +1,61 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
-[ExecuteInEditMode]
-public class EventManager : MonoBehaviour
+namespace ARSIS.EventManager
 {
-
-    public static EventManager Instance { get; private set; }
-    public WebSocketClient client { get; private set; }
-    public string endpoint { get; set; } = "ws://localhost:8181/ws/events";
-
-    [ContextMenu("Start Client")]
-    public void StartClient()
+    [ExecuteInEditMode]
+    public class EventManager : MonoBehaviour
     {
-        WebSocketClient client = new WebSocketClient(endpoint);
-        Task clientConnect = Task.Run(() => client.StartClient());
-        clientConnect.Start();
-    }
 
-    void Awake() {
-        if (Instance != null && Instance != this)
+        public static EventManager Instance { get; private set; }
+        public WebSocketClient client { get; private set; }
+        public string endpoint { get; set; } = "ws://localhost:8181/ws/events";
+
+        [ContextMenu("Start Client")]
+        public void StartClient()
         {
-            Destroy(this);
+            client = new WebSocketClient(endpoint);
+            StartCoroutine(client.StartClient());
         }
-        else
+
+        [ContextMenu("End Client")]
+        public void EndClient()
         {
-            Instance = this;
+            client.EndClient();
         }
-    }
 
-    // Start is called before the first frame update
-    void Start()
-    {
+        void Awake() {
+            if (Instance != null && Instance != this)
+            {
+                Destroy(this);
+            }
+            else
+            {
+                Instance = this;
+            }
+        }
 
-    }
+        // Start is called before the first frame update
+        void Start()
+        {
+            StartClient();
+        }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        // Update is called once per frame
+        void Update()
+        {
+            if (client != null)
+            {
+                BaseArsisEvent wsEvent = client.GetEvent();
+                if (wsEvent != null)
+                {
+                    Debug.Log(wsEvent.ToString());
+                }
+            }
+        }
     }
 }
