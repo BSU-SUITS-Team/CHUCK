@@ -26,7 +26,7 @@ namespace ARSIS.EventManager
             try
             {
                 if (receiveQueue.TryDequeue(out string json))
-                    return performReflection(json);
+                    return PerformReflection(json);
                 return null;
             }
             catch (Exception e)
@@ -36,7 +36,7 @@ namespace ARSIS.EventManager
             }
         }
 
-        private BaseArsisEvent performReflection(string json)
+        private BaseArsisEvent PerformReflection(string json)
         {
             BaseArsisEvent unknownEvent = JsonUtility.FromJson<BaseArsisEvent>(json);
             if (unknownEvent == null) return null;
