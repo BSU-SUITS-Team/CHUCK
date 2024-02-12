@@ -397,5 +397,6 @@
         "com.unity.textmeshpro": "3.0.6",
         "com.unity.xr.interaction.toolkit": "2.3.0"
       }
-    },
+    }
+  }
 }
