@@ -12,20 +12,20 @@ namespace ARSIS.EventManager
     {
 
         public static EventManager Instance { get; private set; }
-        public WebSocketClient client { get; private set; }
-        public string endpoint { get; set; } = "ws://localhost:8181/ws/events";
+        public WebSocketClient Client { get; private set; }
+        public string Endpoint { get; set; } = "ws://localhost:8181/ws/events";
 
         [ContextMenu("Start Client")]
         public void StartClient()
         {
-            client = new WebSocketClient(endpoint);
-            StartCoroutine(client.StartClient());
+            Client = new WebSocketClient(Endpoint);
+            StartCoroutine(Client.StartClient());
         }
 
         [ContextMenu("End Client")]
         public void EndClient()
         {
-            client.EndClient();
+            Client.EndClient();
         }
 
         void Awake() {
@@ -48,9 +48,9 @@ namespace ARSIS.EventManager
         // Update is called once per frame
         void Update()
         {
-            if (client != null)
+            if (Client != null)
             {
-                BaseArsisEvent wsEvent = client.GetEvent();
+                BaseArsisEvent wsEvent = Client.GetEvent();
                 if (wsEvent != null)
                 {
                     Debug.Log(wsEvent.ToString());
