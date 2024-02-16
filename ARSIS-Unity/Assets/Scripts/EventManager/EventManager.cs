@@ -14,18 +14,28 @@ namespace ARSIS.EventManager
         public static EventManager Instance { get; private set; }
         public WebSocketClient Client { get; private set; }
         public string Endpoint { get; set; } = "ws://localhost:8181/ws/events";
+        private IEnumerator coroutine;
 
         [ContextMenu("Start Client")]
         public void StartClient()
         {
+            if (coroutine != null)
+            {
+                Debug.Log("Client coroutine already started!");
+                return;
+            }
             Client = new WebSocketClient(Endpoint);
-            StartCoroutine(Client.StartClient());
+            coroutine = Client.StartClient();
+            StartCoroutine(coroutine);
         }
 
         [ContextMenu("End Client")]
         public void EndClient()
         {
-            Client.EndClient();
+            if (coroutine == null) return;
+            Debug.Log("Stopping client coroutine!");
+            StopCoroutine(coroutine);
+            coroutine = null;
         }
 
         void Awake() {
