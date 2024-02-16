@@ -7,54 +7,48 @@ namespace ARSIS.EventManager
 	[System.Serializable]
 	public class Eva
 	{
-		public float batt_time_left;
-		public float oxy_pri_storage;
-		public float oxy_sec_storage;
-		public float oxy_pri_pressure;
-		public float oxy_sec_pressure;
-		public float oxy_time_left;
-		public float heart_rate;
-		public float oxy_consumption;
-		public float co2_production;
-		public float suit_pressure_oxy;
-		public float suit_pressure_co2;
-		public float suit_pressure_other;
-		public float suit_pressure_total;
-		public float fan_pri_rpm;
-		public float fan_sec_rpm;
-		public float helmet_pressure_co2;
-		public float scrubber_a_co2_storage;
-		public float scrubber_b_co2_storage;
-		public float temperature;
-		public float coolant_ml;
-		public float coolant_gas_pressure;
-		public float coolant_liquid_pressure;
+		public float batt_time_left { get; set; }
+		public float oxy_pri_storage { get; set; }
+		public float oxy_sec_storage { get; set; }
+		public float oxy_pri_pressure { get; set; }
+		public float oxy_sec_pressure { get; set; }
+		public float oxy_time_left { get; set; }
+		public float heart_rate { get; set; }
+		public float oxy_consumption { get; set; }
+		public float co2_production { get; set; }
+		public float suit_pressure_oxy { get; set; }
+		public float suit_pressure_co2 { get; set; }
+		public float suit_pressure_other { get; set; }
+		public float suit_pressure_total { get; set; }
+		public float fan_pri_rpm { get; set; }
+		public float fan_sec_rpm { get; set; }
+		public float helmet_pressure_co2 { get; set; }
+		public float scrubber_a_co2_storage { get; set; }
+		public float scrubber_b_co2_storage { get; set; }
+		public float temperature { get; set; }
+		public float coolant_ml { get; set; }
+		public float coolant_gas_pressure { get; set; }
+		public float coolant_liquid_pressure { get; set; }
 	}
 
 	[System.Serializable]
 	public class Data
 	{
-		public int eva_time;
-		public Eva eva1;
-		public Eva eva2;
+		public int eva_time { get; set; }
+		public Eva eva1 { get; set; }
+		public Eva eva2 { get; set; }
 	}
 
 	[System.Serializable]
 	public class Root
 	{
-		public Data telemetry;
+		public Data telemetry { get; set; }
 	}
 
 	[System.Serializable]
     public class Telemetry : BaseArsisEvent
     {
-		public static string Type = "telemetry";
-		public Root data;
-
-		public Telemetry() : base()
-		{
-			type = Type;
-		}
+		public Root data { get; set; }
 
         public override string ToString()
         {

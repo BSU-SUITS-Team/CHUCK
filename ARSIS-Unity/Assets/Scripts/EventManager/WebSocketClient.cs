@@ -13,9 +13,9 @@ namespace ARSIS.EventManager
     public class WebSocketClient
     {
         private Uri endpoint;
-        private CancellationTokenSource cancellation = new();
         private ConcurrentQueue<string> sendQueue = new();
         private ConcurrentQueue<string> receiveQueue = new();
+        private ClientWebSocket connection;
 
         public WebSocketClient(string endpoint) {
             this.endpoint = new Uri(endpoint);
@@ -67,22 +67,24 @@ namespace ARSIS.EventManager
         {
             BaseArsisEvent unknownEvent = JsonUtility.FromJson<BaseArsisEvent>(json);
             if (unknownEvent == null) return null;
-            if (unknownEvent.type.Equals(Telemetry.Type))
-                return JsonUtility.FromJson<Telemetry>(json);
-            return unknownEvent;
+            Type eventType = BaseArsisEvent.GetType(unknownEvent.type);
+            return (BaseArsisEvent)JsonUtility.FromJson(json, eventType);
         }
 
         /// <summary>
         /// Establishes the WebSocket connection and begins listening to the events.
         /// </summary>
         /// <returns></returns>
-        public IEnumerator StartClient() {
-            using (ClientWebSocket connection = new())
+        public IEnumerator StartClient()
+        {
+            using (connection = new())
             {
                 try
                 {
                     Debug.Log("Connecting to WebSocket...");
-                    connection.ConnectAsync(endpoint, cancellation.Token).Wait(cancellation.Token);
+                    connection
+                        .ConnectAsync(endpoint, CancellationToken.None)
+                        .Wait(CancellationToken.None);
                 }
                 catch (Exception e)
                 {
@@ -93,14 +95,14 @@ namespace ARSIS.EventManager
                 using (MemoryStream memoryStream = new())
                 {
                     Debug.Log("Successfully connected to WebSocket!");
-                    while (connection.State == WebSocketState.Open && !cancellation.IsCancellationRequested)
+                    while (connection.State == WebSocketState.Open)
                     {
                         Task<WebSocketReceiveResult> task;
                         WebSocketReceiveResult result;
                         do
                         {
                             ArraySegment<byte> messageBuffer = WebSocket.CreateClientBuffer(2048, 16);
-                            task = connection.ReceiveAsync(messageBuffer, cancellation.Token);
+                            task = connection.ReceiveAsync(messageBuffer, CancellationToken.None);
                             yield return new WaitUntil(() => task.IsCompleted);
                             if (task.IsFaulted) throw task.Exception;
                             result = task.Result;
@@ -126,14 +128,6 @@ namespace ARSIS.EventManager
                     }
                 }
             }
-        }
-
-        /// <summary>
-        /// Requests the cancellation token to cancel the client from listening.
-        /// </summary>
-        public void EndClient()
-        {
-            cancellation.Cancel();
         }
     }
 }
