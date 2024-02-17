@@ -3,9 +3,9 @@ import time
 
 class Event:
     @staticmethod
-    def create_event(event_type, data):
+    def create_event(event_type, data, label=None):
         return {
             "type": event_type,
-            "time": time.time_ns(),
+            "label": label or time.time_ns(),
             "data": data,
         }
