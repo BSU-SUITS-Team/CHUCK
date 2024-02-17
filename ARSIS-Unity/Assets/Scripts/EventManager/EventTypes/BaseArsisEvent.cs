@@ -18,7 +18,8 @@ namespace ARSIS.EventManager
         };
 
         public string type;
-        public string label;
+        public long time;
+        public bool upsert;
 
         public static Type GetType(string type) {
             try

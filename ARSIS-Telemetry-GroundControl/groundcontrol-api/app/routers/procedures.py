@@ -13,7 +13,7 @@ in_mem_procedures = {p.get_name(): p.to_dict() for p in procedure_list}
 
 
 async def add_procedure_to_ds(procedure):
-    procedure_event = Event.create_event("procedure", procedure.to_dict())
+    procedure_event = Event.create_event("procedure", procedure.to_dict(), label=procedure.get_name())
     await ds.add_event("procedure", procedure_event)
 
 
