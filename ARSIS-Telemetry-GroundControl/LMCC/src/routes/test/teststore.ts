@@ -6,42 +6,42 @@ import { get, writable } from 'svelte/store';
  * @returns A Svelte store with the WebSocket's messages.
  */
 export function createWebSocketStore(url: string) {
-  const store = writable(null);
+	const store = writable(null);
 
-  const ws = new WebSocket(url);
+	const ws = new WebSocket(url);
 
-  ws.onopen = () => {
-    console.log('WebSocket connection established');
-  };
+	ws.onopen = () => {
+		console.log('WebSocket connection established');
+	};
 
-  ws.onerror = (error) => {
-    console.error('WebSocket error:', error);
-  };
+	ws.onerror = (error) => {
+		console.error('WebSocket error:', error);
+	};
 
-  ws.onmessage = (event) => {
-    try {
-      const data = JSON.parse(event.data);
-      store.set({...get(store), ...{[data.type]: data.data}}); //todo replace with somthing like {...olddata, ...data}
-    } catch (error) {
-      console.error('Error parsing WebSocket message:', error);
-    }
-  };
+	ws.onmessage = (event) => {
+		try {
+			const data = JSON.parse(event.data);
+			store.set({ ...get(store), ...{ [data.type]: data.data } }); //todo replace with somthing like {...olddata, ...data}
+		} catch (error) {
+			console.error('Error parsing WebSocket message:', error);
+		}
+	};
 
-  ws.onclose = () => {
-    console.log('WebSocket connection closed');
-  };
+	ws.onclose = () => {
+		console.log('WebSocket connection closed');
+	};
 
-  return {
-    subscribe: store.subscribe,
-    send: (data: string) => {
-      if (ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify(data));
-      } else {
-        console.error('WebSocket is not open. Message not sent.');
-      }
-    },
-    close: () => {
-      ws.close();
-    },
-  };
+	return {
+		subscribe: store.subscribe,
+		send: (data: string) => {
+			if (ws.readyState === WebSocket.OPEN) {
+				ws.send(JSON.stringify(data));
+			} else {
+				console.error('WebSocket is not open. Message not sent.');
+			}
+		},
+		close: () => {
+			ws.close();
+		}
+	};
 }
