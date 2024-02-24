@@ -8,17 +8,18 @@ namespace ARSIS.UI
 {
     public class Backplate : IComponent
     {
-        private string name { get; set; }
+        public string Name { get; set; }
         private ThemeProvider theme;
-        private Vector2 cellSize { get; set; }
-        private GridLayoutGroup.Constraint constraint { get; set; }
-        private int constraintCount { get; set; }
-        private RectOffset padding { get; set; }
-        private Vector2 spacing { get; set; }
+        public Vector2 Size { get; set; }
+        public Vector2 CellSize { get; set; }
+        public GridLayoutGroup.Constraint Constraint { get; set; }
+        public int ConstraintCount { get; set; }
+        public RectOffset Padding { get; set; }
+        public Vector2 Spacing { get; set; }
 
         public Backplate(string name)
         {
-            this.name = name;
+            this.Name = name;
             this.theme = ThemeProvider.Instance;
         }
 
@@ -37,16 +38,18 @@ namespace ARSIS.UI
         private void AddLayout(GameObject gameObject)
         {
             GridLayoutGroup grid = gameObject.AddComponent<GridLayoutGroup>();
-            grid.cellSize = cellSize;
-            grid.constraint = constraint;
-            grid.constraintCount = constraintCount;
-            grid.padding = padding;
-            grid.spacing = spacing;
+            grid.cellSize = CellSize;
+            grid.constraint = Constraint;
+            grid.constraintCount = ConstraintCount;
+            grid.padding = Padding;
+            grid.spacing = Spacing;
         }
 
-        public GameObject build()
+        public GameObject Build()
         {
-            GameObject backplate = new GameObject(name);
+            GameObject backplate = new GameObject(Name);
+            RectTransform transform = backplate.AddComponent<RectTransform>();
+            transform.sizeDelta = Size;
             AddCanvas(backplate);
             AddPlate(backplate);
             AddLayout(backplate);

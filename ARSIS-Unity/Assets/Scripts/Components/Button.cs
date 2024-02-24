@@ -39,7 +39,7 @@ namespace ARSIS.UI
             content.alignment = TextAlignmentOptions.Center;
         }
 
-        public GameObject build()
+        public GameObject Build()
         {
             GameObject button = new GameObject(name);
             button.AddComponent<RectTransform>();

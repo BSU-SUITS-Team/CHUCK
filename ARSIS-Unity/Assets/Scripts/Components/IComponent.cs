@@ -6,6 +6,6 @@ namespace ARSIS.UI
 {
     public interface IComponent
     {
-        GameObject build();
+        GameObject Build();
     }
 }
