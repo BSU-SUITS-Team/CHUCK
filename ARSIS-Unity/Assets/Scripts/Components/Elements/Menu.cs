@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 namespace ARSIS.UI
 {
+    [ExecuteInEditMode]
     public class Menu : MonoBehaviour
     {
         [SerializeField]
@@ -85,6 +86,7 @@ namespace ARSIS.UI
         {
             GameObject notificationComponent = notifications.Build();
             notificationComponent.transform.SetParent(vertical.transform, false);
+            notificationComponent.transform.SetAsFirstSibling();
             GameObject pinnedComponent = pinned.Build();
             pinnedComponent.transform.SetParent(horizontal.transform, false);
             pinnedComponent.name = "Pinned";
@@ -100,9 +102,24 @@ namespace ARSIS.UI
             BuildComponents();
         }
 
+        private void DestroyAllChilds()
+        {
+            foreach (Transform transform in gameObject.transform)
+            {
+                DestroyImmediate(transform.gameObject);
+            }
+        }
+
+        public void SetActive(bool active)
+        {
+            if (vertical == null) return;
+            vertical.SetActive(active);
+        }
+
         // Start is called before the first frame update
         void Start()
         {
+            DestroyAllChilds();
             Build();
         }
 
@@ -116,7 +133,7 @@ namespace ARSIS.UI
             }
             if (performDestroy)
             {
-                DestroyImmediate(vertical);
+                DestroyAllChilds();
             }
 
             performBuild = false;

@@ -8,14 +8,14 @@ namespace ARSIS.UI
 {
     public class Backplate : IComponent
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = "Plate";
         private ThemeProvider theme;
-        public Vector2 Size { get; set; }
-        public Vector2 CellSize { get; set; }
-        public GridLayoutGroup.Constraint Constraint { get; set; }
-        public int ConstraintCount { get; set; }
-        public RectOffset Padding { get; set; }
-        public Vector2 Spacing { get; set; }
+        public Vector2 Size { get; set; } = new(100f, 100f);
+        public Vector2 CellSize { get; set; } = new(50f, 50f);
+        public GridLayoutGroup.Constraint Constraint { get; set; } = GridLayoutGroup.Constraint.Flexible;
+        public int ConstraintCount { get; set; } = 0;
+        public RectOffset Padding { get; set; } = new(5, 5, 5, 5);
+        public Vector2 Spacing { get; set; } = new(5f, 5f);
 
         public Backplate(string name)
         {
@@ -32,7 +32,7 @@ namespace ARSIS.UI
         private void AddPlate(GameObject gameObject)
         {
             CanvasElementRoundedRect plate = gameObject.AddComponent<CanvasElementRoundedRect>();
-            plate.material = theme.GetMaterial("plate");
+            plate.material = theme.GetMaterial(ThemeProvider.Materials.plate);
         }
 
         private void AddLayout(GameObject gameObject)

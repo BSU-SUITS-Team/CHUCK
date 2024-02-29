@@ -7,14 +7,18 @@ namespace ARSIS.UI
     public sealed class ThemeProvider
     {
         public static ThemeProvider Instance { get { return Nested.instance; } }
-        private Dictionary<string, Material> materials = new() {
-            { "plate", Resources.Load("materials/CanvasBackplate.mat", typeof(Material)) as Material }
+        public enum Materials
+        {
+            plate = 0,
+        }
+        private Dictionary<Materials, Material> materials = new() { // Dictionary of name and path
+            { Materials.plate, Resources.Load<Material>("materials/CanvasBackplate") }
         };
 
         private ThemeProvider() { }
 
 
-        public Material GetMaterial(string key)
+        public Material GetMaterial(Materials key)
         {
             try
             {
@@ -27,9 +31,9 @@ namespace ARSIS.UI
             }
         }
 
-        public void SetMaterial(string key, Material material)
+        public void SetMaterial(Materials key, Material path)
         {
-            materials.Add(key, material);
+            materials[key] = path;
         }
 
         private class Nested
