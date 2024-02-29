@@ -9,19 +9,17 @@ namespace ARSIS.UI
     public class Button : IComponent
     {
 
-        private string name { get; set; }
+        public string Name { get; set; }
         private ThemeProvider theme;
         private float offsetZ = 5f;
         private float depth = 25f;
-        private string text { get; set; }
-        private int fontSize { get; set; }
+        public string Text { get; set; } = "Button";
+        public int FontSize { get; set; } = 8;
 
-        public Button(string name, string text, int fontSize, ThemeProvider theme)
+        public Button(string name)
         {
-            this.name = name;
+            this.Name = name;
             this.theme = ThemeProvider.Instance;
-            this.text = text;
-            this.fontSize = fontSize;
         }
 
         private void AddFrontplate(GameObject gameObject)
@@ -34,14 +32,14 @@ namespace ARSIS.UI
             TextMeshProUGUI content = frontplate.AddComponent<TextMeshProUGUI>();
             rectTransform.transform.position = Vector3.back * offsetZ;
             rectTransform.sizeDelta = transform.sizeDelta;
-            content.text = text;
-            content.fontSize = fontSize;
+            content.text = Text;
+            content.fontSize = FontSize;
             content.alignment = TextAlignmentOptions.Center;
         }
 
         public GameObject Build()
         {
-            GameObject button = new GameObject(name);
+            GameObject button = new GameObject(Name);
             button.AddComponent<RectTransform>();
             button.AddComponent<PressableButton>();
             button.AddComponent<UGUIInputAdapter>();

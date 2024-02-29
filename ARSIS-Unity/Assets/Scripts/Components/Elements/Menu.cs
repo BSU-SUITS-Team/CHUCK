@@ -15,9 +15,11 @@ namespace ARSIS.UI
 
         GameObject vertical;
         GameObject horizontal;
-        IComponent notifications;
-        IComponent pinned;
-        IComponent menu;
+        GameObject notifications;
+        GameObject pinned;
+        GameObject menu;
+        IComponent wideBackplate;
+        IComponent tallBackplate;
         static float width = 200f;
         static float height = 300f;
         static float uiScale = 0.001f;
@@ -27,12 +29,21 @@ namespace ARSIS.UI
         static float notifPlateHeight = 60f;
         static float horizontalX = width - (padding * 2f);
         static float horizontalY = height - (padding * 2f) - notifPlateHeight - spacing;
+        static string[] buttons = { 
+            "Procedures", 
+            "Biometrics", 
+            "Spectrometry", 
+            "Drop Breadcrumb", 
+            "Navigation", 
+            "Settings", 
+        };
 
-        private void CreateComponents()
+
+        private void CreateBackplateComponents()
         {
             Backplate wideBackplate = new Backplate("Notifications");
             wideBackplate.Size = new Vector2(horizontalX, notifPlateHeight);
-            notifications = wideBackplate;
+            this.wideBackplate = wideBackplate;
 
             float plateWidth = (horizontalX - spacing) / 2f;
             GridLayoutGroup.Constraint constraint = GridLayoutGroup.Constraint.FixedColumnCount;
@@ -44,11 +55,11 @@ namespace ARSIS.UI
             Backplate tallBackplate = new Backplate("tall");
             tallBackplate.Size = new Vector2(plateWidth, horizontalY);
             tallBackplate.Constraint = constraint;
+            tallBackplate.ConstraintCount = numColumns;
             tallBackplate.Padding = new RectOffset(spacing, spacing, spacing, spacing);
             tallBackplate.Spacing = new Vector2(spacing, spacing);
             tallBackplate.CellSize = new Vector2(buttonWidth, buttonHeight);
-            pinned = tallBackplate;
-            menu = tallBackplate;
+            this.tallBackplate = tallBackplate;
         }
 
         private void BuildLayouts()
@@ -82,24 +93,38 @@ namespace ARSIS.UI
             hlayout.childForceExpandHeight = false;
         }
 
-        private void BuildComponents()
+        private void BuildBackplateComponents()
         {
-            GameObject notificationComponent = notifications.Build();
-            notificationComponent.transform.SetParent(vertical.transform, false);
-            notificationComponent.transform.SetAsFirstSibling();
-            GameObject pinnedComponent = pinned.Build();
-            pinnedComponent.transform.SetParent(horizontal.transform, false);
-            pinnedComponent.name = "Pinned";
-            GameObject menuComponent = menu.Build();
-            menuComponent.transform.SetParent(horizontal.transform, false);
-            menuComponent.name = "Menu";
+            notifications = wideBackplate.Build();
+            notifications.transform.SetParent(vertical.transform, false);
+            notifications.transform.SetAsFirstSibling();
+            pinned = tallBackplate.Build();
+            pinned.transform.SetParent(horizontal.transform, false);
+            pinned.name = "Pinned";
+            menu = tallBackplate.Build();
+            menu.transform.SetParent(horizontal.transform, false);
+            menu.name = "Menu";
+        }
+
+        private void BuildMenuButtons()
+        {
+            if (menu == null) return;
+            Button button = new Button("button");
+            foreach (string name in buttons)
+            {
+                button.Name = name;
+                button.Text = name;
+                GameObject buttonGameObject = button.Build();
+                buttonGameObject.transform.SetParent(menu.transform, false);
+            }
         }
 
         private void Build()
         {
-            CreateComponents();
+            CreateBackplateComponents();
             BuildLayouts();
-            BuildComponents();
+            BuildBackplateComponents();
+            BuildMenuButtons();
         }
 
         private void DestroyAllChilds()
