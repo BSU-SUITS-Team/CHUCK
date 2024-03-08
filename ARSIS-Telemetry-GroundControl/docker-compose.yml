@@ -24,3 +24,4 @@ services:
     build: ./TSSExtras
     ports:
       - 14141:14141
+    command: sh -c "./server.exe > /dev/null"
