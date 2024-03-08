@@ -12,11 +12,12 @@ fastapi = "^0.89.1"
 uvicorn = {extras = ["standard"], version = "^0.20.0"}
 python-multipart = "^0.0.5"
 sqlalchemy = "^2.0.4"
-psycopg2 = "^2.9.5"
 pydantic = "^1.8.2"
 pytest = "^7.4.4"
 requests = "^2.31.0"
 responses = "^0.24.1"
+psycopg2-binary = "^2.9.9"
+pytest-asyncio = "^0.23.4"
 
 
 [build-system]

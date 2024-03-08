@@ -1,10 +1,8 @@
-<script>
+<script lang="ts">
 	import {
 		Breadcrumb,
 		BreadcrumbItem,
 		Heading,
-		Span,
-		Table,
 		TableHead,
 		TableHeadCell,
 		TableBody,
@@ -12,8 +10,6 @@
 		TableBodyCell,
 		TableSearch
 	} from 'flowbite-svelte';
-	import { Timeline, TimelineItem, Button, Card } from 'flowbite-svelte';
-	import { ArrowRightOutline, PlusSolid } from 'flowbite-svelte-icons';
 	let searchTerm = '';
 	let prodecureNames = [
 		'Test Procedure 1',
@@ -40,7 +36,7 @@
 			<TableHeadCell>Category</TableHeadCell>
 			<TableHeadCell>Duration</TableHeadCell>
 		</TableHead>
-		<TableBody class="divide-y">
+		<TableBody>
 			{#each filteredItems as prcedure}
 				<TableBodyRow>
 					<TableBodyCell>

@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { Heading, Span, Button, Spinner } from 'flowbite-svelte';
 	import Graph from '../graph.svelte';
 	import { keepables, graphdata } from '../store';

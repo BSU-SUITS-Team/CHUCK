@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { DrawSquareSolid, MapPinAltSolid } from 'flowbite-svelte-icons';
 	export let onclick = () => {};
 	export let move = false;

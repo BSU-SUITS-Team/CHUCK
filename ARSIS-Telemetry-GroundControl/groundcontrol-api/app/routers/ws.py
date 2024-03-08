@@ -1,34 +1,53 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from app.datastore import ds
 
 router = APIRouter(prefix="/ws", tags=["ws"])
 
 
 class WebSocketManager:
     def __init__(self):
-        self.websockets = []
+        self.websockets = {}
 
-    async def connect(self, ws):
+    async def connect(self, path, ws):
         await ws.accept()
-        self.websockets.append(ws)
+        if path not in self.websockets:
+            self.websockets[path] = []
+        self.websockets[path].append(ws)
+        print(f"connected to {path} websockets: {len(self.websockets[path])}")
 
-    def disconnect(self, ws):
-        self.websockets.remove(ws)
+    def disconnect(self, path, ws):
+        self.websockets[path].remove(ws)
+
+    async def async_receive(self, path):
+        pass
 
     async def broadcast(self, ws, data):
         for ws_conn in self.websockets:
             if ws != ws_conn:
                 await ws_conn.send_text(data)
 
+    async def broadcast_to_all(self, path, data):
+        for ws_conn in self.websockets[path]:
+            try:
+                await ws_conn.send_json(data)
+            except Exception as e:
+                print(e)
+                self.websockets[path].remove(ws_conn)
+
 
 ws_manager = WebSocketManager()
 
 
-@router.websocket("/updates")
-async def connect_to_updates(websocket: WebSocket):
-    await ws_manager.connect(websocket)
+@router.websocket("/events")
+async def connect_to_events(websocket: WebSocket):
+    await ws_manager.connect("events", websocket)
+    ds_update_gen = ds.make_async_gen()
     try:
+        all_data = await ds.get_all()
+        for a in all_data:
+            await websocket.send_json(a)
         while True:
-            data = await websocket.receive_text()
-            await ws_manager.broadcast(websocket, data)
+            update = await ds_update_gen.__anext__()
+            await ws_manager.broadcast_to_all("events", update)
     except WebSocketDisconnect:
-        ws_manager.disconnect(websocket)
+        ws_manager.disconnect("events", websocket)
