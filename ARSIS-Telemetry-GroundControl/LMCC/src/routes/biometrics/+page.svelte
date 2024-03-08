@@ -5,267 +5,253 @@
 		TableBody,
 		TableBodyRow,
 		TableBodyCell,
-		Table
+		Table,
+		Tabs,
+		TabItem,
+		Card,
+
+		Listgroup
+
 	} from 'flowbite-svelte';
-	import { biometrics } from '$lib/biometrics.js';
+	import {
+		sampleTelemetry,
+		type TelemetryEvent,
+		getAstronauts,
+		getEVA,
+		compareValueToBounds,
+		ResourceBounds,
+		HelmetBounds,
+		AtmosphereBounds,
+		ScrubberBounds,
+		TemperatureBounds,
+		Threshold,
+
+		type Astronaut
+
+	} from '$lib/biometrics';
+
+	let selected = undefined;
 
 	const errorColor = 'p-2 text-align-left rounded-md text-red-500';
 	const warningColor = 'p-2 text-align-left rounded-md text-orange-400';
 	const goodColor = 'p-2 text-align-left rounded-md ';
 
-	function TemperatureValidation(temperature) {
-		let delta = Math.abs(temperature - 98.6);
-		if (delta > 3) {
-			return errorColor;
-		} else if (delta > 1) {
-			return warningColor;
-		} else {
-			return goodColor;
-		}
-	}
+	const colors = {
+		[Threshold.Min]: errorColor,
+		[Threshold.Nominal]: goodColor,
+		[Threshold.Max]: errorColor
+	};
 
-	function HeartRateValidation(heartRate) {
-		let target = 90;
-		let delta = Math.abs(heartRate - target);
-		if (delta > 40) {
-			return errorColor;
-		} else if (delta > 20) {
-			return warningColor;
-		} else {
-			return goodColor;
-		}
-	}
+	const getColor = (value, range) => {
+		const threshold = compareValueToBounds(value, range);
+		return colors[threshold];
+	};
 
-	function CO2Validation(co2) {
-		co2 = Math.abs(co2);
-		if (co2 > 1000) {
-			return errorColor;
-		} else if (co2 > 500) {
-			return warningColor;
-		} else {
-			return goodColor;
-		}
-	}
+	$: telemetry = sampleTelemetry;
 
-	function BatteryValidation(battery) {
-		if (battery < 20) {
-			return errorColor;
-		} else if (battery < 50) {
-			return warningColor;
-		} else {
-			return goodColor;
-		}
-	}
+	const suitResources = (eva: Astronaut) => {
+		return [
+			{
+				key: "Battery Time Left",
+				units: ResourceBounds.batt_time_left.units,
+				value: eva.batt_time_left,
+				color: getColor(eva.batt_time_left, ResourceBounds.batt_time_left),
+			},
+			{
+				key: "Primary Oxygen Storage",
+				units: ResourceBounds.oxy_pri_storage.units,
+				value: eva.oxy_pri_storage,
+				color: getColor(eva.oxy_pri_storage, ResourceBounds.oxy_pri_storage),
+			},
+			{
+				key: "Secondary Oxygen Storage",
+				units: ResourceBounds.oxy_sec_storage.units,
+				value: eva.oxy_sec_storage,
+				color: getColor(eva.oxy_sec_storage, ResourceBounds.oxy_sec_storage),
+			},
+			{
+				key: "Primary Oxygen Pressure",
+				units: ResourceBounds.oxy_pri_pressure.units,
+				value: eva.oxy_pri_pressure,
+				color: getColor(eva.oxy_pri_pressure, ResourceBounds.oxy_pri_pressure),
+			},
+			{
+				key: "Secondary Oxygen Pressure",
+				units: ResourceBounds.oxy_sec_pressure.units,
+				value: eva.oxy_sec_pressure,
+				color: getColor(eva.oxy_sec_pressure, ResourceBounds.oxy_sec_pressure),
+			},
+			{
+				key: "Oxygen Time Left",
+				units: ResourceBounds.oxy_time_left.units,
+				value: eva.oxy_time_left,
+				color: getColor(eva.oxy_time_left, ResourceBounds.oxy_time_left),
+			},
+			{
+				key: "Coolant Volume",
+				units: ResourceBounds.oxy_time_left.units,
+				value: eva.oxy_time_left,
+				color: getColor(eva.oxy_time_left, ResourceBounds.oxy_time_left),
+			},
+		];
+	};
 
-	function OxygenValidation(oxygen) {
-		if (oxygen < 25) {
-			return errorColor;
-		} else if (oxygen < 50) {
-			return warningColor;
-		} else {
-			return goodColor;
-		}
-	}
+	const suitAtmosphere = (eva: Astronaut) => {
+		return [
+			{
+				key: "Heart Rate",
+				units: AtmosphereBounds.heart_rate.units,
+				value: eva.heart_rate,
+				color: getColor(eva.heart_rate, AtmosphereBounds.heart_rate),
+			},
+			{
+				key: "Oxygen Consumption",
+				units: AtmosphereBounds.oxy_consumption.units,
+				value: eva.oxy_consumption,
+				color: getColor(eva.oxy_consumption, AtmosphereBounds.oxy_consumption),
+			},
+			{
+				key: "CO2 Production",
+				units: AtmosphereBounds.co2_production.units,
+				value: eva.co2_production,
+				color: getColor(eva.co2_production, AtmosphereBounds.co2_production),
+			},
+			{
+				key: "Suit Pressure Oxygen",
+				units: AtmosphereBounds.suit_pressure_oxy.units,
+				value: eva.suit_pressure_oxy,
+				color: getColor(eva.suit_pressure_oxy, AtmosphereBounds.suit_pressure_oxy),
+			},
+			{
+				key: "Suit Pressure CO2",
+				units: AtmosphereBounds.suit_pressure_co2.units,
+				value: eva.suit_pressure_co2,
+				color: getColor(eva.suit_pressure_co2, AtmosphereBounds.suit_pressure_co2),
+			},
+			{
+				key: "Suit Pressure Other",
+				units: AtmosphereBounds.suit_pressure_other.units,
+				value: eva.suit_pressure_other,
+				color: getColor(eva.suit_pressure_other, AtmosphereBounds.suit_pressure_other),
+			},
+			{
+				key: "Suit Pressure Total",
+				units: AtmosphereBounds.suit_pressure_total.units,
+				value: eva.suit_pressure_total,
+				color: getColor(eva.suit_pressure_total, AtmosphereBounds.suit_pressure_total),
+			},
+			{
+				key: "Helmet Pressure CO2",
+				units: AtmosphereBounds.helmet_pressure_co2.units,
+				value: eva.helmet_pressure_co2,
+				color: getColor(eva.helmet_pressure_co2, AtmosphereBounds.helmet_pressure_co2),
+			},
+		];
+	};
 
-	//This code is appaling, but it works
-	function GetWorst(astonaut) {
-		let worst = goodColor;
-		if (OxygenValidation(astonaut.oxygen) == errorColor) {
-			worst = errorColor;
-		} else if (OxygenValidation(astonaut.oxygen) == warningColor && worst != errorColor) {
-			worst = warningColor;
-		}
-		if (BatteryValidation(astonaut.battery) == errorColor) {
-			worst = errorColor;
-		} else if (BatteryValidation(astonaut.battery) == warningColor && worst != errorColor) {
-			worst = warningColor;
-		}
-		if (CO2Validation(astonaut.co2) == errorColor) {
-			worst = errorColor;
-		} else if (CO2Validation(astonaut.co2) == warningColor && worst != errorColor) {
-			worst = warningColor;
-		}
-		if (HeartRateValidation(astonaut.heartRate) == errorColor) {
-			worst = errorColor;
-		} else if (HeartRateValidation(astonaut.heartRate) == warningColor && worst != errorColor) {
-			worst = warningColor;
-		}
-		if (TemperatureValidation(astonaut.temperature) == errorColor) {
-			worst = errorColor;
-		} else if (TemperatureValidation(astonaut.temperature) == warningColor && worst != errorColor) {
-			worst = warningColor;
-		}
+	const suitHelmet = (eva: Astronaut) => {
+		return [
+			{
+				key: "Primary Fan Speed",
+				units: HelmetBounds.fan_pri_rpm.units,
+				value: eva.fan_pri_rpm,
+				color: getColor(eva.fan_pri_rpm, HelmetBounds.fan_pri_rpm),
+			},
+			{
+				key: "Secondary Fan Speed",
+				units: HelmetBounds.fan_sec_rpm.units,
+				value: eva.fan_sec_rpm,
+				color: getColor(eva.fan_sec_rpm, HelmetBounds.fan_sec_rpm),
+			},
+		]
+	};
 
-		// const bgError = 'bg-red-400';
-		// const bgWarning = 'bg-orange-400';
+	const suitScrubber = (eva: Astronaut) => {
+		return [
+			{
+				key: "Scrubber A CO2 Storage",
+				units: ScrubberBounds.scrubber_a_co2_storage.units,
+				value: eva.scrubber_a_co2_storage,
+				color: getColor(eva.scrubber_a_co2_storage, ScrubberBounds.scrubber_a_co2_storage),
+			},
+			{
+				key: "Scrubber B CO2 Storage",
+				units: ScrubberBounds.scrubber_b_co2_storage.units,
+				value: eva.scrubber_b_co2_storage,
+				color: getColor(eva.scrubber_b_co2_storage, ScrubberBounds.scrubber_b_co2_storage),
+			},
+		]
+	};
 
-		// if (worst == errorColor){
-		// 	return bgError;
-		// }
-		// else if (worst == warningColor){
-		// 	return bgWarning;
-		// }
-		// else{
-		// 	return '';
-		// }
-		return worst;
+	const suitTemperature = (eva: Astronaut) => {
+		return [
+			{
+				key: "Temperature",
+				units: TemperatureBounds.temperature.units,
+				value: eva.temperature,
+				color: getColor(eva.temperature, TemperatureBounds.temperature),
+			},
+			{
+				key: "Coolant Gas Pressure",
+				units: TemperatureBounds.coolant_gas_pressure.units,
+				value: eva.coolant_gas_pressure,
+				color: getColor(eva.coolant_gas_pressure, TemperatureBounds.coolant_gas_pressure),
+			},
+			{
+				key: "Coolant Liquid Pressure",
+				units: TemperatureBounds.coolant_liquid_pressure.units,
+				value: eva.coolant_liquid_pressure,
+				color: getColor(eva.coolant_liquid_pressure, TemperatureBounds.coolant_liquid_pressure),
+			},
+		]
+	};
+
+	const categories = (eva: Astronaut) => {
+		return {
+			"Suit Resources": suitResources(eva),
+			"Suit Atmosphere": suitAtmosphere(eva),
+			"Suit Helmet Fan": suitHelmet(eva),
+			"Suit CO2 Scrubbers": suitScrubber(eva),
+			"Suit Temperature": suitTemperature(eva),
+		}
 	}
 </script>
 
 <div class="h-full mr-24 overflow-auto pt-8">
-	<Table hoverable>
-		<TableHead>
-			<TableHeadCell>EVA</TableHeadCell>
-			<TableHeadCell>Heart Rate (BPM)</TableHeadCell>
-			<TableHeadCell>Temperature (&deg;F)</TableHeadCell>
-			<TableHeadCell>Primary O2 Storage (%)</TableHeadCell>
-			<TableHeadCell>Primary O2 Pressure (PSI)</TableHeadCell>
-			<TableHeadCell>Secondary O2 Storage (%)</TableHeadCell>
-			<TableHeadCell>Secondary O2 Pressure (PSI)</TableHeadCell>
-			<TableHeadCell>O2 Consumption (PSI/min)</TableHeadCell>
-			<TableHeadCell>CO2 Production (PSI/min)</TableHeadCell>
-			<TableHeadCell>O2 Time Left (hh:mm:ss)</TableHeadCell>
-			<TableHeadCell>Suit O2 Pressure (PSI)</TableHeadCell>
-			<TableHeadCell>Suit CO2 Pressure (PSI)</TableHeadCell>
-			<TableHeadCell>Suit Other Pressure (PSI)</TableHeadCell>
-			<TableHeadCell>Suit Total Pressure (PSI)</TableHeadCell>
-			<TableHeadCell>Helmet CO2 Pressure (PSI)</TableHeadCell>
-			<TableHeadCell>Scrubber A Pressure (PSI)</TableHeadCell>
-			<TableHeadCell>Scrubber B Pressure (PSI)</TableHeadCell>
-			<TableHeadCell>Primary Fan (RPM)</TableHeadCell>
-			<TableHeadCell>Secondary Fan (RPM)</TableHeadCell>
-			<TableHeadCell>Coolant Gas Pressure (PSI)</TableHeadCell>
-			<TableHeadCell>Coolant Liquid Pressure (PSI)</TableHeadCell>
-			<TableHeadCell>Coolant Volume (mL)</TableHeadCell>
-		</TableHead>
-		<TableBody>
-			{#each $biometrics as astro}
-				<TableBodyRow>
-					<TableBodyCell>
-						<span>
-							{astro.eva}
-						</span>
-					</TableBodyCell>
-					<TableBodyCell>
-						<span class={HeartRateValidation(astro.heart_rate)}>
-							{astro.heart_rate.toLocaleString()}
-						</span>
-					</TableBodyCell>
-					<TableBodyCell>
-						<span class={TemperatureValidation(astro.temperature)}>
-							{astro.temperature.toLocaleString()}
-						</span>
-					</TableBodyCell>
-					<TableBodyCell>
-						<span>
-							{astro.oxy_pri_storage}
-						</span>
-					</TableBodyCell>
-					<TableBodyCell>
-						<span>
-							{astro.oxy_pri_pressure}
-						</span>
-					</TableBodyCell>
-					<TableBodyCell>
-						<span>
-							{astro.oxy_sec_storage}
-						</span>
-					</TableBodyCell>
-					<TableBodyCell>
-						<span>
-							{astro.oxy_sec_pressure}
-						</span>
-					</TableBodyCell>
-					<TableBodyCell>
-						<span>
-							{astro.oxy_consumption}
-						</span>
-					</TableBodyCell>
-					<TableBodyCell>
-						<span>
-							{astro.co2_production}
-						</span>
-					</TableBodyCell>
-					<TableBodyCell>
-						<span>
-							{astro.oxy_time_left}
-						</span>
-					</TableBodyCell>
-					<TableBodyCell>
-						<span>
-							{astro.suit_pressure_oxy}
-						</span>
-					</TableBodyCell>
-					<TableBodyCell>
-						<span>
-							{astro.suit_pressure_co2}
-						</span>
-					</TableBodyCell>
-					<TableBodyCell>
-						<span>
-							{astro.suit_pressure_other}
-						</span>
-					</TableBodyCell>
-					<TableBodyCell>
-						<span>
-							{astro.suit_pressure_total}
-						</span>
-					</TableBodyCell>
-					<TableBodyCell>
-						<span>
-							{astro.helmet_pressure_co2}
-						</span>
-					</TableBodyCell>
-					<TableBodyCell>
-						<span>
-							{astro.scrubber_a_co2_storage}
-						</span>
-					</TableBodyCell>
-					<TableBodyCell>
-						<span>
-							{astro.scrubber_b_co2_storage}
-						</span>
-					</TableBodyCell>
-					<TableBodyCell>
-						<span>
-							{astro.fan_pri_rpm}
-						</span>
-					</TableBodyCell>
-					<TableBodyCell>
-						<span>
-							{astro.fan_sec_rpm}
-						</span>
-					</TableBodyCell>
-					<TableBodyCell>
-						<span>
-							{astro.coolant_gas_pressure}
-						</span>
-					</TableBodyCell>
-					<TableBodyCell>
-						<span>
-							{astro.coolant_liquid_pressure}
-						</span>
-					</TableBodyCell>
-					<TableBodyCell>
-						<span>
-							{astro.coolant_ml}
-						</span>
-					</TableBodyCell>
-					<!-- <TableBodyCell>
-						<span class={OxygenValidation(astro.oxygen)}>
-							{astro.oxygen.toLocaleString()}%
-						</span>
-					</TableBodyCell> -->
-					<!-- <TableBodyCell>
-						<span class={BatteryValidation(astro.battery)}>
-							{astro.battery.toLocaleString()}%
-						</span>
-					</TableBodyCell> -->
-					<!-- <TableBodyCell>
-						<span class={CO2Validation(astro.co2)}>{astro.co2.toLocaleString()} PPM</span>
-					</TableBodyCell> -->
-				</TableBodyRow>
-			{/each}
-		</TableBody>
-	</Table>
+	<Tabs>
+		{#each getAstronauts(telemetry) as astro}
+			<TabItem open title={astro} on:click={() => {selected = astro}}>
+				<div class="flex gap-2 flex-wrap">
+					{#each Object.keys(categories(getEVA(telemetry, astro))) as category}						
+						<Card>
+							<div class="flex justify-between items-center mb-4">
+								<h5 class="text-xl font-bold leading-none text-gray-900 dark:text-white">
+									{category}
+								</h5>
+							</div>
+							<Listgroup items={categories(getEVA(telemetry, astro))[category]} let:item class="border-0 dark:!bg-transparent">
+								<div class="flex items-center space-x-4 rtl:space-x-reverse">
+									<div class="flex-1 min-w-0">
+										<p class="text-sm font-medium text-gray-900 dark:text-white">
+											{item["key"]}
+										</p>
+									</div>
+									<div class="flex-1 min-w-0">
+										<p class="text-sm font-medium text-gray-900 dark:text-white">
+											{item["units"]}
+										</p>
+									</div>
+									<div class="flex-1 min-w-0">
+										<p class={"text-sm font-medium "+item["color"]}>
+											{item["value"]}
+										</p>
+									</div>
+								</div>
+							</Listgroup>
+						</Card>
+					{/each}
+				</div>
+			</TabItem>
+		{/each}
+	</Tabs>
 </div>
