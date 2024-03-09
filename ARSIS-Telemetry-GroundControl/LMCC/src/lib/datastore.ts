@@ -21,13 +21,12 @@ export function createWebSocketStore(url: string) {
 	ws.onmessage = (event) => {
 		try {
 			const data = JSON.parse(event.data);
+			console.log(data);
 			let oldStore = get(store)
 			let upsert = oldStore ? oldStore.upsert : null;
 			let lastlist = oldStore ? oldStore[data.type] : [];
 			lastlist = lastlist ? lastlist : [];
-			console.time("aaaahhhh");
-			store.set({ ...oldStore, ...{ [data.type]: [...lastlist, { "time": data.time, ...Object.values(data.data)[0] }].slice(-600)} })
-			console.timeEnd("aaaahhhh");
+			store.set({ ...oldStore, ...{ [data.type]: [...lastlist, { "label": (upsert ? upsert : data.time), ...Object.values(data.data)[0] }].slice(-100) } })
 
 		} catch (error) {
 			console.error('Error parsing WebSocket message:', error);

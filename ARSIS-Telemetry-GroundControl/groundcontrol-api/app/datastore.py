@@ -3,6 +3,7 @@ from collections import deque
 
 from app.tss import get_from_tss, tss_keys
 from app.event import Event
+import json
 
 
 class Datastore:
@@ -26,7 +27,8 @@ class Datastore:
         while True:
             response = await get_from_tss(key)
             if response.status_code == 200:
-                new_event = Event.create_event(key, response.json())
+                print(response.json())
+                new_event = Event.create_event(key, response.json()[key])
                 await self.add_event(key, new_event)
             await asyncio.sleep(1)
 
