@@ -21,7 +21,6 @@ export function createWebSocketStore(url: string) {
 	ws.onmessage = (event) => {
 		try {
 			const data = JSON.parse(event.data);
-			console.log(data);
 			let oldStore = get(store)
 			let upsert = oldStore ? oldStore.upsert : null;
 			let lastlist = oldStore ? oldStore[data.type] : [];
