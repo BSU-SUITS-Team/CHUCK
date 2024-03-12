@@ -25,7 +25,7 @@ export function createWebSocketStore(url: string) {
 			let upsert = oldStore ? oldStore.upsert : null;
 			let lastlist = oldStore ? oldStore[data.type] : [];
 			lastlist = lastlist ? lastlist : [];
-			store.set({ ...oldStore, ...{ [data.type]: {...lastlist, ...{ [(upsert ? upsert : data.time)]: Object.values(data.data) }}}})
+			store.set({ ...oldStore, ...{ [data.type]: {...lastlist, ...{ [(upsert ?? data.time)]: Object.values(data.data) }}}})
 
 		} catch (error) {
 			console.error('Error parsing WebSocket message:', error);
