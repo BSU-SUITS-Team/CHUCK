@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using MixedReality.Toolkit.UX;
 using TMPro;
+using Unity.XR.CoreUtils;
 using UnityEngine;
 
 namespace ARSIS.UI
@@ -9,51 +10,40 @@ namespace ARSIS.UI
     public class Button : IComponent
     {
 
-        public string Name { get; set; }
+        public string Name { get; set; } = "Button";
         private ThemeProvider theme;
-        private float offsetZ = 5f;
-        private float depth = 25f;
-        public string Text { get; set; } = "Button";
-        public int FontSize { get; set; } = 8;
+        private ThemeProvider.Components key = ThemeProvider.Components.button;
+        public bool HasIcon { get; set; } = true;
+        public bool HasText { get; set; } = true;
+        public string Text { get; set; } = string.Empty;
 
-        public Button(string name)
+        public Button()
         {
-            this.Name = name;
-            this.theme = ThemeProvider.Instance;
+            theme = ThemeProvider.Instance;
         }
 
-        private void AddFrontplate(GameObject gameObject)
+        public Button(string Name)
         {
-            RectTransform transform = gameObject.GetComponent<RectTransform>();
-            GameObject frontplate = new GameObject("Frontplate");
-            frontplate.transform.SetParent(gameObject.transform, false);
-            RectTransform rectTransform = frontplate.AddComponent<RectTransform>();
-            frontplate.AddComponent<CanvasRenderer>();
-            TextMeshProUGUI content = frontplate.AddComponent<TextMeshProUGUI>();
-            rectTransform.transform.position = Vector3.back * offsetZ;
-            rectTransform.sizeDelta = transform.sizeDelta;
-            content.text = Text;
-            content.fontSize = FontSize;
-            content.alignment = TextAlignmentOptions.Center;
+            this.Name = Name;
+            theme = ThemeProvider.Instance;
+        }
+
+        void SetFrontplate(GameObject frontplate)
+        {
+            GameObject icon = frontplate.transform.GetChild(0).GetChild(0).gameObject;
+            GameObject text = frontplate.transform.GetChild(0).GetChild(1).gameObject;
+            icon.SetActive(HasIcon);
+            text.SetActive(HasText);
+            TextMeshProUGUI textComponent = text.GetComponent<TextMeshProUGUI>();
+            if (HasText) textComponent.text = Text;
         }
 
         public GameObject Build()
         {
-            GameObject button = new GameObject(Name);
-            button.AddComponent<RectTransform>();
-            button.AddComponent<PressableButton>();
-            button.AddComponent<UGUIInputAdapter>();
-            BoxCollider collider = button.AddComponent<BoxCollider>();
-            RectTransformColliderFitter fitter = button.AddComponent<RectTransformColliderFitter>();
-            fitter.ThisCollider = collider;
-            collider.center = new Vector3(collider.center.x, collider.center.y, offsetZ);
-            collider.size = new Vector3(collider.size.x, collider.size.y, depth);
-            Animator animator = button.AddComponent<Animator>();
-            animator.enabled = false;
-            button.AddComponent<AudioSource>();
-            button.AddComponent<StateVisualizer>();
-            button.AddComponent<InteractablePulse>();
-            AddFrontplate(button);
+            GameObject button = Object.Instantiate(theme.GetComponent(key));
+            button.name = Name;
+            GameObject frontplate = button.transform.GetChild(2).gameObject;
+            SetFrontplate(frontplate);
             return button;
         }
     }
