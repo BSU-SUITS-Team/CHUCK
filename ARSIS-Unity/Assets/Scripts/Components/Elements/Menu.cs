@@ -1,3 +1,5 @@
+using MixedReality.Toolkit;
+using MixedReality.Toolkit.UX;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,6 +12,9 @@ namespace ARSIS.UI
         public Camera camera;
         public bool performBuild;
         public bool performDestroy;
+
+        [SerializeField]
+        FieldNotes fieldNotes;
 
         private GameObject vertical;
         private GameObject horizontal;
@@ -58,7 +63,6 @@ namespace ARSIS.UI
             menuGrid.padding = new RectOffset(spacing, spacing, spacing, spacing);
             menuGrid.spacing = new Vector2(spacing, spacing);
             menuGrid.cellSize = new Vector2(buttonWidth, buttonHeight);
-
         }
 
         private void BuildLayouts()
@@ -121,6 +125,15 @@ namespace ARSIS.UI
                 buttonBuilder.Text = name;
                 buttonBuilder.Build().transform.SetParent(menu.transform, false);
             }
+            GameObject fieldNotes = menu.transform.GetChild(3).gameObject;
+            StatefulInteractable pressable = fieldNotes.GetComponent<PressableButton>();
+            pressable.OnClicked.AddListener(ShowFieldNotes);
+        }
+
+        private void ShowFieldNotes()
+        {
+            if (fieldNotes == null) return;
+            fieldNotes.ShowFieldNotes(true);
         }
 
         private void Build()

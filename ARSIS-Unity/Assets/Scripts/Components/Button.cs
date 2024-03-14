@@ -9,13 +9,14 @@ namespace ARSIS.UI
 {
     public class Button : IComponent
     {
-
+        private static string DefaultIcon = "Icon 117";
         public string Name { get; set; } = "Button";
         private ThemeProvider theme;
         private ThemeProvider.Components key = ThemeProvider.Components.button;
         public bool HasIcon { get; set; } = true;
         public bool HasText { get; set; } = true;
         public string Text { get; set; } = string.Empty;
+        public string IconName { get; set; } = DefaultIcon;
 
         public Button()
         {
@@ -36,6 +37,12 @@ namespace ARSIS.UI
             text.SetActive(HasText);
             TextMeshProUGUI textComponent = text.GetComponent<TextMeshProUGUI>();
             if (HasText) textComponent.text = Text;
+            if (HasIcon)
+            {
+                GameObject iconUI = icon.transform.GetChild(1).gameObject;
+                FontIconSelector iconSelector = iconUI.GetComponent<FontIconSelector>();
+                iconSelector.CurrentIconName = IconName ?? DefaultIcon;
+            }
         }
 
         public GameObject Build()
