@@ -10,7 +10,7 @@ packages = [{include = "telemetry_api"}]
 python = "^3.10"
 fastapi = "^0.109.1"
 uvicorn = {extras = ["standard"], version = "^0.20.0"}
-python-multipart = "^0.0.5"
+python-multipart = "^0.0.7"
 sqlalchemy = "^2.0.4"
 pydantic = "^1.8.2"
 pytest = "^7.4.4"
