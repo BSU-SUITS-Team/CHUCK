@@ -6,5 +6,3 @@ COPY ./TSS_2024 .
 RUN chmod +x ./build.bat && ./build.bat
 
 EXPOSE 14141
-
-CMD ["./server.exe"]

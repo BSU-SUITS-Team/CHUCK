@@ -56,9 +56,7 @@ def main():
         print("EV1 application started on " + server + "\n")
         while True:
             for data in xandys:
-                print(data)
                 data[1] = modifyXY(data[1])
-                print(data)
                 sendRequest(data)
             for data in headings:
                 data[1] = modifyHeading(data[1])
