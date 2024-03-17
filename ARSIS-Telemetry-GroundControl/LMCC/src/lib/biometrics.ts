@@ -5,6 +5,7 @@ export type Range = {
 	min: number,
 	nominal: number | undefined,
 	max: number;
+	limit: [number, number],
 };
 
 export enum Threshold {
@@ -73,42 +74,49 @@ export const ResourceBounds: Bounds<Resources> = {
 		min: 3600,
 		nominal: undefined,
 		max: 10800,
+		limit: [0, 10800],
 	},
 	oxy_pri_storage: {
 		units: '(%)',
 		min: 20,
 		nominal: undefined,
 		max: 100,
+		limit: [0, 100],
 	},
 	oxy_sec_storage: {
 		units: '(%)',
 		min: 20,
 		nominal: undefined,
 		max: 100,
+		limit: [0, 100],
 	},
 	oxy_pri_pressure: {
 		units: '(psi)',
 		min: 600,
 		nominal: undefined,
 		max: 3000,
+		limit: [0, 4000],
 	},
 	oxy_sec_pressure: {
 		units: '(psi)',
 		min: 600,
 		nominal: undefined,
 		max: 3000,
+		limit: [0, 4000],
 	},
 	oxy_time_left: {
 		units: '(seconds)',
 		min: 3600,
 		nominal: undefined,
-		max: 21000
+		max: 21000,
+		limit: [0, 21000],
 	},
 	coolant_ml: {
 		units: '(%)',
 		min: 80,
 		nominal: 100,
 		max: 100,
+		limit: [0, 100],
 	}
 };
 
@@ -118,48 +126,56 @@ export const AtmosphereBounds: Bounds<Atmosphere> = {
 		min: 50,
 		nominal: 90,
 		max: 160,
+		limit: [0, 250],
 	},
 	oxy_consumption: {
 		units: '(psi/min)',
 		min: 0.05,
 		nominal: 0.1,
 		max: 0.15,
+		limit: [0, 0.2],
 	},
 	co2_production: {
 		units: '(psi/min)',
 		min: 0.05,
 		nominal: 0.1,
 		max: 0.15,
+		limit: [0, 0.2],
 	},
 	suit_pressure_oxy: {
 		units: '(psi)',
 		min: 3.5,
 		nominal: 4.0,
 		max: 4.1,
+		limit: [0, 4.5],
 	},
 	suit_pressure_co2: {
 		units: '(psi)',
 		min: 0.0,
 		nominal: 0.0,
 		max: 0.1,
+		limit: [0, 0.15],
 	},
 	suit_pressure_other: {
 		units: '(psi)',
 		min: 0.0,
 		nominal: 0.0,
 		max: 0.5,
+		limit: [0, 0.1],
 	},
 	suit_pressure_total: {
 		units: '(psi)',
 		min: 3.5,
 		nominal: 4.0,
 		max: 4.5,
+		limit: [0, 5],
 	},
 	helmet_pressure_co2: {
-		units: '(seconds)',
+		units: '(psi)',
 		min: 0.0,
 		nominal: 0.1,
 		max: 0.15,
+		limit: [0, 0.2],
 	}
 };
 
@@ -169,12 +185,14 @@ export const HelmetBounds: Bounds<Helmet> = {
 		min: 20_000,
 		nominal: 30_000,
 		max: 30_000,
+		limit: [0, 40000],
 	},
 	fan_sec_rpm: {
 		units: '(rpm)',
 		min: 20_000,
 		nominal: 30_000,
 		max: 30_000,
+		limit: [0, 40000],
 	}
 };
 
@@ -184,12 +202,14 @@ export const ScrubberBounds: Bounds<Scrubbers> = {
 		min: 0,
 		nominal: undefined,
 		max: 60,
+		limit: [0, 100],
 	},
 	scrubber_b_co2_storage: {
 		units: '(%)',
 		min: 0,
 		nominal: undefined,
 		max: 60,
+		limit: [0, 100],
 	}
 };
 
@@ -199,18 +219,21 @@ export const TemperatureBounds: Bounds<Temperature> = {
 		min: 50,
 		nominal: 70,
 		max: 90,
+		limit: [32, 100],
 	},
 	coolant_gas_pressure: {
 		units: '(psi)',
 		min: 100,
 		nominal: 500,
 		max: 700,
+		limit: [0, 800],
 	},
 	coolant_liquid_pressure: {
 		units: '(psi)',
 		min: 0,
 		nominal: 0,
 		max: 700,
+		limit: [0, 800],
 	}
 };
 

@@ -32,8 +32,9 @@
 
 	import { datastore } from '$lib/datastore';
 	import { onDestroy } from 'svelte';
+	import Gauge from './gauge.svelte';
 
-	let selected = undefined;
+	let selectedAstro = "eva2";
 
 	const errorColor = 'p-2 text-align-left rounded-md text-red-500';
 	const warningColor = 'p-2 text-align-left rounded-md text-orange-400';
@@ -62,48 +63,56 @@
 	onDestroy(unsubscribe);
 
 	$: currentTelemetry = telemetry[telemetry.length - 1];
+	$: currentAstro = getEVA(telemetry[telemetry.length - 1], selectedAstro);
 
 	const suitResources = (eva: Astronaut) => {
 		return [
 			{
 				key: "Battery Time Left",
 				units: ResourceBounds.batt_time_left.units,
+				range: ResourceBounds.batt_time_left,
 				value: eva.batt_time_left,
 				color: getColor(eva.batt_time_left, ResourceBounds.batt_time_left),
 			},
 			{
 				key: "Primary Oxygen Storage",
 				units: ResourceBounds.oxy_pri_storage.units,
+				range: ResourceBounds.oxy_pri_storage,
 				value: eva.oxy_pri_storage,
 				color: getColor(eva.oxy_pri_storage, ResourceBounds.oxy_pri_storage),
 			},
 			{
 				key: "Secondary Oxygen Storage",
 				units: ResourceBounds.oxy_sec_storage.units,
+				range: ResourceBounds.oxy_sec_storage,
 				value: eva.oxy_sec_storage,
 				color: getColor(eva.oxy_sec_storage, ResourceBounds.oxy_sec_storage),
 			},
 			{
 				key: "Primary Oxygen Pressure",
 				units: ResourceBounds.oxy_pri_pressure.units,
+				range: ResourceBounds.oxy_pri_pressure,
 				value: eva.oxy_pri_pressure,
 				color: getColor(eva.oxy_pri_pressure, ResourceBounds.oxy_pri_pressure),
 			},
 			{
 				key: "Secondary Oxygen Pressure",
 				units: ResourceBounds.oxy_sec_pressure.units,
+				range: ResourceBounds.oxy_sec_pressure,
 				value: eva.oxy_sec_pressure,
 				color: getColor(eva.oxy_sec_pressure, ResourceBounds.oxy_sec_pressure),
 			},
 			{
 				key: "Oxygen Time Left",
 				units: ResourceBounds.oxy_time_left.units,
+				range: ResourceBounds.oxy_time_left,
 				value: eva.oxy_time_left,
 				color: getColor(eva.oxy_time_left, ResourceBounds.oxy_time_left),
 			},
 			{
 				key: "Coolant Volume",
 				units: ResourceBounds.coolant_ml.units,
+				range: ResourceBounds.coolant_ml,
 				value: eva.coolant_ml,
 				color: getColor(eva.coolant_ml, ResourceBounds.oxy_time_left),
 			},
@@ -115,48 +124,56 @@
 			{
 				key: "Heart Rate",
 				units: AtmosphereBounds.heart_rate.units,
+				range: AtmosphereBounds.heart_rate,
 				value: eva.heart_rate,
 				color: getColor(eva.heart_rate, AtmosphereBounds.heart_rate),
 			},
 			{
 				key: "Oxygen Consumption",
 				units: AtmosphereBounds.oxy_consumption.units,
+				range: AtmosphereBounds.oxy_consumption,
 				value: eva.oxy_consumption,
 				color: getColor(eva.oxy_consumption, AtmosphereBounds.oxy_consumption),
 			},
 			{
 				key: "CO2 Production",
 				units: AtmosphereBounds.co2_production.units,
+				range: AtmosphereBounds.co2_production,
 				value: eva.co2_production,
 				color: getColor(eva.co2_production, AtmosphereBounds.co2_production),
 			},
 			{
 				key: "Suit Pressure Oxygen",
 				units: AtmosphereBounds.suit_pressure_oxy.units,
+				range: AtmosphereBounds.suit_pressure_oxy,
 				value: eva.suit_pressure_oxy,
 				color: getColor(eva.suit_pressure_oxy, AtmosphereBounds.suit_pressure_oxy),
 			},
 			{
 				key: "Suit Pressure CO2",
 				units: AtmosphereBounds.suit_pressure_co2.units,
+				range: AtmosphereBounds.suit_pressure_co2,
 				value: eva.suit_pressure_co2,
 				color: getColor(eva.suit_pressure_co2, AtmosphereBounds.suit_pressure_co2),
 			},
 			{
 				key: "Suit Pressure Other",
 				units: AtmosphereBounds.suit_pressure_other.units,
+				range: AtmosphereBounds.suit_pressure_other,
 				value: eva.suit_pressure_other,
 				color: getColor(eva.suit_pressure_other, AtmosphereBounds.suit_pressure_other),
 			},
 			{
 				key: "Suit Pressure Total",
 				units: AtmosphereBounds.suit_pressure_total.units,
+				range: AtmosphereBounds.suit_pressure_total,
 				value: eva.suit_pressure_total,
 				color: getColor(eva.suit_pressure_total, AtmosphereBounds.suit_pressure_total),
 			},
 			{
 				key: "Helmet Pressure CO2",
 				units: AtmosphereBounds.helmet_pressure_co2.units,
+				range: AtmosphereBounds.helmet_pressure_co2,
 				value: eva.helmet_pressure_co2,
 				color: getColor(eva.helmet_pressure_co2, AtmosphereBounds.helmet_pressure_co2),
 			},
@@ -168,12 +185,14 @@
 			{
 				key: "Primary Fan Speed",
 				units: HelmetBounds.fan_pri_rpm.units,
+				range: HelmetBounds.fan_pri_rpm,
 				value: eva.fan_pri_rpm,
 				color: getColor(eva.fan_pri_rpm, HelmetBounds.fan_pri_rpm),
 			},
 			{
 				key: "Secondary Fan Speed",
 				units: HelmetBounds.fan_sec_rpm.units,
+				range: HelmetBounds.fan_sec_rpm,
 				value: eva.fan_sec_rpm,
 				color: getColor(eva.fan_sec_rpm, HelmetBounds.fan_sec_rpm),
 			},
@@ -185,12 +204,14 @@
 			{
 				key: "Scrubber A CO2 Storage",
 				units: ScrubberBounds.scrubber_a_co2_storage.units,
+				range: ScrubberBounds.scrubber_a_co2_storage,
 				value: eva.scrubber_a_co2_storage,
 				color: getColor(eva.scrubber_a_co2_storage, ScrubberBounds.scrubber_a_co2_storage),
 			},
 			{
 				key: "Scrubber B CO2 Storage",
 				units: ScrubberBounds.scrubber_b_co2_storage.units,
+				range: ScrubberBounds.scrubber_b_co2_storage,
 				value: eva.scrubber_b_co2_storage,
 				color: getColor(eva.scrubber_b_co2_storage, ScrubberBounds.scrubber_b_co2_storage),
 			},
@@ -202,18 +223,21 @@
 			{
 				key: "Temperature",
 				units: TemperatureBounds.temperature.units,
+				range: TemperatureBounds.temperature,
 				value: eva.temperature,
 				color: getColor(eva.temperature, TemperatureBounds.temperature),
 			},
 			{
 				key: "Coolant Gas Pressure",
 				units: TemperatureBounds.coolant_gas_pressure.units,
+				range: TemperatureBounds.coolant_gas_pressure,
 				value: eva.coolant_gas_pressure,
 				color: getColor(eva.coolant_gas_pressure, TemperatureBounds.coolant_gas_pressure),
 			},
 			{
 				key: "Coolant Liquid Pressure",
 				units: TemperatureBounds.coolant_liquid_pressure.units,
+				range: TemperatureBounds.coolant_liquid_pressure,
 				value: eva.coolant_liquid_pressure,
 				color: getColor(eva.coolant_liquid_pressure, TemperatureBounds.coolant_liquid_pressure),
 			},
@@ -234,9 +258,9 @@
 <div class="h-full mr-24 overflow-auto pt-8">
 	<Tabs>
 		{#each getAstronauts(currentTelemetry) as astro}
-			<TabItem open title={astro} on:click={() => {selected = astro}}>
+			<TabItem open title={astro} on:click={() => { selectedAstro = astro }}>
 				<div class="flex gap-2 flex-wrap">
-					{#each Object.keys(categories(getEVA(currentTelemetry, astro))) as category}						
+					{#each Object.keys(categories(getEVA(currentTelemetry, astro))) as category}
 						<Card>
 							<div class="flex justify-between items-center mb-4">
 								<h5 class="text-xl font-bold leading-none text-gray-900 dark:text-white">
@@ -268,4 +292,17 @@
 			</TabItem>
 		{/each}
 	</Tabs>
+	{#if currentAstro}
+		<Tabs>
+			{#each Object.keys(categories(currentAstro)) as category}
+			<TabItem open title={category}>
+				<div class="flex gap-2 flex-wrap">
+					{#each categories(currentAstro)[category] as data}
+						<Gauge name={data.key} value={data.value} bounds={data.range}/>
+					{/each}
+				</div>
+			</TabItem>
+			{/each}
+		</Tabs>
+	{/if}
 </div>
