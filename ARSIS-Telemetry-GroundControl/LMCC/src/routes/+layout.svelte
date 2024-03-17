@@ -12,6 +12,9 @@
 		LightbulbOutline
 	} from 'flowbite-svelte-icons';
 	import TinyGraph from './TinyGraph.svelte';
+	import { createWebSocketStore, datastore } from '$lib/datastore';
+	import { onDestroy } from 'svelte';
+	import { browser } from '$app/environment';
 
 	let hasNotification = false;
 	let notificationText = 'Oxygen Tank Has Exploaded';
@@ -28,6 +31,15 @@
 				hasNotification = false;
 			}
 		}, 15000);
+	}
+	
+	if (browser) {
+		const websocket = createWebSocketStore('ws://localhost:8181/ws/events');
+		const unsubscribe = datastore.subscribe(() => {});
+		onDestroy(() => {
+			unsubscribe();
+			websocket.close();
+		});
 	}
 
 	$: hasSideBar = Object.keys($keepables).length > 0 || Object.keys($graphdata).length > 0;

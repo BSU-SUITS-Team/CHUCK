@@ -61,11 +61,8 @@ export type Astronaut =
 
 export type Telemetry = {
 	eva_time: number,
+	time: number,
 	[eva: string]: Astronaut | number,
-};
-
-export type TelemetryEvent = {
-	telemetry: Telemetry,
 };
 
 export type Bounds<T> = { [K in keyof T]: Range }
@@ -217,73 +214,70 @@ export const TemperatureBounds: Bounds<Temperature> = {
 	}
 };
 
-export const sampleTelemetry: TelemetryEvent = {
-	"telemetry": {
-		"eva_time": 0,
-		"eva1": {
-			"batt_time_left": 5077.148926,
-			"oxy_pri_storage": 23.755802,
-			"oxy_sec_storage": 15.489529,
-			"oxy_pri_pressure": 0.000000,
-			"oxy_sec_pressure": 0.000000,
-			"oxy_time_left": 4238,
-			"heart_rate": 90.000000,
-			"oxy_consumption": 0.000000,
-			"co2_production": 0.000000,
-			"suit_pressure_oxy": 3.072300,
-			"suit_pressure_co2": 0.005900,
-			"suit_pressure_other": 11.554200,
-			"suit_pressure_total": 14.632401,
-			"fan_pri_rpm": 0.000000,
-			"fan_sec_rpm": 0.000000,
-			"helmet_pressure_co2": 0.000000,
-			"scrubber_a_co2_storage": 0.000000,
-			"scrubber_b_co2_storage": 0.000000,
-			"temperature": 70.000000,
-			"coolant_ml": 20.508068,
-			"coolant_gas_pressure": 0.000000,
-			"coolant_liquid_pressure": 0.000000
-		},
-		"eva2": {
-			"batt_time_left": 3384.893799,
-			"oxy_pri_storage": 24.231962,
-			"oxy_sec_storage": 19.419136,
-			"oxy_pri_pressure": 0.000000,
-			"oxy_sec_pressure": 0.000000,
-			"oxy_time_left": 4714,
-			"heart_rate": 90.000000,
-			"oxy_consumption": 0.000000,
-			"co2_production": 0.000000,
-			"suit_pressure_oxy": 3.072300,
-			"suit_pressure_co2": 0.005900,
-			"suit_pressure_other": 11.554200,
-			"suit_pressure_total": 14.632401,
-			"fan_pri_rpm": 0.000000,
-			"fan_sec_rpm": 0.000000,
-			"helmet_pressure_co2": 0.000000,
-			"scrubber_a_co2_storage": 0.000000,
-			"scrubber_b_co2_storage": 0.000000,
-			"temperature": 70.000000,
-			"coolant_ml": 22.034748,
-			"coolant_gas_pressure": 0.000000,
-			"coolant_liquid_pressure": 0.000000
-		}
+export const sampleTelemetry: Telemetry = {
+	"time": 0,
+	"eva_time": 0,
+	"eva1": {
+		"batt_time_left": 5077.148926,
+		"oxy_pri_storage": 23.755802,
+		"oxy_sec_storage": 15.489529,
+		"oxy_pri_pressure": 0.000000,
+		"oxy_sec_pressure": 0.000000,
+		"oxy_time_left": 4238,
+		"heart_rate": 90.000000,
+		"oxy_consumption": 0.000000,
+		"co2_production": 0.000000,
+		"suit_pressure_oxy": 3.072300,
+		"suit_pressure_co2": 0.005900,
+		"suit_pressure_other": 11.554200,
+		"suit_pressure_total": 14.632401,
+		"fan_pri_rpm": 0.000000,
+		"fan_sec_rpm": 0.000000,
+		"helmet_pressure_co2": 0.000000,
+		"scrubber_a_co2_storage": 0.000000,
+		"scrubber_b_co2_storage": 0.000000,
+		"temperature": 70.000000,
+		"coolant_ml": 20.508068,
+		"coolant_gas_pressure": 0.000000,
+		"coolant_liquid_pressure": 0.000000
+	},
+	"eva2": {
+		"batt_time_left": 3384.893799,
+		"oxy_pri_storage": 24.231962,
+		"oxy_sec_storage": 19.419136,
+		"oxy_pri_pressure": 0.000000,
+		"oxy_sec_pressure": 0.000000,
+		"oxy_time_left": 4714,
+		"heart_rate": 90.000000,
+		"oxy_consumption": 0.000000,
+		"co2_production": 0.000000,
+		"suit_pressure_oxy": 3.072300,
+		"suit_pressure_co2": 0.005900,
+		"suit_pressure_other": 11.554200,
+		"suit_pressure_total": 14.632401,
+		"fan_pri_rpm": 0.000000,
+		"fan_sec_rpm": 0.000000,
+		"helmet_pressure_co2": 0.000000,
+		"scrubber_a_co2_storage": 0.000000,
+		"scrubber_b_co2_storage": 0.000000,
+		"temperature": 70.000000,
+		"coolant_ml": 22.034748,
+		"coolant_gas_pressure": 0.000000,
+		"coolant_liquid_pressure": 0.000000
 	}
 };
 
-export function getAstronauts(event: TelemetryEvent): string[] {
-	const { telemetry } = event;
-	const keys = Object.keys(telemetry).filter((key, _) => key != "eva_time");
+export function getAstronauts(event: Telemetry): string[] {
+	const keys = Object.keys(event).filter((key, _) => key != "eva_time" && key != "time");
 	return keys;
 }
 
-export function getEVA(event: TelemetryEvent, eva: string): Astronaut | undefined {
+export function getEVA(event: Telemetry, eva: string): Astronaut | undefined {
 	if (eva !== "eva_time" && !getAstronauts(event).includes(eva)) {
 		console.log(`Unable to find astronaut: ${eva} in telemetry event!`, event, eva);
 		return undefined;
 	}
-	const { telemetry } = event;
-	return telemetry[eva] as Astronaut;
+	return event[eva] as Astronaut;
 }
 
 export function compareValueToBounds(number: number, range: Range): Threshold {

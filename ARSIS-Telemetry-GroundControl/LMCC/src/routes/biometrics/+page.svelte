@@ -15,7 +15,6 @@
 	} from 'flowbite-svelte';
 	import {
 		sampleTelemetry,
-		type TelemetryEvent,
 		getAstronauts,
 		getEVA,
 		compareValueToBounds,
@@ -25,10 +24,14 @@
 		ScrubberBounds,
 		TemperatureBounds,
 		Threshold,
+		type Astronaut,
 
-		type Astronaut
+		type Telemetry
 
 	} from '$lib/biometrics';
+
+	import { datastore } from '$lib/datastore';
+	import { onDestroy } from 'svelte';
 
 	let selected = undefined;
 
@@ -47,7 +50,18 @@
 		return colors[threshold];
 	};
 
-	$: telemetry = sampleTelemetry;
+	let telemetry: Telemetry[];
+	const unsubscribe = datastore.subscribe((store) => { 
+		let data = [sampleTelemetry];
+		if (store["telemetry"]) {
+			const lower = JSON.stringify(store["telemetry"]).toLowerCase();
+			data = JSON.parse(lower);
+		}
+		telemetry = data;
+	});
+	onDestroy(unsubscribe);
+
+	$: currentTelemetry = telemetry[telemetry.length - 1];
 
 	const suitResources = (eva: Astronaut) => {
 		return [
@@ -89,9 +103,9 @@
 			},
 			{
 				key: "Coolant Volume",
-				units: ResourceBounds.oxy_time_left.units,
-				value: eva.oxy_time_left,
-				color: getColor(eva.oxy_time_left, ResourceBounds.oxy_time_left),
+				units: ResourceBounds.coolant_ml.units,
+				value: eva.coolant_ml,
+				color: getColor(eva.coolant_ml, ResourceBounds.oxy_time_left),
 			},
 		];
 	};
@@ -219,17 +233,17 @@
 
 <div class="h-full mr-24 overflow-auto pt-8">
 	<Tabs>
-		{#each getAstronauts(telemetry) as astro}
+		{#each getAstronauts(currentTelemetry) as astro}
 			<TabItem open title={astro} on:click={() => {selected = astro}}>
 				<div class="flex gap-2 flex-wrap">
-					{#each Object.keys(categories(getEVA(telemetry, astro))) as category}						
+					{#each Object.keys(categories(getEVA(currentTelemetry, astro))) as category}						
 						<Card>
 							<div class="flex justify-between items-center mb-4">
 								<h5 class="text-xl font-bold leading-none text-gray-900 dark:text-white">
 									{category}
 								</h5>
 							</div>
-							<Listgroup items={categories(getEVA(telemetry, astro))[category]} let:item class="border-0 dark:!bg-transparent">
+							<Listgroup items={categories(getEVA(currentTelemetry, astro))[category]} let:item class="border-0 dark:!bg-transparent">
 								<div class="flex items-center space-x-4 rtl:space-x-reverse">
 									<div class="flex-1 min-w-0">
 										<p class="text-sm font-medium text-gray-900 dark:text-white">
