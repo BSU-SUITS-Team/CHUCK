@@ -15,6 +15,7 @@
 	import { createWebSocketStore, datastore } from '$lib/datastore';
 	import { onDestroy } from 'svelte';
 	import { browser } from '$app/environment';
+	import { formatTime } from '$lib/formatting'
 
 	let hasNotification = false;
 	let notificationText = 'Oxygen Tank Has Exploaded';
@@ -32,7 +33,7 @@
 			}
 		}, 15000);
 	}
-	
+
 	if (browser) {
 		const websocket = createWebSocketStore('ws://localhost:8181/ws/events');
 		const unsubscribe = datastore.subscribe(() => {});
@@ -41,6 +42,7 @@
 			websocket.close();
 		});
 	}
+	datastore.subscribe(console.log);
 
 	$: hasSideBar = Object.keys($keepables).length > 0 || Object.keys($graphdata).length > 0;
 </script>
@@ -51,7 +53,9 @@
 	>
 		<div class="flex flex-row">
 			<p class="pr-12">Oxygen: <span class="text-blue-600 font-bold">96 Minuties<span /></span></p>
-			<p>32 Minuties Elapsed</p>
+			{#if $datastore.eva}
+				<p> Elapsed Time: {formatTime($datastore.eva[$datastore.eva.length - 1].total_time)}</p>
+			{/if}
 		</div>
 		<p>Other Important Text That Is Longer and Sort of Just Sits at the Top Providing Status</p>
 	</div>
