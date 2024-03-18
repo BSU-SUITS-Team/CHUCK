@@ -5,156 +5,304 @@
 		TableBody,
 		TableBodyRow,
 		TableBodyCell,
-		Table
+		Table,
+		Tabs,
+		TabItem,
+		Card,
+
+		Listgroup
+
 	} from 'flowbite-svelte';
-	import { biometrics } from '$lib/biometrics.js';
+	import {
+		sampleTelemetry,
+		getAstronauts,
+		getEVA,
+		compareValueToBounds,
+		ResourceBounds,
+		HelmetBounds,
+		AtmosphereBounds,
+		ScrubberBounds,
+		TemperatureBounds,
+		Threshold,
+		type Astronaut,
+
+		type Telemetry
+
+	} from '$lib/biometrics';
+
+	import { datastore } from '$lib/datastore';
+	import { onDestroy } from 'svelte';
+	import Gauge from './gauge.svelte';
+
+	let selectedAstro = "eva2";
 
 	const errorColor = 'p-2 text-align-left rounded-md text-red-500';
 	const warningColor = 'p-2 text-align-left rounded-md text-orange-400';
 	const goodColor = 'p-2 text-align-left rounded-md ';
 
-	function TemperatureValidation(temperature) {
-		let delta = Math.abs(temperature - 98.6);
-		if (delta > 3) {
-			return errorColor;
-		} else if (delta > 1) {
-			return warningColor;
-		} else {
-			return goodColor;
-		}
-	}
+	const colors = {
+		[Threshold.Min]: errorColor,
+		[Threshold.Nominal]: goodColor,
+		[Threshold.Max]: errorColor
+	};
 
-	function HeartRateValidation(heartRate) {
-		let target = 90;
-		let delta = Math.abs(heartRate - target);
-		if (delta > 40) {
-			return errorColor;
-		} else if (delta > 20) {
-			return warningColor;
-		} else {
-			return goodColor;
-		}
-	}
+	const getColor = (value, range) => {
+		const threshold = compareValueToBounds(value, range);
+		return colors[threshold];
+	};
 
-	function CO2Validation(co2) {
-		co2 = Math.abs(co2);
-		if (co2 > 1000) {
-			return errorColor;
-		} else if (co2 > 500) {
-			return warningColor;
-		} else {
-			return goodColor;
+	let telemetry: Telemetry[];
+	const unsubscribe = datastore.subscribe((store) => { 
+		let data = [sampleTelemetry];
+		if (store["telemetry"]) {
+			const lower = JSON.stringify(store["telemetry"]).toLowerCase();
+			data = JSON.parse(lower);
 		}
-	}
+		telemetry = data;
+	});
+	onDestroy(unsubscribe);
 
-	function BatteryValidation(battery) {
-		if (battery < 20) {
-			return errorColor;
-		} else if (battery < 50) {
-			return warningColor;
-		} else {
-			return goodColor;
-		}
-	}
+	$: currentTelemetry = telemetry[telemetry.length - 1];
+	$: currentAstro = getEVA(telemetry[telemetry.length - 1], selectedAstro);
 
-	function OxygenValidation(oxygen) {
-		if (oxygen < 25) {
-			return errorColor;
-		} else if (oxygen < 50) {
-			return warningColor;
-		} else {
-			return goodColor;
-		}
-	}
+	const suitResources = (eva: Astronaut) => {
+		return [
+			{
+				key: "Battery Time Left",
+				units: ResourceBounds.batt_time_left.units,
+				range: ResourceBounds.batt_time_left,
+				value: eva.batt_time_left,
+				color: getColor(eva.batt_time_left, ResourceBounds.batt_time_left),
+			},
+			{
+				key: "Primary Oxygen Storage",
+				units: ResourceBounds.oxy_pri_storage.units,
+				range: ResourceBounds.oxy_pri_storage,
+				value: eva.oxy_pri_storage,
+				color: getColor(eva.oxy_pri_storage, ResourceBounds.oxy_pri_storage),
+			},
+			{
+				key: "Secondary Oxygen Storage",
+				units: ResourceBounds.oxy_sec_storage.units,
+				range: ResourceBounds.oxy_sec_storage,
+				value: eva.oxy_sec_storage,
+				color: getColor(eva.oxy_sec_storage, ResourceBounds.oxy_sec_storage),
+			},
+			{
+				key: "Primary Oxygen Pressure",
+				units: ResourceBounds.oxy_pri_pressure.units,
+				range: ResourceBounds.oxy_pri_pressure,
+				value: eva.oxy_pri_pressure,
+				color: getColor(eva.oxy_pri_pressure, ResourceBounds.oxy_pri_pressure),
+			},
+			{
+				key: "Secondary Oxygen Pressure",
+				units: ResourceBounds.oxy_sec_pressure.units,
+				range: ResourceBounds.oxy_sec_pressure,
+				value: eva.oxy_sec_pressure,
+				color: getColor(eva.oxy_sec_pressure, ResourceBounds.oxy_sec_pressure),
+			},
+			{
+				key: "Oxygen Time Left",
+				units: ResourceBounds.oxy_time_left.units,
+				range: ResourceBounds.oxy_time_left,
+				value: eva.oxy_time_left,
+				color: getColor(eva.oxy_time_left, ResourceBounds.oxy_time_left),
+			},
+			{
+				key: "Coolant Volume",
+				units: ResourceBounds.coolant_ml.units,
+				range: ResourceBounds.coolant_ml,
+				value: eva.coolant_ml,
+				color: getColor(eva.coolant_ml, ResourceBounds.oxy_time_left),
+			},
+		];
+	};
 
-	//This code is appaling, but it works
-	function GetWorst(astonaut) {
-		let worst = goodColor;
-		if (OxygenValidation(astonaut.oxygen) == errorColor) {
-			worst = errorColor;
-		} else if (OxygenValidation(astonaut.oxygen) == warningColor && worst != errorColor) {
-			worst = warningColor;
-		}
-		if (BatteryValidation(astonaut.battery) == errorColor) {
-			worst = errorColor;
-		} else if (BatteryValidation(astonaut.battery) == warningColor && worst != errorColor) {
-			worst = warningColor;
-		}
-		if (CO2Validation(astonaut.co2) == errorColor) {
-			worst = errorColor;
-		} else if (CO2Validation(astonaut.co2) == warningColor && worst != errorColor) {
-			worst = warningColor;
-		}
-		if (HeartRateValidation(astonaut.heartRate) == errorColor) {
-			worst = errorColor;
-		} else if (HeartRateValidation(astonaut.heartRate) == warningColor && worst != errorColor) {
-			worst = warningColor;
-		}
-		if (TemperatureValidation(astonaut.temperature) == errorColor) {
-			worst = errorColor;
-		} else if (TemperatureValidation(astonaut.temperature) == warningColor && worst != errorColor) {
-			worst = warningColor;
-		}
+	const suitAtmosphere = (eva: Astronaut) => {
+		return [
+			{
+				key: "Heart Rate",
+				units: AtmosphereBounds.heart_rate.units,
+				range: AtmosphereBounds.heart_rate,
+				value: eva.heart_rate,
+				color: getColor(eva.heart_rate, AtmosphereBounds.heart_rate),
+			},
+			{
+				key: "Oxygen Consumption",
+				units: AtmosphereBounds.oxy_consumption.units,
+				range: AtmosphereBounds.oxy_consumption,
+				value: eva.oxy_consumption,
+				color: getColor(eva.oxy_consumption, AtmosphereBounds.oxy_consumption),
+			},
+			{
+				key: "CO2 Production",
+				units: AtmosphereBounds.co2_production.units,
+				range: AtmosphereBounds.co2_production,
+				value: eva.co2_production,
+				color: getColor(eva.co2_production, AtmosphereBounds.co2_production),
+			},
+			{
+				key: "Suit Pressure Oxygen",
+				units: AtmosphereBounds.suit_pressure_oxy.units,
+				range: AtmosphereBounds.suit_pressure_oxy,
+				value: eva.suit_pressure_oxy,
+				color: getColor(eva.suit_pressure_oxy, AtmosphereBounds.suit_pressure_oxy),
+			},
+			{
+				key: "Suit Pressure CO2",
+				units: AtmosphereBounds.suit_pressure_co2.units,
+				range: AtmosphereBounds.suit_pressure_co2,
+				value: eva.suit_pressure_co2,
+				color: getColor(eva.suit_pressure_co2, AtmosphereBounds.suit_pressure_co2),
+			},
+			{
+				key: "Suit Pressure Other",
+				units: AtmosphereBounds.suit_pressure_other.units,
+				range: AtmosphereBounds.suit_pressure_other,
+				value: eva.suit_pressure_other,
+				color: getColor(eva.suit_pressure_other, AtmosphereBounds.suit_pressure_other),
+			},
+			{
+				key: "Suit Pressure Total",
+				units: AtmosphereBounds.suit_pressure_total.units,
+				range: AtmosphereBounds.suit_pressure_total,
+				value: eva.suit_pressure_total,
+				color: getColor(eva.suit_pressure_total, AtmosphereBounds.suit_pressure_total),
+			},
+			{
+				key: "Helmet Pressure CO2",
+				units: AtmosphereBounds.helmet_pressure_co2.units,
+				range: AtmosphereBounds.helmet_pressure_co2,
+				value: eva.helmet_pressure_co2,
+				color: getColor(eva.helmet_pressure_co2, AtmosphereBounds.helmet_pressure_co2),
+			},
+		];
+	};
 
-		// const bgError = 'bg-red-400';
-		// const bgWarning = 'bg-orange-400';
+	const suitHelmet = (eva: Astronaut) => {
+		return [
+			{
+				key: "Primary Fan Speed",
+				units: HelmetBounds.fan_pri_rpm.units,
+				range: HelmetBounds.fan_pri_rpm,
+				value: eva.fan_pri_rpm,
+				color: getColor(eva.fan_pri_rpm, HelmetBounds.fan_pri_rpm),
+			},
+			{
+				key: "Secondary Fan Speed",
+				units: HelmetBounds.fan_sec_rpm.units,
+				range: HelmetBounds.fan_sec_rpm,
+				value: eva.fan_sec_rpm,
+				color: getColor(eva.fan_sec_rpm, HelmetBounds.fan_sec_rpm),
+			},
+		]
+	};
 
-		// if (worst == errorColor){
-		// 	return bgError;
-		// }
-		// else if (worst == warningColor){
-		// 	return bgWarning;
-		// }
-		// else{
-		// 	return '';
-		// }
-		return worst;
+	const suitScrubber = (eva: Astronaut) => {
+		return [
+			{
+				key: "Scrubber A CO2 Storage",
+				units: ScrubberBounds.scrubber_a_co2_storage.units,
+				range: ScrubberBounds.scrubber_a_co2_storage,
+				value: eva.scrubber_a_co2_storage,
+				color: getColor(eva.scrubber_a_co2_storage, ScrubberBounds.scrubber_a_co2_storage),
+			},
+			{
+				key: "Scrubber B CO2 Storage",
+				units: ScrubberBounds.scrubber_b_co2_storage.units,
+				range: ScrubberBounds.scrubber_b_co2_storage,
+				value: eva.scrubber_b_co2_storage,
+				color: getColor(eva.scrubber_b_co2_storage, ScrubberBounds.scrubber_b_co2_storage),
+			},
+		]
+	};
+
+	const suitTemperature = (eva: Astronaut) => {
+		return [
+			{
+				key: "Temperature",
+				units: TemperatureBounds.temperature.units,
+				range: TemperatureBounds.temperature,
+				value: eva.temperature,
+				color: getColor(eva.temperature, TemperatureBounds.temperature),
+			},
+			{
+				key: "Coolant Gas Pressure",
+				units: TemperatureBounds.coolant_gas_pressure.units,
+				range: TemperatureBounds.coolant_gas_pressure,
+				value: eva.coolant_gas_pressure,
+				color: getColor(eva.coolant_gas_pressure, TemperatureBounds.coolant_gas_pressure),
+			},
+			{
+				key: "Coolant Liquid Pressure",
+				units: TemperatureBounds.coolant_liquid_pressure.units,
+				range: TemperatureBounds.coolant_liquid_pressure,
+				value: eva.coolant_liquid_pressure,
+				color: getColor(eva.coolant_liquid_pressure, TemperatureBounds.coolant_liquid_pressure),
+			},
+		]
+	};
+
+	const categories = (eva: Astronaut) => {
+		return {
+			"Suit Resources": suitResources(eva),
+			"Suit Atmosphere": suitAtmosphere(eva),
+			"Suit Helmet Fan": suitHelmet(eva),
+			"Suit CO2 Scrubbers": suitScrubber(eva),
+			"Suit Temperature": suitTemperature(eva),
+		}
 	}
 </script>
 
 <div class="h-full mr-24 overflow-auto pt-8">
-	<Table hoverable>
-		<TableHead>
-			<TableHeadCell>Name</TableHeadCell>
-			<TableHeadCell>Oxygen</TableHeadCell>
-			<TableHeadCell>Battery</TableHeadCell>
-			<TableHeadCell>CO2</TableHeadCell>
-			<TableHeadCell>Heart Rate</TableHeadCell>
-			<TableHeadCell>Temperature</TableHeadCell>
-		</TableHead>
-		<TableBody>
-			{#each $biometrics as astro}
-				<TableBodyRow>
-					<TableBodyCell>
-						<span>
-							{astro.name}
-						</span>
-					</TableBodyCell>
-					<TableBodyCell>
-						<span class={OxygenValidation(astro.oxygen)}>
-							{astro.oxygen.toLocaleString()}%
-						</span>
-					</TableBodyCell>
-					<TableBodyCell>
-						<span class={BatteryValidation(astro.battery)}>
-							{astro.battery.toLocaleString()}%
-						</span>
-					</TableBodyCell>
-					<TableBodyCell>
-						<span class={CO2Validation(astro.co2)}>{astro.co2.toLocaleString()} PPM</span>
-					</TableBodyCell>
-					<TableBodyCell>
-						<span class={HeartRateValidation(astro.heartRate)}>
-							{astro.heartRate.toLocaleString()} BPM
-						</span>
-					</TableBodyCell>
-					<TableBodyCell>
-						<span class={TemperatureValidation(astro.temperature)}>
-							{astro.temperature.toLocaleString()} &deg;F
-						</span>
-					</TableBodyCell>
-				</TableBodyRow>
+	<Tabs>
+		{#each getAstronauts(currentTelemetry) as astro}
+			<TabItem open title={astro} on:click={() => { selectedAstro = astro }}>
+				<div class="flex gap-2 flex-wrap">
+					{#each Object.keys(categories(getEVA(currentTelemetry, astro))) as category}
+						<Card>
+							<div class="flex justify-between items-center mb-4">
+								<h5 class="text-xl font-bold leading-none text-gray-900 dark:text-white">
+									{category}
+								</h5>
+							</div>
+							<Listgroup items={categories(getEVA(currentTelemetry, astro))[category]} let:item class="border-0 dark:!bg-transparent">
+								<div class="flex items-center space-x-4 rtl:space-x-reverse">
+									<div class="flex-1 min-w-0">
+										<p class="text-sm font-medium text-gray-900 dark:text-white">
+											{item["key"]}
+										</p>
+									</div>
+									<div class="flex-1 min-w-0">
+										<p class="text-sm font-medium text-gray-900 dark:text-white">
+											{item["units"]}
+										</p>
+									</div>
+									<div class="flex-1 min-w-0">
+										<p class={"text-sm font-medium "+item["color"]}>
+											{item["value"]}
+										</p>
+									</div>
+								</div>
+							</Listgroup>
+						</Card>
+					{/each}
+				</div>
+			</TabItem>
+		{/each}
+	</Tabs>
+	{#if currentAstro}
+		<Tabs>
+			{#each Object.keys(categories(currentAstro)) as category}
+			<TabItem open title={category}>
+				<div class="flex gap-2 flex-wrap">
+					{#each categories(currentAstro)[category] as data}
+						<Gauge name={data.key} value={data.value} bounds={data.range}/>
+					{/each}
+				</div>
+			</TabItem>
 			{/each}
-		</TableBody>
-	</Table>
+		</Tabs>
+	{/if}
 </div>
