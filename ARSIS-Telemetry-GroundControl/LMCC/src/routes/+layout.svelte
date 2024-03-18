@@ -15,7 +15,7 @@
 	import { createWebSocketStore, datastore } from '$lib/datastore';
 	import { onDestroy } from 'svelte';
 	import { browser } from '$app/environment';
-	import { formatTime } from '$lib/formatting'
+	import { formatTime } from '$lib/formatting';
 
 	let hasNotification = false;
 	let notificationText = 'Oxygen Tank Has Exploaded';
@@ -54,7 +54,7 @@
 		<div class="flex flex-row">
 			<p class="pr-12">Oxygen: <span class="text-blue-600 font-bold">96 Minuties<span /></span></p>
 			{#if $datastore.eva}
-				<p> Elapsed Time: {formatTime($datastore.eva[$datastore.eva.length - 1].total_time)}</p>
+				<p>Elapsed Time: {formatTime($datastore.eva[$datastore.eva.length - 1].total_time)}</p>
 			{/if}
 		</div>
 		<p>Other Important Text That Is Longer and Sort of Just Sits at the Top Providing Status</p>

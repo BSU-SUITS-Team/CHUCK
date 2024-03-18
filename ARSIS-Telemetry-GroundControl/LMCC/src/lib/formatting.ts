@@ -1,6 +1,5 @@
 // this is a random collection of different formatting functions to make stuff easier
 
-
 export function formatTime(seconds: number) {
 	// this could just use mod
 	const date = new Date(seconds * 1000); // Convert seconds to milliseconds

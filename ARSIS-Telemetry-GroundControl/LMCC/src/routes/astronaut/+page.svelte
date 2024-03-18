@@ -27,7 +27,7 @@
 		['DCU Time', formatTime(eva.dcu.time)],
 		['UIA Time', formatTime(eva.uia.time)],
 		['SPEC Time', formatTime(eva.spec.time)],
-		['ROVER Time', formatTime(eva.rover.time)],
+		['ROVER Time', formatTime(eva.rover.time)]
 	];
 
 	const graphs = [
