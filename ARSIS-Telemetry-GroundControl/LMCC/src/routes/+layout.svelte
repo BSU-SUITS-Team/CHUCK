@@ -1,4 +1,4 @@
-<script lang="ts">
+<script>
 	import '../app.postcss';
 	import Sidebar from './Sidebar.svelte';
 	import { slide } from 'svelte/transition';
