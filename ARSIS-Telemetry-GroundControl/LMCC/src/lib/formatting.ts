@@ -18,3 +18,10 @@ export function formatTime(seconds: number) {
 
 	return timeString;
 }
+
+
+export function formatDecimals(places: number) {
+	return (value: number) => {
+		return value.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: places})
+	}	
+}
