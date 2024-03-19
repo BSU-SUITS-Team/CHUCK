@@ -26,7 +26,6 @@
 	}
 
 	//notification handling
-	const RECIEVE_WINDOW = 10; // seconds
 	const SEVERITIES = { 0: 'error', 1: 'warn', 2: 'info' };
 	datastore.subscribe((store) => {
 		if (store['notification']) {
