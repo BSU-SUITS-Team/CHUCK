@@ -3,6 +3,7 @@
 	import { Card } from 'flowbite-svelte';
 
 	export let name: string = 'Gauge';
+  
 	export let formatter: Function = (value: number) => {return value};
 	export let value: number;
 	export let bounds: Range;
