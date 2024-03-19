@@ -24,7 +24,6 @@
 			websocket.close();
 		});
 	}
-	datastore.subscribe(console.log);
 
 	//notification handling
 	const RECIEVE_WINDOW = 10; // seconds

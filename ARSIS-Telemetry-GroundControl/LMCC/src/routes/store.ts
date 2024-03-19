@@ -78,9 +78,11 @@ function createNotificationsStore() {
 		addNotification: (name, status, id) =>
 			update((n) => {
 				let found = false;
-				n.forEach((currentElement) => {found = (currentElement.id == id || found)})
+				n.forEach((currentElement) => {
+					found = currentElement.id == id || found;
+				});
 				if (found) {
-					return n
+					return n;
 				}
 				n.push({ name, status, id });
 				return [...n];
