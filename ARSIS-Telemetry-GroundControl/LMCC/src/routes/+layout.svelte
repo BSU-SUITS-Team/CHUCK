@@ -1,4 +1,4 @@
-<script lang="ts">
+<script>
 	import '../app.postcss';
 	import Sidebar from './Sidebar.svelte';
 	import { slide } from 'svelte/transition';
@@ -15,6 +15,7 @@
 	import { createWebSocketStore, datastore } from '$lib/datastore';
 	import { onDestroy } from 'svelte';
 	import { browser } from '$app/environment';
+	import { formatTime } from '$lib/formatting';
 
 	if (browser) {
 		const websocket = createWebSocketStore('ws://localhost:8181/ws/events');
@@ -45,7 +46,9 @@
 	>
 		<div class="flex flex-row">
 			<p class="pr-12">Oxygen: <span class="text-blue-600 font-bold">96 Minuties<span /></span></p>
-			<p>32 Minuties Elapsed</p>
+			{#if $datastore.eva}
+				<p>Elapsed Time: {formatTime($datastore.eva[$datastore.eva.length - 1].total_time)}</p>
+			{/if}
 		</div>
 		<p>Other Important Text That Is Longer and Sort of Just Sits at the Top Providing Status</p>
 	</div>

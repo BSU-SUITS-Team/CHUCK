@@ -3,6 +3,7 @@
 	import { Card } from 'flowbite-svelte';
 
 	export let name: string = 'Gauge';
+	export let formatter: Function = (value: number) => {return value};
 	export let value: number;
 	export let bounds: Range;
 
@@ -27,7 +28,7 @@
 		<div id="max" style={maxHeight} class="bg-red-500" />
 		<div id="min" style={minHeight} class="bg-red-500" />
 		<div id="label" style={position} class="bg-white text-black dark:bg-black dark:text-white">
-			{value.toFixed(2)}
+			{formatter(value)}
 			{bounds.units}
 		</div>
 	</div>

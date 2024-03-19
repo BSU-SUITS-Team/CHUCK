@@ -29,6 +29,7 @@
 	import { datastore } from '$lib/datastore';
 	import { onDestroy } from 'svelte';
 	import Gauge from './gauge.svelte';
+	import { formatTime, formatDecimals } from '$lib/formatting';
 
 	let selectedAstro = 'eva2';
 
@@ -66,6 +67,7 @@
 			{
 				key: 'Battery Time Left',
 				units: ResourceBounds.batt_time_left.units,
+				formatter: formatTime,
 				range: ResourceBounds.batt_time_left,
 				value: eva.batt_time_left,
 				color: getColor(eva.batt_time_left, ResourceBounds.batt_time_left)
@@ -73,6 +75,7 @@
 			{
 				key: 'Primary Oxygen Storage',
 				units: ResourceBounds.oxy_pri_storage.units,
+				formatter: formatDecimals(2),
 				range: ResourceBounds.oxy_pri_storage,
 				value: eva.oxy_pri_storage,
 				color: getColor(eva.oxy_pri_storage, ResourceBounds.oxy_pri_storage)
@@ -80,6 +83,7 @@
 			{
 				key: 'Secondary Oxygen Storage',
 				units: ResourceBounds.oxy_sec_storage.units,
+				formatter: formatDecimals(2),
 				range: ResourceBounds.oxy_sec_storage,
 				value: eva.oxy_sec_storage,
 				color: getColor(eva.oxy_sec_storage, ResourceBounds.oxy_sec_storage)
@@ -87,6 +91,7 @@
 			{
 				key: 'Primary Oxygen Pressure',
 				units: ResourceBounds.oxy_pri_pressure.units,
+				formatter: formatDecimals(2),
 				range: ResourceBounds.oxy_pri_pressure,
 				value: eva.oxy_pri_pressure,
 				color: getColor(eva.oxy_pri_pressure, ResourceBounds.oxy_pri_pressure)
@@ -94,6 +99,7 @@
 			{
 				key: 'Secondary Oxygen Pressure',
 				units: ResourceBounds.oxy_sec_pressure.units,
+				formatter: formatDecimals(2),
 				range: ResourceBounds.oxy_sec_pressure,
 				value: eva.oxy_sec_pressure,
 				color: getColor(eva.oxy_sec_pressure, ResourceBounds.oxy_sec_pressure)
@@ -101,6 +107,7 @@
 			{
 				key: 'Oxygen Time Left',
 				units: ResourceBounds.oxy_time_left.units,
+				formatter: formatTime,
 				range: ResourceBounds.oxy_time_left,
 				value: eva.oxy_time_left,
 				color: getColor(eva.oxy_time_left, ResourceBounds.oxy_time_left)
@@ -108,6 +115,7 @@
 			{
 				key: 'Coolant Volume',
 				units: ResourceBounds.coolant_ml.units,
+				formatter: formatDecimals(2),
 				range: ResourceBounds.coolant_ml,
 				value: eva.coolant_ml,
 				color: getColor(eva.coolant_ml, ResourceBounds.oxy_time_left)
@@ -120,6 +128,7 @@
 			{
 				key: 'Heart Rate',
 				units: AtmosphereBounds.heart_rate.units,
+				formatter: formatDecimals(2),
 				range: AtmosphereBounds.heart_rate,
 				value: eva.heart_rate,
 				color: getColor(eva.heart_rate, AtmosphereBounds.heart_rate)
@@ -127,6 +136,7 @@
 			{
 				key: 'Oxygen Consumption',
 				units: AtmosphereBounds.oxy_consumption.units,
+				formatter: formatDecimals(2),
 				range: AtmosphereBounds.oxy_consumption,
 				value: eva.oxy_consumption,
 				color: getColor(eva.oxy_consumption, AtmosphereBounds.oxy_consumption)
@@ -134,6 +144,7 @@
 			{
 				key: 'CO2 Production',
 				units: AtmosphereBounds.co2_production.units,
+				formatter: formatDecimals(2),
 				range: AtmosphereBounds.co2_production,
 				value: eva.co2_production,
 				color: getColor(eva.co2_production, AtmosphereBounds.co2_production)
@@ -141,6 +152,7 @@
 			{
 				key: 'Suit Pressure Oxygen',
 				units: AtmosphereBounds.suit_pressure_oxy.units,
+				formatter: formatDecimals(2),
 				range: AtmosphereBounds.suit_pressure_oxy,
 				value: eva.suit_pressure_oxy,
 				color: getColor(eva.suit_pressure_oxy, AtmosphereBounds.suit_pressure_oxy)
@@ -148,6 +160,7 @@
 			{
 				key: 'Suit Pressure CO2',
 				units: AtmosphereBounds.suit_pressure_co2.units,
+				formatter: formatDecimals(2),
 				range: AtmosphereBounds.suit_pressure_co2,
 				value: eva.suit_pressure_co2,
 				color: getColor(eva.suit_pressure_co2, AtmosphereBounds.suit_pressure_co2)
@@ -155,6 +168,7 @@
 			{
 				key: 'Suit Pressure Other',
 				units: AtmosphereBounds.suit_pressure_other.units,
+				formatter: formatDecimals(2),
 				range: AtmosphereBounds.suit_pressure_other,
 				value: eva.suit_pressure_other,
 				color: getColor(eva.suit_pressure_other, AtmosphereBounds.suit_pressure_other)
@@ -162,6 +176,7 @@
 			{
 				key: 'Suit Pressure Total',
 				units: AtmosphereBounds.suit_pressure_total.units,
+				formatter: formatDecimals(2),
 				range: AtmosphereBounds.suit_pressure_total,
 				value: eva.suit_pressure_total,
 				color: getColor(eva.suit_pressure_total, AtmosphereBounds.suit_pressure_total)
@@ -169,6 +184,7 @@
 			{
 				key: 'Helmet Pressure CO2',
 				units: AtmosphereBounds.helmet_pressure_co2.units,
+				formatter: formatDecimals(2),
 				range: AtmosphereBounds.helmet_pressure_co2,
 				value: eva.helmet_pressure_co2,
 				color: getColor(eva.helmet_pressure_co2, AtmosphereBounds.helmet_pressure_co2)
@@ -181,6 +197,7 @@
 			{
 				key: 'Primary Fan Speed',
 				units: HelmetBounds.fan_pri_rpm.units,
+				formatter: formatDecimals(2),
 				range: HelmetBounds.fan_pri_rpm,
 				value: eva.fan_pri_rpm,
 				color: getColor(eva.fan_pri_rpm, HelmetBounds.fan_pri_rpm)
@@ -188,6 +205,7 @@
 			{
 				key: 'Secondary Fan Speed',
 				units: HelmetBounds.fan_sec_rpm.units,
+				formatter: formatDecimals(2),
 				range: HelmetBounds.fan_sec_rpm,
 				value: eva.fan_sec_rpm,
 				color: getColor(eva.fan_sec_rpm, HelmetBounds.fan_sec_rpm)
@@ -200,6 +218,7 @@
 			{
 				key: 'Scrubber A CO2 Storage',
 				units: ScrubberBounds.scrubber_a_co2_storage.units,
+				formatter: formatDecimals(2),
 				range: ScrubberBounds.scrubber_a_co2_storage,
 				value: eva.scrubber_a_co2_storage,
 				color: getColor(eva.scrubber_a_co2_storage, ScrubberBounds.scrubber_a_co2_storage)
@@ -207,6 +226,7 @@
 			{
 				key: 'Scrubber B CO2 Storage',
 				units: ScrubberBounds.scrubber_b_co2_storage.units,
+				formatter: formatDecimals(2),
 				range: ScrubberBounds.scrubber_b_co2_storage,
 				value: eva.scrubber_b_co2_storage,
 				color: getColor(eva.scrubber_b_co2_storage, ScrubberBounds.scrubber_b_co2_storage)
@@ -219,6 +239,7 @@
 			{
 				key: 'Temperature',
 				units: TemperatureBounds.temperature.units,
+				formatter: formatDecimals(2),
 				range: TemperatureBounds.temperature,
 				value: eva.temperature,
 				color: getColor(eva.temperature, TemperatureBounds.temperature)
@@ -226,6 +247,7 @@
 			{
 				key: 'Coolant Gas Pressure',
 				units: TemperatureBounds.coolant_gas_pressure.units,
+				formatter: formatDecimals(2),
 				range: TemperatureBounds.coolant_gas_pressure,
 				value: eva.coolant_gas_pressure,
 				color: getColor(eva.coolant_gas_pressure, TemperatureBounds.coolant_gas_pressure)
@@ -233,6 +255,7 @@
 			{
 				key: 'Coolant Liquid Pressure',
 				units: TemperatureBounds.coolant_liquid_pressure.units,
+				formatter: formatDecimals(2),
 				range: TemperatureBounds.coolant_liquid_pressure,
 				value: eva.coolant_liquid_pressure,
 				color: getColor(eva.coolant_liquid_pressure, TemperatureBounds.coolant_liquid_pressure)
@@ -251,7 +274,7 @@
 	};
 </script>
 
-<div class="h-full mr-24 overflow-auto pt-8">
+<div class="h-full mr-2 ml-2 pt-2">
 	<Tabs>
 		{#each getAstronauts(currentTelemetry) as astro}
 			<TabItem
@@ -281,13 +304,9 @@
 										</p>
 									</div>
 									<div class="flex-1 min-w-0">
-										<p class="text-sm font-medium text-gray-900 dark:text-white">
-											{item['units']}
-										</p>
-									</div>
-									<div class="flex-1 min-w-0">
 										<p class={'text-sm font-medium ' + item['color']}>
-											{item['value']}
+											{item["formatter"](item['value'])}
+											{item['units']}
 										</p>
 									</div>
 								</div>
@@ -299,16 +318,18 @@
 		{/each}
 	</Tabs>
 	{#if currentAstro}
-		<Tabs>
-			{#each Object.keys(categories(currentAstro)) as category}
-				<TabItem open title={category}>
-					<div class="flex gap-2 flex-wrap">
-						{#each categories(currentAstro)[category] as data}
-							<Gauge name={data.key} value={data.value} bounds={data.range} />
-						{/each}
-					</div>
-				</TabItem>
-			{/each}
-		</Tabs>
+		<div class="pt-2">
+			<Tabs>
+				{#each Object.keys(categories(currentAstro)) as category}
+					<TabItem open title={category}>
+						<div class="flex gap-2 flex-wrap">
+							{#each categories(currentAstro)[category] as data}
+								<Gauge name={data.key} value={data.value} bounds={data.range} formatter={data.formatter} />
+							{/each}
+						</div>
+					</TabItem>
+				{/each}
+			</Tabs>
+		</div>
 	{/if}
 </div>
