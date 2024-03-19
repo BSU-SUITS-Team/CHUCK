@@ -8,7 +8,6 @@ export const datastore = writable({});
  * @returns A Svelte store with the WebSocket's messages.
  */
 export function createWebSocketStore(url: string) {
-
 	const ws = new WebSocket(url);
 
 	ws.onopen = () => {
@@ -31,7 +30,7 @@ export function createWebSocketStore(url: string) {
 			} else {
 				// perform append
 				newStore[data.type] ??= [];
-				newStore[data.type] = [...newStore[data.type], { "time": data.time, ...data.data }];
+				newStore[data.type] = [...newStore[data.type], { time: data.time, ...data.data }];
 			}
 			datastore.set(newStore);
 		} catch (error) {

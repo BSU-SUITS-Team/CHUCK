@@ -12,14 +12,22 @@
 	import Graph from '../graph.svelte';
 	import { keepables, graphdata } from '../store';
 	import EmptyVideo from '../EmptyVideo.svelte';
+	import { datastore } from '$lib/datastore';
+	import { formatTime } from '$lib/formatting';
 
-	let data = [
+	$: eva = $datastore.eva[$datastore.eva.length - 1];
+
+	$: data = [
 		['Battery:', '72%'],
 		['Location:', '(31.9686, 99.9018)'],
 		['Oxygen:', '96%'],
 		['Heart Rate', '72bpm'],
 		['CO2', '0.04%'],
-		['Temperature', '20C']
+		['Temperature', '20C'],
+		['DCU Time', formatTime(eva.dcu.time)],
+		['UIA Time', formatTime(eva.uia.time)],
+		['SPEC Time', formatTime(eva.spec.time)],
+		['ROVER Time', formatTime(eva.rover.time)]
 	];
 
 	const graphs = [
