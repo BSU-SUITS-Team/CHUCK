@@ -3,7 +3,6 @@ from collections import deque
 
 from app.tss import get_from_tss, tss_keys
 from app.event import Event
-import json
 
 
 class Datastore:
