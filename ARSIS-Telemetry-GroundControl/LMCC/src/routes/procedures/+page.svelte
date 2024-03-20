@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { datastore } from '$lib/datastore';
 	import {
 		Breadcrumb,
 		BreadcrumbItem,
@@ -11,15 +12,8 @@
 		TableSearch
 	} from 'flowbite-svelte';
 	let searchTerm = '';
-	let prodecureNames = [
-		'Test Procedure 1',
-		'How to make a sandwich',
-		'Emergency Snack Procedure',
-		'Deploy Parachute',
-		'Do EVA',
-		'Test Procedure 5'
-	];
-	$: filteredItems = prodecureNames.filter(
+	$: procedureNames = Object.keys($datastore.procedure ?? {})	
+	$: filteredItems = procedureNames.filter(
 		(item) => item.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1
 	);
 </script>
@@ -44,8 +38,8 @@
 							{prcedure}
 						</a></TableBodyCell
 					>
-					<TableBodyCell>Test Procedures</TableBodyCell>
-					<TableBodyCell>-</TableBodyCell>
+					<TableBodyCell>{$datastore['procedure'][prcedure]['category']}</TableBodyCell>
+					<TableBodyCell>{$datastore['procedure'][prcedure]['duration']}</TableBodyCell>
 				</TableBodyRow>
 			{/each}
 		</TableBody>
