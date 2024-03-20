@@ -6,6 +6,7 @@ const initialGraphs = {};
 type Notfication = {
 	name: string;
 	status: string;
+	id: number;
 };
 // [{notification_name: 'warning'}, {notification_name: 'error'}, ...]
 const initialNotifications: Array<Notfication> = [];
@@ -74,15 +75,20 @@ function createNotificationsStore() {
 
 	return {
 		subscribe,
-		addNotification: (name, status) =>
+		addNotification: (name, status, id) =>
 			update((n) => {
-				console.log('addNotification', name, status);
-				n.push({ name, status });
+				let found = false;
+				n.forEach((currentElement) => {
+					found = currentElement.id == id || found;
+				});
+				if (found) {
+					return n;
+				}
+				n.push({ name, status, id });
 				return [...n];
 			}),
 		removeNotification: (name) =>
 			update((n) => {
-				console.log('removeNotification', name);
 				return n.filter(({ name: nname }) => nname !== name);
 			})
 	};

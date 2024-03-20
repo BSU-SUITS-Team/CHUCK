@@ -17,23 +17,6 @@
 	import { browser } from '$app/environment';
 	import { formatTime } from '$lib/formatting';
 
-	let hasNotification = false;
-	let notificationText = 'Oxygen Tank Has Exploaded';
-
-	function notify(text) {
-		notificationList.push(text);
-		notificationText = text;
-		hasNotification = true;
-		setTimeout(() => {
-			notificationList.shift();
-			if (notificationList.length > 0) {
-				notificationText = notificationList[0];
-			} else {
-				hasNotification = false;
-			}
-		}, 15000);
-	}
-
 	if (browser) {
 		const websocket = createWebSocketStore('ws://localhost:8181/ws/events');
 		const unsubscribe = datastore.subscribe(() => {});
@@ -42,6 +25,17 @@
 			websocket.close();
 		});
 	}
+
+	//notification handling
+	const SEVERITIES = { 0: 'error', 1: 'warn', 2: 'info' };
+	datastore.subscribe((store) => {
+		if (store['notification']) {
+			for (let i = 0; i < store['notification'].length; i++) {
+				let n = store['notification'][i];
+				notifications.addNotification(n.content, SEVERITIES[n.severity], n.time);
+			}
+		}
+	});
 
 	$: hasSideBar = Object.keys($keepables).length > 0 || Object.keys($graphdata).length > 0;
 </script>

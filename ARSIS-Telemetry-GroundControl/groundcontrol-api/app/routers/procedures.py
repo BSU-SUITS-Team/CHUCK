@@ -13,7 +13,8 @@ in_mem_procedures = {p.get_name(): p.to_dict() for p in procedure_list}
 
 
 async def add_procedure_to_ds(procedure):
-    procedure_event = Event.create_event("procedure", procedure.to_dict(), upsert_key=procedure.get_name())
+    procedure_event = Event.create_event(
+        "procedure", procedure.to_dict(), upsert_key=procedure.get_name())
     await ds.add_event("procedure", procedure_event)
 
 
@@ -62,7 +63,8 @@ def procedure_DELETE(name: str):
 
 @router.post("/")
 def procedure_POST(new_procedure: dict):
-    procedure = CreateProcedure(new_procedure["name"], new_procedure["summary"])
+    procedure = CreateProcedure(
+        new_procedure["name"], new_procedure["summary"])
     for task in new_procedure["taskList"]:
         procedure.add_task(task["name"], task["summary"], task["stepList"])
     in_mem_procedures[procedure.get_name()] = procedure.to_dict()
