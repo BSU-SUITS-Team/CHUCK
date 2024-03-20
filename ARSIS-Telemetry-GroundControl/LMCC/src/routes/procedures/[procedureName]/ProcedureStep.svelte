@@ -20,9 +20,7 @@
 			class="text-base font-normal text-gray-500 dark:text-gray-400 mb-2"
 			bind:value={description}
 			rows="3"
-		>
-			{description}
-		</Textarea>
+		/>
 		<br />
 	{:else}
 		<p class="text-base font-normal text-gray-500 dark:text-gray-400">

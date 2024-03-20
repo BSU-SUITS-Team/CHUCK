@@ -89,6 +89,7 @@ def procedure_DELETE(name: str):
 
 @router.post("/")
 def procedure_POST(new_procedure: dict):
+    print(new_procedure)
     in_mem_procedures[new_procedure['name']] = new_procedure
     asyncio.run(add_procedure_to_ds(new_procedure))
     return {"message": "Procedure successfully created"}

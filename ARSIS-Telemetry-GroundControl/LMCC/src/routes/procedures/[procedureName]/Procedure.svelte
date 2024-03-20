@@ -17,20 +17,20 @@
 			? $datastore['procedure'][name].tasks
 			: [{ title: 'Nothing found', description: null }];
 	}
-	$: currentSteps = writable(allSteps, () => {
-		return datastore.subscribe(setSteps);
-	});
+	
+	datastore.subscribe(setSteps);
+	$: _ = console.log(allSteps)
 
 	function toggleEditMode() {
 		if (editMode == true) {
 			//send the post requests to update the procedures
-			const data = { name: name, summary: "", taskList: get(currentSteps) };
+			const data = { name: name, summary: '', tasks: allSteps };
 			const endpoint = 'http://localhost:8181/procedures/';
 			console.log(data);
 			fetch(endpoint, {
 				method: 'POST',
 				headers: {
-					'Content-Type': 'application/json',
+					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify(data)
 			}).catch((error) => console.log(error));
@@ -44,11 +44,9 @@
 	<Button color="none" on:click={toggleEditMode}><EditOutline /></Button>
 </div>
 <Timeline>
-	{#if $currentSteps}
-		
-	
-	{#each $currentSteps as step, i}
-		<ProcedureStep {...step} {editMode} date="Step {i + 1}" />
-	{/each}
+	{#if allSteps}
+		{#each allSteps as step, i}
+			<ProcedureStep bind:title={step.name} bind:description={step.description} {editMode} date="Step {i + 1}" />
+		{/each}
 	{/if}
 </Timeline>
