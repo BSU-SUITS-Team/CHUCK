@@ -44,7 +44,11 @@
 	<Button color="none" on:click={toggleEditMode}><EditOutline /></Button>
 </div>
 <Timeline>
+	{#if $currentSteps}
+		
+	
 	{#each $currentSteps as step, i}
 		<ProcedureStep {...step} {editMode} date="Step {i + 1}" />
 	{/each}
+	{/if}
 </Timeline>
