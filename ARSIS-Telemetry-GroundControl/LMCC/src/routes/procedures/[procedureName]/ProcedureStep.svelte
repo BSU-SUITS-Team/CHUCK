@@ -11,7 +11,6 @@
 
 	export let substeps = [];
 
-	let edit = false;
 	let substepedits = [];
 </script>
 
@@ -84,7 +83,8 @@
 
 	<br />
 	{#if editMode}
-		<Button color="alternative" class="m-1">New Condition<PlusSolid class="w-3 h-3 ml-2" /></Button>
-		<Button color="alternative" class="m-1">Problem<PlusSolid class="w-3 h-3 ml-2" /></Button>
+		<Button color="alternative" class="m-1">New Step<PlusSolid class="w-3 h-3 ml-2" /></Button>
+		<Button color="alternative" class="m-1">Substep<PlusSolid class="w-3 h-3 ml-2" /></Button>
+		<Button class="m-1">Remove</Button>
 	{/if}
 </TimelineItem>
