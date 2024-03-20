@@ -3,7 +3,7 @@
 	import Sidebar from './Sidebar.svelte';
 	import { slide } from 'svelte/transition';
 	import { graphdata, keepables, notifications } from './store';
-	import { Heading, DarkMode, Button, Span, Toast } from 'flowbite-svelte';
+	import { Heading, DarkMode, Button, Span, Toast, Badge } from 'flowbite-svelte';
 	import {
 		TrashBinOutline,
 		FileEditSolid,
@@ -50,7 +50,14 @@
 				<p>Elapsed Time: {formatTime($datastore.eva[$datastore.eva.length - 1].total_time)}</p>
 			{/if}
 		</div>
-		<p>Other Important Text That Is Longer and Sort of Just Sits at the Top Providing Status</p>
+		<p>
+			Other Important Text That Is Longer and Sort of Just Sits at the Top Providing Status
+			{#if $datastore.connected}
+				<Badge color="green" class="ml-4">Connected</Badge>
+			{:else}
+				<Badge class="ml-4">Connecting</Badge>
+			{/if}
+		</p>
 	</div>
 	<div class="dark:bg-gray-900 flex overflow-hidden h-full">
 		<aside
