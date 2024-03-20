@@ -1,18 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
+using ARSIS.EventManager;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace ARSIS.UI
 {
     [ExecuteInEditMode]
-    public class Menu : MonoBehaviour
+    public class Menu : MonoBehaviour, IRenderable
     {
         [SerializeField]
         public Camera camera;
         public bool performBuild;
         public bool performDestroy;
 
+        EventDatastore eventDatastore = EventDatastore.Instance;
         GameObject vertical;
         GameObject horizontal;
         GameObject notifications;
@@ -141,10 +143,16 @@ namespace ARSIS.UI
             vertical.SetActive(active);
         }
 
+        public void Render(List<BaseArsisEvent> events)
+        {
+            Debug.Log("MENU RENDER");
+        }
+
         // Start is called before the first frame update
         void Start()
         {
             DestroyAllChilds();
+            eventDatastore.AddHandler("telemetry", this);
             Build();
         }
 
@@ -163,6 +171,11 @@ namespace ARSIS.UI
 
             performBuild = false;
             performDestroy = false;
+        }
+
+        public void Update(List<BaseArsisEvent> data)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

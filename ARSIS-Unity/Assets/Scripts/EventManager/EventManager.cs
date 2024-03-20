@@ -15,6 +15,7 @@ namespace ARSIS.EventManager
         public WebSocketClient Client { get; private set; }
         public string Endpoint { get; set; } = "ws://localhost:8181/ws/events";
         private IEnumerator coroutine;
+        private EventDatastore eventDatastore = EventDatastore.Instance;
 
         [ContextMenu("Start Client")]
         public void StartClient()
@@ -58,12 +59,17 @@ namespace ARSIS.EventManager
         // Update is called once per frame
         void Update()
         {
-            if (Client != null)
+            if (Client != null && eventDatastore != null)
             {
                 BaseArsisEvent wsEvent = Client.GetEvent();
-                if (wsEvent != null)
+                if (wsEvent == null) return;
+                if (wsEvent.label != null && wsEvent.label.Length > 0)
                 {
-                    Debug.Log(wsEvent.ToString());
+                    eventDatastore.Upsert(wsEvent.type, wsEvent);
+                }
+                else
+                {
+                    eventDatastore.Append(wsEvent.type, wsEvent);
                 }
             }
         }
