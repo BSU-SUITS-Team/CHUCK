@@ -1,10 +1,12 @@
 <script lang="ts">
 	import { Timeline, TimelineItem, Button, Card, Heading } from 'flowbite-svelte';
-	import { ArrowRightOutline, PlusSolid } from 'flowbite-svelte-icons';
+	import { ArrowRightOutline, EditOutline, PlusSolid } from 'flowbite-svelte-icons';
 	import ProcedureStep from './ProcedureStep.svelte';
 	import { datastore } from '$lib/datastore';
+	import { writable } from 'svelte/store';
 
 	export let name;
+	let editMode = false;
 
 	// let allSteps = [
 	// 	{
@@ -44,12 +46,28 @@
 	// 		]
 	// 	}
 	// ];
-	$: allSteps = $datastore['procedure'] ? $datastore['procedure'][name].tasks : [{title: "Nothing found", description: null}]
+	let allSteps = [];
+	function setSteps() {
+		if (editMode) { return }
+		allSteps = $datastore['procedure']
+			? $datastore['procedure'][name].tasks
+			: [{ title: 'Nothing found', description: null }];
+	}
+	$: currentSteps = writable(allSteps, () => {
+		return datastore.subscribe(setSteps);
+	});
+	function toggleEditMode() {
+		console.log(currentSteps);
+		editMode = !editMode;
+	}
 </script>
 
-<Heading tag="h2" class="mb-3">{name}</Heading>
+<div class="flex justify-between">
+	<Heading tag="h2" class="mb-3">{name}</Heading>
+	<Button color="none" on:click={toggleEditMode}><EditOutline /></Button>
+</div>
 <Timeline>
-	{#each allSteps as step}
-		<ProcedureStep {...step} date="Step {allSteps.indexOf(step) + 1}" />
+	{#each $currentSteps as step}
+		<ProcedureStep {...step} {editMode} date="Step {allSteps.indexOf(step) + 1}" />
 	{/each}
 </Timeline>

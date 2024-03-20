@@ -3,6 +3,7 @@
 	import { PlusSolid } from 'flowbite-svelte-icons';
 
 	export let title: string;
+	export let editMode: boolean = false;
 	export let date: string;
 	export let description: string;
 	export let links: Array<string> = [];
@@ -15,24 +16,17 @@
 </script>
 
 <TimelineItem {title} {date}>
-	{#if edit}
+	{#if editMode}
 		<Textarea
 			class="text-base font-normal text-gray-500 dark:text-gray-400 mb-2"
 			bind:value={description}
-			rows="5"
+			rows="3"
 		>
 			{description}
 		</Textarea>
-		<Button class="mb-2" on:click={() => (edit = !edit)}>Save</Button>
-		<Button class="mb-2" color="alternative" on:click={() => (edit = !edit)}>Cancel</Button>
 		<br />
 	{:else}
-		<!-- svelte-ignore a11y-click-events-have-key-events -->
-		<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-		<p
-			class="text-base font-normal text-gray-500 dark:text-gray-400 mb-4"
-			on:click={() => (edit = !edit)}
-		>
+		<p class="text-base font-normal text-gray-500 dark:text-gray-400">
 			{description}
 		</p>
 	{/if}
@@ -89,6 +83,8 @@
 	{/each}
 
 	<br />
-	<Button color="alternative" class="m-1">New Condition<PlusSolid class="w-3 h-3 ml-2" /></Button>
-	<Button color="alternative" class="m-1">Problem<PlusSolid class="w-3 h-3 ml-2" /></Button>
+	{#if editMode}
+		<Button color="alternative" class="m-1">New Condition<PlusSolid class="w-3 h-3 ml-2" /></Button>
+		<Button color="alternative" class="m-1">Problem<PlusSolid class="w-3 h-3 ml-2" /></Button>
+	{/if}
 </TimelineItem>

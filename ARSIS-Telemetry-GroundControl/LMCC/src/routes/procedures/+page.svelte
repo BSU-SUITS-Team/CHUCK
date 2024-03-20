@@ -9,10 +9,11 @@
 		TableBody,
 		TableBodyRow,
 		TableBodyCell,
-		TableSearch
+		TableSearch,
+		Button
 	} from 'flowbite-svelte';
 	let searchTerm = '';
-	$: procedureNames = Object.keys($datastore.procedure ?? {})	
+	$: procedureNames = Object.keys($datastore.procedure ?? {});
 	$: filteredItems = procedureNames.filter(
 		(item) => item.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1
 	);
@@ -23,7 +24,10 @@
 		<BreadcrumbItem href="/" home>Home</BreadcrumbItem>
 		<BreadcrumbItem href="/procedures">Procedures</BreadcrumbItem>
 	</Breadcrumb>
-	<Heading tag="h2" class="mb-4">Procedures</Heading>
+	<div class="flex justify-between mb-4">
+		<Heading tag="h2">Procedures</Heading>
+		<Button color="alternative">New</Button>
+	</div>
 	<TableSearch hoverable bind:inputValue={searchTerm}>
 		<TableHead>
 			<TableHeadCell>Procedure Name</TableHeadCell>
