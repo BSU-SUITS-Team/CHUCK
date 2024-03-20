@@ -1,4 +1,4 @@
-<script lang="ts">
+<script>
 	import '../app.postcss';
 	import Sidebar from './Sidebar.svelte';
 	import { slide } from 'svelte/transition';
@@ -12,23 +12,30 @@
 		LightbulbOutline
 	} from 'flowbite-svelte-icons';
 	import TinyGraph from './TinyGraph.svelte';
+	import { createWebSocketStore, datastore } from '$lib/datastore';
+	import { onDestroy } from 'svelte';
+	import { browser } from '$app/environment';
+	import { formatTime } from '$lib/formatting';
 
-	let hasNotification = false;
-	let notificationText = 'Oxygen Tank Has Exploaded';
-
-	function notify(text) {
-		notificationList.push(text);
-		notificationText = text;
-		hasNotification = true;
-		setTimeout(() => {
-			notificationList.shift();
-			if (notificationList.length > 0) {
-				notificationText = notificationList[0];
-			} else {
-				hasNotification = false;
-			}
-		}, 15000);
+	if (browser) {
+		const websocket = createWebSocketStore('ws://localhost:8181/ws/events');
+		const unsubscribe = datastore.subscribe(() => {});
+		onDestroy(() => {
+			unsubscribe();
+			websocket.close();
+		});
 	}
+
+	//notification handling
+	const SEVERITIES = { 0: 'error', 1: 'warn', 2: 'info' };
+	datastore.subscribe((store) => {
+		if (store['notification']) {
+			for (let i = 0; i < store['notification'].length; i++) {
+				let n = store['notification'][i];
+				notifications.addNotification(n.content, SEVERITIES[n.severity], n.time);
+			}
+		}
+	});
 
 	$: hasSideBar = Object.keys($keepables).length > 0 || Object.keys($graphdata).length > 0;
 </script>
@@ -39,7 +46,9 @@
 	>
 		<div class="flex flex-row">
 			<p class="pr-12">Oxygen: <span class="text-blue-600 font-bold">96 Minuties<span /></span></p>
-			<p>32 Minuties Elapsed</p>
+			{#if $datastore.eva}
+				<p>Elapsed Time: {formatTime($datastore.eva[$datastore.eva.length - 1].total_time)}</p>
+			{/if}
 		</div>
 		<p>Other Important Text That Is Longer and Sort of Just Sits at the Top Providing Status</p>
 	</div>

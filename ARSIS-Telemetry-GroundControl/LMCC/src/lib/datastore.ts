@@ -1,13 +1,13 @@
 import { get, writable } from 'svelte/store';
 
+export const datastore = writable({});
+
 /**
  * Creates a Svelte store that connects to a WebSocket and listens for JSON messages.
  * @param {string} url - The WebSocket URL to connect to.
  * @returns A Svelte store with the WebSocket's messages.
  */
 export function createWebSocketStore(url: string) {
-	const store = writable(null);
-
 	const ws = new WebSocket(url);
 
 	ws.onopen = () => {
@@ -21,12 +21,18 @@ export function createWebSocketStore(url: string) {
 	ws.onmessage = (event) => {
 		try {
 			const data = JSON.parse(event.data);
-			let oldStore = get(store)
-			let upsert = oldStore ? oldStore.upsert : null;
-			let lastlist = oldStore ? oldStore[data.type] : [];
-			lastlist = lastlist ? lastlist : [];
-			store.set({ ...oldStore, ...{ [data.type]: {...lastlist, ...{ [(upsert ?? data.time)]: Object.values(data.data) }}}})
-
+			const oldStore = get(datastore);
+			let newStore = oldStore;
+			if (data.label) {
+				// perform upsert
+				newStore[data.type] ??= {};
+				newStore[data.type][data.label] = data.data;
+			} else {
+				// perform append
+				newStore[data.type] ??= [];
+				newStore[data.type] = [...newStore[data.type], { time: data.time, ...data.data }];
+			}
+			datastore.set(newStore);
 		} catch (error) {
 			console.error('Error parsing WebSocket message:', error);
 		}
@@ -37,7 +43,7 @@ export function createWebSocketStore(url: string) {
 	};
 
 	return {
-		subscribe: store.subscribe,
+		subscribe: datastore.subscribe,
 		send: (data: string) => {
 			if (ws.readyState === WebSocket.OPEN) {
 				ws.send(JSON.stringify(data));
