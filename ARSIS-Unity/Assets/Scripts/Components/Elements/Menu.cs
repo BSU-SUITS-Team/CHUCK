@@ -1,36 +1,37 @@
-using MixedReality.Toolkit;
-using MixedReality.Toolkit.UX;
+using System.Collections;
+using System.Collections.Generic;
+using ARSIS.EventManager;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace ARSIS.UI
 {
     [ExecuteInEditMode]
-    public class Menu : MonoBehaviour
+    public class Menu : MonoBehaviour, IRenderable
     {
         [SerializeField]
         public Camera camera;
         public bool performBuild;
         public bool performDestroy;
 
-        [SerializeField]
-        FieldNotes fieldNotes;
-
-        private GameObject vertical;
-        private GameObject horizontal;
-        private GameObject notifications;
-        private GameObject pinned;
-        private GameObject menu;
-        private static float width = 300f;
-        private static float height = 300f;
-        private static float uiScale = 0.001f;
-        private static int padding = 10;
-        private static int spacing = 5;
-        private TextAnchor verticalAlign = TextAnchor.UpperLeft;
-        private static float notifPlateHeight = height / 4;
-        private static float horizontalX = width - (padding * 2f);
-        private static float horizontalY = height - (padding * 2f) - notifPlateHeight - spacing;
-        private static string[] buttons = { 
+        EventDatastore eventDatastore = EventDatastore.Instance;
+        GameObject vertical;
+        GameObject horizontal;
+        GameObject notifications;
+        GameObject pinned;
+        GameObject menu;
+        IComponent wideBackplate;
+        IComponent tallBackplate;
+        static float width = 200f;
+        static float height = 300f;
+        static float uiScale = 0.001f;
+        static int padding = 10;
+        static int spacing = 5;
+        TextAnchor verticalAlign = TextAnchor.UpperLeft;
+        static float notifPlateHeight = 60f;
+        static float horizontalX = width - (padding * 2f);
+        static float horizontalY = height - (padding * 2f) - notifPlateHeight - spacing;
+        static string[] buttons = { 
             "Procedures", 
             "Biometrics", 
             "Spectrometry", 
@@ -157,10 +158,16 @@ namespace ARSIS.UI
             vertical.SetActive(active);
         }
 
+        public void Render(List<BaseArsisEvent> events)
+        {
+            Debug.Log("MENU RENDER");
+        }
+
         // Start is called before the first frame update
         void Start()
         {
             DestroyAllChilds();
+            eventDatastore.AddHandler("telemetry", this);
             Build();
         }
 
@@ -179,6 +186,11 @@ namespace ARSIS.UI
 
             performBuild = false;
             performDestroy = false;
+        }
+
+        public void Update(List<BaseArsisEvent> data)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }
