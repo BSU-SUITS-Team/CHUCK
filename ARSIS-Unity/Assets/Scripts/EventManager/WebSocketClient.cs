@@ -1,61 +1,22 @@
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
-using System.IO;
-using System.Net.WebSockets;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using UnityEngine;
+using WebSocketSharp;
+using WebSocket = WebSocketSharp.WebSocket;
 
 namespace ARSIS.EventManager
 {
     public class WebSocketClient
     {
-        private Uri endpoint;
+        private string endpoint { get; set; } = "ws://localhost:8181/ws/events";
         private ConcurrentQueue<string> sendQueue = new();
         private ConcurrentQueue<string> receiveQueue = new();
-        private ClientWebSocket connection;
+        private WebSocket connection;
+        private readonly int delay = 1; // number of seconds to wait before reconnecting
 
         public WebSocketClient(string endpoint) {
-            this.endpoint = new Uri(endpoint);
-        }
-
-        /// <summary>
-        /// Parses the string endpoint and provides a URI to the client.
-        /// </summary>
-        /// <param name="endpoint"></param>
-        public void SetEndpoint(string endpoint)
-        {
-            this.endpoint = new Uri(endpoint);
-        }
-
-        /// <summary>
-        /// Returns the endpoint.
-        /// </summary>
-        /// <returns>String of the endpoint.</returns>
-        public string GetEndpoint()
-        {
-            return endpoint.ToString();
-        }
-
-        /// <summary>
-        /// Gets an event from the receive queue of events from the WebSocket connection.
-        /// </summary>
-        /// <returns>BaseArsisEvent or null if queue is empty or failed to parse JSON.</returns>
-        public BaseArsisEvent GetEvent()
-        {
-            try
-            {
-                if (receiveQueue.TryDequeue(out string json))
-                    return PerformReflection(json);
-                return null;
-            }
-            catch (Exception e)
-            {
-                Debug.LogException(e);
-                return null;
-            }
+            this.endpoint = endpoint;
         }
 
         /// <summary>
@@ -71,63 +32,48 @@ namespace ARSIS.EventManager
             return (BaseArsisEvent)JsonUtility.FromJson(json, eventType);
         }
 
+        private IEnumerator AttemptReconnect(CloseEventArgs e)
+        {
+            if (!e.WasClean && !connection.IsAlive)
+            {
+                Debug.Log("Attempting to reconnect...");
+                connection.ConnectAsync();
+                yield return new WaitForSeconds(delay);
+            }
+        }
+
+        private void Collect(MessageEventArgs e)
+        {
+            EventDatastore eventDatastore = EventDatastore.Instance;
+            BaseArsisEvent wsEvent = PerformReflection(e.Data.ToString());
+            if (wsEvent.label != null && wsEvent.label.Length > 0)
+            {
+                eventDatastore.Upsert(wsEvent.type, wsEvent);
+            }
+            else
+            {
+                eventDatastore.Append(wsEvent.type, wsEvent);
+            }
+        }
+
         /// <summary>
         /// Establishes the WebSocket connection and begins listening to the events.
         /// </summary>
         /// <returns></returns>
-        public IEnumerator StartClient()
+        public void StartClient()
         {
-            using (connection = new())
-            {
-                try
-                {
-                    Debug.Log("Connecting to WebSocket...");
-                    connection
-                        .ConnectAsync(endpoint, CancellationToken.None)
-                        .Wait(CancellationToken.None);
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError(e);
-                    throw;
-                }
-                byte[] buffer = new byte[2048];
-                using (MemoryStream memoryStream = new())
-                {
-                    Debug.Log("Successfully connected to WebSocket!");
-                    while (connection.State == WebSocketState.Open)
-                    {
-                        Task<WebSocketReceiveResult> task;
-                        WebSocketReceiveResult result;
-                        do
-                        {
-                            ArraySegment<byte> messageBuffer = WebSocket.CreateClientBuffer(2048, 16);
-                            task = connection.ReceiveAsync(messageBuffer, CancellationToken.None);
-                            yield return new WaitUntil(() => task.IsCompleted);
-                            if (task.IsFaulted) throw task.Exception;
-                            result = task.Result;
-                            memoryStream.Write(messageBuffer.Array, messageBuffer.Offset, result.Count);
-                        }
-                        while (!result.EndOfMessage);
-                        switch (result.MessageType)
-                        {
-                            case WebSocketMessageType.Binary:
-                                Debug.Log("Received binary: ");
-                                break;
-                            case WebSocketMessageType.Text:
-                                string receivedMessage = Encoding.UTF8.GetString(memoryStream.ToArray());
-                                Debug.Log("Received text: " + receivedMessage);
-                                receiveQueue.Enqueue(receivedMessage);
-                                memoryStream.Seek(0, SeekOrigin.Begin);
-                                memoryStream.Position = 0;
-                                memoryStream.SetLength(0);
-                                break;
-                            case WebSocketMessageType.Close:
-                                yield break;
-                        }
-                    }
-                }
-            }
+            connection ??= new WebSocket(endpoint);
+            connection.OnOpen += (sender, e) => Debug.Log("WebSocket connected!");
+            connection.OnMessage += (sender, e) => Collect(e);
+            connection.OnError += (sender, e) => EndClient();
+            connection.OnClose += (sender, e) => AttemptReconnect(e);
+            connection.ConnectAsync();
+        }
+
+        public void EndClient()
+        {
+            Debug.Log("Closing connection...");
+            connection.CloseAsync();
         }
     }
 }
