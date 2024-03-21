@@ -17,14 +17,20 @@
 			? $datastore['procedure'][name].tasks
 			: [{ title: 'Nothing found', description: null }];
 	}
-	
+
 	datastore.subscribe(setSteps);
 
 	function toggleEditMode() {
 		if (editMode == true) {
 			//send the post requests to update the procedures
-			let current = $datastore['procedure'][name]
-			const data = { name: name, description: current.dessciption, category: current.category, duration: current.duration, tasks: allSteps };
+			let current = $datastore['procedure'][name];
+			const data = {
+				name: name,
+				description: current.dessciption,
+				category: current.category,
+				duration: current.duration,
+				tasks: allSteps
+			};
 			const endpoint = 'http://localhost:8181/procedures/';
 			console.log(data);
 			fetch(endpoint, {
@@ -37,6 +43,15 @@
 		}
 		editMode = !editMode;
 	}
+
+	function addNewStepAfter(position: number) {
+		allSteps.splice(position + 1, 0, { name: '', description: '', steps: [] });
+		allSteps = allSteps;
+	}
+	function removeStepAt(position: number) {
+		allSteps.splice(position, 1);
+		allSteps = allSteps;
+	}
 </script>
 
 <div class="flex justify-between">
@@ -46,7 +61,19 @@
 <Timeline>
 	{#if allSteps}
 		{#each allSteps as step, i}
-			<ProcedureStep bind:title={step.name} bind:description={step.description} bind:steps={step.steps} {editMode} date="Step {i + 1}" />
+			<ProcedureStep
+				bind:title={step.name}
+				bind:description={step.description}
+				bind:steps={step.steps}
+				createNewStep={() => {
+					addNewStepAfter(i);
+				}}
+				removeThisStep={() => {
+					removeStepAt(i);
+				}}
+				{editMode}
+				date="Step {i + 1}"
+			/>
 		{/each}
 	{/if}
 </Timeline>

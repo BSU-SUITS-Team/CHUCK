@@ -11,6 +11,7 @@
 	import { PlusOutline, PlusSolid, TrashBinOutline } from 'flowbite-svelte-icons';
 	import AdditionButton from './AdditionButton.svelte';
 	import RemoveButton from './RemoveButton.svelte';
+	import type { MouseEventHandler } from 'svelte/elements';
 
 	export let title: string;
 	export let editMode: boolean = false;
@@ -19,6 +20,9 @@
 	export let steps: Array<Object>;
 	export let links: Array<string> = [];
 	export let problemLinks: Array<string> = [];
+
+	export let createNewStep: MouseEventHandler<EventTarget>;
+	export let removeThisStep: MouseEventHandler<EventTarget>;
 
 	function addEmpty(position: number) {
 		steps.splice(position + 1, 0, { type: 'text', body: '' });
@@ -96,7 +100,7 @@
 
 	<br />
 	{#if editMode}
-		<Button color="alternative" class="m-1">New Step</Button>
-		<Button class="m-1">Remove</Button>
+		<Button color="alternative" class="m-1" on:click={createNewStep}>New Step</Button>
+		<Button class="m-1" on:click={removeThisStep}>Remove</Button>
 	{/if}
 </TimelineItem>
