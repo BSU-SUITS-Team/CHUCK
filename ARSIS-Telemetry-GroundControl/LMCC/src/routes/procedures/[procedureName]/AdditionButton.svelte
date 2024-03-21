@@ -3,8 +3,8 @@
 	import type { MouseEventHandler } from "svelte/elements";
 
 	export let onclick: MouseEventHandler<EventTarget>;
-	export let first: false;
-	export let last: false;
+	export let first = false;
+	export let last = false;
 
 	let offset = "-translate-y-1"
 	if (first) {

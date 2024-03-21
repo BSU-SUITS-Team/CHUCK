@@ -12,6 +12,8 @@
 	import AdditionButton from './AdditionButton.svelte';
 	import RemoveButton from './RemoveButton.svelte';
 	import type { MouseEventHandler } from 'svelte/elements';
+	import File from './File.svelte';
+	import ImageAdditionButton from './ImageAdditionButton.svelte';
 
 	export let title: string;
 	export let editMode: boolean = false;
@@ -29,6 +31,17 @@
 		steps = steps;
 	}
 
+	function changeType(position: number) {
+		let step = steps[position];
+		step['body'] = '';
+		if (step['type'] == 'text') {
+			step['type'] = 'image';
+		} else {
+			step['type'] = 'text';
+		}
+		steps[position] = step;
+	}
+
 	function removeAt(position: number) {
 		steps.splice(position, 1);
 		steps = steps;
@@ -37,7 +50,7 @@
 
 <TimelineItem {title} {date} class="pb-2">
 	{#if editMode}
-	<Input bind:value={title} class="mb-2" ></Input>
+		<Input bind:value={title} class="mb-2" />
 		<Textarea
 			class="text-base font-normal text-gray-500 dark:text-gray-400"
 			bind:value={description}
@@ -63,6 +76,11 @@
 						}}
 						last={i == steps.length - 1}
 					/>
+					<ImageAdditionButton
+						onclick={() => {
+							changeType(i);
+						}}
+					/>
 					<RemoveButton
 						onclick={() => {
 							removeAt(i);
@@ -70,13 +88,17 @@
 					/>
 				</div>
 			{:else if step.type == 'image'}
-				<div class="w-full rounded-lg bg-gray-200 h-10 border border-gray-300 p-3 text-sm mt-4">
-					IMAGE FILE
-				</div>
+				<File bind:encodedString={step.body} />
 				<AdditionButton
 					onclick={() => {
 						addEmpty(i);
 					}}
+				/>
+				<ImageAdditionButton
+					onclick={() => {
+						changeType(i);
+					}}
+					isImage={true}
 				/>
 				<RemoveButton
 					onclick={() => {
