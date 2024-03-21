@@ -1,8 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace ARSIS.EventManager
@@ -45,7 +40,7 @@ namespace ARSIS.EventManager
             StartClient();
         }
 
-        private void OnDestroy()
+        void OnDestroy()
         {
             EndClient();
         }
