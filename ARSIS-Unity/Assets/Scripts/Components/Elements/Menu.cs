@@ -1,3 +1,5 @@
+using MixedReality.Toolkit;
+using MixedReality.Toolkit.UX;
 using System.Collections;
 using System.Collections.Generic;
 using ARSIS.EventManager;
@@ -13,6 +15,9 @@ namespace ARSIS.UI
         public Camera camera;
         public bool performBuild;
         public bool performDestroy;
+
+        [SerializeField]
+        FieldNotes fieldNotes;
 
         EventDatastore eventDatastore = EventDatastore.Instance;
         GameObject vertical;
