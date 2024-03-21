@@ -11,7 +11,7 @@
 			description: description,
 			category: 'New',
 			duration: 'Empty Procedure',
-			tasks: [{name: "", description: "", steps: []}]
+			tasks: [{ name: '', description: '', steps: [] }]
 		};
 		const endpoint = 'http://localhost:8181/procedures/';
 		fetch(endpoint, {
@@ -21,7 +21,7 @@
 			},
 			body: JSON.stringify(data)
 		})
-			.then((goto("/procedures")))
+			.then(goto('/procedures'))
 			.catch((error) => console.log(error));
 	}
 </script>

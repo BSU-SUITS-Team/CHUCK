@@ -1,20 +1,18 @@
 <script lang="ts">
-	import { PlusSolid } from "flowbite-svelte-icons";
-	import type { MouseEventHandler } from "svelte/elements";
+	import { PlusSolid } from 'flowbite-svelte-icons';
+	import type { MouseEventHandler } from 'svelte/elements';
 
 	export let onclick: MouseEventHandler<EventTarget>;
 	export let first = false;
 	export let last = false;
 
-	let offset = "-translate-y-1"
+	let offset = '-translate-y-1';
 	if (first) {
-		offset = "translate-y-1.5"
+		offset = 'translate-y-1.5';
 	}
 	if (last) {
-		offset = "-translate-y-1/2"
+		offset = '-translate-y-1/2';
 	}
-	
-
 </script>
 
 <button
