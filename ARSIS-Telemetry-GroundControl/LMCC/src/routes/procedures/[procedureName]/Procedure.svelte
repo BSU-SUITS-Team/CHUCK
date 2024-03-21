@@ -19,12 +19,12 @@
 	}
 	
 	datastore.subscribe(setSteps);
-	$: _ = console.log(allSteps)
 
 	function toggleEditMode() {
 		if (editMode == true) {
 			//send the post requests to update the procedures
-			const data = { name: name, summary: '', tasks: allSteps };
+			let current = $datastore['procedure'][name]
+			const data = { name: name, description: current.dessciption, category: current.category, duration: current.duration, tasks: allSteps };
 			const endpoint = 'http://localhost:8181/procedures/';
 			console.log(data);
 			fetch(endpoint, {

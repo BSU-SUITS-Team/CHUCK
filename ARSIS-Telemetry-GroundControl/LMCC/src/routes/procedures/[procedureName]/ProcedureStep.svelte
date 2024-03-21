@@ -8,16 +8,12 @@
 	export let description: string;
 	export let links: Array<string> = [];
 	export let problemLinks: Array<string> = [];
-
-	export let substeps = [];
-
-	let substepedits = [];
 </script>
 
-<TimelineItem {title} {date}>
+<TimelineItem {title} {date} class="pb-2">
 	{#if editMode}
 		<Textarea
-			class="text-base font-normal text-gray-500 dark:text-gray-400 mb-2"
+			class="text-base font-normal text-gray-500 dark:text-gray-400"
 			bind:value={description}
 			rows="3"
 		/>
@@ -26,51 +22,6 @@
 		<p class="text-base font-normal text-gray-500 dark:text-gray-400">
 			{description}
 		</p>
-	{/if}
-	{#if substeps.length > 0}
-		<Timeline>
-			{#each substeps as substep}
-				<TimelineItem title={substep.title} date="{date}.{substeps.indexOf(substep) + 1}">
-					<!-- <p class="text-base font-normal text-gray-500 dark:text-gray-400 mb-4">
-						{substep.description}
-					</p> -->
-					{#if substepedits[substeps.indexOf(substep)]}
-						<Textarea
-							class="text-base font-normal text-gray-500 dark:text-gray-400 mb-2"
-							bind:value={substep.description}
-							rows="5"
-						>
-							{substep.description}
-						</Textarea>
-						<Button
-							class="mb-2"
-							on:click={() =>
-								(substepedits[substeps.indexOf(substep)] =
-									!substepedits[substeps.indexOf(substep)])}>Save</Button
-						>
-						<Button
-							class="mb-2"
-							color="alternative"
-							on:click={() =>
-								(substepedits[substeps.indexOf(substep)] =
-									!substepedits[substeps.indexOf(substep)])}>Cancel</Button
-						>
-						<br />
-					{:else}
-						<!-- svelte-ignore a11y-click-events-have-key-events -->
-						<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-						<p
-							class="text-base font-normal text-gray-500 dark:text-gray-400 mb-4"
-							on:click={() =>
-								(substepedits[substeps.indexOf(substep)] =
-									!substepedits[substeps.indexOf(substep)])}
-						>
-							{substep.description}
-						</p>
-					{/if}
-				</TimelineItem>
-			{/each}
-		</Timeline>
 	{/if}
 	{#each problemLinks as link}
 		<Button class="m-1">{link}</Button>
