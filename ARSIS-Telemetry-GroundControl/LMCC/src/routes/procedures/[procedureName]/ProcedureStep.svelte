@@ -43,8 +43,15 @@
 			rows="3"
 		/>
 		<br />
-		<h3>Steps</h3>
-		<AdditionButton onclick={() => {addEmpty(-1)}} first={true}/>
+		{#if steps.length > 0}
+			<h3>Steps</h3>
+		{/if}
+		<AdditionButton
+			onclick={() => {
+				addEmpty(-1);
+			}}
+			first={true}
+		/>
 		{#each steps as step, i}
 			{#if step.type == 'text'}
 				<div class="mt-4">
