@@ -40,6 +40,7 @@
 		/>
 		<br />
 		<h3>Steps</h3>
+		<AdditionButton onclick={() => {addEmpty(-1)}} first={true}/>
 		{#each steps as step, i}
 			{#if step.type == 'text'}
 				<div class="mt-4">
@@ -48,6 +49,7 @@
 						onclick={() => {
 							addEmpty(i);
 						}}
+						last={i == steps.length - 1}
 					/>
 					<RemoveButton
 						onclick={() => {
