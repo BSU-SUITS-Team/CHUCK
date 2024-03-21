@@ -45,7 +45,7 @@
 	}
 
 	function addNewStepAfter(position: number) {
-		allSteps.splice(position + 1, 0, { name: '', description: '', steps: [] });
+		allSteps.splice(position + 1, 0, { name: 'New Step', description: '', steps: [] });
 		allSteps = allSteps;
 	}
 	function removeStepAt(position: number) {

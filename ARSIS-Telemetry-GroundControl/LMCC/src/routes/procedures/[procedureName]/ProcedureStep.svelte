@@ -37,6 +37,7 @@
 
 <TimelineItem {title} {date} class="pb-2">
 	{#if editMode}
+	<Input bind:value={title} class="mb-2"></Input>
 		<Textarea
 			class="text-base font-normal text-gray-500 dark:text-gray-400"
 			bind:value={description}
