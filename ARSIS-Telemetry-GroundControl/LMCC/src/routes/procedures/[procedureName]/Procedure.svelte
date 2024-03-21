@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Timeline, TimelineItem, Button, Card, Heading } from 'flowbite-svelte';
+	import { Timeline, TimelineItem, Button, Card, Heading, Input, Label } from 'flowbite-svelte';
 	import { ArrowRightOutline, EditOutline, PlusSolid } from 'flowbite-svelte-icons';
 	import ProcedureStep from './ProcedureStep.svelte';
 	import { datastore } from '$lib/datastore';
@@ -7,7 +7,7 @@
 
 	export let name: string;
 	let editMode = false;
-
+	let newname = name;
 	let allSteps = [];
 	function setSteps() {
 		if (editMode) {
@@ -25,7 +25,7 @@
 			//send the post requests to update the procedures
 			let current = $datastore['procedure'][name];
 			const data = {
-				name: name,
+				name: newname,
 				description: current.dessciption,
 				category: current.category,
 				duration: current.duration,
@@ -58,6 +58,14 @@
 	<Heading tag="h2" class="mb-3">{name}</Heading>
 	<Button color="none" on:click={toggleEditMode}><EditOutline /></Button>
 </div>
+{#if editMode}
+	<h1>Metadata</h1>
+	<div class="ml-2 mb-4 flex flex-row">
+		<Input bind:value={newname}/>
+		<Input bind:value={$datastore['procedure'][name]['category']} defaultClass="ml-2 mr-2"/>
+		<Input bind:value={$datastore['procedure'][name]['duration']} defaultClass="m-0"/>
+	</div>
+{/if}
 <Timeline>
 	{#if allSteps}
 		{#each allSteps as step, i}
