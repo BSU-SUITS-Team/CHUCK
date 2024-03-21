@@ -55,14 +55,18 @@
 
 <div class="flex justify-between">
 	<Heading tag="h2" class="mb-3">{name}</Heading>
-	<Button color="none" on:click={toggleEditMode}><EditOutline /></Button>
+	{#if !editMode}
+		<Button color="none" on:click={toggleEditMode}><EditOutline /></Button>
+	{:else}
+		<Button color="alternative" on:click={toggleEditMode}>Save</Button>
+	{/if}
 </div>
 {#if editMode}
 	<h1>Metadata</h1>
 	<div class="ml-2 mb-4 flex flex-row">
-		<Input bind:value={newname}/>
-		<Input bind:value={$datastore['procedure'][name]['category']} defaultClass="ml-2 mr-2"/>
-		<Input bind:value={$datastore['procedure'][name]['duration']} defaultClass="m-0"/>
+		<Input bind:value={newname} />
+		<Input bind:value={$datastore['procedure'][name]['category']} defaultClass="ml-2 mr-2" />
+		<Input bind:value={$datastore['procedure'][name]['duration']} defaultClass="m-0" />
 	</div>
 {/if}
 <Timeline>
