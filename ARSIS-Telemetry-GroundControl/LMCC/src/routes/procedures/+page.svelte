@@ -26,7 +26,7 @@
 	</Breadcrumb>
 	<div class="flex justify-between mb-4">
 		<Heading tag="h2">Procedures</Heading>
-		<Button color="alternative">New</Button>
+		<Button color="alternative" href="/new/procedure">New</Button>
 	</div>
 	<TableSearch hoverable bind:inputValue={searchTerm}>
 		<TableHead>

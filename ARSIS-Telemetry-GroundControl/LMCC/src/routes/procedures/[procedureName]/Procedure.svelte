@@ -26,13 +26,12 @@
 			let current = $datastore['procedure'][name];
 			const data = {
 				name: newname,
-				description: current.dessciption,
+				description: current.description,
 				category: current.category,
 				duration: current.duration,
 				tasks: allSteps
 			};
 			const endpoint = 'http://localhost:8181/procedures/';
-			console.log(data);
 			fetch(endpoint, {
 				method: 'POST',
 				headers: {
