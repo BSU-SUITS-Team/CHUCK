@@ -46,7 +46,7 @@
 <Timeline>
 	{#if allSteps}
 		{#each allSteps as step, i}
-			<ProcedureStep bind:title={step.name} bind:description={step.description} {editMode} date="Step {i + 1}" />
+			<ProcedureStep bind:title={step.name} bind:description={step.description} bind:steps={step.steps} {editMode} date="Step {i + 1}" />
 		{/each}
 	{/if}
 </Timeline>

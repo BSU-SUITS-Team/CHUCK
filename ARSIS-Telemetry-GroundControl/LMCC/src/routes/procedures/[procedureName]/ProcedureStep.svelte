@@ -1,13 +1,34 @@
 <script lang="ts">
-	import { Timeline, TimelineItem, Button, Textarea } from 'flowbite-svelte';
-	import { PlusSolid } from 'flowbite-svelte-icons';
+	import {
+		Timeline,
+		TimelineItem,
+		Button,
+		Textarea,
+		Input,
+		Img,
+		Fileupload
+	} from 'flowbite-svelte';
+	import { PlusOutline, PlusSolid, TrashBinOutline } from 'flowbite-svelte-icons';
+	import AdditionButton from './AdditionButton.svelte';
+	import RemoveButton from './RemoveButton.svelte';
 
 	export let title: string;
 	export let editMode: boolean = false;
 	export let date: string;
 	export let description: string;
+	export let steps: Array<Object>;
 	export let links: Array<string> = [];
 	export let problemLinks: Array<string> = [];
+
+	function addEmpty(position: number) {
+		steps.splice(position + 1, 0, { type: 'text', body: '' });
+		steps = steps;
+	}
+
+	function removeAt(position: number) {
+		steps.splice(position, 1);
+		steps = steps;
+	}
 </script>
 
 <TimelineItem {title} {date} class="pb-2">
@@ -18,10 +39,51 @@
 			rows="3"
 		/>
 		<br />
+		<h3>Steps</h3>
+		{#each steps as step, i}
+			{#if step.type == 'text'}
+				<div class="mt-4">
+					<Input bind:value={step.body} />
+					<AdditionButton
+						onclick={() => {
+							addEmpty(i);
+						}}
+					/>
+					<RemoveButton
+						onclick={() => {
+							removeAt(i);
+						}}
+					/>
+				</div>
+			{:else if step.type == 'image'}
+				<div class="w-full rounded-lg bg-gray-200 h-10 border border-gray-300 p-3 text-sm mt-4">
+					IMAGE FILE
+				</div>
+				<AdditionButton
+					onclick={() => {
+						addEmpty(i);
+					}}
+				/>
+				<RemoveButton
+					onclick={() => {
+						removeAt(i);
+					}}
+				/>
+			{/if}
+		{/each}
+
+		<br />
 	{:else}
 		<p class="text-base font-normal text-gray-500 dark:text-gray-400">
 			{description}
 		</p>
+		{#each steps as step}
+			{#if step.type == 'text'}
+				<div>{step.body}</div>
+			{:else if step.type == 'image'}
+				<Img src="data:image/png;base64,{step.body}" />
+			{/if}
+		{/each}
 	{/if}
 	{#each problemLinks as link}
 		<Button class="m-1">{link}</Button>
@@ -32,8 +94,7 @@
 
 	<br />
 	{#if editMode}
-		<Button color="alternative" class="m-1">New Step<PlusSolid class="w-3 h-3 ml-2" /></Button>
-		<Button color="alternative" class="m-1">Substep<PlusSolid class="w-3 h-3 ml-2" /></Button>
+		<Button color="alternative" class="m-1">New Step</Button>
 		<Button class="m-1">Remove</Button>
 	{/if}
 </TimelineItem>
