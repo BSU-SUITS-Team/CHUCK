@@ -26,7 +26,7 @@ using UnityEngine;
 namespace ARSIS.EventManager
 {
     [System.Serializable]
-    public class Eva
+    public class DcuEva
     {
         public bool batt { get; set; }
         public bool oxy { get; set; }
@@ -37,22 +37,22 @@ namespace ARSIS.EventManager
     }
 
     [System.Serializable]
-    public class Data
+    public class DcuData
     {
-        public Eva eva1 { get; set; }
-        public Eva eva2 { get; set; }
+        public DcuEva eva1 { get; set; }
+        public DcuEva eva2 { get; set; }
     }
 
     [System.Serializable]
-    public class Root
+    public class DcuRoot
     {
-        public Data dcu { get; set; }
+        public DcuData dcu { get; set; }
     }
 
     [System.Serializable]
-    public class IMU : BaseArsisEvent
+    public class DCU : BaseArsisEvent
     {
-        public Root data { get; set; }
+        public DcuRoot data { get; set; }
 
         public override string ToString()
         {

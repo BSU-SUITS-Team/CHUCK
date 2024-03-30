@@ -21,7 +21,7 @@ namespace ARSIS.EventManager
 {
 
     [System.Serializable]
-    public class Data
+    public class UiaData
     {
         public bool eva1_power { get; set; }
         public bool eva1_oxy { get; set; }
@@ -36,15 +36,15 @@ namespace ARSIS.EventManager
     }
 
     [System.Serializable]
-    public class Root
+    public class UiaRoot
     {
-        public Data uia { get; set; }
+        public UiaData uia { get; set; }
     }
 
     [System.Serializable]
     public class UIA : BaseArsisEvent
     {
-        public Root data { get; set; }
+        public UiaRoot data { get; set; }
 
         public override string ToString()
         {

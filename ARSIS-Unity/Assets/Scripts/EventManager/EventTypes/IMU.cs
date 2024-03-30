@@ -20,29 +20,29 @@ using UnityEngine;
 namespace ARSIS.EventManager
 {
     [System.Serializable]
-    public class Eva {
+    public class ImuEva {
         public float posx { get; set; }
         public float posy { get; set; }
         public float heading { get; set; }
     }
 
     [System.Serializable]
-    public class Data
+    public class ImuData
     {
-        public Eva eva1 { get; set; }
-        public Eva eva2 { get; set; }
+        public ImuEva eva1 { get; set; }
+        public ImuEva eva2 { get; set; }
     }
 
     [System.Serializable]
-    public class Root
+    public class ImuRoot
     {
-        public Data imu { get; set; }
+        public ImuData imu { get; set; }
     }
 
     [System.Serializable]
     public class IMU : BaseArsisEvent
     {
-        public Root data { get; set; }
+        public ImuRoot data { get; set; }
 
         public override string ToString()
         {

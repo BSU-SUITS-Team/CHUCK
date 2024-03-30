@@ -34,7 +34,7 @@ using UnityEngine;
 namespace ARSIS.EventManager
 {
     [System.Serializable]
-    public class Eva
+    public class MissionTimers
     {
         public bool started { get; set; }
         public bool completed { get; set; }
@@ -42,28 +42,28 @@ namespace ARSIS.EventManager
     }
 
     [System.Serializable]
-    public class Data
+    public class EvaData
     {
         public bool started { get; set; }
         public bool paused { get; set; }
         public bool completed { get; set; }
         public int total_time { get; set; }
-        public Eva uia { get; set; }
-        public Eva dcu { get; set; }
-        public Eva rover { get; set; }
-        public Eva spec { get; set; }
+        public MissionTimers uia { get; set; }
+        public MissionTimers dcu { get; set; }
+        public MissionTimers rover { get; set; }
+        public MissionTimers spec { get; set; }
     }
 
     [System.Serializable]
-    public class Root
+    public class EvaRoot
     {
-        public Data eva { get; set; }
+        public EvaData eva { get; set; }
     }
 
     [System.Serializable]
-    public class IMU : BaseArsisEvent
+    public class EVA : BaseArsisEvent
     {
-        public Root data { get; set; }
+        public EvaRoot data { get; set; }
 
         public override string ToString()
         {
