@@ -14,11 +14,11 @@ dataset = rasterio.open("/code/app/routers/rockyard_map_geo.tif")
 pins_key = "pins"
 
 class Point(BaseModel):
-    name: str | None
-    x: int | None
-    y: int | None
-    lat: float | None
-    lon: float | None
+    name: str = str(uuid.uuid4())
+    x: int | None = None
+    y: int | None = None
+    lat: float | None = None
+    lon: float | None = None
 
 @router.get("/" + pins_key)
 async def procedures():
@@ -30,10 +30,9 @@ async def add_pin(point: CreatePoint, name: str):
     print(ds.cache.get(pins_key, None))
 
 @router.post("/")
-def translate(point: dict):
-    name = point.get("name", str(uuid.uuid4()))
-    x, y = (point.get("x", None), point.get("y", None))
-    lat, lon = (point.get("lat", None), point.get("lon", None))
+def translate(point: Point):
+    x, y = (point.x, point.y)
+    lat, lon = (point.lat, point.lon)
     # do not use "falsy" values (e.g. 0 is evaluated as false)
     if x != None and y != None:
         lon, lat = dataset.xy(x, y) # convert pixel to lat/lon
@@ -43,5 +42,5 @@ def translate(point: dict):
         print("Not able to parse pin coordinates!")
         return {"message": "Failed to create pin. Not able to parse pin coordinates!"}
     pin = CreatePoint(x=x, y=y, lat=lat, lon=lon, altitude=None)
-    asyncio.run(add_pin(pin, name))
+    asyncio.run(add_pin(pin, point.name))
     return {"message": "Successfully created pin."}
