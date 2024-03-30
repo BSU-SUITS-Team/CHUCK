@@ -2,9 +2,9 @@ from enum import Enum
 import json
 
 class CreatePath:
-    def __init__(self, name):
-        self.name = name
-        self.points = []
+    def __init__(self, name, points: list[str] = []):
+        self.name: str = name
+        self.points: list[str] = points
 
     # TODO make this an enum or something similar so its not just a string
     def set_as_path(self):
