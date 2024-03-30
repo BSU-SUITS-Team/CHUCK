@@ -26,16 +26,18 @@ class CreatePath:
 
 
 class CreatePoint:
-    def __init__(self, name, lat, long, altitude):
-        self.name = name
+    def __init__(self, x, y, lat, lon, altitude=None):
+        self.x = x
+        self.y = y
         self.lat = lat
-        self.long = long
+        self.lon = lon
         self.altitude = altitude
 
     def get_dict(self):
         return {
-            "name": self.name,
+            "x": self.x,
+            "y": self.y,
             "lat": self.lat,
-            "long": self.long,
+            "lon": self.lon,
             "altitude": self.altitude,
         }
