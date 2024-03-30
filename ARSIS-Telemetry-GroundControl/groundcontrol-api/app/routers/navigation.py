@@ -13,6 +13,13 @@ router = APIRouter(prefix="/navigation", tags=["navigation"])
 dataset = rasterio.open("/code/app/routers/rockyard_map_geo.tif")
 pins_key = "pins"
 
+class Point(BaseModel):
+    name: str | None
+    x: int | None
+    y: int | None
+    lat: float | None
+    lon: float | None
+
 @router.get("/" + pins_key)
 async def procedures():
     return {pins_key: ds.cache.get(pins_key, [])}
