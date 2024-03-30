@@ -3,27 +3,37 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // {
-//     "imu": {
-//         "eva1": {
-//             "posx": 0.000000,
-// 			"posy": 0.000000,
-// 			"heading": 0.000000
-//         },
+// 	"dcu": {
+// 		"eva1": {
+// 			"batt": true,
+// 			"oxy": true,
+// 			"comm": true,
+// 			"fan": true,
+// 			"pump": true,
+// 			"co2": true
+// 		},
 // 		"eva2": {
-//             "posx": 0.000000,
-// 			"posy": 0.000000,
-// 			"heading": 0.000000
-//         }
-//     }
+// 			"batt": true,
+// 			"oxy": true,
+// 			"comm": true,
+// 			"fan": true,
+// 			"pump": true,
+// 			"co2": true
+// 		}
+// 	}
 // }
 
 namespace ARSIS.EventManager
 {
     [System.Serializable]
-    public class Eva {
-        public float posx { get; set; }
-        public float posy { get; set; }
-        public float heading { get; set; }
+    public class Eva
+    {
+        public bool batt { get; set; }
+        public bool oxy { get; set; }
+        public bool comm { get; set; }
+        public bool fan { get; set; }
+        public bool pump { get; set; }
+        public bool co2 { get; set; }
     }
 
     [System.Serializable]
@@ -36,7 +46,7 @@ namespace ARSIS.EventManager
     [System.Serializable]
     public class Root
     {
-        public Data imu { get; set; }
+        public Data dcu { get; set; }
     }
 
     [System.Serializable]
