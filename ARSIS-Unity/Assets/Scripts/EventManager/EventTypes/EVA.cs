@@ -67,7 +67,7 @@ namespace ARSIS.EventManager
 
         public override string ToString()
         {
-            return "IMU event";
+            return "EVA event";
         }
     }
 }
