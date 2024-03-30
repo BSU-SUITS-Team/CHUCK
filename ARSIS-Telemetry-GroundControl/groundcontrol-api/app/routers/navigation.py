@@ -14,16 +14,20 @@ dataset = rasterio.open("/code/app/routers/rockyard_map_geo.tif")
 pins_key = "pins"
 paths_key = "paths"
 
+@router.get("/" + pins_key)
+async def pins():
+    return {pins_key: ds.cache.get(pins_key, [])}
+
+@router.get("/" + paths_key)
+async def paths():
+    return {pins_key: ds.cache.get(paths_key, [])}
+
 class Point(BaseModel):
     name: str = str(uuid.uuid4())
     x: int | None = None
     y: int | None = None
     lat: float | None = None
     lon: float | None = None
-
-@router.get("/" + pins_key)
-async def procedures():
-    return {pins_key: ds.cache.get(pins_key, [])}
 
 async def add_pin(point: CreatePoint, name: str):
     pin_event = Event.create_event(pins_key, point.get_dict(), upsert_key=name)
