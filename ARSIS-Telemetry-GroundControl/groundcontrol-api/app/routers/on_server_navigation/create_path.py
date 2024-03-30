@@ -15,7 +15,7 @@ class CreatePath:
 
     def get_dict(self):
         to_return = {
-            "type": self.type,
+            # "type": self.type,
             "points": [p.get_dict() for p in self.points],
         }
         return to_return

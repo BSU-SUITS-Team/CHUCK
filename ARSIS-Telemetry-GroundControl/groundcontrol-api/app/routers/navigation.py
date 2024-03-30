@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from app.datastore import ds
 from fastapi import APIRouter
 # from app.routers.on_server_navigation.default_paths import paths, paths_json
-from app.routers.on_server_navigation.create_path import CreatePoint
+from app.routers.on_server_navigation.create_path import CreatePath, CreatePoint
 import rasterio
 import uuid
 from app.event import Event
@@ -12,6 +12,7 @@ from app.event import Event
 router = APIRouter(prefix="/navigation", tags=["navigation"])
 dataset = rasterio.open("/code/app/routers/rockyard_map_geo.tif")
 pins_key = "pins"
+paths_key = "paths"
 
 class Point(BaseModel):
     name: str = str(uuid.uuid4())
@@ -27,9 +28,8 @@ async def procedures():
 async def add_pin(point: CreatePoint, name: str):
     pin_event = Event.create_event(pins_key, point.get_dict(), upsert_key=name)
     await ds.add_event(pins_key, pin_event)
-    print(ds.cache.get(pins_key, None))
 
-@router.post("/")
+@router.post("/" + pins_key)
 def translate(point: Point):
     x, y = (point.x, point.y)
     lat, lon = (point.lat, point.lon)
@@ -44,3 +44,19 @@ def translate(point: Point):
     pin = CreatePoint(x=x, y=y, lat=lat, lon=lon, altitude=None)
     asyncio.run(add_pin(pin, point.name))
     return {"message": "Successfully created pin."}
+
+class Path(BaseModel):
+    name: str = str(uuid.uuid4())
+    pins: list[Point]
+
+async def add_path(path: CreatePath, name: str):
+    path_event = Event.create_event(paths_key, path.get_dict(), upsert_key=name)
+    await ds.add_event(paths_key, path_event)
+
+@router.post("/" + paths_key)
+def create_path(path: Path):
+    new_path = CreatePath(path.name)
+    for pin in path.pins:
+        new_path.add_point(pin)
+    asyncio.run(add_path(new_path, path.name))
+    return {"message": "Successfully created path."}
