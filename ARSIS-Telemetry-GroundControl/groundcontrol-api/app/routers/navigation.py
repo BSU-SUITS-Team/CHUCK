@@ -20,7 +20,7 @@ async def pins():
 
 @router.get("/" + paths_key)
 async def paths():
-    return {pins_key: ds.cache.get(paths_key, [])}
+    return {paths_key: ds.cache.get(paths_key, [])}
 
 class Point(BaseModel):
     name: str = str(uuid.uuid4())
