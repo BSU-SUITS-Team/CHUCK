@@ -15,6 +15,11 @@ namespace ARSIS.EventManager
     {
         public static readonly Dictionary<string, Type> EventTypes = new() {
             { "telemetry", typeof(Telemetry) },
+            { "dcu", typeof(DCU) },
+            { "eva", typeof(EVA) },
+            { "imu", typeof(IMU) },
+            { "uia", typeof(UIA ) },
+            { "rover", typeof(Rover) },
         };
 
         public string type;
@@ -30,6 +35,11 @@ namespace ARSIS.EventManager
             {
                 return typeof(BaseArsisEvent);
             }
+        }
+
+        public override string ToString()
+        {
+            return type + " event";
         }
     }
 }
