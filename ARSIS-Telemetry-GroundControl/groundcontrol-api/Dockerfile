@@ -1,4 +1,4 @@
-FROM python:3.10
+FROM python:3.10-bullseye
 
 
 # ARG YOUR_ENV
@@ -11,6 +11,9 @@ ENV YOUR_ENV=${YOUR_ENV} \
   PIP_DISABLE_PIP_VERSION_CHECK=on \
   PIP_DEFAULT_TIMEOUT=100 \
   POETRY_VERSION=1.3.2
+
+RUN apt-get update && \ 
+    apt-get install -y gdal-bin libgdal-dev
 
 # System deps:
 RUN pip install "poetry==$POETRY_VERSION"

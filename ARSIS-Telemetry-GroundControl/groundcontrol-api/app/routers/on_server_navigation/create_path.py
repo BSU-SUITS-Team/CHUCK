@@ -2,9 +2,9 @@ from enum import Enum
 import json
 
 class CreatePath:
-    def __init__(self, name):
-        self.name = name
-        self.points = []
+    def __init__(self, name, points: list[str] = []):
+        self.name: str = name
+        self.points: list[str] = points
 
     # TODO make this an enum or something similar so its not just a string
     def set_as_path(self):
@@ -15,8 +15,8 @@ class CreatePath:
 
     def get_dict(self):
         to_return = {
-            "type": self.type,
-            "points": [p.get_dict() for p in self.points],
+            # "type": self.type,
+            "points": self.points,
         }
         return to_return
 
@@ -26,16 +26,18 @@ class CreatePath:
 
 
 class CreatePoint:
-    def __init__(self, name, lat, long, altitude):
-        self.name = name
+    def __init__(self, x, y, lat, lon, altitude=None):
+        self.x = x
+        self.y = y
         self.lat = lat
-        self.long = long
+        self.lon = lon
         self.altitude = altitude
 
     def get_dict(self):
         return {
-            "name": self.name,
+            "x": self.x,
+            "y": self.y,
             "lat": self.lat,
-            "long": self.long,
+            "lon": self.lon,
             "altitude": self.altitude,
         }
