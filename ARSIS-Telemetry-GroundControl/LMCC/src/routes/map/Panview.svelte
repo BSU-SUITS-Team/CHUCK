@@ -2,9 +2,11 @@
 	import { onMount } from 'svelte';
 	import PinButton from './PinButton.svelte';
 	import BoxButton from './BoxButton.svelte';
+	import PathButton from './PathButton.svelte';
 
 	let scale = 1;
 	let offsetX = 0;
+	let pinProximity = 15;
 	let offsetY = 0;
 	let isPanning = false;
 	let startX, startY;
@@ -20,6 +22,10 @@
 	export let xRange = [0, 9999999];
 	export let yRange = [0, 9999999];
 	export let initalPosition = [0, 0];
+
+	function distanceBetween(x1, y1, x2, y2) {
+		return ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5;
+	}
 
 	function handleWheel(event) {
 		const delta = event.deltaY < 0 ? 1.1 : 0.9;
@@ -42,17 +48,30 @@
 	}
 
 	function handleMouseDown(event) {
-		if (isPlacingPin) {
-			const x = event.clientX - event.currentTarget.offsetLeft;
-			const y = event.clientY - event.currentTarget.offsetTop;
-			const correctedX = (x - offsetX) / scale;
-			const correctedY = (y - offsetY) / scale;
+		const x = event.clientX - event.currentTarget.offsetLeft;
+		const y = event.clientY - event.currentTarget.offsetTop;
+		const correctedX = (x - offsetX) / scale;
+		const correctedY = (y - offsetY) / scale;
 
+		if (isPlacingPin) {
 			pins = [...pins, { type: isPlacingPin, x: correctedX, y: correctedY }];
 			isPlacingPin = false;
 			buttons = buttons.map(() => true);
 			return;
 		}
+
+		//collison detection
+		for (let i = 0; i < pins.length; i++) {
+			let pin = pins[i];
+			if (
+				distanceBetween(x, y, pin.x * scale + offsetX, pin.y * scale + offsetY) <
+				pinProximity
+			) {
+				pinClicked(i);
+				return;
+			}
+		}
+
 		isPanning = true;
 		startX = event.clientX - offsetX;
 		startY = event.clientY - offsetY;
@@ -67,7 +86,6 @@
 		if (isPanning) {
 			const newOffsetX = event.clientX - startX;
 			const newOffsetY = event.clientY - startY;
-			console.log(newOffsetX, newOffsetY);
 
 			offsetX = Math.min(xRange[1], Math.max(xRange[0], newOffsetX));
 			offsetY = Math.min(yRange[1], Math.max(yRange[0], newOffsetY));
@@ -80,6 +98,10 @@
 
 	function handleDragStart(event) {
 		event.preventDefault();
+	}
+
+	function pinClicked(pinindex) {
+		console.log(`PIN CLICKED at ${pinindex}`);
 	}
 
 	onMount(() => {
@@ -112,14 +134,14 @@
 	transform-origin: 0 0;
   "
 		>
-			<PinButton color={pin.type} move />
+			<PinButton color={pin.type} move/>
 		</div>
 	{/each}
-
-	<div class="absolute z-10 top-5 w-full h-full">
+	<div class="absolute z-10 top-5 w-full h-full select-none">
 		<div class="flex justify-center">
 			<div class="mb-4 p-2 shadow-xl rounded-lg flex flex-row bg-white w-fit dark:bg-gray-800">
-				<BoxButton color="red" />
+				<BoxButton />
+				<PathButton />
 			</div>
 			<div
 				class="mb-4 p-2 shadow-xl rounded-lg flex flex-row bg-white w-fit dark:bg-gray-800 ml-1 mr-1"
