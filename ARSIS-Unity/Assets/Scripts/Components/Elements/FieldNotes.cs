@@ -1,8 +1,10 @@
 using Microsoft.MixedReality.GraphicsTools;
+using MixedReality.Toolkit.UX;
 using MixedReality.Toolkit.UX.Experimental;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
@@ -12,6 +14,8 @@ namespace ARSIS.UI
     [ExecuteInEditMode]
     public class FieldNotes : MonoBehaviour
     {
+        private ThemeProvider.Components button = ThemeProvider.Components.button;
+
         public bool performBuild;
         public bool performDestroy;
 
@@ -135,6 +139,7 @@ namespace ARSIS.UI
         private void BuildContainer()
         {
             RectTransform listRectTransform = list.GetComponent<RectTransform>();
+          
             container = new GameObject("Container");
             container.AddComponent<RectTransform>();
             container.transform.SetParent(list.transform, false);
@@ -152,10 +157,31 @@ namespace ARSIS.UI
             scrollable.ScrollRect = scrollRect;
             VerticalLayoutGroup containerLayout = container.AddComponent<VerticalLayoutGroup>();
             containerLayout.childControlWidth = true;
-            containerLayout.childScaleWidth = true;
+            containerLayout.childControlHeight = true;
             containerLayout.childForceExpandWidth = true;
             containerLayout.childForceExpandHeight = false;
             containerLayout.spacing = containerSpacing;
+            //VirtualizedScrollRectList scrollList = container.AddComponent<VirtualizedScrollRectList>();
+            //scrollList.SetItemCount(5);
+            //scrollList.OnInvisible = (prefab, index) =>
+            //{
+            //    GameObject frontplate = prefab.transform.GetChild(2).gameObject;
+            //    GameObject icon = frontplate.transform.GetChild(0).GetChild(0).gameObject;
+            //    GameObject text = frontplate.transform.GetChild(0).GetChild(1).gameObject;
+            //    TextMeshProUGUI textComponent = text.GetComponent<TextMeshProUGUI>();
+            //    textComponent.text = index.ToString();
+            //    ShowFieldNotes(false);
+            //};
+            //scrollList.OnVisible = (prefab, index) =>
+            //{
+            //    GameObject frontplate = prefab.transform.GetChild(2).gameObject;
+            //    GameObject icon = frontplate.transform.GetChild(0).GetChild(0).gameObject;
+            //    GameObject text = frontplate.transform.GetChild(0).GetChild(1).gameObject;
+            //    TextMeshProUGUI textComponent = text.GetComponent<TextMeshProUGUI>();
+            //    textComponent.text = index.ToString();
+            //    ShowFieldNotes(true);
+            //};
+            //scrollList.runInEditMode = true;
         }
 
         private void BuildList()

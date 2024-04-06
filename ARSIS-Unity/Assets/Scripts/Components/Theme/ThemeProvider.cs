@@ -18,13 +18,15 @@ namespace ARSIS.UI
         {
             button,
             backplate,
+            container,
         }
         private Dictionary<Components, GameObject> components = new() { // Dictionary of name and path
             { Components.button, Resources.Load<GameObject>("prefabs/Action Button") },
             { Components.backplate, Resources.Load<GameObject>("prefabs/Plate") },
+            { Components.container, Resources.Load<GameObject>("prefabs/Container") },
         };
 
-        private ThemeProvider() { }
+        private ThemeProvider() {}
 
 
         public Material GetMaterial(Materials key)

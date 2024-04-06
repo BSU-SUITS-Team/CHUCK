@@ -5,5 +5,5 @@ using ARSIS.EventManager;
 
 public interface IRenderable
 {
-    public void Render(List<BaseArsisEvent> data);
+    void Render(List<BaseArsisEvent> data);
 }
