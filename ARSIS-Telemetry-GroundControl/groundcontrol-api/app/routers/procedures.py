@@ -92,3 +92,11 @@ def procedure_POST(new_procedure: dict):
     in_mem_procedures[new_procedure['name']] = new_procedure
     asyncio.run(add_procedure_to_ds(new_procedure))
     return {"message": "Procedure successfully created"}
+
+
+@router.get("/yml/{name}")
+def procedure_as_yaml(name):
+    procedure = in_mem_procedures.get(name, None)
+    if procedure is None:
+        return {"error": f"Procedure with name: {incoming_procedure['name']} not found"}
+    return yaml.dump(procedure)
