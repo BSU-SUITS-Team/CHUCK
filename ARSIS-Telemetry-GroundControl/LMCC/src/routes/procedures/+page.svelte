@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { datastore } from '$lib/datastore';
 	import {
 		Breadcrumb,
 		BreadcrumbItem,
@@ -8,18 +9,12 @@
 		TableBody,
 		TableBodyRow,
 		TableBodyCell,
-		TableSearch
+		TableSearch,
+		Button
 	} from 'flowbite-svelte';
 	let searchTerm = '';
-	let prodecureNames = [
-		'Test Procedure 1',
-		'How to make a sandwich',
-		'Emergency Snack Procedure',
-		'Deploy Parachute',
-		'Do EVA',
-		'Test Procedure 5'
-	];
-	$: filteredItems = prodecureNames.filter(
+	$: procedureNames = Object.keys($datastore.procedure ?? {});
+	$: filteredItems = procedureNames.filter(
 		(item) => item.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1
 	);
 </script>
@@ -29,7 +24,10 @@
 		<BreadcrumbItem href="/" home>Home</BreadcrumbItem>
 		<BreadcrumbItem href="/procedures">Procedures</BreadcrumbItem>
 	</Breadcrumb>
-	<Heading tag="h2" class="mb-4">Procedures</Heading>
+	<div class="flex justify-between mb-4">
+		<Heading tag="h2">Procedures</Heading>
+		<Button color="alternative" href="/new/procedure">New</Button>
+	</div>
 	<TableSearch hoverable bind:inputValue={searchTerm}>
 		<TableHead>
 			<TableHeadCell>Procedure Name</TableHeadCell>
@@ -44,8 +42,8 @@
 							{prcedure}
 						</a></TableBodyCell
 					>
-					<TableBodyCell>Test Procedures</TableBodyCell>
-					<TableBodyCell>-</TableBodyCell>
+					<TableBodyCell>{$datastore['procedure'][prcedure]['category']}</TableBodyCell>
+					<TableBodyCell>{$datastore['procedure'][prcedure]['duration']}</TableBodyCell>
 				</TableBodyRow>
 			{/each}
 		</TableBody>
