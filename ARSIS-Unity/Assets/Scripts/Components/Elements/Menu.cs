@@ -12,12 +12,11 @@ namespace ARSIS.UI
     [ExecuteInEditMode]
     public class Menu : MonoBehaviour, IRenderable
     {
-        public void InstantiatePrefab(string prefabName)
+        public void InstantiatePrefab(GameObject prefab)
         {
-            GameObject prefab = Resources.Load<GameObject>(prefabName);
             if (prefab == null)
             {
-                Debug.Log("FAILED TO LOAD PREFAB: " + prefabName);
+                Debug.Log("FAILED TO LOAD PREFAB");
                 return;
             }
             Instantiate(prefab);

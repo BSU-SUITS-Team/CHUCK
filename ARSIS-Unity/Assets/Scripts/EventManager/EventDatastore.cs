@@ -11,13 +11,21 @@ namespace ARSIS.EventManager
         private Dictionary<string, List<BaseArsisEvent>> datastore = new();
         private Dictionary<string, List<IRenderable>> handlers = new();
 
-        public void AddHandler(string key, IRenderable component)
+
+        public void RemoveHandler(string key, IRenderable handler)
         {
             List<IRenderable> components;
             if (handlers.TryGetValue(key, out components))
-                components.Add(component);
+                components.Remove(handler);
+        }
+
+        public void AddHandler(string key, IRenderable handler)
+        {
+            List<IRenderable> components;
+            if (handlers.TryGetValue(key, out components))
+                components.Add(handler);
             else
-                handlers.Add(key, new List<IRenderable> { component });
+                handlers.Add(key, new List<IRenderable> { handler });
         }
 
         private void NotifyHandlers(string key)

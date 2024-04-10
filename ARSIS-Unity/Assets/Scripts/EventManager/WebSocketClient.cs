@@ -57,6 +57,26 @@ namespace ARSIS.EventManager
             }
         }
 
+        public string GetStatus()
+        {
+            if (connection == null) return "Not connected";
+            switch (connection.ReadyState)
+            {
+                case WebSocketState.Open:
+                    return "Open on " + endpoint;
+                case WebSocketState.Closed:
+                    return "Closed on " + endpoint;
+                case WebSocketState.Connecting:
+                    return "Connecting to " + endpoint;
+                case WebSocketState.Closing:
+                    return "Closing to " + endpoint;
+                case WebSocketState.New:
+                    return "New on " + endpoint;
+                default:
+                    return "Undefined status.";
+            }
+        }
+
         /// <summary>
         /// Establishes the WebSocket connection and begins listening to the events.
         /// </summary>
@@ -74,7 +94,8 @@ namespace ARSIS.EventManager
         public void EndClient()
         {
             Debug.Log("Closing connection...");
-            connection.CloseAsync();
+            connection.Close();
+            connection = null;
         }
     }
 }

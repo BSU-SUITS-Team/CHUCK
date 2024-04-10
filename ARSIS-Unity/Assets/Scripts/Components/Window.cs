@@ -1,3 +1,4 @@
+using MixedReality.Toolkit.SpatialManipulation;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -14,7 +15,10 @@ public class Window : MonoBehaviour
     void Start()
     {
         main = gameObject.transform.Find("/Plate/Container/Main").gameObject;
-        title = gameObject.transform.Find("/Plate/Header/Title").gameObject;
+        title = gameObject.transform.Find("/Plate/Container/Header/Title").gameObject;
+        Follow follow = gameObject.GetComponent<Follow>();
+        follow.enabled = true; // to place the game object at the user
+        follow.enabled = false; // disable follow, managed by pin button
     }
 
     public void Close()

@@ -9,19 +9,24 @@ using UnityEngine;
  */
 public class SettingsWindow : MonoBehaviour
 {
-    private GameObject text;
+    [SerializeField] GameObject endpointInput;
 
-    void Start()
+    private void Start()
     {
-        text = gameObject.transform.Find("/Plate/Container/Main/Vertical/Header/EndpointInput").gameObject;
+        TMP_InputField textArea = endpointInput.GetComponent<TMP_InputField>();
+        EventManager instance = EventManager.Instance;
+        textArea.text = instance.Endpoint;
     }
 
-    void SetWebSocket()
+    public void SetEndpoint(string endpoint)
     {
-        TMP_InputField textArea = text.GetComponent<TMP_InputField>();
-        string endpoint = textArea.text;
         EventManager instance = EventManager.Instance;
         instance.Endpoint = endpoint;
+    }
+
+    public void RestartClient()
+    {
+        EventManager instance = EventManager.Instance;
         instance.EndClient();
         instance.StartClient();
     }
