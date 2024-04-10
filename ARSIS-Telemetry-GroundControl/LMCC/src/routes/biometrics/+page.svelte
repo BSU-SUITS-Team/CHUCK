@@ -305,7 +305,7 @@
 									</div>
 									<div class="flex-1 min-w-0">
 										<p class={'text-sm font-medium ' + item['color']}>
-											{item["formatter"](item['value'])}
+											{item['formatter'](item['value'])}
 											{item['units']}
 										</p>
 									</div>
@@ -324,7 +324,12 @@
 					<TabItem open title={category}>
 						<div class="flex gap-2 flex-wrap">
 							{#each categories(currentAstro)[category] as data}
-								<Gauge name={data.key} value={data.value} bounds={data.range} formatter={data.formatter} />
+								<Gauge
+									name={data.key}
+									value={data.value}
+									bounds={data.range}
+									formatter={data.formatter}
+								/>
 							{/each}
 						</div>
 					</TabItem>

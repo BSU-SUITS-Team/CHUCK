@@ -1,6 +1,6 @@
 import { get, writable } from 'svelte/store';
 
-export const datastore = writable({connected: false});
+export const datastore = writable({ connected: false });
 
 /**
  * Creates a Svelte store that connects to a WebSocket and listens for JSON messages.
@@ -8,7 +8,7 @@ export const datastore = writable({connected: false});
  * @returns A Svelte store with the WebSocket's messages.
  */
 export function createWebSocketStore(url: string) {
-	console.log("Connecting Websocket...");
+	console.log('Connecting Websocket...');
 	const ws = new WebSocket(url);
 
 	ws.onopen = () => {
@@ -47,7 +47,9 @@ export function createWebSocketStore(url: string) {
 		const storedata = get(datastore);
 		storedata.connected = false;
 		datastore.set(storedata);
-		setTimeout(() => { createWebSocketStore(url) }, 1000);
+		setTimeout(() => {
+			createWebSocketStore(url);
+		}, 1000);
 	};
 
 	return {

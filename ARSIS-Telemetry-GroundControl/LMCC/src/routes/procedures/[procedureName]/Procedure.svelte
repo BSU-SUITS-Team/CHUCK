@@ -1,53 +1,90 @@
 <script lang="ts">
-	import { Timeline, TimelineItem, Button, Card, Heading } from 'flowbite-svelte';
-	import { ArrowRightOutline, PlusSolid } from 'flowbite-svelte-icons';
+	import { Timeline, TimelineItem, Button, Card, Heading, Input, Label } from 'flowbite-svelte';
+	import { ArrowRightOutline, EditOutline, PlusSolid } from 'flowbite-svelte-icons';
 	import ProcedureStep from './ProcedureStep.svelte';
+	import { datastore } from '$lib/datastore';
+	import { get, writable } from 'svelte/store';
 
-	export let name;
-
-	let allSteps = [
-		{
-			title: 'Install Jetpack',
-			description:
-				'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum',
-			links: ['Battery < 20%', 'Oxygen > 50%'],
-			problemLinks: ['Jetpack Recovery Procedure']
-		},
-		{
-			title: 'Launch Missiles',
-			description:
-				'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum'
-		},
-		{
-			title: 'Propare Tofu',
-			description:
-				'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum',
-			substeps: [
-				{
-					title: 'Boil Water',
-					date: 'Step 1',
-					description:
-						'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation'
-				},
-				{
-					title: '[REDACTED]',
-					date: 'Step 1',
-					description: '🔥'
-				},
-				{
-					title: 'Serve',
-					date: 'Step 1',
-					description:
-						'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation'
-				}
-			]
+	export let name: string;
+	let editMode = false;
+	let newname = name;
+	let allSteps = [];
+	function setSteps() {
+		if (editMode) {
+			return;
 		}
-	];
+		allSteps = $datastore['procedure']
+			? $datastore['procedure'][name].tasks
+			: [{ title: 'Nothing found', description: null }];
+	}
+
+	datastore.subscribe(setSteps);
+
+	function toggleEditMode() {
+		if (editMode == true) {
+			//send the post requests to update the procedures
+			let current = $datastore['procedure'][name];
+			const data = {
+				name: newname,
+				description: current.description,
+				category: current.category,
+				duration: current.duration,
+				tasks: allSteps
+			};
+			const endpoint = 'http://localhost:8181/procedures/';
+			fetch(endpoint, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(data)
+			}).catch((error) => console.log(error));
+		}
+		editMode = !editMode;
+	}
+
+	function addNewStepAfter(position: number) {
+		allSteps.splice(position + 1, 0, { name: 'New Step', description: '', steps: [] });
+		allSteps = allSteps;
+	}
+	function removeStepAt(position: number) {
+		allSteps.splice(position, 1);
+		allSteps = allSteps;
+	}
 </script>
 
-<Heading tag="h2" class="mb-3">{name}</Heading>
+<div class="flex justify-between">
+	<Heading tag="h2" class="mb-3">{name}</Heading>
+	{#if !editMode}
+		<Button color="none" on:click={toggleEditMode}><EditOutline /></Button>
+	{:else}
+		<Button color="alternative" on:click={toggleEditMode}>Save</Button>
+	{/if}
+</div>
+{#if editMode}
+	<h1>Metadata</h1>
+	<div class="ml-2 mb-4 flex flex-row">
+		<Input bind:value={newname} />
+		<Input bind:value={$datastore['procedure'][name]['category']} defaultClass="ml-2 mr-2" />
+		<Input bind:value={$datastore['procedure'][name]['duration']} defaultClass="m-0" />
+	</div>
+{/if}
 <Timeline>
-	{#each allSteps as step}
-		<ProcedureStep {...step} date="Step {allSteps.indexOf(step) + 1}" />
-	{/each}
+	{#if allSteps}
+		{#each allSteps as step, i}
+			<ProcedureStep
+				bind:title={step.name}
+				bind:description={step.description}
+				bind:steps={step.steps}
+				createNewStep={() => {
+					addNewStepAfter(i);
+				}}
+				removeThisStep={() => {
+					removeStepAt(i);
+				}}
+				{editMode}
+				date="Step {i + 1}"
+			/>
+		{/each}
+	{/if}
 </Timeline>
