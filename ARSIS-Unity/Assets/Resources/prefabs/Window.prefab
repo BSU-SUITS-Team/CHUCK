@@ -283,6 +283,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d2372ffa9a058a4bbc4c8304e61fb9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  main: {fileID: 1700170123812427549}
+  title: {fileID: 1300197805499173707}
 --- !u!114 &6153840783764113318
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -717,15 +719,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1aa08ab6e0800fa44ae55d278d1423e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Content: {fileID: 8698735965214382604}
-  m_Horizontal: 1
-  m_Vertical: 0
+  m_Content: {fileID: 8867329628179837176}
+  m_Horizontal: 0
+  m_Vertical: 1
   m_MovementType: 2
   m_Elasticity: 0.1
   m_Inertia: 1
   m_DecelerationRate: 0.135
   m_ScrollSensitivity: 1
-  m_Viewport: {fileID: 8698735965214382604}
+  m_Viewport: {fileID: 8867329628179837176}
   m_HorizontalScrollbar: {fileID: 0}
   m_VerticalScrollbar: {fileID: 0}
   m_HorizontalScrollbarVisibility: 0

@@ -9,17 +9,8 @@ using UnityEngine;
  */
 public class Window : MonoBehaviour
 {
-    private GameObject main;
-    private GameObject title;
-
-    void Start()
-    {
-        main = gameObject.transform.Find("/Plate/Container/Main").gameObject;
-        title = gameObject.transform.Find("/Plate/Container/Header/Title").gameObject;
-        Follow follow = gameObject.GetComponent<Follow>();
-        follow.enabled = true; // to place the game object at the user
-        follow.enabled = false; // disable follow, managed by pin button
-    }
+    [SerializeField] GameObject main;
+    [SerializeField] GameObject title;
 
     public void Close()
     {
