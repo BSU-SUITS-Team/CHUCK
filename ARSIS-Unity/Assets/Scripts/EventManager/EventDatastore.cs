@@ -26,6 +26,7 @@ namespace ARSIS.EventManager
                 components.Add(handler);
             else
                 handlers.Add(key, new List<IRenderable> { handler });
+            NotifyHandlers(key);
         }
 
         private void NotifyHandlers(string key)
