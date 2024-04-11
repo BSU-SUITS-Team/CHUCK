@@ -5,7 +5,7 @@ using UnityEngine;
 namespace ARSIS.EventManager
 {
 	[System.Serializable]
-	public class Eva
+	public class TelemetryEva
 	{
 		public float batt_time_left { get; set; }
 		public float oxy_pri_storage { get; set; }
@@ -32,23 +32,23 @@ namespace ARSIS.EventManager
 	}
 
 	[System.Serializable]
-	public class Data
+	public class TelemetryData
 	{
 		public int eva_time { get; set; }
-		public Eva eva1 { get; set; }
-		public Eva eva2 { get; set; }
+		public TelemetryEva eva1 { get; set; }
+		public TelemetryEva eva2 { get; set; }
 	}
 
 	[System.Serializable]
-	public class Root
+	public class TelemetryRoot
 	{
-		public Data telemetry { get; set; }
+		public TelemetryData telemetry { get; set; }
 	}
 
 	[System.Serializable]
     public class Telemetry : BaseArsisEvent
     {
-		public Root data { get; set; }
+		public TelemetryRoot data { get; set; }
 
         public override string ToString()
         {
