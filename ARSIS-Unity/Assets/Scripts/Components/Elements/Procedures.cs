@@ -19,9 +19,8 @@ public class Procedures : MonoBehaviour, IRenderable
         procedures = list;
         foreach (BaseArsisEvent baseArsisEvent in procedures)
         {
-            if (baseArsisEvent is Procedure)
+            if (baseArsisEvent is Procedure procedure)
             {
-                Procedure procedure = (Procedure)baseArsisEvent;
                 GameObject entry = Instantiate(procedureButton);
                 Button button = entry.GetComponent<Button>();
                 button.SetText(procedure.data.name);
