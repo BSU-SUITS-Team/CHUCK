@@ -20,6 +20,7 @@ namespace ARSIS.EventManager
             { "imu", typeof(IMU) },
             { "uia", typeof(UIA ) },
             { "rover", typeof(Rover) },
+            { "procedure", typeof(Procedure) },
         };
 
         public string type;

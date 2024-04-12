@@ -83,10 +83,13 @@ namespace ARSIS.EventManager
         /// <returns></returns>
         public void StartClient()
         {
-            connection ??= new WebSocket(endpoint);
+            connection = new WebSocket(endpoint);
             connection.OnOpen += (sender, e) => Debug.Log("WebSocket connected!");
             connection.OnMessage += (sender, e) => Collect(e);
-            connection.OnError += (sender, e) => EndClient();
+            connection.OnError += (sender, e) => {
+                Debug.LogError(e.Exception.ToString());
+                Debug.LogError(e.Message);
+            };
             connection.OnClose += (sender, e) => AttemptReconnect(e);
             connection.ConnectAsync();
         }
@@ -94,8 +97,8 @@ namespace ARSIS.EventManager
         public void EndClient()
         {
             Debug.Log("Closing connection...");
+            if (connection == null) return;
             connection.Close();
-            connection = null;
         }
     }
 }

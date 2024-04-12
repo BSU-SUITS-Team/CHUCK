@@ -22,6 +22,11 @@ namespace ARSIS.UI
             iconLabel.text = label;
         }
 
+        public void SetText(string text)
+        {
+            textValue.text = text;
+        }
+
         public void SetText(bool enabled, string text)
         {
             textObject.SetActive(enabled);
