@@ -8,64 +8,31 @@ using UnityEngine;
 
 public class Procedures : MonoBehaviour, IRenderable
 {
-    [SerializeField] GameObject content;
-    [SerializeField] VirtualizedScrollRectList procedureList; // has the VirtualizedScrollRectList
     [SerializeField] GameObject procedureButton;
-    [SerializeField] InteractableEventRouter interactableEventRouter;
+    [SerializeField] ScrollArea scrollArea;
     private static string key = "procedure";
     private List<BaseArsisEvent> procedures = new List<BaseArsisEvent>();
-    private bool changed = true;
 
     void IRenderable.Render(List<BaseArsisEvent> list)
     {
+        List<GameObject> entries = new();
         procedures = list;
-        changed = true;
-        //procedureList.SetItemCount(procedures.Count);
-    }
-
-    void ConfigureButton(GameObject prefab, int index)
-     {
-        Button button = prefab.GetComponent<Button>();
-        if (button == null || procedures == null || procedures[index] == null) return;
-        if (procedures[index] is Procedure)
+        foreach (BaseArsisEvent baseArsisEvent in procedures)
         {
-            Procedure procedureEvent = (Procedure)procedures[index];
-            button.SetText(procedureEvent.label);
-        } else
-        {
-            Debug.LogError("Procedures: Not a procedure!!");
-        }
-        //Transform transform = prefab.transform;
-        //transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.Euler(Vector3.zero));
-    }
-
-    void Update()
-    {
-        if (changed)
-        {
-            foreach (Transform child in content.transform)
+            if (baseArsisEvent is Procedure)
             {
-                Destroy(child.gameObject);
+                Procedure procedure = (Procedure)baseArsisEvent;
+                GameObject entry = Instantiate(procedureButton);
+                Button button = entry.GetComponent<Button>();
+                button.SetText(procedure.data.name);
+                entries.Add(entry);
             }
-            foreach (BaseArsisEvent baseArsisEvent in procedures)
-            {
-                if (baseArsisEvent is Procedure)
-                {
-                    GameObject entry = Instantiate(procedureButton);
-                    entry.transform.SetParent(content.transform, false);
-                    Button button = entry.GetComponent<Button>();
-                    button.SetText(baseArsisEvent.label);
-                }
-            }
-            interactableEventRouter.Refresh();
-            changed = false;
         }
+        scrollArea.SetEntries(entries);
     }
 
     void Start()
     {
-        //procedureList.SetItemCount(0);
-        //procedureList.OnVisible = ConfigureButton;
         EventDatastore eventDatastore = EventDatastore.Instance;
         eventDatastore.AddHandler(key, this);
     }

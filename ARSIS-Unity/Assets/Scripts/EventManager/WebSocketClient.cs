@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -26,10 +27,10 @@ namespace ARSIS.EventManager
         /// <returns>BaseArsisEvent or null if failed to parse JSON.</returns>
         private BaseArsisEvent PerformReflection(string json)
         {
-            BaseArsisEvent unknownEvent = JsonUtility.FromJson<BaseArsisEvent>(json);
+            BaseArsisEvent unknownEvent = JsonConvert.DeserializeObject<BaseArsisEvent>(json);
             if (unknownEvent == null) return null;
             Type eventType = BaseArsisEvent.GetType(unknownEvent.type);
-            return (BaseArsisEvent)JsonUtility.FromJson(json, eventType);
+            return (BaseArsisEvent)JsonConvert.DeserializeObject(json, eventType);
         }
 
         private IEnumerator AttemptReconnect(CloseEventArgs e)
