@@ -3,6 +3,7 @@
 	import PinButton from './PinButton.svelte';
 	import BoxButton from './BoxButton.svelte';
 	import PathButton from './PathButton.svelte';
+	import { datastore } from '$lib/datastore';
 
 	let scale = 1;
 	let offsetX = 0;
@@ -22,6 +23,22 @@
 	export let xRange = [0, 9999999];
 	export let yRange = [0, 9999999];
 	export let initalPosition = [0, 0];
+
+	datastore.subscribe(loadPins);
+
+	function loadPins(fromData) {
+		if (!fromData['pins']) {
+			return;
+		}
+		let newPins = [];
+		let pinList = Object.keys(fromData['pins']);
+		for (let i = 0; i < pinList.length; i++) {
+			console.log(pinList[i]);
+			const { x, y } = fromData['pins'][pinList[i]]['properties'];
+			newPins.push({ type: 'red', x, y });
+		}
+		pins = newPins;
+	}
 
 	function distanceBetween(x1, y1, x2, y2) {
 		return ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5;
@@ -47,6 +64,40 @@
 		scale = newScale;
 	}
 
+	async function addPin(x, y) {
+		const url = 'http://localhost:8181/navigation/pins';
+		const data = {
+			x,
+			y,
+			lat: 0,
+			lon: 0,
+			properties: {}
+		};
+
+		try {
+			const response = await fetch(url, {
+				method: 'POST',
+				headers: {
+					accept: 'application/json',
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(data)
+			});
+
+			if (response.ok) {
+				const result = await response.json();
+				console.log('Pin added successfully:', result);
+				return result;
+			} else {
+				console.error('Error adding pin:', response.status);
+				throw new Error('Failed to add pin');
+			}
+		} catch (error) {
+			console.error('Error adding pin:', error);
+			throw error;
+		}
+	}
+
 	function handleMouseDown(event) {
 		const x = event.clientX - event.currentTarget.offsetLeft;
 		const y = event.clientY - event.currentTarget.offsetTop;
@@ -55,6 +106,7 @@
 
 		if (isPlacingPin) {
 			pins = [...pins, { type: isPlacingPin, x: correctedX, y: correctedY }];
+			addPin(correctedX, correctedY);
 			isPlacingPin = false;
 			buttons = buttons.map(() => true);
 			return;
@@ -63,10 +115,7 @@
 		//collison detection
 		for (let i = 0; i < pins.length; i++) {
 			let pin = pins[i];
-			if (
-				distanceBetween(x, y, pin.x * scale + offsetX, pin.y * scale + offsetY) <
-				pinProximity
-			) {
+			if (distanceBetween(x, y, pin.x * scale + offsetX, pin.y * scale + offsetY) < pinProximity) {
 				pinClicked(i);
 				return;
 			}
@@ -134,7 +183,7 @@
 	transform-origin: 0 0;
   "
 		>
-			<PinButton color={pin.type} move/>
+			<PinButton color={pin.type} move />
 		</div>
 	{/each}
 	<div class="absolute z-10 top-5 w-full h-full select-none">
