@@ -4,6 +4,8 @@
 	import BoxButton from './BoxButton.svelte';
 	import PathButton from './PathButton.svelte';
 	import { datastore } from '$lib/datastore';
+	import { Button, Input } from 'flowbite-svelte';
+	import { XCircleOutline } from 'flowbite-svelte-icons';
 
 	let scale = 1;
 	let offsetX = 0;
@@ -15,6 +17,7 @@
 	let pins = [];
 	let isPlacingPin = false;
 	let buttons = [true, true, true, true];
+	let newname = "";
 
 	export let image;
 	export let initalSize = 1;
@@ -23,6 +26,7 @@
 	export let xRange = [0, 9999999];
 	export let yRange = [0, 9999999];
 	export let initalPosition = [0, 0];
+	let editingPin = null;
 
 	datastore.subscribe(loadPins);
 
@@ -34,8 +38,8 @@
 		let pinList = Object.keys(fromData['pins']);
 		for (let i = 0; i < pinList.length; i++) {
 			console.log(pinList[i]);
-			const { x, y } = fromData['pins'][pinList[i]]['properties'];
-			newPins.push({ type: 'red', x, y });
+			const { x, y, id, name = '' } = fromData['pins'][pinList[i]]['properties'];
+			newPins.push({ type: 'red', x, y, name, id });
 		}
 		pins = newPins;
 	}
@@ -64,14 +68,21 @@
 		scale = newScale;
 	}
 
-	async function addPin(x, y) {
+	function updatePinName() {
+		let {x, y, id} = pins[editingPin];
+		addPin(x, y, id, newname);
+		newname = "";
+		editingPin = null;
+	}
+
+	async function addPin(x, y, id = null, name = "") {
 		const url = 'http://localhost:8181/navigation/pins';
 		const data = {
 			x,
 			y,
 			lat: 0,
 			lon: 0,
-			properties: {}
+			properties: id == null ? {name} : {id: id, name}
 		};
 
 		try {
@@ -151,6 +162,7 @@
 
 	function pinClicked(pinindex) {
 		console.log(`PIN CLICKED at ${pinindex}`);
+		editingPin = pinindex;
 	}
 
 	onMount(() => {
@@ -183,7 +195,7 @@
 	transform-origin: 0 0;
   "
 		>
-			<PinButton color={pin.type} move />
+			<PinButton color={pin.type} name={pin.name} move />
 		</div>
 	{/each}
 	<div class="absolute z-10 top-5 w-full h-full select-none">
@@ -225,3 +237,18 @@
 		class="top-0 left-0"
 	/>
 </div>
+
+{#if editingPin != null}
+	<div
+	class="w-96 bg-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg shadow-xl p-6 z-50"
+>
+	Pin Label
+	<Input bind:value={newname} />
+	<br />
+	<div class="flex justify-between">
+<!-- 		<Button>Delete Pin</Button> It is currently not possible to remove anything though events -->
+		<Button color="alternative" on:click={updatePinName}>Confirm</Button>
+	</div>
+</div>
+{/if}
+
