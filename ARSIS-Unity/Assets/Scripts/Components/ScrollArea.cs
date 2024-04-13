@@ -9,12 +9,12 @@ public class ScrollArea : MonoBehaviour
 {
     [SerializeField] GameObject content;
     [SerializeField] InteractableEventRouter interactableEventRouter;
-    private bool changed = true;
     private List<GameObject> entries = new();
 
     public void SetEntries(List<GameObject> entries)
     {
         this.entries = entries;
+        Display();
     }
 
     private void Clear()
@@ -29,12 +29,10 @@ public class ScrollArea : MonoBehaviour
             entry.transform.SetParent(content.transform, false);
     }
 
-    private void Update()
+    private void Display()
     {
-        if (!changed) return;
         Clear();
         AddEntries();
         interactableEventRouter.Refresh();
-        changed = false;
     }
 }

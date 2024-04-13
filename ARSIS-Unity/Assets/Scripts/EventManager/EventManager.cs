@@ -12,7 +12,7 @@ namespace ARSIS.EventManager
         [ContextMenu("Start Client")]
         public void StartClient()
         {
-            Client ??= new WebSocketClient(Endpoint);
+            Client = new WebSocketClient(Endpoint);
             Client.StartClient();
         }
 

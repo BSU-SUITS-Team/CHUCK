@@ -1,4 +1,5 @@
 using ARSIS.EventManager;
+using MixedReality.Toolkit.UX;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -9,19 +10,24 @@ using UnityEngine;
  */
 public class SettingsWindow : MonoBehaviour
 {
-    [SerializeField] GameObject endpointInput;
+    [SerializeField] MRTKUGUIInputField inputField;
+    private TouchScreenKeyboard keyboard;
 
-    private void Start()
+    public void OpenSystemKeyboard()
     {
-        TMP_InputField textArea = endpointInput.GetComponent<TMP_InputField>();
-        EventManager instance = EventManager.Instance;
-        textArea.text = instance.Endpoint;
+        keyboard = TouchScreenKeyboard.Open(inputField.text, TouchScreenKeyboardType.URL, false, false, false, false);
     }
 
-    public void SetEndpoint(string endpoint)
+    void Start()
     {
         EventManager instance = EventManager.Instance;
-        instance.Endpoint = endpoint;
+        inputField.text = instance.Endpoint;
+    }
+
+    public void SetEndpoint()
+    {
+        EventManager instance = EventManager.Instance;
+        instance.Endpoint = inputField.text;
     }
 
     public void RestartClient()
@@ -29,5 +35,13 @@ public class SettingsWindow : MonoBehaviour
         EventManager instance = EventManager.Instance;
         instance.EndClient();
         instance.StartClient();
+    }
+
+    private void Update()
+    {
+        if (keyboard == null) return;
+        inputField.text = keyboard.text;
+        if (keyboard.status == TouchScreenKeyboard.Status.Done)
+            keyboard = null;
     }
 }

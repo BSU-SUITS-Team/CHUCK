@@ -12,11 +12,30 @@ public class Procedures : MonoBehaviour, IRenderable
     [SerializeField] ScrollArea scrollArea;
     private static string key = "procedure";
     private List<BaseArsisEvent> procedures = new List<BaseArsisEvent>();
+    private bool changed = true;
 
     void IRenderable.Render(List<BaseArsisEvent> list)
     {
-        List<GameObject> entries = new();
         procedures = list;
+        changed = true;
+    }
+
+    void Start()
+    {
+        EventDatastore eventDatastore = EventDatastore.Instance;
+        eventDatastore.AddHandler(key, this);
+    }
+
+    void OnDestroy()
+    {
+        EventDatastore eventDatastore = EventDatastore.Instance;
+        eventDatastore.RemoveHandler(key, this);
+    }
+
+    void Update()
+    {
+        if (!changed) return;
+        List<GameObject> entries = new();
         foreach (BaseArsisEvent baseArsisEvent in procedures)
         {
             if (baseArsisEvent is Procedure procedure)
@@ -28,17 +47,6 @@ public class Procedures : MonoBehaviour, IRenderable
             }
         }
         scrollArea.SetEntries(entries);
-    }
-
-    void Start()
-    {
-        EventDatastore eventDatastore = EventDatastore.Instance;
-        eventDatastore.AddHandler(key, this);
-    }
-
-    private void OnDestroy()
-    {
-        EventDatastore eventDatastore = EventDatastore.Instance;
-        eventDatastore.RemoveHandler(key, this);
+        changed = false;
     }
 }
