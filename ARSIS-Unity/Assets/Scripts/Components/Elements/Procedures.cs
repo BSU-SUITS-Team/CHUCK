@@ -1,6 +1,7 @@
 using ARSIS.EventManager;
 using ARSIS.UI;
 using MixedReality.Toolkit.Experimental;
+using MixedReality.Toolkit.UX;
 using MixedReality.Toolkit.UX.Experimental;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ public class Procedures : MonoBehaviour, IRenderable
 {
     [SerializeField] GameObject procedureButton;
     [SerializeField] ScrollArea scrollArea;
+    [SerializeField] GameObject procedureDisplay;
     private static string key = "procedure";
     private List<BaseArsisEvent> procedures = new List<BaseArsisEvent>();
     private bool changed = true;
@@ -18,6 +20,14 @@ public class Procedures : MonoBehaviour, IRenderable
     {
         procedures = list;
         changed = true;
+    }
+
+    void CreateProcedureDisplay(Procedure procedure)
+    {
+        GameObject display = Instantiate(procedureDisplay); // procedureDisplay prefab is active = false by default
+        ProcedureDisplay view = display.GetComponent<ProcedureDisplay>();
+        view.SetProcedure(procedure); // apply the procedure
+        display.SetActive(true); // enable after procedure is applied
     }
 
     void Start()
@@ -43,6 +53,8 @@ public class Procedures : MonoBehaviour, IRenderable
                 GameObject entry = Instantiate(procedureButton);
                 Button button = entry.GetComponent<Button>();
                 button.SetText(procedure.data.name);
+                PressableButton pressableButton = button.GetPressableButton();
+                pressableButton.OnClicked.AddListener(() => CreateProcedureDisplay(procedure));
                 entries.Add(entry);
             }
         }

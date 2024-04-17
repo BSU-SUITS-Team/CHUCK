@@ -1064,6 +1064,26 @@ PrefabInstance:
       propertyPath: stateContainers.entries.Array.data[4].value.effects.Array.data[1].tintables.Array.data[0]
       value: 
       objectReference: {fileID: 8467006667157818416}
+    - target: {fileID: 9026472854072389792, guid: b85e005d231192249b7077b40a4d4e45, type: 3}
+      propertyPath: m_Color.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9026472854072389792, guid: b85e005d231192249b7077b40a4d4e45, type: 3}
+      propertyPath: m_Color.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9026472854072389792, guid: b85e005d231192249b7077b40a4d4e45, type: 3}
+      propertyPath: m_Color.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9026472854072389792, guid: b85e005d231192249b7077b40a4d4e45, type: 3}
+      propertyPath: m_Color.r
+      value: 0.008588314
+      objectReference: {fileID: 0}
+    - target: {fileID: 9026472854072389792, guid: b85e005d231192249b7077b40a4d4e45, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 2100000, guid: 3e6a19505b79f13429f6ffae8134b6df, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -1147,11 +1167,23 @@ MonoBehaviour:
   iconName: {fileID: 7245587814888172855}
   iconLabel: {fileID: 8493469810320727241}
   textValue: {fileID: 1922220768106560367}
+  pressableButton: {fileID: 8376646494505211226}
 --- !u!65 &8376646494505211224 stripped
 BoxCollider:
   m_CorrespondingSourceObject: {fileID: 3705378105823492760, guid: b85e005d231192249b7077b40a4d4e45, type: 3}
   m_PrefabInstance: {fileID: 5139722473249402816}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &8376646494505211226 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3705378105823492762, guid: b85e005d231192249b7077b40a4d4e45, type: 3}
+  m_PrefabInstance: {fileID: 5139722473249402816}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8376646494505211202}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c32e8a7644144f8419bb881ad588ed0e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &8376646494505211229 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3705378105823492765, guid: b85e005d231192249b7077b40a4d4e45, type: 3}
