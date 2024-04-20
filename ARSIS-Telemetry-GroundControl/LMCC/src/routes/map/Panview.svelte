@@ -17,7 +17,7 @@
 	let pins = [];
 	let isPlacingPin = false;
 	let buttons = [true, true, true, true];
-	let newname = "";
+	let newname = '';
 
 	export let image;
 	export let initalSize = 1;
@@ -69,20 +69,20 @@
 	}
 
 	function updatePinName() {
-		let {x, y, id} = pins[editingPin];
+		let { x, y, id } = pins[editingPin];
 		addPin(x, y, id, newname);
-		newname = "";
+		newname = '';
 		editingPin = null;
 	}
 
-	async function addPin(x, y, id = null, name = "") {
+	async function addPin(x, y, id = null, name = '') {
 		const url = 'http://localhost:8181/navigation/pins';
 		const data = {
 			x,
 			y,
 			lat: 0,
 			lon: 0,
-			properties: id == null ? {name} : {id: id, name}
+			properties: id == null ? { name } : { id: id, name }
 		};
 
 		try {
@@ -240,15 +240,14 @@
 
 {#if editingPin != null}
 	<div
-	class="w-96 bg-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg shadow-xl p-6 z-50"
->
-	Pin Label
-	<Input bind:value={newname} />
-	<br />
-	<div class="flex justify-between">
-<!-- 		<Button>Delete Pin</Button> It is currently not possible to remove anything though events -->
-		<Button color="alternative" on:click={updatePinName}>Confirm</Button>
+		class="w-96 bg-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg shadow-xl p-6 z-50"
+	>
+		Pin Label
+		<Input bind:value={newname} />
+		<br />
+		<div class="flex justify-between">
+			<!-- 		<Button>Delete Pin</Button> It is currently not possible to remove anything though events -->
+			<Button color="alternative" on:click={updatePinName}>Confirm</Button>
+		</div>
 	</div>
-</div>
 {/if}
-
