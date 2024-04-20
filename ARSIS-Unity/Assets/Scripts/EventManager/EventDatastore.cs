@@ -11,7 +11,6 @@ namespace ARSIS.EventManager
         private Dictionary<string, List<BaseArsisEvent>> datastore = new();
         private Dictionary<string, List<IRenderable>> handlers = new();
 
-
         public void RemoveHandler(string key, IRenderable handler)
         {
             List<IRenderable> components;

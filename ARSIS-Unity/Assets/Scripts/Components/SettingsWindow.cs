@@ -24,6 +24,12 @@ public class SettingsWindow : MonoBehaviour
         inputField.text = instance.Endpoint;
     }
 
+    public void SetEVA(int eva)
+    {
+        EventManager instance = EventManager.Instance;
+        instance.Eva = eva;
+    }
+
     public void SetEndpoint()
     {
         EventManager instance = EventManager.Instance;

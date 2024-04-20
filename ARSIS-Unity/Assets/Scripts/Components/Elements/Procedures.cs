@@ -12,6 +12,7 @@ public class Procedures : MonoBehaviour, IRenderable
     [SerializeField] GameObject procedureButton;
     [SerializeField] ScrollArea scrollArea;
     [SerializeField] GameObject procedureDisplay;
+    [SerializeField] GameObject summaryTimeline;
     private static string key = "procedure";
     private List<BaseArsisEvent> procedures = new List<BaseArsisEvent>();
     private bool changed = true;
@@ -28,6 +29,11 @@ public class Procedures : MonoBehaviour, IRenderable
         ProcedureDisplay view = display.GetComponent<ProcedureDisplay>();
         view.SetProcedure(procedure); // apply the procedure
         display.SetActive(true); // enable after procedure is applied
+    }
+
+    void ShowSummaryTimeline()
+    {
+        Instantiate(summaryTimeline);
     }
 
     void Start()

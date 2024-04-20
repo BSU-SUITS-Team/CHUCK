@@ -12,6 +12,10 @@ namespace ARSIS.UI
     [ExecuteInEditMode]
     public class Menu : MonoBehaviour, IRenderable
     {
+        private string key = "telemetry";
+        private bool changed = true;
+        private List<BaseArsisEvent> data;
+
         public void InstantiatePrefab(GameObject prefab)
         {
             if (prefab == null)
@@ -22,14 +26,29 @@ namespace ARSIS.UI
             Instantiate(prefab);
         }
 
-        public void Render(List<BaseArsisEvent> events)
+        public void Render(List<BaseArsisEvent> data)
         {
-            Debug.Log("MENU RENDER");
+            this.data = data;
+            changed = true;
         }
 
-        void Awake()
+        void Update()
         {
-            EventDatastore.Instance.AddHandler("telemetry", this);
+            if (!changed) return;
+            changed = false;
         }
+
+        void Start()
+        {
+            EventDatastore eventDatastore = EventDatastore.Instance;
+            eventDatastore.AddHandler(key, this);
+        }
+
+        void OnDestroy()
+        {
+            EventDatastore eventDatastore = EventDatastore.Instance;
+            eventDatastore.RemoveHandler(key, this);
+        }
+
     }
 }
