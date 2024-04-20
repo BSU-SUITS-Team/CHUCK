@@ -8,11 +8,12 @@ namespace ARSIS.EventManager
         public static EventManager Instance { get; private set; }
         public WebSocketClient Client { get; private set; }
         public string Endpoint { get; set; } = "ws://localhost:8181/ws/events";
+        public int Eva { get; set; } = 1;
 
         [ContextMenu("Start Client")]
         public void StartClient()
         {
-            Client ??= new WebSocketClient(Endpoint);
+            Client = new WebSocketClient(Endpoint);
             Client.StartClient();
         }
 
