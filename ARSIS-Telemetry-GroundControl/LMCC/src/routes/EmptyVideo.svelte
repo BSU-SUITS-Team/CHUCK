@@ -10,7 +10,7 @@
 		<div
 			class="text-center w-80 h-52 bg-gray-200 rounded-lg flex items-center justify-center dark:bg-gray-700"
 		>
-			<Spinner />
+			<img src="https://mars.nasa.gov/system/resources/detail_files/25904_1-PIA24546-1200.jpg" alt="">
 		</div>
 	</Card>
 </div>
