@@ -47,7 +47,6 @@ namespace ARSIS.EventManager
         {
             EventDatastore eventDatastore = EventDatastore.Instance;
             BaseArsisEvent wsEvent = PerformReflection(e.Data.ToString());
-            Debug.Log(wsEvent);
             if (wsEvent.label != null && wsEvent.label.Length > 0)
             {
                 eventDatastore.Upsert(wsEvent.type, wsEvent);
