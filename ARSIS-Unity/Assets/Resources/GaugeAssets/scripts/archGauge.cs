@@ -62,15 +62,17 @@ public class archGauge : MonoBehaviour
 
     void SetGreenArea()
     {
-        float greenAreaRot = ((lowerBounds - minValue) /200)*-360;
+        float greenAreaRot = Mathf.Abs(lowerBounds - minValue)/maxValue*-180;
         //|start - end|/high = %
+        // * -180 degrees (half circle)
         greenAreaRect.rotation = Quaternion.Euler (0,0, greenAreaRot);
         Debug.Log(greenAreaRot);
 
         // float greenAreaFill = (Mathf.Abs(minValue - (upperBounds-lowerBounds))/maxValue)/2;
         //float greenAreaFill = Mathf.Abs((lowerBounds - upperBounds) / (maxValue - lowerBounds) / 2);
 
-        float greenAreaFill = Mathf.Abs(((upperBounds -lowerBounds)/maxValue)/2);
+        float greenAreaFill = Mathf.Abs(upperBounds -lowerBounds)/maxValue/2
+        // 1 fill is full circle, 0.5 or 1/2 fill is half circle
         GreenAreaImage.fillAmount = greenAreaFill;
         Debug.Log(greenAreaFill);
 
