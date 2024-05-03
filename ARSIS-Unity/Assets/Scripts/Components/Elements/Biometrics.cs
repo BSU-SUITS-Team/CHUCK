@@ -8,9 +8,27 @@ using System.Linq;
 
 public class Biometrics : MonoBehaviour, IRenderable
 {
-    [SerializeField] archGauge heartRate;
+    // Suit Resources
     [SerializeField] vertGauge2Drain battery;
+    [SerializeField] vertGauge2Drain oxyPriSto;
+    [SerializeField] vertGauge2Drain oxySecSto;
+    [SerializeField] vertGauge2Drain oxyPriPre;
+    [SerializeField] vertGauge2Drain oxySecPre;
+    [SerializeField] vertGauge2Drain oxyTime;
+    [SerializeField] vertGauge2Drain coolantSto;
+
+    // Suit Atmosphere
+    [SerializeField] archGauge heartRate;
+    [SerializeField] archGauge oxyConsump;
+    [SerializeField] archGauge co2Prod;
+    [SerializeField] archGauge suitPreO2;
+    [SerializeField] vertGaugeBuild3 suitPreCO2;
+    [SerializeField] vertGaugeBuild3 suitPreOther;
+    [SerializeField] archGauge suitPreTotal;
+    [SerializeField] vertGaugeBuild3 helmPreCO2;
+
     [SerializeField] vertGaugeBuild3 scrubberA;
+
     private Boolean changed = true;
     private List<BaseArsisEvent> data = new();
     private TelemetryEva evaData;
@@ -34,8 +52,23 @@ public class Biometrics : MonoBehaviour, IRenderable
 
     private void UpdateGauges()
     {
-        heartRate.biosValue = evaData.heart_rate;
         battery.currentValue = evaData.batt_time_left;
+        oxyPriSto.currentValue = evaData.oxy_pri_storage;
+        oxySecSto.currentValue = evaData.oxy_sec_storage;
+        oxyPriPre.currentValue = evaData.oxy_pri_pressure;
+        oxySecPre.currentValue = evaData.oxy_sec_pressure;
+        oxyTime.currentValue = evaData.oxy_time_left;
+        coolantSto.currentValue = evaData.coolant_ml;
+
+        heartRate.biosValue = evaData.heart_rate;
+        oxyConsump.biosValue = evaData.oxy_consumption;
+        co2Prod.biosValue = evaData.co2_production;
+        suitPreO2.biosValue = evaData.suit_pressure_oxy;
+        suitPreCO2.currentValue = evaData.suit_pressure_co2;
+        suitPreOther.currentValue = evaData.suit_pressure_other;
+        suitPreTotal.biosValue = evaData.suit_pressure_total;
+        helmPreCO2.currentValue = evaData.helmet_pressure_co2;
+
         scrubberA.currentValue = evaData.scrubber_a_co2_storage;
     }
 
