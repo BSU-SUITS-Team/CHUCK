@@ -27,7 +27,19 @@ public class Biometrics : MonoBehaviour, IRenderable
     [SerializeField] archGauge suitPreTotal;
     [SerializeField] vertGaugeBuild3 helmPreCO2;
 
-    [SerializeField] vertGaugeBuild3 scrubberA;
+    // Fan
+    [SerializeField] vertGauge2Drain fanPri;
+    [SerializeField] vertGauge2Drain fanSec;
+
+    // Scrubber
+    [SerializeField] vertGaugeSplit1 scrubberA;
+    [SerializeField] vertGaugeSplit1 scrubberB;
+
+    // Temperature
+    [SerializeField] archGauge temperature;
+    [SerializeField] archGauge coolantLiquid;
+    [SerializeField] vertGaugeBuild3 coolantGas;
+
 
     private Boolean changed = true;
     private List<BaseArsisEvent> data = new();
@@ -69,7 +81,15 @@ public class Biometrics : MonoBehaviour, IRenderable
         suitPreTotal.biosValue = evaData.suit_pressure_total;
         helmPreCO2.currentValue = evaData.helmet_pressure_co2;
 
+        fanPri.currentValue = evaData.fan_pri_rpm;
+        fanSec.currentValue = evaData.fan_sec_rpm;
+
         scrubberA.currentValue = evaData.scrubber_a_co2_storage;
+        scrubberB.currentValue = evaData.scrubber_b_co2_storage;
+
+        temperature.biosValue = evaData.temperature;
+        coolantLiquid.biosValue = evaData.coolant_liquid_pressure;
+        coolantGas.currentValue = evaData.coolant_gas_pressure;
     }
 
     void Update()
