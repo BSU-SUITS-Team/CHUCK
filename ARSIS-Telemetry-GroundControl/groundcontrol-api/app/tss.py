@@ -10,6 +10,7 @@ get = {
     "uia": "/json_data/UIA.json",
     "dcu": "/json_data/DCU.json",
     "eva": "/json_data/teams/0/EVA.json",
+    "spec": "/json_data/SPEC.json",
 }
 
 tss_keys = get.keys()
