@@ -43,31 +43,31 @@ namespace ARSIS.EventManager
         public override string ToString()
         {
             return string.Join(
+                Environment.NewLine,
                 "eva1 {",
-                "\tSiO2: " + data.eva1.data.SiO2,
-                "\tTiO2: " + data.eva1.data.TiO2,
-                "\tAl2O3: " + data.eva1.data.Al2O3,
-                "\tFeO: " + data.eva1.data.FeO,
-                "\tMnO: " + data.eva1.data.MnO,
-                "\tMgO: " + data.eva1.data.MgO,
-                "\tCaO: " + data.eva1.data.CaO,
-                "\tK2O: " + data.eva1.data.K2O,
-                "\tP2O3: " + data.eva1.data.P2O3,
-                "\tother: " + data.eva1.data.other,
+                $"\tSiO2: {data.eva1.data.SiO2}",
+                $"\tTiO2: {data.eva1.data.TiO2}",
+                $"\tAl2O3: {data.eva1.data.Al2O3}",
+                $"\tFeO: {data.eva1.data.FeO}",
+                $"\tMnO: {data.eva1.data.MnO}",
+                $"\tMgO: {data.eva1.data.MgO}",
+                $"\tCaO: {data.eva1.data.CaO}",
+                $"\tK2O: {data.eva1.data.K2O}",
+                $"\tP2O3: {data.eva1.data.P2O3}",
+                $"\tother: {data.eva1.data.other}",
                 "},",
                 "eva2 {",
-                "\tSiO2: " + data.eva2.data.SiO2,
-                "\tTiO2: " + data.eva2.data.TiO2,
-                "\tAl2O3: " + data.eva2.data.Al2O3,
-                "\tFeO: " + data.eva2.data.FeO,
-                "\tMnO: " + data.eva2.data.MnO,
-                "\tMgO: " + data.eva2.data.MgO,
-                "\tCaO: " + data.eva2.data.CaO,
-                "\tK2O: " + data.eva2.data.K2O,
-                "\tP2O3: " + data.eva2.data.P2O3,
-                "\tother: " + data.eva2.data.other,
-                "}"
-                , Environment.NewLine);
+                $"\tSiO2: {data.eva2.data.SiO2}",
+                $"\tTiO2: {data.eva2.data.TiO2}",
+                $"\tAl2O3: {data.eva2.data.Al2O3}",
+                $"\tFeO: {data.eva2.data.FeO}",
+                $"\tMnO: {data.eva2.data.MnO}",
+                $"\tMgO: {data.eva2.data.MgO}",
+                $"\tCaO: {data.eva2.data.CaO}",
+                $"\tK2O: {data.eva2.data.K2O}",
+                $"\tP2O3: {data.eva2.data.P2O3}",
+                $"\tother: {data.eva2.data.other}",
+                "}");
         }
     }
 }
