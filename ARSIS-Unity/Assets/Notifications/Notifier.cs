@@ -10,6 +10,7 @@ public class Notifier : MonoBehaviour
     public GameObject notificationText;
     public GameObject timeStamp;
     public Image colorBand;
+    public GameObject NotificationObj;
     void Start()
     {
         if(instance != null)
@@ -65,5 +66,10 @@ public class Notifier : MonoBehaviour
     public void NotifyBlack(string message)
     {
 
+    }
+
+    public void DestroyGameObject()
+    {
+        Destroy(NotificationObj);
     }
 }
