@@ -23,10 +23,10 @@ public class SummaryTimeline : MonoBehaviour, IRenderable
     void IRenderable.Render(List<BaseArsisEvent> data)
     {
         changed = true;
-        BaseArsisEvent e = data.FirstOrDefault();
+        BaseArsisEvent e = data.LastOrDefault();
         if (e is EVA newTime)
         {
-            time = newTime;
+            time = (EVA)e;
             return;
         }
         if (e is Procedure)
@@ -65,6 +65,6 @@ public class SummaryTimeline : MonoBehaviour, IRenderable
         if (!changed) return;
         float newPos = Mathf.Clamp((time.data.total_time / cutoffInSeconds) * timerHeight, -250, 0);
         handle.anchoredPosition = new Vector2(handle.anchoredPosition.x, newPos);
-        changed = true;
+        changed = false;
     }
 }
