@@ -8,24 +8,25 @@ namespace ARSIS.EventManager
     [System.Serializable]
     public class NotificationsData
     {
-        public ImuEva eva1 { get; set; }
-        public ImuEva eva2 { get; set; }
+        public string content ;
+        public int severity;
+        public int time;
     }
 
     [System.Serializable]
     public class NotificationsRoot
     {
-        public ImuData imu { get; set; }
+        public NotificationsData notification;
     }
 
     [System.Serializable]
     public class Notifications : BaseArsisEvent
     {
-        public ImuRoot data { get; set; }
+        public NotificationsData data { get; set; }
 
         public override string ToString()
         {
-            return "IMU event";
+            return "Notification event";
         }
     }
 }
