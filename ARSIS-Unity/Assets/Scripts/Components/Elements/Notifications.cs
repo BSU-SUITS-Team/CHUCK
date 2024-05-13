@@ -30,13 +30,13 @@ public class Notifications : MonoBehaviour, IRenderable
         int eva = eventManager.Eva;
         evaText.text = "EVA" + eva;
         if (!changed || timer == null) return;
-        string timerText = "In Progress";
+        string timerText = timer.data.started ? "In Progress" : "Not Started";
         if (timer.data.paused) timerText = "Paused";
         if (timer.data.completed) timerText = "Completed";
         float h = Mathf.Floor(timer.data.total_time / 3600);
         float m = Mathf.Floor(timer.data.total_time % 3600 / 60);
         float s = Mathf.Floor(timer.data.total_time % 3600 % 60);
-        missionTimer.text = timerText + $"\n{h}:{m}:{s}";
+        missionTimer.text = string.Format("{3}\n{0:00}:{1:00}:{2:00}", h, m, s, timerText);
         changed = false;
     }
 

@@ -14,13 +14,17 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1922220768106560367, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_text
-      value: 'In Progress
+      value: 'Not Started
 
         00:00:00'
       objectReference: {fileID: 0}
     - target: {fileID: 1922220768106560367, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
+      propertyPath: m_enableWordWrapping
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1922220768106560367, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_HorizontalAlignment
-      value: 16
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 2142167140070017856, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_IsActive
