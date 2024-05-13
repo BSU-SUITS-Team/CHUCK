@@ -27,7 +27,7 @@
 	};
 
 	let stagedProcedures = [testprocedure];
-	$: filteredNewProcedures = stagedProcedures.filter((element) => !filteredItems.includes(element.name));
+	$: filteredNewProcedures = stagedProcedures.filter((element) => !procedureNames.includes(element.name));
 
 	function createNewProcedure(procedure: Object) {
 		const endpoint = 'http://localhost:8181/procedures/';
@@ -68,7 +68,7 @@
 					<TableBodyCell>{$datastore['procedure'][prcedure]['duration']}</TableBodyCell>
 				</TableBodyRow>
 			{/each}
-			{#each filteredNewProcedures as proc, i}
+			{#each filteredNewProcedures as proc}
 				<TableBodyRow color="custom" style="background-color: rgb(235, 235, 235);">
 					<TableBodyCell>{proc.name}</TableBodyCell>
 					<TableBodyCell>Staged</TableBodyCell>
