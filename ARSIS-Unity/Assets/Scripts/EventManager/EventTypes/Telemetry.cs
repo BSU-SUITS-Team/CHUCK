@@ -40,15 +40,9 @@ namespace ARSIS.EventManager
 	}
 
 	[System.Serializable]
-	public class TelemetryRoot
-	{
-		public TelemetryData telemetry { get; set; }
-	}
-
-	[System.Serializable]
     public class Telemetry : BaseArsisEvent
     {
-		public TelemetryRoot data { get; set; }
+		public TelemetryData data { get; set; }
 
         public override string ToString()
         {
