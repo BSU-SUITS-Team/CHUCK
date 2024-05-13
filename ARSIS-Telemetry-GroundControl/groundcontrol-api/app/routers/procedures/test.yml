@@ -1,0 +1,23 @@
+name: Mock Procedure
+description: "This is a 100% fake procedure that only exists to make sure we can get data through the system"
+category: Test Procedures
+duration: 15 minuites
+tasks:
+  - name: Name of Task
+    description: Summary of what the task is meant to do
+    steps:
+      - type: image
+        body: ./test.png
+        nextTask: []
+      - type: text
+        body: |
+          this is a text step in a procedure
+        nextTask:
+          - procedure: otherprocedure
+            task: 2
+  - name: Other Task
+    description: This is another test task
+    steps:
+      - type: text
+        body: another step
+        nextTask: []

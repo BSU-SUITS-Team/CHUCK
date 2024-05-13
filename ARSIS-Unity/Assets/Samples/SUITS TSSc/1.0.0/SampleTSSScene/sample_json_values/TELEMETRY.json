@@ -1,0 +1,54 @@
+
+{
+	"telemetry": {
+		"eva_time": 123123,
+		"eva1": {
+			"battery_time_left": 0.0,
+			"primary_oxygen_storage": 0.0,
+			"secondary_oxygen_storage": 0.0,
+			"primary_oxygen_pressure": 0.0,
+			"secondary_oxygen_pressure": 0.0,
+			"oxygen_time_left": 0,
+			"heart_rate": 90.0,
+			"oxygen_consumption": 0.0,
+			"co2_production": 0.0,
+			"suit_oxygen_pressure": 0.0,
+			"suit_cO2_pressure": 0.0,
+			"suit_other_pressure": 0.0,
+			"suit_total_pressure": 0.0,
+			"primary_fan_rpm": 0.0,
+			"secondary_fan_rpm": 0.0,
+			"helmet_co2_pressure": 0.0,
+			"scrubber_a_co2_capacity": 0.0,
+			"scrubber_b_co2_capacity": 0.0,
+			"temperature": 70.0,
+			"coolant_ml": 0.0,
+			"h2o_gas_pressure": 0.0,
+			"h2o_liquid_pressure": 0.0
+		},
+		"eva2": {
+			"battery_time_left": 0.0,
+			"primary_oxygen_storage": 0.0,
+			"secondary_oxygen_storage": 0.0,
+			"primary_oxygen_pressure": 0.0,
+			"secondary_oxygen_pressure": 0.0,
+			"oxygen_time_left": 0,
+			"heart_rate": 90.0,
+			"oxygen_consumption": 0.0,
+			"co2_production": 0.0,
+			"suit_oxygen_pressure": 0.0,
+			"suit_cO2_pressure": 0.0,
+			"suit_other_pressure": 0.0,
+			"suit_total_pressure": 0.0,
+			"primary_fan_rpm": 0.0,
+			"secondary_fan_rpm": 0.0,
+			"helmet_co2_pressure": 0.0,
+			"scrubber_a_co2_capacity": 0.0,
+			"scrubber_b_co2_capacity": 0.0,
+			"temperature": 70.0,
+			"coolant_ml": 0.0,
+			"h2o_gas_pressure": 0.0,
+			"h2o_liquid_pressure": 0.0
+		}
+	}
+}

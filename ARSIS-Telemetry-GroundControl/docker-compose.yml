@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  groundcontrol-api:
+    command: sh -c "sleep 3; uvicorn app.main:app --host 0.0.0.0 --port 8181"
+    build: ./groundcontrol-api
+    depends_on:
+      - groundcontrol-db
+    ports:
+      - 8181:8181
+    environment:
+      - TSS_ENDPOINT=http://tss:14141
+  lmcc:
+    build: ./LMCC
+    ports:
+      - 3000:3000
+  groundcontrol-db:
+    build: ./groundcontrol-db # use latest official postgres version
+    env_file:
+      - ./groundcontrol-db/database.env # configure postgres
+    ports:
+      - "5432:5432"
+  tss:
+    build: ./TSSExtras
+    ports:
+      - 14141:14141
+    command: sh -c "./server.exe > /dev/null"
