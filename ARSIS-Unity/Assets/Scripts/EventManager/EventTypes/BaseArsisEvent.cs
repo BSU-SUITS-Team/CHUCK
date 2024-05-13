@@ -21,6 +21,7 @@ namespace ARSIS.EventManager
             { "uia", typeof(UIA ) },
             { "rover", typeof(Rover) },
             { "procedure", typeof(Procedure) },
+            { "spec", typeof(Spectrometry) },
         };
 
         public string type;
