@@ -136,11 +136,7 @@ PlayerSettings:
   vulkanEnableCommandBufferRecycling: 1
   loadStoreDebugModeEnabled: 0
   bundleVersion: 0.1
-  preloadedAssets:
-  - {fileID: 11400000, guid: c677e5c4eb85b7849a8da406775c299d, type: 2}
-  - {fileID: -7479196934845487387, guid: e5970d63abf808a47a276ab009926e9e, type: 2}
-  - {fileID: 11400000, guid: 0d763875b8a4dc44db0566cdb9b258c4, type: 2}
-  - {fileID: 5928721039695732153, guid: 362aaf4d94336f148a46194625799e20, type: 2}
+  preloadedAssets: []
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -805,8 +801,8 @@ PlayerSettings:
       LowLevelDevices: True
       InternetClientServer: True
       OfflineMapsManagement: True
+      BackgroundMediaPlayback: True
       Objects3D: True
-      Proximity: True
       RemoteSystem: True
       BlockedChatMessages: True
       PhoneCall: True
@@ -828,9 +824,9 @@ PlayerSettings:
       PointOfService: True
       RecordedCallsFolder: True
       Contacts: True
+      Proximity: True
       InternetClient: True
       CodeGeneration: True
-      BackgroundMediaPlayback: True
       EnterpriseAuthentication: True
   metroTargetDeviceFamilies:
     Desktop: False
