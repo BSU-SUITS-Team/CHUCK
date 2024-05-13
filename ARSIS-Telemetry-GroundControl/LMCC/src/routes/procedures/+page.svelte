@@ -17,6 +17,28 @@
 	$: filteredItems = procedureNames.filter(
 		(item) => item.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1
 	);
+
+	let testprocedure = {
+		name: 'This is a test procedure',
+		description: 'Somthing',
+		category: 'Test',
+		duration: '10 mins',
+		tasks: [{ name: 'This is a test', description: null, steps: [] }]
+	};
+
+	let stagedProcedures = [testprocedure];
+	$: filteredNewProcedures = stagedProcedures.filter((element) => !filteredItems.includes(element.name));
+
+	function createNewProcedure(procedure: Object) {
+		const endpoint = 'http://localhost:8181/procedures/';
+		fetch(endpoint, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(procedure)
+		}).catch((error) => console.log(error));
+	}
 </script>
 
 <div class="w-auto h-fit m-4 mr-24">
@@ -44,6 +66,25 @@
 					>
 					<TableBodyCell>{$datastore['procedure'][prcedure]['category']}</TableBodyCell>
 					<TableBodyCell>{$datastore['procedure'][prcedure]['duration']}</TableBodyCell>
+				</TableBodyRow>
+			{/each}
+			{#each filteredNewProcedures as proc, i}
+				<TableBodyRow color="custom" style="background-color: rgb(235, 235, 235);">
+					<TableBodyCell>{proc.name}</TableBodyCell>
+					<TableBodyCell>Staged</TableBodyCell>
+					<TableBodyCell>
+						<div class="flex justify-between w-full items-center m-0">
+							<p>{proc.duration}</p>
+							<Button
+								color="dark"
+								on:click={() => {
+									createNewProcedure(proc);
+								}}
+							>
+								Send Procedure
+							</Button>
+						</div>
+					</TableBodyCell>
 				</TableBodyRow>
 			{/each}
 		</TableBody>
