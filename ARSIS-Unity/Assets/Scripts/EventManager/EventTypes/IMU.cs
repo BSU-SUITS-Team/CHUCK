@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -34,19 +35,25 @@ namespace ARSIS.EventManager
     }
 
     [System.Serializable]
-    public class ImuRoot
-    {
-        public ImuData imu { get; set; }
-    }
-
-    [System.Serializable]
     public class IMU : BaseArsisEvent
     {
-        public ImuRoot data { get; set; }
+        public ImuData data { get; set; }
 
         public override string ToString()
         {
-            return "IMU event";
+            return string.Join(
+                Environment.NewLine,
+                "eva1: {",
+                $"\tposx: {this.data.eva1.posx}",
+                $"\tposy: {this.data.eva1.posy}",
+                $"\theading: {this.data.eva1.heading}",
+                "},",
+                "eva2: {",
+                $"\tposx: {this.data.eva2.posx}",
+                $"\tposy: {this.data.eva2.posy}",
+                $"\theading: {this.data.eva2.heading}",
+                "}"
+            );
         }
     }
 }

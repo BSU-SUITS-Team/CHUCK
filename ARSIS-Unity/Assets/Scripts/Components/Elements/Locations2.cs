@@ -9,6 +9,7 @@ public class Locations2 : MonoBehaviour, IRenderable
 
     [SerializeField] GameObject locationDisplay;
     private const string key = "imu";
+    private const string key1 = "rover";
     private List<BaseArsisEvent> locations = new List<BaseArsisEvent>();
     private bool changed = true;
 
@@ -21,13 +22,15 @@ public class Locations2 : MonoBehaviour, IRenderable
     void Start()
     {
         EventDatastore eventDatastore = EventDatastore.Instance;
-        eventDatastore.AddHandler(key, this);
+        eventDatastore.AddHandler(key, this); //imu 
+        eventDatastore.AddHandler(key1, this); //rover
     }
 
     void OnDestroy()
     {
         EventDatastore eventDatastore = EventDatastore.Instance;
-        eventDatastore.RemoveHandler(key, this);
+        eventDatastore.RemoveHandler(key, this);//imu
+        eventDatastore.RemoveHandler(key1, this);//rover
     }
 
     void Update()
@@ -47,7 +50,8 @@ public class Locations2 : MonoBehaviour, IRenderable
         // }
         // scrollArea.SetEntries(entries);
         changed = false;
-        Debug.Log(((IMU)locations[locations.Count -1]).data.imu);
+        Debug.Log(((IMU)locations[locations.Count -1]));
+        //Debug.Log(((IMU)locations[locations.Count -1]).data.imu);
         
     }
 
