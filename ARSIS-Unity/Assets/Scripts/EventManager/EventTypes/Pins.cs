@@ -48,16 +48,20 @@ namespace ARSIS.EventManager
         public override string ToString()
         {
             
-            return "Pins event"; 
-           // return string.Join(
-                //Environment.NewLine,
-                //"properties: ",
-                //$"\tname: {this.data.pinsProperties}"
+           // return "Pins event"; 
+           return string.Join(
+                Environment.NewLine,
+                "properties: ",
+                //$"\tname: {this.data.pinsProperties.name}",
+                //$"\tname: {this.data.pinsProperties.id}",
+                $"\tname: {this.data.pinsProperties.x}",
+                $"\tname: {this.data.pinsProperties.y}"
+                //$"\tname: {this.data.coordinates}"
                 //$"\tname: {this.data.coordinates}"
                 // $"\tid: {this.data.id}",
                 // $"\tx: {this.data.x}",
                 // $"\ty: + {this.data.y}",
-            //);
+            );
         }
     }
 }

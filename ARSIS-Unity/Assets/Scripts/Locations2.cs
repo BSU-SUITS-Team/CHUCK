@@ -4,6 +4,9 @@ using ARSIS.EventManager;
 using Unity.VisualScripting;
 using UnityEngine;
 using System.Linq;
+using System;
+using System.Numerics;
+using Unity; 
 
 public class Locations2 : MonoBehaviour, IRenderable
 {
@@ -58,28 +61,16 @@ public class Locations2 : MonoBehaviour, IRenderable
     void Update()
     {
         if (!changed || locations.Count == 0) return;
-        // List<GameObject> entries = new();
-        // foreach (BaseArsisEvent baseArsisEvent in locations)
-        // {
-        //     if (baseArsisEvent is Location location)
-        //     {
-        //         Button button = entry.GetComponent<Button>();
-        //         button.SetText(location.data.name);
-        //         PressableButton pressableButton = button.GetPressableButton();
-        //         pressableButton.OnClicked.AddListener(() => CreateLocationDisplay(location));
-        //         entries.Add(entry);
-        //     }
-        // }
-        // scrollArea.SetEntries(entries);
+        
         changed = false;
         Debug.Log((IMU)locations[locations.Count -1]);
         Debug.Log((Rover)roverData[roverData.Count -1]);
         //Debug.Log((Pins)pinsData[pinsData.Count -1]);
         Debug.Log((Pins)pinsData.LastOrDefault());
-
-        //Debug.Log(((IMU)locations[locations.Count -1]).data.imu);
         
+        //System.Numerics.Vector2 originalPoint = CoordinatesUtility.GetCoordinateVector(locations.Last());
+        //UnityEngine.Vector3 virtualPoint = CoordinatesUtility.TranslateToVirtual(originalPoint);
+    // Do stuff with virtual point
+
     }
-
-
 }
