@@ -47,17 +47,17 @@ namespace ARSIS.EventManager
 
         public override string ToString()
         {
-            //return "Pins event"; 
-            return string.Join(
-                Environment.NewLine,
-                "properties: ",
-                $"\tname: {this.data.name}",
-                $"\tid: {this.data.id}",
-                $"\tx: {this.data.x}",
-                $"\ty: + {this.data.y}",
-                $"\tcoordinates: + {this.data.coordinates}",
-
-            );
+            
+            return "Pins event"; 
+           // return string.Join(
+                //Environment.NewLine,
+                //"properties: ",
+                //$"\tname: {this.data.pinsProperties}"
+                //$"\tname: {this.data.coordinates}"
+                // $"\tid: {this.data.id}",
+                // $"\tx: {this.data.x}",
+                // $"\ty: + {this.data.y}",
+            //);
         }
     }
 }

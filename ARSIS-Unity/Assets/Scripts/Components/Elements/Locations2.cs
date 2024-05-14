@@ -72,9 +72,11 @@ public class Locations2 : MonoBehaviour, IRenderable
         // }
         // scrollArea.SetEntries(entries);
         changed = false;
-        Debug.Log(((IMU)locations[locations.Count -1]));
-        Debug.Log(((Rover)roverData[roverData.Count -1]));
-        Debug.Log(((Pins)pinsData[pinsData.Count -1]));
+        Debug.Log((IMU)locations[locations.Count -1]);
+        Debug.Log((Rover)roverData[roverData.Count -1]);
+        //Debug.Log((Pins)pinsData[pinsData.Count -1]);
+        Debug.Log((Pins)pinsData.LastOrDefault());
+
         //Debug.Log(((IMU)locations[locations.Count -1]).data.imu);
         
     }
