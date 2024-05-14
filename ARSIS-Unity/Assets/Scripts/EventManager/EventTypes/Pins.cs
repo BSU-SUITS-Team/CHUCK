@@ -18,7 +18,7 @@ namespace ARSIS.EventManager
     public class PinsData
     {
         public string type { get; set; }
-        public PinsProperties pinsProperties { get; set; }
+        public PinsProperties properties { get; set; }
         public List<double> coordinates { get; set; }
     }
 
@@ -54,13 +54,12 @@ namespace ARSIS.EventManager
                 "properties: ",
                 //$"\tname: {this.data.pinsProperties.name}",
                 //$"\tname: {this.data.pinsProperties.id}",
-                $"\tname: {this.data.pinsProperties.x}",
-                $"\tname: {this.data.pinsProperties.y}"
+                $"\tname: {data.properties.name}", //UTM
+                $"\tx: {data.properties.x}",// UTM
+                $"\ty: {data.properties.y}" //UTM
                 //$"\tname: {this.data.coordinates}"
                 //$"\tname: {this.data.coordinates}"
                 // $"\tid: {this.data.id}",
-                // $"\tx: {this.data.x}",
-                // $"\ty: + {this.data.y}",
             );
         }
     }

@@ -15,6 +15,7 @@ public class CoordinatesUtility
     public int GetCoordinateVector(int originalPoint) {
         
         return originalPoint;  
+        //need to know what type the coordinate is 
     }
 
     public UnityEngine.Vector3 TranslateToVirtual(System.Numerics.Vector2 originalPoint)
