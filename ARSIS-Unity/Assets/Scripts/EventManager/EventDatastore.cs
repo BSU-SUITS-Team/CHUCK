@@ -40,6 +40,12 @@ namespace ARSIS.EventManager
             }
         }
 
+        public void NotifyAll()
+        {
+            foreach (string key in datastore.Keys)
+                NotifyHandlers(key);
+        }
+
         private void InitializeOrReturn(string key, out List<BaseArsisEvent> list)
         {
             if (!datastore.TryGetValue(key, out list))

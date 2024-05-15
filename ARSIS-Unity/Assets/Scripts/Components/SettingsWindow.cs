@@ -28,6 +28,7 @@ public class SettingsWindow : MonoBehaviour
     {
         EventManager instance = EventManager.Instance;
         instance.Eva = eva;
+        EventDatastore.Instance.NotifyAll();
     }
 
     public void SetEndpoint()
