@@ -1390,7 +1390,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   image: {fileID: 7106214694060995529}
-  map: {fileID: 2804794305841761538}
-  imageObj: {fileID: 8097804605351132488}
-  mapTrans: {fileID: 2539785728386764720}
+  map: {fileID: 2539785728386764720}
   pinPrefab: {fileID: 1813182546661375242, guid: 031036915327bd54bac1aca669a98938, type: 3}
