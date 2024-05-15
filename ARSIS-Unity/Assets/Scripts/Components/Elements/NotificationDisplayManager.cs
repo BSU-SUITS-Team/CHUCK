@@ -31,7 +31,10 @@ public class NotificationDisplayManager : MonoBehaviour, IRenderable
         {
             if (baseArsisEvent is ARSIS.EventManager.Notifications notification)
             {
+
                 Debug.Log(notification.data.content);
+
+
             }
         }
     }
