@@ -15,7 +15,7 @@ public class Locations2 : MonoBehaviour, IRenderable
     private const string key = "imu";
     private const string key1 = "rover";
     private const string key2 = "pins";
-    private List<BaseArsisEvent> locations = new List<BaseArsisEvent>();
+    private List<BaseArsisEvent> locations = new List<BaseArsisEvent>(); //EVs
     private List<BaseArsisEvent> roverData = new List<BaseArsisEvent>();
     private List<BaseArsisEvent> pinsData = new List<BaseArsisEvent>();
     private bool changed = true;
@@ -60,17 +60,42 @@ public class Locations2 : MonoBehaviour, IRenderable
 
     void Update()
     {
-        if (!changed || locations.Count == 0) return;
+        if (!changed || locations.Count == 0) return; 
+        changed = false; 
+
+        IMU lastIMUData = (IMU)locations.LastOrDefault(); 
+        if (lastIMUData != null) 
+        {
+            float eva1PosX = lastIMUData.data.eva1.posx; 
+            float eva2PosX = lastIMUData.data.eva2.posx; 
+
+            Debug.Log("Ev1 PosX: " + eva1PosX);
+            Debug.Log("Ev2 PosX: " + eva2PosX);
+        }
+
         
-        changed = false;
-        Debug.Log((IMU)locations[locations.Count -1]);
-        Debug.Log((Rover)roverData[roverData.Count -1]);
-        //Debug.Log((Pins)pinsData[pinsData.Count -1]);
-        Debug.Log((Pins)pinsData.LastOrDefault());
+        // if (!changed || locations.Count == 0) return;
+
+        // changed = false;
+        // Debug.Log((IMU)locations[locations.Count -1]);
+        // Debug.Log((Rover)roverData[roverData.Count -1]);
+        // //Debug.Log((Pins)pinsData[pinsData.Count -1]);
+        // Debug.Log((Pins)pinsData.LastOrDefault());
+
+        // print(locations.LastOrDefault());
+
+        // float originalPointEVX = locations.posx().LastOrDefault();
         
-        //System.Numerics.Vector2 originalPoint = CoordinatesUtility.GetCoordinateVector(locations.Last());
+       //Vector2 originalPointEV = locations.LastOrDefault(); //Get EV's location
+
+       //Vector3 virtualPoint = CoordinatesUtility.TranslateToVirtual(originalPointEV); //Use TranslateToVirtual
+       //method to convert UTM coordinate of EV1
+       //to Unity coordinate
+
+
         //UnityEngine.Vector3 virtualPoint = CoordinatesUtility.TranslateToVirtual(originalPoint);
     // Do stuff with virtual point
 
     }
+
 }

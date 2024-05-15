@@ -12,16 +12,16 @@ public class CoordinatesUtility
 {
     public UnityEngine.Vector3 translatedPoint { get; private set; }
 
-    public int GetCoordinateVector(int originalPoint) {
+    // public int GetCoordinateVector(int originalPoint) {
         
-        return originalPoint;  
-        //need to know what type the coordinate is 
-    }
+    //     return originalPoint;  
+    //     //need to know what type the coordinate is 
+    // }
 
-    public UnityEngine.Vector3 TranslateToVirtual(System.Numerics.Vector2 originalPoint)
+    public UnityEngine.Vector3 TranslateToVirtual(System.Numerics.Vector2 originalPoint)//Converting UTM coordinates to Unity coordinates
     {
         //get most recent coordinate of ev1
-        //convert coordinate
+        
         // Do translation stuff here
         return translatedPoint; 
     }
