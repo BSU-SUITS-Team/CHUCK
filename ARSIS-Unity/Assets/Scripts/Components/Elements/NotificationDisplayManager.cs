@@ -7,6 +7,7 @@ using UnityEngine.InputSystem;
 using System.Linq;
 using MixedReality.Toolkit.UX;
 using UnityEngine.Rendering.VirtualTexturing;
+using TMPro;
 
 public class NotificationDisplayManager : MonoBehaviour, IRenderable
 {
@@ -15,6 +16,9 @@ public class NotificationDisplayManager : MonoBehaviour, IRenderable
     [SerializeField]
     public GameObject MainNotifObj;
     public GameObject mainParentObject;
+   // public TextMeshPro contentTMP;
+    //public TextMeshPro TimeStampTMP;
+
 
     private float cooldownTimer = 0f;
     private float cooldownDuration = 5f; // Cooldown duration in seconds
@@ -54,8 +58,18 @@ public class NotificationDisplayManager : MonoBehaviour, IRenderable
             {
                 Debug.Log(notification.data.content);
 
-                // Instantiate the prefab with mainParentObject as the parent
                 GameObject mainNotifObj = Instantiate(MainNotifObj, mainParentObject.transform);
+
+                TextMeshProUGUI contentTextMeshPro = mainNotifObj.GetComponentInChildren<TextMeshProUGUI>();
+
+                if (contentTextMeshPro != null)
+                {
+                    contentTextMeshPro.text = notification.data.content;
+                }
+                else
+                {
+                    Debug.LogError("TextMeshPro component not found in MainNotifObj prefab.");
+                }
             }
         }
     }
