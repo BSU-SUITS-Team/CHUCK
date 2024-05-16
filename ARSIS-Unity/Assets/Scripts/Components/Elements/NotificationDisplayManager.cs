@@ -16,6 +16,9 @@ public class NotificationDisplayManager : MonoBehaviour, IRenderable
     public GameObject MainNotifObj;
     public GameObject mainParentObject;
 
+    private float cooldownTimer = 0f;
+    private float cooldownDuration = 5f; // Cooldown duration in seconds
+
     public void Render(List<BaseArsisEvent> data)
     {
         this.data = data;
@@ -29,13 +32,29 @@ public class NotificationDisplayManager : MonoBehaviour, IRenderable
 
     void Update()
     {
-        Debug.Log(data);
+        // Update the cooldown timer
+        cooldownTimer += Time.deltaTime;
+
+        // Check if the cooldown duration has passed
+        if (cooldownTimer >= cooldownDuration)
+        {
+            // Reset the cooldown timer
+            cooldownTimer = 0f;
+
+            // Check for new notifications
+            CheckForNotifications();
+        }
+    }
+
+    void CheckForNotifications()
+    {
         foreach (BaseArsisEvent baseArsisEvent in data)
         {
             if (baseArsisEvent is ARSIS.EventManager.Notifications notification)
             {
                 Debug.Log(notification.data.content);
 
+                // Instantiate the prefab with mainParentObject as the parent
                 GameObject mainNotifObj = Instantiate(MainNotifObj, mainParentObject.transform);
             }
         }
