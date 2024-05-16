@@ -14,6 +14,8 @@ public class Navigation : MonoBehaviour, IRenderable
     [SerializeField] RectTransform map;
     [SerializeField] GameObject pinPrefab;
     [SerializeField] Button selectButton;
+    [SerializeField] Button toggleCapture;
+
     private List<BaseArsisEvent> pins = new();
     private bool changed = true;
     private float maxScale = 2f;
@@ -24,6 +26,19 @@ public class Navigation : MonoBehaviour, IRenderable
     private float selectProximity = 240f;
     private Pins selectedPin;
     private bool isPinActive = false;
+
+    private void SetCaptureButton(bool isPathCapture)
+    {
+        string icon = isPathCapture ? "Icon 135" : "Icon 128";
+        string label = isPathCapture ? "Stop Path" : "Record Path";
+        toggleCapture.SetIcon(true, icon, label);
+    }
+
+    public void TogglePathCapture()
+    {
+        TranslationController.S.togglePathCapture();
+        SetCaptureButton(TranslationController.S.IsPathCapture());
+    }
 
     public void ToggleActivePin()
     {
@@ -147,6 +162,7 @@ public class Navigation : MonoBehaviour, IRenderable
 
     void Start()
     {
+        SetCaptureButton(TranslationController.S.IsPathCapture());
         EventDatastore.Instance.AddHandler("pins", this);
     }
 
@@ -158,13 +174,13 @@ public class Navigation : MonoBehaviour, IRenderable
     void Update()
     {
         if (!changed || pins.Count == 0) return;
+        changed = false;
         IEnumerable<Pins> points = pins.Where(e => e is Pins location && location.data.type.Equals("Point")).OfType<Pins>();
         RemovePins();
         foreach (Pins point in points)
         {
             PlacePoint(point);
         }
-        changed = false;
     }
 
     void IRenderable.Render(List<BaseArsisEvent> data)
