@@ -60,15 +60,28 @@ public class NotificationDisplayManager : MonoBehaviour, IRenderable
 
                 GameObject mainNotifObj = Instantiate(MainNotifObj, mainParentObject.transform);
 
-                TextMeshProUGUI contentTextMeshPro = mainNotifObj.GetComponentInChildren<TextMeshProUGUI>();
+                //updating content text below
 
-                if (contentTextMeshPro != null)
+                Transform contentTransform = mainNotifObj.transform.Find("MainNotifBackground/Content");
+
+                if (contentTransform != null)
                 {
-                    contentTextMeshPro.text = notification.data.content;
+                    Debug.Log("Content Transform Found: " + contentTransform.name);
+
+                    TextMeshProUGUI contentTextMeshPro = contentTransform.GetComponent<TextMeshProUGUI>();
+
+                    if (contentTextMeshPro != null)
+                    {
+                        contentTextMeshPro.text = notification.data.content;
+                    }
+                    else
+                    {
+                        Debug.LogError("TextMeshPro component not found in Content object.");
+                    }
                 }
                 else
                 {
-                    Debug.LogError("TextMeshPro component not found in MainNotifObj prefab.");
+                    Debug.LogError("Content TextMeshPro object not found in MainNotifObj prefab.");
                 }
             }
         }
