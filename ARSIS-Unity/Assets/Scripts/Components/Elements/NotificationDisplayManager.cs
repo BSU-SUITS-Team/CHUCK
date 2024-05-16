@@ -18,12 +18,12 @@ public class NotificationDisplayManager : MonoBehaviour, IRenderable
         this.data = data;
         changed = true;
     }
-
     void Start()
     {
         EventDatastore eventDatastore = EventDatastore.Instance;
         eventDatastore.AddHandler("notification", this);
     }
+    
     void Update()
     {
         Debug.Log(data);
@@ -31,10 +31,7 @@ public class NotificationDisplayManager : MonoBehaviour, IRenderable
         {
             if (baseArsisEvent is ARSIS.EventManager.Notifications notification)
             {
-
                 Debug.Log(notification.data.content);
-
-
             }
         }
     }

@@ -1821,7 +1821,7 @@ GameObject:
   - component: {fileID: 1227130315}
   - component: {fileID: 1227130316}
   m_Layer: 0
-  m_Name: testObj
+  m_Name: notificationManagementObj
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
