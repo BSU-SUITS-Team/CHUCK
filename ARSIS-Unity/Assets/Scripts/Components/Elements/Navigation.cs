@@ -6,12 +6,14 @@ using UnityEngine.XR.Interaction.Toolkit;
 using System.Linq;
 using MixedReality.Toolkit.UX.Experimental;
 using ARSIS.EventManager;
+using ARSIS.UI;
 
 public class Navigation : MonoBehaviour, IRenderable
 {
     [SerializeField] RectTransform image;
     [SerializeField] RectTransform map;
     [SerializeField] GameObject pinPrefab;
+    [SerializeField] Button selectButton;
     private List<BaseArsisEvent> pins = new();
     private bool changed = true;
     private float maxScale = 2f;
@@ -19,6 +21,30 @@ public class Navigation : MonoBehaviour, IRenderable
     private float pinWidth = 60f;
     private float pinHeight = 120f;
     private float pinScale = 2f;
+    private float selectProximity = 240f;
+    private Pins selectedPin;
+    private bool isPinActive = false;
+
+    public void ToggleActivePin()
+    {
+        isPinActive = !isPinActive;
+        selectButton.SetIcon(isPinActive ? "Icon 16" : "Icon 14");
+        selectButton.SetText((isPinActive ? "Hide " : "Show ") + selectedPin.data.properties.name);
+    }
+
+    private void SetSelectedPin(Pins pin)
+    {
+        selectedPin = pin;
+        if (selectedPin == null)
+        {
+            selectButton.SetIcon("Icon 80");
+            selectButton.SetText("No Pin Selected");
+            return;
+        }
+        isPinActive = false;
+        selectButton.SetIcon("Icon 14");
+        selectButton.SetText("Show " + selectedPin.data.properties.name);
+    }
 
     public void adjustScale(float adjust)
     {
@@ -28,17 +54,18 @@ public class Navigation : MonoBehaviour, IRenderable
         image.localScale = new Vector3(newScale, newScale, 0);
     }
 
-    private void CreatePin(Vector2 anchored)
+    private GameObject CreatePin(Vector2 anchored)
     {
         GameObject pin = Instantiate(pinPrefab);
         pin.transform.SetParent(image, false);
-        pin.transform.localScale = Vector3.one * pinScale;
+        pin.transform.localScale = Vector3.zero * pinScale;
         pin.transform.SetParent(map, true);
         RectTransform pinTrans = pin.GetComponent<RectTransform>();
         pinTrans.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, 0, pinWidth);
         pinTrans.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, 0, pinHeight);
         pinTrans.anchoredPosition = anchored;
         pin.transform.SetParent(image, true);
+        return pin;
     }
 
     private void PlacePoint(Pins point)
@@ -72,6 +99,31 @@ public class Navigation : MonoBehaviour, IRenderable
         return new Vector2(widthFactor * map.sizeDelta.x, heightFactor * -map.sizeDelta.y);
     }
 
+    public void SelectPin(Vector2 point, float proximity)
+    {
+        GameObject pin = CreatePin(point);
+        RectTransform cursor = pin.GetComponent<RectTransform>();
+        Pins closest = null;
+        float closestProximity = Mathf.Infinity;
+        IEnumerable<Pins> points = pins.Where(e => e is Pins location && location.data.type.Equals("Point")).OfType<Pins>();
+        foreach (Pins p in points)
+        {
+            Vector2 a = new Vector2(p.data.properties.x, -p.data.properties.y);
+            float distance = Vector2.Distance(a, cursor.anchoredPosition);
+            if (distance <= proximity)
+            {
+                if (closest == null || distance <= closestProximity)
+                {
+                    closest = p;
+                    closestProximity = distance;
+                }
+            }
+        }
+        SetSelectedPin(closest);
+        Destroy(pin);
+        Debug.Log($"selectedPin: {selectedPin}");
+    }
+
     public void HandleSelect(SelectExitEventArgs e)
     {
         IXRSelectInteractor interactor = e.interactorObject;
@@ -82,7 +134,9 @@ public class Navigation : MonoBehaviour, IRenderable
         if (hit.transform.gameObject != map.gameObject) return;
         Debug.Log($"hit: {hit.point}");
         Vector2 anchored = CalculateAnchor(hit.point);
-        CreatePin(anchored);
+        Debug.Log($"anchored: {anchored}");
+        //CreatePin(anchored);
+        SelectPin(anchored, selectProximity);
     }
 
     void RemovePins()

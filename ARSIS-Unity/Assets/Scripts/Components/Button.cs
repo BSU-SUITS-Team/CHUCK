@@ -22,6 +22,11 @@ namespace ARSIS.UI
             return pressableButton;
         }
 
+        public void SetIcon(string icon)
+        {
+            iconName.CurrentIconName = icon;
+        }
+
         public void SetIcon(bool enabled, string icon, string label)
         {
             iconObject.SetActive(enabled);
