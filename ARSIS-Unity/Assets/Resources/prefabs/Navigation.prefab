@@ -607,8 +607,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7106214694060995529}
-  - component: {fileID: 4341183934181014440}
   - component: {fileID: 7218424500347401565}
+  - component: {fileID: 2495803857247115997}
   - component: {fileID: 2950832386266062697}
   m_Layer: 6
   m_Name: Image
@@ -626,7 +626,7 @@ RectTransform:
   m_GameObject: {fileID: 8097804605351132488}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.15, y: 0.15, z: 1}
+  m_LocalScale: {x: 0.08, y: 0.08, z: 0.5333333}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2539785728386764720}
@@ -634,9 +634,17 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 2048, y: 2048}
+  m_SizeDelta: {x: 3720, y: 3543}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &4341183934181014440
+--- !u!222 &7218424500347401565
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8097804605351132488}
+  m_CullTransparentMesh: 1
+--- !u!114 &2495803857247115997
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -663,14 +671,6 @@ MonoBehaviour:
     y: 0
     width: 1
     height: 1
---- !u!222 &7218424500347401565
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8097804605351132488}
-  m_CullTransparentMesh: 1
 --- !u!114 &2950832386266062697
 MonoBehaviour:
   m_ObjectHideFlags: 0

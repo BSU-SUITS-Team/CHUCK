@@ -7,6 +7,11 @@
 	import { Button, Input } from 'flowbite-svelte';
 	import { XCircleOutline } from 'flowbite-svelte-icons';
 
+	let img;
+	let clientHeight;
+	let clientWidth;
+	let naturalHeight;
+	let naturalWidth;
 	let scale = 1;
 	let offsetX = 0;
 	let pinProximity = 15;
@@ -80,8 +85,6 @@
 		const data = {
 			x,
 			y,
-			lat: 0,
-			lon: 0,
 			properties: id == null ? { name } : { id: id, name }
 		};
 
@@ -110,6 +113,8 @@
 	}
 
 	function handleMouseDown(event) {
+		clientHeight = event.currentTarget.clientHeight ?? clientHeight;
+		clientWidth = event.currentTarget.clientWidth ?? clientWidth;
 		const x = event.clientX - event.currentTarget.offsetLeft;
 		const y = event.clientY - event.currentTarget.offsetTop;
 		const correctedX = (x - offsetX) / scale;
@@ -117,7 +122,9 @@
 
 		if (isPlacingPin) {
 			pins = [...pins, { type: isPlacingPin, x: correctedX, y: correctedY }];
-			addPin(correctedX, correctedY);
+			const imgX = correctedX / img.clientWidth * naturalWidth;
+			const imgY = correctedY / img.clientHeight * naturalHeight;
+			addPin(imgX, imgY);
 			isPlacingPin = false;
 			buttons = buttons.map(() => true);
 			return;
@@ -191,7 +198,7 @@
 		<div
 			class="absolute z-10"
 			style="
-	transform: translate3d({pin.x * scale + offsetX}px, {pin.y * scale + offsetY}px, 0);
+	transform: translate3d({(pin.x / naturalWidth) * (img.clientWidth * scale) + offsetX}px, {(pin.y / naturalHeight) * (img.clientHeight * scale) + offsetY}px, 0);
 	transform-origin: 0 0;
   "
 		>
@@ -228,11 +235,16 @@
 	</div>
 	<img
 		src={image}
+		bind:naturalHeight
+		bind:naturalWidth
+		bind:this={img}
 		alt="a giant spaceship"
 		style="
 		transform: translate3d({offsetX}px, {offsetY}px, 0) scale({scale});
 		transform-origin: 0 0;
 		position: relative;
+		max-width: 100%;
+		max-height: 100%;
 		"
 		class="top-0 left-0"
 	/>
