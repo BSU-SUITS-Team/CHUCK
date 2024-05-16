@@ -6,7 +6,11 @@ using UnityEngine;
 using System.Linq;
 using System;
 using System.Numerics;
-using Unity; 
+using Unity;
+using MixedReality.Toolkit.Input;
+using JetBrains.Annotations;
+
+
 
 public class Locations2 : MonoBehaviour, IRenderable
 {
@@ -19,6 +23,9 @@ public class Locations2 : MonoBehaviour, IRenderable
     private List<BaseArsisEvent> roverData = new List<BaseArsisEvent>();
     private List<BaseArsisEvent> pinsData = new List<BaseArsisEvent>();
     private bool changed = true;
+    private static float eva1PosX;
+    private static float eva1PosY; 
+
 
     public void Render(List<BaseArsisEvent> data)
     {
@@ -67,13 +74,45 @@ public class Locations2 : MonoBehaviour, IRenderable
         if (lastIMUData != null) 
         {
             float eva1PosX = lastIMUData.data.eva1.posx; 
-            float eva2PosX = lastIMUData.data.eva2.posx; 
+            float eva1PosY = lastIMUData.data.eva1.posy; 
+
+            float eva2PosX = lastIMUData.data.eva2.posx;
+            float eva2PosY = lastIMUData.data.eva2.posy;
 
             Debug.Log("Ev1 PosX: " + eva1PosX);
+            Debug.Log("Ev1 PosY: " + eva1PosY);
+
             Debug.Log("Ev2 PosX: " + eva2PosX);
+            Debug.Log("Ev2 PosY: " + eva2PosY);
+
+            UnityEngine.Vector2 ev1PosUTM = new UnityEngine.Vector2(eva1PosX, eva1PosY);
+
+            UnityEngine.Vector3 ev1PosUnity = CoordinatesUtility.TranslateToVirtual(ev1PosUTM);
+
+            Debug.Log("EV1PosUnity: " + ev1PosUnity);
+
         }
 
-        
+        Rover lastRoverData = (Rover)roverData.LastOrDefault();
+        if (lastRoverData != null)
+        {
+            //float roverPosX = lastRoverData.data.rover.posx; 
+            //float roverPosY = lastRoverData.data.rover.posy; 
+
+            //Debug.Log("Rover PosX: " + roverPosX);
+            //Debug.Log("Rover PosY: " + roverPosY);
+        }
+
+        Pins lastPinsData = (Pins)pinsData.LastOrDefault();
+        if (lastPinsData != null)
+        {
+            int pinPosX = lastPinsData.data.properties.x;
+            int pinPosY = lastPinsData.data.properties.y;
+
+            Debug.Log("Pin PosX: " + pinPosX);
+            Debug.Log("Pin PosY: " + pinPosY);
+        }
+
         // if (!changed || locations.Count == 0) return;
 
         // changed = false;
@@ -97,5 +136,7 @@ public class Locations2 : MonoBehaviour, IRenderable
     // Do stuff with virtual point
 
     }
+
+
 
 }
