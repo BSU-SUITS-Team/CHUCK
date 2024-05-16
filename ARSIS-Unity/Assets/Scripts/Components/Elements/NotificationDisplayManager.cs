@@ -9,6 +9,7 @@ using System.Linq;
 using MixedReality.Toolkit.UX;
 using UnityEngine.Rendering.VirtualTexturing;
 using TMPro;
+using UnityEngine.Playables;
 
 public class NotificationDisplayManager : MonoBehaviour, IRenderable
 {
@@ -17,8 +18,8 @@ public class NotificationDisplayManager : MonoBehaviour, IRenderable
     [SerializeField]
     public GameObject MainNotifObj;
     public GameObject mainParentObject;
-   // public TextMeshPro contentTMP;
-    //public TextMeshPro TimeStampTMP;
+    public GameObject MiniNotifObj;
+    public GameObject miniParentObject;
 
 
     private float cooldownTimer = 0f;
@@ -37,28 +38,26 @@ public class NotificationDisplayManager : MonoBehaviour, IRenderable
 
     void Update()
     {
-        // Update the cooldown timer
         cooldownTimer += Time.deltaTime;
 
-        // Check if the cooldown duration has passed
         if (cooldownTimer >= cooldownDuration)
         {
-            // Reset the cooldown timer
             cooldownTimer = 0f;
 
-            // Check for new notifications
-            CheckForNotifications();
+            SetPopUp();
+            //SetMenu();
         }
     }
 
-    void CheckForNotifications()
+    void SetPopUp()
     {
         foreach (BaseArsisEvent baseArsisEvent in data)
         {
             if (baseArsisEvent is ARSIS.EventManager.Notifications notification)
             {
-                Debug.Log(notification.data.content +"\n"+ notification.data.severity);
+                Debug.Log(notification.data.content + "\n" + notification.data.severity);
 
+                //instantiating notification object in the scene
                 GameObject mainNotifObj = Instantiate(MainNotifObj, mainParentObject.transform);
 
                 //updating content text below
@@ -67,8 +66,6 @@ public class NotificationDisplayManager : MonoBehaviour, IRenderable
 
                 if (contentTransform != null)
                 {
-                    Debug.Log("Content Transform Found: " + contentTransform.name);
-
                     TextMeshProUGUI contentTextMeshPro = contentTransform.GetComponent<TextMeshProUGUI>();
 
                     if (contentTextMeshPro != null)
@@ -95,16 +92,83 @@ public class NotificationDisplayManager : MonoBehaviour, IRenderable
                         // Set color based on severity rating
                         switch (notification.data.severity)
                         {
-                            case 0: // Red
+                            case 0:
                                 colorBandImage.color = Color.red;
                                 break;
-                            case 1: // Yellow
+                            case 1:
                                 colorBandImage.color = Color.yellow;
                                 break;
-                            case 2: // Purple
+                            case 2:
                                 colorBandImage.color = new Color(0.5f, 0f, 0.5f); // Purple RGB value
                                 break;
-                            default: // Handle other cases if needed
+                            default:
+                                colorBandImage.color = Color.white;
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogError("Image component not found in ColorBand object.");
+                    }
+                }
+                else
+                {
+                    Debug.LogError("ColorBand object not found in MainNotifObj prefab.");
+                }
+            }
+        }
+    }
+
+    void SetMenu()
+    {
+        foreach (BaseArsisEvent baseArsisEvent in data)
+        {
+            if (baseArsisEvent is ARSIS.EventManager.Notifications notification)
+            {
+                //instantiating notification object in the scene
+                GameObject miniNotifObj = Instantiate(MiniNotifObj, miniParentObject.transform);
+
+                //updating content text below
+
+                Transform contentTransform = miniNotifObj.transform.Find("MainNotifBackground/Content");
+                if (contentTransform != null)
+                {
+                    TextMeshProUGUI contentTextMeshPro = contentTransform.GetComponent<TextMeshProUGUI>();
+
+                    if (contentTextMeshPro != null)
+                    {
+                        contentTextMeshPro.text = notification.data.content;
+                    }
+                    else
+                    {
+                        Debug.LogError("TextMeshPro component not found in Content object.");
+                    }
+                }
+                else
+                {
+                    Debug.LogError("Content TextMeshPro object not found in MainNotifObj prefab.");
+                }
+
+                Transform colorBandTransform = miniNotifObj.transform.Find("MainNotifBackground/ColorBand");
+                if (colorBandTransform != null)
+                {
+                    Image colorBandImage = colorBandTransform.GetComponent<Image>();
+                    if (colorBandImage != null)
+                    {
+                        // Set color based on severity rating
+                        switch (notification.data.severity)
+                        {
+                            case 0:
+                                colorBandImage.color = Color.red;
+                                break;
+                            case 1:
+                                colorBandImage.color = Color.yellow;
+                                break;
+                            case 2:
+                                colorBandImage.color = new Color(0.5f, 0f, 0.5f); // Purple RGB value
+                                break;
+                            default:
+                                colorBandImage.color = Color.white;
                                 break;
                         }
                     }
