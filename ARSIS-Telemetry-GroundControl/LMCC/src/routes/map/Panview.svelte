@@ -8,8 +8,6 @@
 	import { XCircleOutline } from 'flowbite-svelte-icons';
 
 	let img;
-	let clientHeight;
-	let clientWidth;
 	let naturalHeight;
 	let naturalWidth;
 	let scale = 1;
@@ -113,8 +111,6 @@
 	}
 
 	function handleMouseDown(event) {
-		clientHeight = event.currentTarget.clientHeight ?? clientHeight;
-		clientWidth = event.currentTarget.clientWidth ?? clientWidth;
 		const x = event.clientX - event.currentTarget.offsetLeft;
 		const y = event.clientY - event.currentTarget.offsetTop;
 		const correctedX = (x - offsetX) / scale;
