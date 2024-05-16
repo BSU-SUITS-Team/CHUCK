@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using System.Linq;
 using MixedReality.Toolkit.UX;
@@ -56,7 +57,7 @@ public class NotificationDisplayManager : MonoBehaviour, IRenderable
         {
             if (baseArsisEvent is ARSIS.EventManager.Notifications notification)
             {
-                Debug.Log(notification.data.content);
+                Debug.Log(notification.data.content +"\n"+ notification.data.severity);
 
                 GameObject mainNotifObj = Instantiate(MainNotifObj, mainParentObject.transform);
 
@@ -82,6 +83,39 @@ public class NotificationDisplayManager : MonoBehaviour, IRenderable
                 else
                 {
                     Debug.LogError("Content TextMeshPro object not found in MainNotifObj prefab.");
+                }
+
+                // Update ColorBand Image color
+                Transform colorBandTransform = mainNotifObj.transform.Find("MainNotifBackground/ColorBand");
+                if (colorBandTransform != null)
+                {
+                    Image colorBandImage = colorBandTransform.GetComponent<Image>();
+                    if (colorBandImage != null)
+                    {
+                        // Set color based on severity rating
+                        switch (notification.data.severity)
+                        {
+                            case 0: // Red
+                                colorBandImage.color = Color.red;
+                                break;
+                            case 1: // Yellow
+                                colorBandImage.color = Color.yellow;
+                                break;
+                            case 2: // Purple
+                                colorBandImage.color = new Color(0.5f, 0f, 0.5f); // Purple RGB value
+                                break;
+                            default: // Handle other cases if needed
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogError("Image component not found in ColorBand object.");
+                    }
+                }
+                else
+                {
+                    Debug.LogError("ColorBand object not found in MainNotifObj prefab.");
                 }
             }
         }
