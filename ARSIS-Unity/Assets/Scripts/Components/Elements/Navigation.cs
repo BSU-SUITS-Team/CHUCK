@@ -41,7 +41,7 @@ public class Navigation : MonoBehaviour, IRenderable
         pin.transform.SetParent(image, true);
     }
 
-    private void PlacePin(Vector2 anchored)
+    private void PlacePoint(Pins point)
     {
         GameObject pin = Instantiate(pinPrefab);
         pin.transform.SetParent(image, false);
@@ -50,9 +50,10 @@ public class Navigation : MonoBehaviour, IRenderable
         pinTrans.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, 0, pinWidth);
         pinTrans.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, 0, pinHeight);
         pinTrans.localPosition = Vector3.zero;
-        pinTrans.anchoredPosition = new Vector2(anchored.x, anchored.y + pinHeight);
-        Debug.Log($"anchored: {anchored}");
-        Debug.Log($"localPosition: {pinTrans.localPosition}");
+        pinTrans.anchoredPosition = new Vector2(point.data.properties.x, -point.data.properties.y + pinHeight);
+        BeaconObject beacon = pin.GetComponent<BeaconObject>();
+        beacon.SetText(point.data.properties.name);
+        beacon.SetDistance("XXX meters");
     }
 
     private Vector2 CalculateAnchor(Vector3 hit)
@@ -107,7 +108,7 @@ public class Navigation : MonoBehaviour, IRenderable
         RemovePins();
         foreach (Pins point in points)
         {
-            PlacePin(new Vector2(point.data.properties.x, -point.data.properties.y));
+            PlacePoint(point);
         }
         changed = false;
     }
