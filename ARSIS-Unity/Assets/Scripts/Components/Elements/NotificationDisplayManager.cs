@@ -12,6 +12,9 @@ public class NotificationDisplayManager : MonoBehaviour, IRenderable
 {
     private Boolean changed = true;
     private List<BaseArsisEvent> data = new();
+    [SerializeField]
+    public GameObject MainNotifObj;
+    public GameObject mainParentObject;
 
     public void Render(List<BaseArsisEvent> data)
     {
@@ -23,7 +26,7 @@ public class NotificationDisplayManager : MonoBehaviour, IRenderable
         EventDatastore eventDatastore = EventDatastore.Instance;
         eventDatastore.AddHandler("notification", this);
     }
-    
+
     void Update()
     {
         Debug.Log(data);
@@ -32,6 +35,8 @@ public class NotificationDisplayManager : MonoBehaviour, IRenderable
             if (baseArsisEvent is ARSIS.EventManager.Notifications notification)
             {
                 Debug.Log(notification.data.content);
+
+                GameObject mainNotifObj = Instantiate(MainNotifObj, mainParentObject.transform);
             }
         }
     }

@@ -1867,6 +1867,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   drawBoundsGizmo: 0
   drawLocalBoundsGizmo: 0
+--- !u!1 &1066429483 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1700170123812427549, guid: c0d3a52582cdbe943a3c8d5bcffe53ae, type: 3}
+  m_PrefabInstance: {fileID: 143102500}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1227130313
 GameObject:
   m_ObjectHideFlags: 0
@@ -1911,6 +1916,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0f4d81ced232db42807451b04a6ef37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  MainNotifObj: {fileID: 6376812684128528963, guid: 707feb7c2a001f145aaa6dacc527d00e, type: 3}
+  mainParentObject: {fileID: 1066429483}
 --- !u!1 &1600812346
 GameObject:
   m_ObjectHideFlags: 0
