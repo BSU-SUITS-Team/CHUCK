@@ -87,7 +87,7 @@ GameObject:
   - component: {fileID: 8551978189093866965}
   - component: {fileID: 1128425981049049121}
   m_Layer: 5
-  m_Name: Text (TMP) (1)
+  m_Name: TimeStamp
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -297,7 +297,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3283385897542878279}
-  - component: {fileID: 6764601912093591616}
+  - component: {fileID: 9117107891568798455}
   m_Layer: 5
   m_Name: MainNotifObj
   m_TagString: Untagged
@@ -325,7 +325,7 @@ RectTransform:
   m_AnchoredPosition: {x: -91, y: -31}
   m_SizeDelta: {x: 0, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &6764601912093591616
+--- !u!114 &9117107891568798455
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -334,10 +334,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 6376812684128528963}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7c58d94331220d54196da7e855779548, type: 3}
+  m_Script: {fileID: 11500000, guid: 2d2372ffa9a058a4bbc4c8304e61fb9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  notificationObject: {fileID: 6376812684128528963}
+  main: {fileID: 6376812684128528963}
+  title: {fileID: 5524150212091576125}
 --- !u!1 &8800816343637531939
 GameObject:
   m_ObjectHideFlags: 0
@@ -350,7 +351,7 @@ GameObject:
   - component: {fileID: 932986166987664321}
   - component: {fileID: 6141576547644862454}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: Content
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -535,18 +536,18 @@ PrefabInstance:
     - target: {fileID: 8376646494505211226, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: <OnClicked>k__BackingField.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 6764601912093591616}
+      objectReference: {fileID: 9117107891568798455}
     - target: {fileID: 8376646494505211226, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: <OnClicked>k__BackingField.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211226, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: <OnClicked>k__BackingField.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: DestroyObject
+      value: Close
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211226, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: <OnClicked>k__BackingField.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: PopupMenuManager, Assembly-CSharp
+      value: Window, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211226, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: <OnClicked>k__BackingField.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
