@@ -85,6 +85,9 @@ public class Locations2 : MonoBehaviour, IRenderable
             Debug.Log("Ev2 PosX: " + eva2PosX);
             Debug.Log("Ev2 PosY: " + eva2PosY);
 
+            eva1PosX = 298355; //Middle of map, test scenario
+            eva1PosY = 3272383;//Middle of map, test scenario 
+
             UnityEngine.Vector2 ev1PosUTM = new UnityEngine.Vector2(eva1PosX, eva1PosY);
 
             UnityEngine.Vector3 ev1PosUnity = CoordinatesUtility.TranslateToVirtual(ev1PosUTM);
@@ -111,6 +114,12 @@ public class Locations2 : MonoBehaviour, IRenderable
 
             Debug.Log("Pin PosX: " + pinPosX);
             Debug.Log("Pin PosY: " + pinPosY);
+
+            UnityEngine.Vector2 pinPosUTM = new UnityEngine.Vector2(pinPosX, pinPosY);
+            UnityEngine.Vector3 pinPosUnity = CoordinatesUtility.TranslateToVirtual(pinPosUTM);
+
+            Debug.Log("PinPosUnity: " + pinPosUnity);
+
         }
 
         // if (!changed || locations.Count == 0) return;
