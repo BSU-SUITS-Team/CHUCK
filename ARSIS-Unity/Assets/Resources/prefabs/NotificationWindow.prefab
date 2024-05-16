@@ -256,7 +256,7 @@ GameObject:
   - component: {fileID: 3001306509312380642}
   - component: {fileID: 7016246410536116538}
   - component: {fileID: 6009671963900098207}
-  - component: {fileID: 8799458538980478747}
+  - component: {fileID: 4439450588809236928}
   m_Layer: 0
   m_Name: Main
   m_TagString: Untagged
@@ -373,7 +373,7 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
---- !u!114 &8799458538980478747
+--- !u!114 &4439450588809236928
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -382,11 +382,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1700170123812427549}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ed914c583edc5564787467e0e6f7b06a, type: 3}
+  m_Script: {fileID: 11500000, guid: 93b3fd8ee5150414b8845d137389a560, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  miniNotifPrefab: {fileID: 6376812684128528963, guid: c403953733608b94598e26de5990d74f, type: 3}
-  notificationContainer: {fileID: 8867329628179837176}
+  MiniNotifObj: {fileID: 6376812684128528963, guid: c403953733608b94598e26de5990d74f, type: 3}
+  miniParentObject: {fileID: 1700170123812427549}
 --- !u!1 &2472518441137513179
 GameObject:
   m_ObjectHideFlags: 0

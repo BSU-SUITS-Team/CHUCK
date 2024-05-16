@@ -1,68 +1,37 @@
 using ARSIS.EventManager;
-using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.InputSystem;
-using System.Linq;
-using MixedReality.Toolkit.UX;
-using UnityEngine.Rendering.VirtualTexturing;
-using TMPro;
-using UnityEngine.Playables;
 
-public class NotificationDisplayManager : MonoBehaviour, IRenderable
+public class NotificationWindowManager : MonoBehaviour
 {
-    private Boolean changed = true;
-    public List<BaseArsisEvent> data = new();
-    [SerializeField]
-    public GameObject MainNotifObj;
-    public GameObject mainParentObject;
-    
-
-
-    private float cooldownTimer = 0f;
-    private float cooldownDuration = 5f; // Cooldown duration in seconds
-
-    public void Render(List<BaseArsisEvent> data)
-    {
-        this.data = data;
-        changed = true;
-    }
+    private NotificationDisplayManager _notificationDisplayManager;
+    public GameObject MiniNotifObj;
+    public GameObject miniParentObject;
     void Start()
     {
-        EventDatastore eventDatastore = EventDatastore.Instance;
-        eventDatastore.AddHandler("notification", this);
+        _notificationDisplayManager = FindObjectOfType<NotificationDisplayManager>();
     }
 
     void Update()
     {
-        cooldownTimer += Time.deltaTime;
-
-        if (cooldownTimer >= cooldownDuration)
-        {
-            cooldownTimer = 0f;
-
-            SetPopUp();
-            //SetMenu();
-        }
+        SetMenu();
     }
 
-    void SetPopUp()
+    void SetMenu()
     {
-        foreach (BaseArsisEvent baseArsisEvent in data)
+        foreach (BaseArsisEvent baseArsisEvent in _notificationDisplayManager.data)
         {
             if (baseArsisEvent is ARSIS.EventManager.Notifications notification)
             {
-                Debug.Log(notification.data.content + "\n" + notification.data.severity);
-
                 //instantiating notification object in the scene
-                GameObject mainNotifObj = Instantiate(MainNotifObj, mainParentObject.transform);
+                GameObject miniNotifObj = Instantiate(MiniNotifObj, miniParentObject.transform);
 
                 //updating content text below
 
-                Transform contentTransform = mainNotifObj.transform.Find("MainNotifBackground/Content");
-
+                Transform contentTransform = miniNotifObj.transform.Find("MainNotifBackground/Content");
                 if (contentTransform != null)
                 {
                     TextMeshProUGUI contentTextMeshPro = contentTransform.GetComponent<TextMeshProUGUI>();
@@ -81,8 +50,7 @@ public class NotificationDisplayManager : MonoBehaviour, IRenderable
                     Debug.LogError("Content TextMeshPro object not found in MainNotifObj prefab.");
                 }
 
-                // Update ColorBand Image color
-                Transform colorBandTransform = mainNotifObj.transform.Find("MainNotifBackground/ColorBand");
+                Transform colorBandTransform = miniNotifObj.transform.Find("MainNotifBackground/ColorBand");
                 if (colorBandTransform != null)
                 {
                     Image colorBandImage = colorBandTransform.GetComponent<Image>();
