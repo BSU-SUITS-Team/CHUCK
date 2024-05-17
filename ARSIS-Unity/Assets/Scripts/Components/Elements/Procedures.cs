@@ -31,7 +31,7 @@ public class Procedures : MonoBehaviour, IRenderable
         display.SetActive(true); // enable after procedure is applied
     }
 
-    void ShowSummaryTimeline()
+    public void ShowSummaryTimeline()
     {
         Instantiate(summaryTimeline);
     }
