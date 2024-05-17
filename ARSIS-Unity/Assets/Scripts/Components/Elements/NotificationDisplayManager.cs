@@ -22,7 +22,7 @@ public class NotificationDisplayManager : MonoBehaviour, IRenderable
 
 
     private float cooldownTimer = 0f;
-    private float cooldownDuration = 5f; // Cooldown duration in seconds
+    private float cooldownDuration = 10f; // Cooldown duration in seconds
 
     public void Render(List<BaseArsisEvent> data)
     {
