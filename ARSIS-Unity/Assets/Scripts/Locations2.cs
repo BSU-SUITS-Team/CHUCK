@@ -108,13 +108,13 @@ public class Locations2 : MonoBehaviour, IRenderable
             Debug.Log("Ev1 PosY: " + userPosY);
             Debug.Log("EV1 Heading: " + userHeading);
 
-            userPosX = 298355; //Middle of map, test scenario
-            userPosY = 3272383;//Middle of map, test scenario 
+           // userPosX = 298355; //Middle of map, test scenario
+           // userPosY = 3272383;//Middle of map, test scenario 
 
-            Vector2 userPosUTM = new Vector2(userPosX, userPosY);
+            //Vector2 userPosUTM = new Vector2(userPosX, userPosY);
             //float ev1Heading = CoordinatesUtility.CalculateHeading(ev1PosUTM, UTMorigin);
 
-           // Vector3 ev1PosUnity = CoordinatesUtility.TranslateToVirtual(selectedPin, userPosUTM, userHeading);
+            //Vector3 ev1PosUnity = CoordinatesUtility.TranslateToVirtual(selectedPin, userPosUTM, userHeading);
 
             //Debug.Log("EV1PosUnity: " + ev1PosUnity);
 
