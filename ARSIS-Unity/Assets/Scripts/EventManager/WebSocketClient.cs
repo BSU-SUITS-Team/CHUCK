@@ -47,7 +47,7 @@ namespace ARSIS.EventManager
         {
             EventDatastore eventDatastore = EventDatastore.Instance;
             BaseArsisEvent wsEvent = PerformReflection(e.Data.ToString());
-            Debug.Log(wsEvent);
+            //Debug.Log(wsEvent);
             if (wsEvent.label != null && wsEvent.label.Length > 0)
             {
                 eventDatastore.Upsert(wsEvent.type, wsEvent);
@@ -85,7 +85,11 @@ namespace ARSIS.EventManager
         public void StartClient()
         {
             connection = new WebSocket(endpoint);
-            connection.OnOpen += (sender, e) => Debug.Log("WebSocket connected!");
+            connection.OnOpen += (sender, e) =>
+            {
+                Debug.Log("WebSocket connected!");
+                EventDatastore.Instance.Clear();
+            };
             connection.OnMessage += (sender, e) => Collect(e);
             connection.OnError += (sender, e) => {
                 Debug.LogError(e.Exception.ToString());
