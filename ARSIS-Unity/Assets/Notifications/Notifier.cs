@@ -37,36 +37,6 @@ public class Notifier : MonoBehaviour
 
         colorBand.color = Color.red;
     }
-    public void NotifyOrange(string message)
-    {
-
-    }
-    public void NotifyYellow(string message) 
-    {
-    
-    }
-    public void NotifyGreen(string message)
-    {
-
-    }
-
-    public void NotifyPurple(string message)
-    {
-
-    }
-
-    public void NotifyBlue(string message)
-    {
-
-    }
-    public void NotifyWhite(string message)
-    {
-
-    }
-    public void NotifyBlack(string message)
-    {
-
-    }
 
     public void DestroyGameObject()
     {
