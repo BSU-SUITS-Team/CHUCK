@@ -16,12 +16,18 @@ public class SettingsWindow : MonoBehaviour
     public void OpenSystemKeyboard()
     {
         keyboard = TouchScreenKeyboard.Open(inputField.text, TouchScreenKeyboardType.URL, false, false, false, false);
+        ArmbandController.Instance.SetListening(false);
     }
 
     void Start()
     {
         EventManager instance = EventManager.Instance;
         inputField.text = instance.Endpoint;
+    }
+
+    private void OnDestroy()
+    {
+        ArmbandController.Instance.SetListening(true);
     }
 
     public void SetEVA(int eva)
@@ -49,6 +55,9 @@ public class SettingsWindow : MonoBehaviour
         if (keyboard == null) return;
         inputField.text = keyboard.text;
         if (keyboard.status == TouchScreenKeyboard.Status.Done)
+        {
             keyboard = null;
+            ArmbandController.Instance.SetListening(true);
+        }
     }
 }
