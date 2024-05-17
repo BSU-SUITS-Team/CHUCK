@@ -62,6 +62,8 @@
 	timeline.col2.sort(() => Math.random() - 0.5);
 	timeline.col3 = [...timeline.col1];
 	timeline.col3.sort(() => Math.random() - 0.5);
+	timeline.col4 = [...timeline.col1];
+	timeline.col4.sort(() => Math.random() - 0.5);
 
 	function startPos(list, i) {
 		let elapsed = 0;
@@ -80,9 +82,10 @@
 <div class="w-full h-full ml-20 pr-64 mt-10 mb-10">
 	<div class="grid rounded-xl border h-full timeline-grid items-stretch justify-items-stretch">
 		<div class="{titleClass}  border-b">TIME</div>
+		<div class={titleClass}>LMCC 1</div>
+		<div class={titleClass}>LMCC 2</div>
 		<div class={titleClass}>EV 1</div>
 		<div class={titleClass}>EV 2</div>
-		<div class={titleClass}>ROVER</div>
 
 		<!-- Column 1	 -->
 		{#each timeline.col1 as col1, i}
@@ -138,12 +141,31 @@
 			</div>
 		{/each}
 
+			<!-- Column 3	 -->
+		{#each timeline.col4 as col4, i}
+			<div
+				class="bg-gray-50 col-start-5 m-1 p-2"
+				style="grid-row-start: {startPos(timeline.col4, i)};
+				grid-row-end: {endPos(timeline.col4, i)};"
+			>
+				<h1 class="text-2xl">{col4.name}</h1>
+				<ol>
+					{#each col4.elements as e}
+						<li class="text-sm">
+							{e.description}
+						</li>
+					{/each}
+				</ol>
+			</div>
+		{/each}
+
+
 	</div>
 </div>
 
 <style>
 	.timeline-grid {
-		grid-template-columns: 5rem 1fr 1fr 1fr;
+		grid-template-columns: 5rem 1fr 1fr 1fr 1fr;
 		grid-template-rows: 3rem;
 	}
 </style>
