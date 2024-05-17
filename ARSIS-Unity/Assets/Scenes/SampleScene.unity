@@ -1317,7 +1317,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c205761e4bad964e97102977900e397, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Menu: {fileID: 71749520}
+  upPrefab: {fileID: 3076159259572669476, guid: 7bb491d4de6d94d3aa2d10d07ae83ed8, type: 3}
+  downPrefab: {fileID: 6696151141573330283, guid: 7ca4d7ee4108b427f90e78e289d7e0d4, type: 3}
+  leftPrefab: {fileID: 7420755001592374358, guid: 0a2b5b0f406d61842a14ccfc588cc19d, type: 3}
+  rightPrefab: {fileID: 8734961851248203760, guid: d029c425c05a4fa4b930a399a1f73ee0, type: 3}
+  yPrefab: {fileID: 9095186169999213015, guid: cee20ae7c3fa43941b5a0b21a74672cb, type: 3}
+  nPrefab: {fileID: 646569633205481146, guid: 2949df414c769ac48af0689988efbac2, type: 3}
 --- !u!1 &201489107
 GameObject:
   m_ObjectHideFlags: 0
