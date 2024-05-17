@@ -22,7 +22,7 @@ public class NotificationWindowManager : MonoBehaviour
 
     void SetMenu()
     {
-        foreach (Transform child in mainParentObject.transform)
+        foreach (Transform child in miniParentObject.transform)
         {
             Destroy(child.gameObject);
         }
@@ -53,6 +53,28 @@ public class NotificationWindowManager : MonoBehaviour
                 {
                     Debug.LogError("Content TextMeshPro object not found in MainNotifObj prefab.");
                 }
+                //updating timestamp below
+
+                Transform timeTransform = miniNotifObj.transform.Find("MainNotifBackground/TimeStamp");
+                if (timeTransform != null)
+                {
+                    TextMeshProUGUI timeTMP = timeTransform.GetComponent<TextMeshProUGUI>();
+
+                    if (timeTMP != null)
+                    {
+                        timeTMP.text = notification.data.time.ToString();
+                    }
+                    else
+                    {
+                        Debug.LogError("TextMeshPro component not found in Content object.");
+                    }
+                }
+                else
+                {
+                    Debug.LogError("Content TextMeshPro object not found in MainNotifObj prefab.");
+                }
+
+                //updating color below
 
                 Transform colorBandTransform = miniNotifObj.transform.Find("MainNotifBackground/ColorBand");
                 if (colorBandTransform != null)

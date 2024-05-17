@@ -1298,12 +1298,20 @@ PrefabInstance:
       value: NotificationPopUp
       objectReference: {fileID: 0}
     - target: {fileID: 7126323385947712949, guid: c0d3a52582cdbe943a3c8d5bcffe53ae, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.0005251061
+      objectReference: {fileID: 0}
+    - target: {fileID: 7126323385947712949, guid: c0d3a52582cdbe943a3c8d5bcffe53ae, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.00068283
+      objectReference: {fileID: 0}
+    - target: {fileID: 7126323385947712949, guid: c0d3a52582cdbe943a3c8d5bcffe53ae, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.1838
+      value: 0.159
       objectReference: {fileID: 0}
     - target: {fileID: 7126323385947712949, guid: c0d3a52582cdbe943a3c8d5bcffe53ae, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.0638
+      value: 0.128
       objectReference: {fileID: 0}
     - target: {fileID: 7126323385947712949, guid: c0d3a52582cdbe943a3c8d5bcffe53ae, type: 3}
       propertyPath: m_LocalPosition.z

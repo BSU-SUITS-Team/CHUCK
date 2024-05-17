@@ -81,6 +81,27 @@ public class NotificationDisplayManager : MonoBehaviour, IRenderable
                     Debug.LogError("Content TextMeshPro object not found in MainNotifObj prefab.");
                 }
 
+                //update timestamp
+                Transform timeTransform = mainNotifObj.transform.Find("MainNotifBackground/TimeStamp");
+
+                if (timeTransform != null)
+                {
+                    TextMeshProUGUI timeTMP = timeTransform.GetComponent<TextMeshProUGUI>();
+
+                    if (timeTMP != null)
+                    {
+                        timeTMP.text = notification.data.time.ToString();
+                    }
+                    else
+                    {
+                        Debug.LogError("TextMeshPro component not found in TimeStamp object.");
+                    }
+                }
+                else
+                {
+                    Debug.LogError("Content TextMeshPro object not found in MainNotifObj prefab.");
+                }
+
                 // Update ColorBand Image color
                 Transform colorBandTransform = mainNotifObj.transform.Find("MainNotifBackground/ColorBand");
                 if (colorBandTransform != null)
@@ -114,8 +135,15 @@ public class NotificationDisplayManager : MonoBehaviour, IRenderable
                 {
                     Debug.LogError("ColorBand object not found in MainNotifObj prefab.");
                 }
+
+                DestroyAfterDelay(mainNotifObj, 4f);
             }
         }
+    }
+
+    void DestroyAfterDelay(GameObject obj, float delay)
+    {
+        Destroy(obj, delay);
     }
 
 }
