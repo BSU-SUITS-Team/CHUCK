@@ -26,18 +26,20 @@ public class Navigation : MonoBehaviour, IRenderable
     private float selectProximity = 240f;
     private Pins selectedPin;
     private bool isPinActive = false;
+    private bool isCapture = false;
 
     private void SetCaptureButton(bool isPathCapture)
     {
+        if (isCapture == isPathCapture) return;
         string icon = isPathCapture ? "Icon 135" : "Icon 128";
         string label = isPathCapture ? "Stop Path" : "Record Path";
         toggleCapture.SetIcon(true, icon, label);
+        isCapture = isPathCapture;
     }
 
     public void TogglePathCapture()
     {
         TranslationController.S.togglePathCapture();
-        SetCaptureButton(TranslationController.S.IsPathCapture());
     }
 
     public void ToggleActivePin()
@@ -173,6 +175,7 @@ public class Navigation : MonoBehaviour, IRenderable
 
     void Update()
     {
+        SetCaptureButton(TranslationController.S.IsPathCapture());
         if (!changed || pins.Count == 0) return;
         changed = false;
         IEnumerable<Pins> points = pins.Where(e => e is Pins location && location.data.type.Equals("Point")).OfType<Pins>();
