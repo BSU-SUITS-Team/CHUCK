@@ -18,6 +18,268 @@
 		(item) => item.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1
 	);
 
+	let other = [
+		{
+			name: 'Structural Damage Repair (EV 1)',
+			description: '',
+			category: 'Repairs',
+			duration: '',
+			tasks: [
+				{
+					name: 'Comm Tower Base',
+					description: null,
+					steps: [
+						{
+							body: 'Collect structural repair materials including metal patches, welding tools, and adhesives.',
+							nextTask: [],
+							type: 'text'
+						}
+					]
+				},
+				{
+					name: 'Comm Tower',
+					description: null,
+					steps: [
+						{
+							body: 'Assess tower for visible structural damage.',
+							nextTask: [],
+							type: 'text'
+						},
+						{
+							body: 'Apply metal patches over holes or tears using welding tools.',
+							nextTask: [],
+							type: 'text'
+						},
+						{
+							body: 'Secure larger structural issues with adhesives and temporary supports.',
+							nextTask: [],
+							type: 'text'
+						}
+					]
+				}
+			]
+		},
+		{
+			name: 'Structural Damage Repair (EV 2)',
+			description: '',
+			category: 'Repairs',
+			duration: '',
+			tasks: [
+				{
+					name: 'Comm Tower Base',
+					description: null,
+					steps: [
+						{
+							body: 'Assemble safety gear for climbing and securing both crew members.',
+							nextTask: [],
+							type: 'text'
+						}
+					]
+				},
+				{
+					name: 'Comm Tower',
+					description: null,
+					steps: [
+						{
+							body: 'Assist in removing debris and damaged components',
+							nextTask: [],
+							type: 'text'
+						},
+						{
+							body: 'Provide support in applying patches or adhesives.',
+							nextTask: [],
+							type: 'text'
+						},
+						{
+							body: 'Ensure safety protocols are followed during high or difficult access points.',
+							nextTask: [],
+							type: 'text'
+						}
+					]
+				}
+			]
+		},
+		{
+			name: 'Power Supply Troubleshooting and Repair (EV 1)',
+			description: '',
+			category: 'Repairs',
+			duration: '',
+			tasks: [
+				{
+					name: 'Tower Base PSU',
+					description: null,
+					steps: [
+						{
+							body: 'Assemble diagnostic kit, spare batteries, solar cells, and electrical repair tools.',
+							nextTask: [],
+							type: 'text'
+						},
+						{
+							body: 'Perform diagnostics to identify power supply issues.',
+							nextTask: [],
+							type: 'text'
+						},
+						{
+							body: 'Replace faulty batteries or solar cells.',
+							nextTask: [],
+							type: 'text'
+						},
+						{
+							body: 'Verify power system functionality post-repair',
+							nextTask: [],
+							type: 'text'
+						}
+					]
+				}
+			]
+		},
+		{
+			name: 'Power Supply Troubleshooting and Repair (EV 2)',
+			description: '',
+			category: 'Repairs',
+			duration: '',
+			tasks: [
+				{
+					name: 'Tower Bae PSU',
+					description: null,
+					steps: [
+						{
+							body: 'Carry additional spare parts and protective equipment.',
+							nextTask: [],
+							type: 'text'
+						},
+						{
+							body: 'Assist in identifying damaged components.',
+							nextTask: [],
+							type: 'text'
+						},
+						{
+							body: 'Help in repairing or replacing wiring, ensuring secure connections.',
+							nextTask: [],
+							type: 'text'
+						}
+					]
+				}
+			]
+		},
+		{
+			name: 'Antenna Alignment and Calibration (EV 1)',
+			description: '',
+			category: 'Repairs',
+			duration: '',
+			tasks: [
+				{
+					name: 'Comm Tower Antenna',
+					description: null,
+					steps: [
+						{
+							body: 'Prepare alignment tools and calibration software on a portable device',
+							nextTask: [],
+							type: 'text'
+						},
+						{
+							body: 'Adjust the antenna to correct orientation using tools.',
+							nextTask: [],
+							type: 'text'
+						},
+						{
+							body: 'Secure antenna position; perform calibration test.',
+							nextTask: [],
+							type: 'text'
+						}
+					]
+				}
+			]
+		},
+		{
+			name: 'Antenna Alignment and Calibration (EV 2)',
+			description: '',
+			category: 'Repairs',
+			duration: '',
+			tasks: [
+				{
+					name: 'Comm Tower Antenna',
+					description: null,
+					steps: [
+						{
+							body: 'Assemble securing gear and safety equipment for both crew members.',
+							nextTask: [],
+							type: 'text'
+						},
+						{
+							body: 'Assist in antenna inspection for misalignment or damage.',
+							nextTask: [],
+							type: 'text'
+						},
+						{
+							body: 'Support in adjustment and calibration porcess; maintain communication wiht mission control.',
+							nextTask: [],
+							type: 'text'
+						}
+					]
+				}
+			]
+		},
+		{
+			name: 'Transcevier Module Replacement (EV 1)',
+			description: '',
+			category: 'Repairs',
+			duration: '',
+			tasks: [
+				{
+					name: 'Comm Tower Transciever',
+					description: null,
+					steps: [
+						{
+							body: 'Collect replacement transcieve rmodule and non-conductive tools',
+							nextTask: [],
+							type: 'text'
+						},
+						{
+							body: 'Remove faulty Module',
+							nextTask: [],
+							type: 'text'
+						},
+						{
+							body: 'Install new module ensuring all connections are secure',
+							nextTask: [],
+							type: 'text'
+						}
+					]
+				}
+			]
+		},
+		{
+			name: 'Transciever Module Replacement (EV 2)',
+			description: '',
+			category: 'Repairs',
+			duration: '',
+			tasks: [
+				{
+					name: 'Comm Tower Transciever',
+					description: null,
+					steps: [
+						{
+							body: 'Prepare electrostatic discharge safety equipment.',
+							nextTask: [],
+							type: 'text'
+						},
+						{
+							body: 'Assist in isolating power supply',
+							nextTask: [],
+							type: 'text'
+						},
+						{
+							body: 'Ensure module installation is correctly performed; conduct systems check to verify functionality.',
+							nextTask: [],
+							type: 'text'
+						}
+					]
+				}
+			]
+		}
+	];
+
 	let stagedProcedures = [
 		{
 			name: 'Heart Rate High',
@@ -243,9 +505,8 @@
 			]
 		}
 	];
-	$: filteredNewProcedures = stagedProcedures.filter(
-		(element) => !procedureNames.includes(element.name)
-	);
+
+	$: filteredNewProcedures = other.filter((element) => !procedureNames.includes(element.name));
 
 	function createNewProcedure(procedure: Object) {
 		const endpoint = 'http://localhost:8181/procedures/';
