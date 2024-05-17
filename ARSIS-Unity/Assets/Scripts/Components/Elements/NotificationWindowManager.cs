@@ -22,6 +22,10 @@ public class NotificationWindowManager : MonoBehaviour
 
     void SetMenu()
     {
+        foreach (Transform child in mainParentObject.transform)
+        {
+            Destroy(child.gameObject);
+        }
         foreach (BaseArsisEvent baseArsisEvent in _notificationDisplayManager.data)
         {
             if (baseArsisEvent is ARSIS.EventManager.Notifications notification)
