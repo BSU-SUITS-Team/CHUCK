@@ -84,7 +84,11 @@ namespace ARSIS.EventManager
         public void StartClient()
         {
             connection = new WebSocket(endpoint);
-            connection.OnOpen += (sender, e) => Debug.Log("WebSocket connected!");
+            connection.OnOpen += (sender, e) =>
+            {
+                Debug.Log("WebSocket connected!");
+                EventDatastore.Instance.Clear();
+            };
             connection.OnMessage += (sender, e) => Collect(e);
             connection.OnError += (sender, e) => {
                 Debug.LogError(e.Exception.ToString());

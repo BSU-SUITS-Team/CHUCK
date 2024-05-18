@@ -4,12 +4,19 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // {
-//  "type":"pins","time":1715632029270962048,"data": {
-//     "type":"Point","properties": {
-//         "name":"","id":"884fbd3e-f432-4873-a151-86519c33c4aa","x":481,"y":403
-//         },"coordinates":[-95.08192908,29.56532568]
-        
-//         },"label":"884fbd3e-f432-4873-a151-86519c33c4aa"
+//  "type":"pins",
+//  "time":1715632029270962048,
+//  "data": {
+//     "type":"Point",
+//     "properties": {
+//         "name":"",
+//         "id":"884fbd3e-f432-4873-a151-86519c33c4aa",
+//         "x":481,
+//         "y":403
+//     },
+//     "coordinates":[-95.08192908,29.56532568]
+//  },
+//  "label":"884fbd3e-f432-4873-a151-86519c33c4aa"
 // }
 
 namespace ARSIS.EventManager
@@ -23,7 +30,7 @@ namespace ARSIS.EventManager
     }
 
     [System.Serializable]
-     public class PinsProperties
+    public class PinsProperties
     {
         public string name { get; set; }
         public string id { get; set; }
