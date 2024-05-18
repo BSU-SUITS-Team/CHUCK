@@ -46,7 +46,8 @@ def create_point(point: PointBody):
     x, y, lon, lat, properties = (point.x, point.y, point.lon, point.lat, point.properties)
     # do not use "falsy" values (e.g. 0 is evaluated as false)
     if x != None and y != None:
-        lon, lat = dataset.xy(x, -y+dataset.height) # convert pixel to lat/lon
+        lon, lat = dataset.xy(x, y+dataset.height) # convert pixel to lat/lon
+        #lon, lat = dataset.xy(x, -y+dataset.height) # convert pixel to lat/lon
         #lon, lat = dataset.xy(x, y) # convert pixel to lat/lon
     elif lat != None and lon != None:
         y, x = ~dataset.transform * (lon, lat) # convert lat/lon to pixel
