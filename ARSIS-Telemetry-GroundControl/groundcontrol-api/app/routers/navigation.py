@@ -46,7 +46,19 @@ def create_point(point: PointBody):
     x, y, lon, lat, properties = (point.x, point.y, point.lon, point.lat, point.properties)
     # do not use "falsy" values (e.g. 0 is evaluated as false)
     if x != None and y != None:
-        lon, lat = dataset.xy(x, y+dataset.height) # convert pixel to lat/lon
+        #lon, lat = dataset.xy(-y+dataset.width, -x+dataset.height) # convert pixel to lat/lon
+        #lon, lat = dataset.xy(-x, -y+dataset.width) # convert pixel to lat/lon, x and z appear flipped
+        lon, lat = dataset.xy(y, x) # convert pixel to lat/lon, appears correct
+
+        #lon, lat = dataset.xy(-y, x) # convert pixel to lat/lon, x and z appear flipped
+       
+        #lon, lat = dataset.xy(-y+dataset.height, x) # convert pixel to lat/lon, z is flipped, gets lower as point moves further away
+
+        #lon, lat = dataset.xy(-y+dataset.height, -x+dataset.width) # convert pixel to lat/lon, x and z appear flipped
+
+        #lon, lat = dataset.xy(-x+dataset.height, -y+dataset.width) # convert pixel to lat/lon, x and z appear flipped
+
+        #lon, lat = dataset.xy(-x+dataset.width, -y+dataset.height) # convert pixel to lat/lon
         #lon, lat = dataset.xy(x, -y+dataset.height) # convert pixel to lat/lon
         #lon, lat = dataset.xy(x, y) # convert pixel to lat/lon
     elif lat != None and lon != None:
