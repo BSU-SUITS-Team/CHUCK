@@ -12,7 +12,9 @@ using UnityEngine;
 //         "name":"",
 //         "id":"884fbd3e-f432-4873-a151-86519c33c4aa",
 //         "x":481,
-//         "y":403
+//         "y":403,
+//         "northing": int,
+//         "easting": int
 //     },
 //     "coordinates":[-95.08192908,29.56532568]
 //  },
@@ -36,6 +38,8 @@ namespace ARSIS.EventManager
         public string id { get; set; }
         public int x { get; set; }
         public int y { get; set; }
+        public int northing { get; set; }
+        public int easting { get; set; }
     }
 
     [System.Serializable]

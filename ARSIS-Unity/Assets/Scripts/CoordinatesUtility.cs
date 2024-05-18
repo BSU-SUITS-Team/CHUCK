@@ -24,6 +24,8 @@ public static class CoordinatesUtility
         
         UnityEngine.Vector2 delta = selectedPin - user; 
         float distance = delta.magnitude; //Calculate distance
+        Debug.Log($"selectedPin: {selectedPin}, user: {user}");
+        Debug.Log($"distance: {distance}");
 
         //Find heading of the user to selectedPin
         float bearingRad = Mathf.Atan2(delta.x, delta.y);// use deltaX and deltaY
@@ -33,9 +35,11 @@ public static class CoordinatesUtility
         float deltaBearing = (bearingDeg + 360.0f) % 360.0f; 
         float correctedDeltaBearing = bearingRad - (userBearing * Mathf.Deg2Rad);
 
-        Vector3 virtualOffset = new Vector3(-distance*Mathf.Sin(correctedDeltaBearing), 0, distance*Mathf.Cos(correctedDeltaBearing));
-
+        Vector3 virtualOffset = new Vector3(distance*Mathf.Sin(correctedDeltaBearing), 0, distance*Mathf.Cos(correctedDeltaBearing));
+        Debug.Log($"virtualOffset: {virtualOffset}");
         Vector3 translatedPoint = virtualOffset + cameraPos;
+
+        Debug.Log($"translatedPoint: {translatedPoint}");
 
         return translatedPoint;
     }

@@ -61,6 +61,7 @@ public class Navigation : MonoBehaviour, IRenderable
         isPinActive = false;
         selectButton.SetIcon("Icon 14");
         selectButton.SetText("Show " + selectedPin.data.properties.name);
+        Locations2.Instance.SetActivePin(selectedPin);
     }
 
     public void adjustScale(float adjust)

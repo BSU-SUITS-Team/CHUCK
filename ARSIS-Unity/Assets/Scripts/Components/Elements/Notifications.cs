@@ -17,7 +17,7 @@ public class Notifications : MonoBehaviour, IRenderable
 
     void IRenderable.Render(List<BaseArsisEvent> data)
     {
-        if (data.Last() is EVA recent)
+        if (data.LastOrDefault() is EVA recent)
             timer = recent;
         changed = true;
     }

@@ -24,7 +24,9 @@ public class Locations2 : MonoBehaviour, IRenderable
     private static float eva1PosX;
     private static float eva1PosY; 
     private ImuEva evaData;
-
+    private Pins activePin; 
+    private GameObject visiblePin; 
+    public static Locations2 Instance;
 
 
    private void RetrieveIMU(int eva)
@@ -58,18 +60,45 @@ public class Locations2 : MonoBehaviour, IRenderable
         }
     }
 
+    public void SetActivePin(Pins activePin)
+    {
+        this.activePin = activePin; 
+        UpdatePinLocation();
+    }
+
+    private void UpdatePinLocation() {
+        if (visiblePin == null || activePin == null || evaData == null) return;
+        // create vector2 from the activePin utm northing and easting
+        // create vector2 from the eva utm northing and easting
+        // get float heading from the eva heading
+        // Vector3 virtual coordinates Translate(activePin, eva, heading)
+        // set the position of the visible pin to the virtual coordinates
+        Vector2 activePinUTM = new Vector2(activePin.data.properties.easting, activePin.data.properties.northing);
+        // Vector2 userUTM = new Vector2(evaData.posx, evaData.posy);
+        Vector2 userUTM = new Vector2(298305, 3272330); // test UTM
+        float userHeading = evaData.heading;
+        Vector3 virtualPinCoordinates = CoordinatesUtility.TranslateToVirtual(activePinUTM, userUTM, userHeading);
+        visiblePin.transform.position = virtualPinCoordinates;
+    }
+
+    public GameObject GetVisiblePin() {
+        return visiblePin;
+    }
+
     void Start()
     {
+        if (Instance == null) Instance = this;
+        if (visiblePin == null) visiblePin = Instantiate(locationDisplay);
         // y is northing, x is easting (Vector2)
         // z is forward, y is height, x is right (Vector3)
-        Vector2 a = new Vector2(0, 1); // test origin
-        Vector2 b = new Vector2(0, 1); // test coordinate
-        float testBearing = 0f; // test bearing
-        for (int i = 0; i < 5; i++) {
-            Vector3 testOutput = CoordinatesUtility.TranslateToVirtual(b, a, testBearing);
-            Debug.Log($"bearing: {testBearing}, testOutput: {testOutput}"); // expect 1 meter in front of camera
-            testBearing += 45f;
-        }
+        // Vector2 a = new Vector2(0, 1); // test origin
+        // Vector2 b = new Vector2(0, 1); // test coordinate
+        // float testBearing = 0f; // test bearing
+        // for (int i = 0; i < 5; i++) {
+        //     Vector3 testOutput = CoordinatesUtility.TranslateToVirtual(b, a, testBearing);
+        //     Debug.Log($"bearing: {testBearing}, testOutput: {testOutput}"); // expect 1 meter in front of camera
+        //     testBearing += 45f;
+        //}
 
         EventDatastore eventDatastore = EventDatastore.Instance;
         eventDatastore.AddHandler(key, this); //imu 
@@ -145,6 +174,8 @@ public class Locations2 : MonoBehaviour, IRenderable
             //Debug.Log("PinPosUnity: " + pinPosUnity);
 
         }
+        
+        UpdatePinLocation();
 
         // if (!changed || locations.Count == 0) return;
 
