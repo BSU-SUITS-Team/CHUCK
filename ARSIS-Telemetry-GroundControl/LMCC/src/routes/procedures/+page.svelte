@@ -17,7 +17,7 @@
 	let searchTerm = '';
 	$: procedureNames = Object.keys($datastore.procedure ?? {});
 	$: filteredItems = procedureNames.filter((item) => {
-		let category = $datastore.procedure[item].category
+		let category = $datastore.procedure[item].category;
 		return (
 			item.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1 &&
 			(category != 'Emergency' || showEmergency)
