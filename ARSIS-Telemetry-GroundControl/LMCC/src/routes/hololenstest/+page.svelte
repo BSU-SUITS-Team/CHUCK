@@ -2,7 +2,6 @@
 	import { Input, Video } from 'flowbite-svelte';
 
 	let ipaddr = '192.168.137.75';
-
 </script>
 
 <Input bind:value={ipaddr} />

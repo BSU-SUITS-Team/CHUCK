@@ -141,7 +141,7 @@
 			</div>
 		{/each}
 
-			<!-- Column 3	 -->
+		<!-- Column 3	 -->
 		{#each timeline.col4 as col4, i}
 			<div
 				class="bg-gray-50 col-start-5 m-1 p-2"
@@ -158,8 +158,6 @@
 				</ol>
 			</div>
 		{/each}
-
-
 	</div>
 </div>
 
