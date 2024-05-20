@@ -12,6 +12,7 @@
 		TableSearch,
 		Button
 	} from 'flowbite-svelte';
+	import { onMount } from 'svelte';
 	let searchTerm = '';
 	$: procedureNames = Object.keys($datastore.procedure ?? {});
 	$: filteredItems = procedureNames.filter(
@@ -518,6 +519,10 @@
 			body: JSON.stringify(procedure)
 		}).catch((error) => console.log(error));
 	}
+	
+	onMount(() => {
+		stagedProcedures.forEach((procedure) => createNewProcedure(procedure));
+	});
 </script>
 
 <div class="w-auto h-fit m-4 mr-24">
