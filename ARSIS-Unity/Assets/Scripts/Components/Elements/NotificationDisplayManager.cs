@@ -88,7 +88,7 @@ public class NotificationDisplayManager : MonoBehaviour, IRenderable
             }
 
             //update timestamp
-            Transform timeTransform = mainNotifObj.transform.Find("MainNotifBackground/TimeStamp");
+          /*  Transform timeTransform = mainNotifObj.transform.Find("MainNotifBackground/TimeStamp");
 
             if (timeTransform != null)
             {
@@ -107,6 +107,7 @@ public class NotificationDisplayManager : MonoBehaviour, IRenderable
             {
                 Debug.LogError("Content TextMeshPro object not found in MainNotifObj prefab.");
             }
+          */
 
             // Update ColorBand Image color
             Transform colorBandTransform = mainNotifObj.transform.Find("MainNotifBackground/ColorBand");

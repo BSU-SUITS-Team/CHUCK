@@ -55,7 +55,7 @@ public class NotificationWindowManager : MonoBehaviour
                 }
                 //updating timestamp below
 
-                Transform timeTransform = miniNotifObj.transform.Find("MainNotifBackground/TimeStamp");
+            /*    Transform timeTransform = miniNotifObj.transform.Find("MainNotifBackground/TimeStamp");
                 if (timeTransform != null)
                 {
                     TextMeshProUGUI timeTMP = timeTransform.GetComponent<TextMeshProUGUI>();
@@ -72,7 +72,7 @@ public class NotificationWindowManager : MonoBehaviour
                 else
                 {
                     Debug.LogError("Content TextMeshPro object not found in MainNotifObj prefab.");
-                }
+                }*/
 
                 //updating color below
 
