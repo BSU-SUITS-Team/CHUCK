@@ -115,8 +115,8 @@
 	function handleMouseDown(event) {
 		const x = event.clientX - event.currentTarget.offsetLeft;
 		const y = event.clientY - event.currentTarget.offsetTop;
-		const correctedX = (x - offsetX) / scale / img.clientWidth * naturalWidth;
-		const correctedY = (y - offsetY) / scale / img.clientHeight * naturalHeight;
+		const correctedX = ((x - offsetX) / scale / img.clientWidth) * naturalWidth;
+		const correctedY = ((y - offsetY) / scale / img.clientHeight) * naturalHeight;
 
 		if (isPlacingPin) {
 			pins = [...pins, { type: isPlacingPin, x: correctedX, y: correctedY }];
@@ -129,8 +129,14 @@
 		//collison detection
 		for (let i = 0; i < pins.length; i++) {
 			let pin = pins[i];
-
-			if (distanceBetween(x, y, (pin.x / naturalWidth) * (img.clientWidth * scale) + offsetX, (pin.y / naturalHeight) * (img.clientHeight * scale) + offsetY) < pinProximity) {
+			if (
+				distanceBetween(
+					x,
+					y,
+					(pin.x / naturalWidth) * (img.clientWidth * scale) + offsetX,
+					(pin.y / naturalHeight) * (img.clientHeight * scale) + offsetY
+				) < pinProximity
+			) {
 				pinClicked(i);
 				return;
 			}
@@ -195,7 +201,10 @@
 		<div
 			class="absolute z-10"
 			style="
-	transform: translate3d({(pin.x / naturalWidth) * (img.clientWidth * scale) + offsetX}px, {(pin.y / naturalHeight) * (img.clientHeight * scale) + offsetY}px, 0);
+	transform: translate3d({(pin.x / naturalWidth) * (img.clientWidth * scale) + offsetX}px, {(pin.y /
+				naturalHeight) *
+				(img.clientHeight * scale) +
+				offsetY}px, 0);
 	transform-origin: 0 0;
   "
 		>
