@@ -83,6 +83,8 @@
 		const data = {
 			x,
 			y,
+			lat: 0,
+			lon: 0,
 			properties: id == null ? { name } : { id: id, name }
 		};
 
@@ -127,6 +129,7 @@
 		//collison detection
 		for (let i = 0; i < pins.length; i++) {
 			let pin = pins[i];
+
 			if (distanceBetween(x, y, (pin.x / naturalWidth) * (img.clientWidth * scale) + offsetX, (pin.y / naturalHeight) * (img.clientHeight * scale) + offsetY) < pinProximity) {
 				pinClicked(i);
 				return;
