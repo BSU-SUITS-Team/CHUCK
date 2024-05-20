@@ -1,0 +1,18 @@
+category: Built-In
+description: Procedure to Inspect Comm Tower Worksite
+duration: 15 mins
+name: Inspect Comm Tower Worksite
+tasks:
+- description: Inspect Comm Tower Worksite
+  name:
+  steps:
+  - body: EVs notify LMCC1 starting inspection procedure
+    type: text
+  - body: EV1 scan Comm tower, EV2 scan MMRTG for possible issues
+    type: text
+  - body: If issue found, notify LMCC1
+    type: text
+  - body: If EVs do not have a procedure for the issue, standby until LMCCx sends new procedure
+    type: text
+  - body: Execute appropriate procedure
+    type: text
