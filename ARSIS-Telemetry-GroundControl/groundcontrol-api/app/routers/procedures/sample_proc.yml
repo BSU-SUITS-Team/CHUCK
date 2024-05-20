@@ -1,0 +1,25 @@
+category: Built-In
+description: Procedure to Sample Rocks
+duration: 1 min
+name: Sampling Procedure
+tasks:
+- description: Perform sampling
+  name: Perform XRF Scan
+  steps:
+  - body: 1. Press and HOLD trigger
+    type: text
+  - body: 2. Aim close to sample until beep, then release trigger
+    type: text
+  - body: 3. Display Hand Menu and press Spectrometry
+    type: text
+- description: Analyze Rock Composition
+  name: Samples are considered scientifically significant if:
+  - body: SiO2 <10
+
+HMD 1. EV Open Sampling Procedure
+HMD 4. If available, perform Field Notes on Rock, which can include picture, voice notes, etc.
+HMD 2. Perform XRF Scan
+XRF 3. Press and HOLD trigger
+XRF 4. Aim close to sample until beep, then release trigger
+HMD 5. If Rock Composition outside of nominal parameters (define), collect rock.
+HMD 6. If able, drop and label a pin
