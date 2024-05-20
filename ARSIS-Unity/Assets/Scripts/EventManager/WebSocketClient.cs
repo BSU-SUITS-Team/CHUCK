@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -26,10 +27,10 @@ namespace ARSIS.EventManager
         /// <returns>BaseArsisEvent or null if failed to parse JSON.</returns>
         private BaseArsisEvent PerformReflection(string json)
         {
-            BaseArsisEvent unknownEvent = JsonUtility.FromJson<BaseArsisEvent>(json);
+            BaseArsisEvent unknownEvent = JsonConvert.DeserializeObject<BaseArsisEvent>(json);
             if (unknownEvent == null) return null;
             Type eventType = BaseArsisEvent.GetType(unknownEvent.type);
-            return (BaseArsisEvent)JsonUtility.FromJson(json, eventType);
+            return (BaseArsisEvent)JsonConvert.DeserializeObject(json, eventType);
         }
 
         private IEnumerator AttemptReconnect(CloseEventArgs e)
@@ -46,7 +47,7 @@ namespace ARSIS.EventManager
         {
             EventDatastore eventDatastore = EventDatastore.Instance;
             BaseArsisEvent wsEvent = PerformReflection(e.Data.ToString());
-            Debug.Log(wsEvent);
+            //Debug.Log(wsEvent);
             if (wsEvent.label != null && wsEvent.label.Length > 0)
             {
                 eventDatastore.Upsert(wsEvent.type, wsEvent);
@@ -57,16 +58,43 @@ namespace ARSIS.EventManager
             }
         }
 
+        public string GetStatus()
+        {
+            if (connection == null) return "Not connected";
+            switch (connection.ReadyState)
+            {
+                case WebSocketState.Open:
+                    return "Open on " + endpoint;
+                case WebSocketState.Closed:
+                    return "Closed on " + endpoint;
+                case WebSocketState.Connecting:
+                    return "Connecting to " + endpoint;
+                case WebSocketState.Closing:
+                    return "Closing to " + endpoint;
+                case WebSocketState.New:
+                    return "New on " + endpoint;
+                default:
+                    return "Undefined status.";
+            }
+        }
+
         /// <summary>
         /// Establishes the WebSocket connection and begins listening to the events.
         /// </summary>
         /// <returns></returns>
         public void StartClient()
         {
-            connection ??= new WebSocket(endpoint);
-            connection.OnOpen += (sender, e) => Debug.Log("WebSocket connected!");
+            connection = new WebSocket(endpoint);
+            connection.OnOpen += (sender, e) =>
+            {
+                Debug.Log("WebSocket connected!");
+                EventDatastore.Instance.Clear();
+            };
             connection.OnMessage += (sender, e) => Collect(e);
-            connection.OnError += (sender, e) => EndClient();
+            connection.OnError += (sender, e) => {
+                Debug.LogError(e.Exception.ToString());
+                Debug.LogError(e.Message);
+            };
             connection.OnClose += (sender, e) => AttemptReconnect(e);
             connection.ConnectAsync();
         }
@@ -74,7 +102,8 @@ namespace ARSIS.EventManager
         public void EndClient()
         {
             Debug.Log("Closing connection...");
-            connection.CloseAsync();
+            if (connection == null) return;
+            connection.Close();
         }
     }
 }
