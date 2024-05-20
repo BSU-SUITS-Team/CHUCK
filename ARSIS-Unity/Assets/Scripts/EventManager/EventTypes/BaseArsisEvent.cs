@@ -23,6 +23,7 @@ namespace ARSIS.EventManager
             { "procedure", typeof(Procedure) },
             { "spec", typeof(Spectrometry) },
             { "notification", typeof(Notifications) },
+            { "pins", typeof(Pins) },
         };
 
         public string type;
