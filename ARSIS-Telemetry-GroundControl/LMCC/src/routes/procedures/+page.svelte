@@ -10,14 +10,19 @@
 		TableBodyRow,
 		TableBodyCell,
 		TableSearch,
-		Button
+		Button,
+		Toggle
 	} from 'flowbite-svelte';
 	import { onMount } from 'svelte';
 	let searchTerm = '';
 	$: procedureNames = Object.keys($datastore.procedure ?? {});
-	$: filteredItems = procedureNames.filter(
-		(item) => item.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1
-	);
+	$: filteredItems = procedureNames.filter((item) => {
+		let category = $datastore.procedure[item].category
+		return (
+			item.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1 &&
+			(category != 'Emergency' || showEmergency)
+		);
+	});
 
 	let other = [
 		{
@@ -506,6 +511,7 @@
 			]
 		}
 	];
+	let showEmergency = false;
 
 	$: filteredNewProcedures = other.filter((element) => !procedureNames.includes(element.name));
 
@@ -519,7 +525,7 @@
 			body: JSON.stringify(procedure)
 		}).catch((error) => console.log(error));
 	}
-	
+
 	onMount(() => {
 		stagedProcedures.forEach((procedure) => createNewProcedure(procedure));
 	});
@@ -532,7 +538,10 @@
 	</Breadcrumb>
 	<div class="flex justify-between mb-4">
 		<Heading tag="h2">Procedures</Heading>
-		<Button color="alternative" href="/new/procedure">New</Button>
+		<div class="flex flex-row">
+			<Toggle bind:checked={showEmergency} />
+			<Button color="alternative" href="/new/procedure">New</Button>
+		</div>
 	</div>
 	<TableSearch hoverable bind:inputValue={searchTerm}>
 		<TableHead>
