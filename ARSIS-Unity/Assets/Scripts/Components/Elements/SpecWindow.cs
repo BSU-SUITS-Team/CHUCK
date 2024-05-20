@@ -65,7 +65,8 @@ public class SpecWindow : MonoBehaviour, IRenderable
     void Update()
     {
         if (!changed) return;
-        float total = rockData.data.SiO2;
+        float total = 0;
+        total += rockData.data.SiO2;
         total += rockData.data.TiO2;
         total += rockData.data.Al2O3;
         total += rockData.data.FeO;
