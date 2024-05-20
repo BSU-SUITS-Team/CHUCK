@@ -22,6 +22,7 @@ namespace ARSIS.EventManager
             { "rover", typeof(Rover) },
             { "procedure", typeof(Procedure) },
             { "spec", typeof(Spectrometry) },
+            { "notification", typeof(Notifications) },
             { "pins", typeof(Pins) },
         };
 
