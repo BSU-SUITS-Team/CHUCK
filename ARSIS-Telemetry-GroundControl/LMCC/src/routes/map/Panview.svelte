@@ -83,6 +83,8 @@
 		const data = {
 			x,
 			y,
+			lat: 0,
+			lon: 0,
 			properties: id == null ? { name } : { id: id, name }
 		};
 

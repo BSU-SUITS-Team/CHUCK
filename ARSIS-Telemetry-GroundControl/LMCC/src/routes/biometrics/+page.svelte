@@ -263,6 +263,54 @@
 		];
 	};
 
+	$: params = [
+		...suitResources(currentAstro),
+		...suitAtmosphere(currentAstro),
+		...suitHelmet(currentAstro),
+		...suitScrubber(currentAstro),
+		...suitTemperature(currentAstro)
+	];
+
+	let currentNotifs = [];
+
+	function sendNotification(param) {
+		if (getColor(param.value, param.range) != goodColor) {
+			if (!currentNotifs.includes(param.key)) {
+				console.log('Somthing is out of bounds');
+				const url = 'http://localhost:8181/notifications/';
+
+				const data = {
+					content: `${param.key} is out of range.`,
+					severity: 0
+				};
+
+				const options = {
+					method: 'POST',
+					headers: {
+						accept: 'application/json',
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify(data)
+				};
+
+				fetch(url, options)
+					.then((response) => {
+						console.log('Response Status Code:', response.status);
+						return response.json();
+					})
+					.then((data) => {
+						console.log('Response Body:', data);
+					})
+					.catch((error) => {
+						console.error('Error:', error);
+					});
+				currentNotifs.push(param.key);
+			}
+		}
+	}
+
+	$: test = params.forEach((a) => sendNotification(a));
+
 	const categories = (eva: Astronaut) => {
 		return {
 			'Suit Resources': suitResources(eva),
