@@ -13,9 +13,8 @@
 </script>
 
 <Input bind:value={ipaddr} />
-<Video
+<video
 	src="http://{ipaddr}/api/holographic/stream/live_high.mp4"
 	controls
 	trackSrc="live_high.mp4"
-	bind:videoElement
 />
