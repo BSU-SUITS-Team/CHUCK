@@ -25,7 +25,6 @@
 			websocket.close();
 		});
 	}
-	//datastore.subscribe(console.log);
 
 	//notification handling
 	const SEVERITIES = { 0: 'error', 1: 'warn', 2: 'info' };
@@ -37,6 +36,8 @@
 			}
 		}
 	});
+
+	datastore.subscribe(console.log);
 
 	$: hasSideBar = Object.keys($keepables).length > 0 || Object.keys($graphdata).length > 0;
 </script>

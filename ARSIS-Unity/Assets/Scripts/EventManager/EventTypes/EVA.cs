@@ -55,15 +55,9 @@ namespace ARSIS.EventManager
     }
 
     [System.Serializable]
-    public class EvaRoot
-    {
-        public EvaData eva { get; set; }
-    }
-
-    [System.Serializable]
     public class EVA : BaseArsisEvent
     {
-        public EvaRoot data { get; set; }
+        public EvaData data { get; set; }
 
         public override string ToString()
         {
