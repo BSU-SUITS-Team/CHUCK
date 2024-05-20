@@ -1,6 +1,7 @@
 <script>
 	import { Input, Video } from 'flowbite-svelte';
 
+
 	let ipaddr = '192.168.125.50';
 	let videoElement;
 

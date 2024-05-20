@@ -1,0 +1,43 @@
+category: Built-in
+description: other procedures
+duration: TBD
+name: EVA Ingress
+tasks:
+- description: Connect UIA to DCU and start Depress
+  name: Connect UIA to DCU and start Depress
+  steps:
+  - body: EV1 and EV 2 connect UIA and DCU umbilical
+    type: text
+  - body: "EV-1, EV-2 PWR - ON"
+    type: text
+  - body: "BATT - UMB"
+    type: text
+- description: Vent O2 Tanks
+  name: Vent O2 Tanks
+  steps:
+  - body: "OXYGEN O2 VENT - OPEN"
+    nextTask: []
+    type: text
+  - body: Wait until both Primary and Secondary OXY tanks are < 10psi
+    type: text
+  - body: "OXYGEN O2 VENT - CLOSE"
+    type: text
+- description: Another Description
+  name: Empty Water Tanks
+  steps:
+  - body: "BOTH DCU: PUMP - OPEN"
+    type: text
+    nextTask: []
+  - body: "UIA: EV-1, EV-2 WASTE WATER - OPEN"
+    type: text
+  - body: 'HMD: Wait until water EV1 and EV2 Coolant tank is < 5%'
+    type: text
+  - body: "UIA: EV-1, EV-2 WASTE WATER - CLOSE"
+    type: text
+- description: Other Description
+  name: Disconnect UIA from DCU
+  steps:
+  - body: 'EV-1, EV-2 EMU PWR - OFF'
+    type: text
+  - body: 'UIA and DCU: EV1 and EV2 disconnect UIA and DCU umbilical'
+    type: text

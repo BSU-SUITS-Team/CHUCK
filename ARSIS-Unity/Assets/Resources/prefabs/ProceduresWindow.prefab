@@ -24,9 +24,29 @@ PrefabInstance:
       propertyPath: m_Center.y
       value: 0.0000076293945
       objectReference: {fileID: 0}
+    - target: {fileID: 2202019217811627669, guid: 5d7e8dc65613e0c4ba0f64f8fff0a1c3, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2202019217811627669, guid: 5d7e8dc65613e0c4ba0f64f8fff0a1c3, type: 3}
+      propertyPath: m_ChildControlHeight
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2202019217811627669, guid: 5d7e8dc65613e0c4ba0f64f8fff0a1c3, type: 3}
+      propertyPath: m_ChildForceExpandHeight
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2706000584095968756, guid: 5d7e8dc65613e0c4ba0f64f8fff0a1c3, type: 3}
       propertyPath: m_Name
       value: ScrollArea
+      objectReference: {fileID: 0}
+    - target: {fileID: 5848303734739824960, guid: 5d7e8dc65613e0c4ba0f64f8fff0a1c3, type: 3}
+      propertyPath: m_Vertical
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5848303734739824960, guid: 5d7e8dc65613e0c4ba0f64f8fff0a1c3, type: 3}
+      propertyPath: m_Horizontal
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8507711545596122965, guid: 5d7e8dc65613e0c4ba0f64f8fff0a1c3, type: 3}
       propertyPath: m_Pivot.x
