@@ -8,7 +8,7 @@ tasks:
   steps:
   - body: 1. EV1 Select Gear icon
     type: text
-  - body:
+  - body: 2. EV1 Select Shutdown
     type: text
   - body: 3. EV1 Verify shutdown complete and notify EV2 and LMCC1
     type: text
