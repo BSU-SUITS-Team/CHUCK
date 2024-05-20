@@ -81,15 +81,6 @@
 					</Button>
 				{/each}
 			</div>
-			<br />
-			<Heading tag="h3" class="pb-2">Actions</Heading>
-			<div class="flex-row">
-				<Button class="m-0.5" color="dark">Collect Sample</Button>
-				<Button class="m-0.5" color="dark">Drop Sample</Button>
-				<Button class="m-0.5" color="dark">Take Picture</Button>
-				<Button class="m-0.5" color="dark">Return</Button>
-				<Button class="m-0.5">Self Destruct</Button>
-			</div>
 		</div>
 		<div class="flex p-1 flex-grow ml-4 mr-16">
 			<Card class="w-96">
@@ -153,19 +144,5 @@
 		<div class="p-2">
 			<EmptyVideo name="Hololens" />
 		</div>
-	</div>
-	<br />
-	<br />
-	<Heading tag="h3">Details</Heading>
-	<br />
-	<div class="flex flex-row flex-wrap">
-		{#each graphs as graph}
-			<button
-				class="w-96 p-2"
-				on:click={() => graphdata.addGraph('ASTRONAUT', graph.name, graph.graphdata)}
-			>
-				<Graph {...graph} />
-			</button>
-		{/each}
 	</div>
 </div>

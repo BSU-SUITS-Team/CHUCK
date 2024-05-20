@@ -25,7 +25,6 @@
 			websocket.close();
 		});
 	}
-      //datastore.subscribe(console.log)
 
 	//notification handling
 	const SEVERITIES = { 0: 'error', 1: 'warn', 2: 'info' };
@@ -54,7 +53,6 @@
 			{/if}
 		</div>
 		<p>
-			Other Important Text That Is Longer and Sort of Just Sits at the Top Providing Status
 			{#if $datastore.connected}
 				<Badge color="green" class="ml-4">Connected</Badge>
 			{:else}
@@ -69,7 +67,7 @@
 			style="height: calc(100vh - 4rem);"
 		>
 			<span class="p-8 text-center">
-				<Heading tag="h1">ARSIS</Heading>
+				<Heading tag="h1">CHUCK</Heading>
 			</span>
 			<div>
 				<Sidebar />
