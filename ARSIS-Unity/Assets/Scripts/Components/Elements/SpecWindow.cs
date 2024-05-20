@@ -77,7 +77,6 @@ public class SpecWindow : MonoBehaviour, IRenderable
         total += rockData.data.other;
 
         rockName.text = rockData.name;
-        String.Format("Value: {0:P2}.", 0.8526)
         si.text = ElementPercent(rockData.data.SiO2, total, "SiO2");
         ti.text = ElementPercent(rockData.data.TiO2, total, "TiO2");
         al.text = ElementPercent(rockData.data.Al2O3, total, "Al2O3");
