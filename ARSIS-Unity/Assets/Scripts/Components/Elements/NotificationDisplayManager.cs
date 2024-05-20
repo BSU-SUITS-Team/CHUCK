@@ -38,7 +38,6 @@ public class NotificationDisplayManager : MonoBehaviour, IRenderable
 
     void Update()
     {
-        cooldownTimer += Time.deltaTime;
         SetPopUp();
         /* if (cooldownTimer >= cooldownDuration)
          {
@@ -51,10 +50,11 @@ public class NotificationDisplayManager : MonoBehaviour, IRenderable
 
     void SetPopUp()
     {
+        Debug.Log("LastNotification" + lastNotification);
         if (data.Count == 0) return;
         if(lastNotification >= data.Count)
         {
-           // Debug.Log(lastNotification);
+            
             foreach (Transform child in mainParentObject.transform)
             {
                 Destroy(child.gameObject);
