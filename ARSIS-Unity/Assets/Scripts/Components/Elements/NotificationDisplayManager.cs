@@ -18,7 +18,7 @@ public class NotificationDisplayManager : MonoBehaviour, IRenderable
     [SerializeField]
     public GameObject MainNotifObj;
     public GameObject mainParentObject;
-    
+
 
 
     private float cooldownTimer = 0f;
@@ -38,107 +38,113 @@ public class NotificationDisplayManager : MonoBehaviour, IRenderable
     void Update()
     {
         cooldownTimer += Time.deltaTime;
+        SetPopUp();
+        /* if (cooldownTimer >= cooldownDuration)
+         {
+             cooldownTimer = 0f;
 
-        if (cooldownTimer >= cooldownDuration)
-        {
-            cooldownTimer = 0f;
-
-            SetPopUp();
-            //SetMenu();
-        }
+             SetPopUp();
+             //SetMenu();
+         }*/
     }
 
     void SetPopUp()
     {
-        foreach (BaseArsisEvent baseArsisEvent in data)
+        if (data.Count == 0) return;
+        BaseArsisEvent baseArsisEvent = data[data.Count - 1];
+
+        if (baseArsisEvent is ARSIS.EventManager.Notifications notification)
         {
-            if (baseArsisEvent is ARSIS.EventManager.Notifications notification)
+            Debug.Log(notification.data.content + "\n" + notification.data.severity);
+
+            foreach(Transform child in mainParentObject.transform)
             {
-                Debug.Log(notification.data.content + "\n" + notification.data.severity);
-
-                //instantiating notification object in the scene
-                GameObject mainNotifObj = Instantiate(MainNotifObj, mainParentObject.transform);
-
-                //updating content text below
-
-                Transform contentTransform = mainNotifObj.transform.Find("MainNotifBackground/Content");
-
-                if (contentTransform != null)
-                {
-                    TextMeshProUGUI contentTextMeshPro = contentTransform.GetComponent<TextMeshProUGUI>();
-
-                    if (contentTextMeshPro != null)
-                    {
-                        contentTextMeshPro.text = notification.data.content;
-                    }
-                    else
-                    {
-                        Debug.LogError("TextMeshPro component not found in Content object.");
-                    }
-                }
-                else
-                {
-                    Debug.LogError("Content TextMeshPro object not found in MainNotifObj prefab.");
-                }
-
-                //update timestamp
-                Transform timeTransform = mainNotifObj.transform.Find("MainNotifBackground/TimeStamp");
-
-                if (timeTransform != null)
-                {
-                    TextMeshProUGUI timeTMP = timeTransform.GetComponent<TextMeshProUGUI>();
-
-                    if (timeTMP != null)
-                    {
-                        timeTMP.text = notification.data.time.ToString();
-                    }
-                    else
-                    {
-                        Debug.LogError("TextMeshPro component not found in TimeStamp object.");
-                    }
-                }
-                else
-                {
-                    Debug.LogError("Content TextMeshPro object not found in MainNotifObj prefab.");
-                }
-
-                // Update ColorBand Image color
-                Transform colorBandTransform = mainNotifObj.transform.Find("MainNotifBackground/ColorBand");
-                if (colorBandTransform != null)
-                {
-                    Image colorBandImage = colorBandTransform.GetComponent<Image>();
-                    if (colorBandImage != null)
-                    {
-                        // Set color based on severity rating
-                        switch (notification.data.severity)
-                        {
-                            case 0:
-                                colorBandImage.color = Color.red;
-                                break;
-                            case 1:
-                                colorBandImage.color = Color.yellow;
-                                break;
-                            case 2:
-                                colorBandImage.color = new Color(0.5f, 0f, 0.5f); // Purple RGB value
-                                break;
-                            default:
-                                colorBandImage.color = Color.white;
-                                break;
-                        }
-                    }
-                    else
-                    {
-                        Debug.LogError("Image component not found in ColorBand object.");
-                    }
-                }
-                else
-                {
-                    Debug.LogError("ColorBand object not found in MainNotifObj prefab.");
-                }
-
-                DestroyAfterDelay(mainNotifObj, 4f);
+                Destroy(child.gameObject);
             }
+
+            //instantiating notification object in the scene
+            GameObject mainNotifObj = Instantiate(MainNotifObj, mainParentObject.transform);
+
+            //updating content text below
+
+            Transform contentTransform = mainNotifObj.transform.Find("MainNotifBackground/Content");
+
+            if (contentTransform != null)
+            {
+                TextMeshProUGUI contentTextMeshPro = contentTransform.GetComponent<TextMeshProUGUI>();
+
+                if (contentTextMeshPro != null)
+                {
+                    contentTextMeshPro.text = notification.data.content;
+                }
+                else
+                {
+                    Debug.LogError("TextMeshPro component not found in Content object.");
+                }
+            }
+            else
+            {
+                Debug.LogError("Content TextMeshPro object not found in MainNotifObj prefab.");
+            }
+
+            //update timestamp
+            Transform timeTransform = mainNotifObj.transform.Find("MainNotifBackground/TimeStamp");
+
+            if (timeTransform != null)
+            {
+                TextMeshProUGUI timeTMP = timeTransform.GetComponent<TextMeshProUGUI>();
+
+                if (timeTMP != null)
+                {
+                    timeTMP.text = notification.data.time.ToString();
+                }
+                else
+                {
+                    Debug.LogError("TextMeshPro component not found in TimeStamp object.");
+                }
+            }
+            else
+            {
+                Debug.LogError("Content TextMeshPro object not found in MainNotifObj prefab.");
+            }
+
+            // Update ColorBand Image color
+            Transform colorBandTransform = mainNotifObj.transform.Find("MainNotifBackground/ColorBand");
+            if (colorBandTransform != null)
+            {
+                Image colorBandImage = colorBandTransform.GetComponent<Image>();
+                if (colorBandImage != null)
+                {
+                    // Set color based on severity rating
+                    switch (notification.data.severity)
+                    {
+                        case 0:
+                            colorBandImage.color = Color.red;
+                            break;
+                        case 1:
+                            colorBandImage.color = Color.yellow;
+                            break;
+                        case 2:
+                            colorBandImage.color = new Color(0.5f, 0f, 0.5f); // Purple RGB value
+                            break;
+                        default:
+                            colorBandImage.color = Color.white;
+                            break;
+                    }
+                }
+                else
+                {
+                    Debug.LogError("Image component not found in ColorBand object.");
+                }
+            }
+            else
+            {
+                Debug.LogError("ColorBand object not found in MainNotifObj prefab.");
+            }
+
+            DestroyAfterDelay(mainNotifObj, 4f);
         }
+
     }
 
     void DestroyAfterDelay(GameObject obj, float delay)
