@@ -22,6 +22,7 @@ public class SpecWindow : MonoBehaviour, IRenderable
     [SerializeField] TextMeshProUGUI p;
     [SerializeField] TextMeshProUGUI other;
 
+    private const string FORMAT_STRING = "{1} {0:P2}";
     private List<BaseArsisEvent> data;
     private bool changed = true;
     private string key = "spec";
@@ -56,21 +57,37 @@ public class SpecWindow : MonoBehaviour, IRenderable
         eventDatastore.RemoveHandler(key, this);
     }
 
+    private string ElementPercent(float value, float total, string label) {
+        return string.Format(FORMAT_STRING, value / total * 100, label);
+    }
+
     // Update is called once per frame
     void Update()
     {
         if (!changed) return;
+        float total = 0;
+        total += rockData.data.SiO2;
+        total += rockData.data.TiO2;
+        total += rockData.data.Al2O3;
+        total += rockData.data.FeO;
+        total += rockData.data.MnO;
+        total += rockData.data.MgO;
+        total += rockData.data.CaO;
+        total += rockData.data.K2O;
+        total += rockData.data.P2O3;
+        total += rockData.data.other;
+
         rockName.text = rockData.name;
-        si.text = "SiO2 " + rockData.data.SiO2;
-        ti.text = "TiO2 " + rockData.data.TiO2;
-        al.text = "Al2O3 " + rockData.data.Al2O3;
-        fe.text = "FeO " + rockData.data.FeO;
-        mn.text = "MnO " + rockData.data.MnO;
-        mg.text = "MgO " + rockData.data.MgO;
-        ca.text = "CaO " + rockData.data.CaO;
-        k.text = "K2O " + rockData.data.K2O;
-        p.text = "P2O3 " + rockData.data.P2O3;
-        other.text = "Other " + rockData.data.other;
+        si.text = ElementPercent(rockData.data.SiO2, total, "SiO2");
+        ti.text = ElementPercent(rockData.data.TiO2, total, "TiO2");
+        al.text = ElementPercent(rockData.data.Al2O3, total, "Al2O3");
+        fe.text = ElementPercent(rockData.data.FeO, total, "FeO");
+        mn.text = ElementPercent(rockData.data.MnO, total, "MnO");
+        mg.text = ElementPercent(rockData.data.MgO, total, "MgO");
+        ca.text = ElementPercent(rockData.data.CaO, total, "CaO");
+        k.text = ElementPercent(rockData.data.K2O, total, "K2O");
+        p.text = ElementPercent(rockData.data.P2O3, total, "P2O3");
+        other.text = ElementPercent(rockData.data.other, total, "Other");
         changed = false;
     }
 }
