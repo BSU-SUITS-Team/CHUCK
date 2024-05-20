@@ -18,11 +18,12 @@ public class NotificationDisplayManager : MonoBehaviour, IRenderable
     [SerializeField]
     public GameObject MainNotifObj;
     public GameObject mainParentObject;
+    private int lastNotification = 0;
 
 
 
     private float cooldownTimer = 0f;
-    private float cooldownDuration = 10f; // Cooldown duration in seconds
+    private float cooldownDuration = 4f; // Cooldown duration in seconds
 
     public void Render(List<BaseArsisEvent> data)
     {
@@ -51,11 +52,20 @@ public class NotificationDisplayManager : MonoBehaviour, IRenderable
     void SetPopUp()
     {
         if (data.Count == 0) return;
+        if(lastNotification >= data.Count)
+        {
+           // Debug.Log(lastNotification);
+            foreach (Transform child in mainParentObject.transform)
+            {
+                Destroy(child.gameObject);
+            }
+            return;
+        }
         BaseArsisEvent baseArsisEvent = data[data.Count - 1];
 
         if (baseArsisEvent is ARSIS.EventManager.Notifications notification)
         {
-            Debug.Log(notification.data.content + "\n" + notification.data.severity);
+           // Debug.Log(notification.data.content + "\n" + notification.data.severity);
 
             foreach(Transform child in mainParentObject.transform)
             {
@@ -143,14 +153,21 @@ public class NotificationDisplayManager : MonoBehaviour, IRenderable
                 Debug.LogError("ColorBand object not found in MainNotifObj prefab.");
             }
 
-            DestroyAfterDelay(mainNotifObj, 4f);
+            // DestroyAfterDelay(mainNotifObj, 4f);
+
+            cooldownTimer += Time.deltaTime;
+            if (cooldownTimer >= cooldownDuration)
+            {
+                cooldownTimer = 0f;
+                lastNotification += 1;
+            }
         }
 
     }
 
-    void DestroyAfterDelay(GameObject obj, float delay)
+  /*  void DestroyAfterDelay(GameObject obj, float delay)
     {
         Destroy(obj, delay);
-    }
+    }*/
 
 }
