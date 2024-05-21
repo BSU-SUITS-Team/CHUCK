@@ -763,6 +763,10 @@ PrefabInstance:
       propertyPath: currentIconName
       value: Icon 120
       objectReference: {fileID: 0}
+    - target: {fileID: 7842377890887021313, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
+      propertyPath: m_text
+      value: Say "Pin"
+      objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211202, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Name
       value: Pin
@@ -774,6 +778,10 @@ PrefabInstance:
     - target: {fileID: 8376646494505211226, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Colliders.Array.size
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8376646494505211226, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
+      propertyPath: speechRecognitionKeyword
+      value: pin
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211226, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: <ToggleMode>k__BackingField
@@ -981,6 +989,10 @@ PrefabInstance:
       propertyPath: currentIconName
       value: Icon 79
       objectReference: {fileID: 0}
+    - target: {fileID: 7842377890887021313, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
+      propertyPath: m_text
+      value: Say "Close"
+      objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211202, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Name
       value: Close
@@ -992,6 +1004,10 @@ PrefabInstance:
     - target: {fileID: 8376646494505211226, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Colliders.Array.size
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8376646494505211226, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
+      propertyPath: speechRecognitionKeyword
+      value: close
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211226, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: <OnClicked>k__BackingField.m_PersistentCalls.m_Calls.Array.size
