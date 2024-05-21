@@ -16,20 +16,23 @@ public class ArmbandController : MonoBehaviour
     [SerializeField] GameObject yPrefab;
     [SerializeField] GameObject nPrefab;
 
+
     public static ArmbandController Instance { get; private set; }
+    private GameObject currentView = null;
     private bool isListening = true;
-    private Dictionary<KeyCode, (GameObject, GameObject)> views = new();
+    private KeyCode lastPressed = KeyCode.None;
+    private Dictionary<KeyCode, GameObject> views = new();
 
     // Start is called before the first frame update
     void Start()
     {
         if (Instance == null) Instance = this;
-        views.Add(KeyCode.UpArrow, ( upPrefab, null ));
-        views.Add(KeyCode.DownArrow, ( downPrefab, null ));
-        views.Add(KeyCode.LeftArrow, ( leftPrefab, null ));
-        views.Add(KeyCode.RightArrow, ( rightPrefab, null ));
-        views.Add(KeyCode.Y, ( yPrefab, null ));
-        views.Add(KeyCode.N, ( nPrefab, null ));
+        views.Add(KeyCode.UpArrow, upPrefab);
+        views.Add(KeyCode.DownArrow, downPrefab);
+        views.Add(KeyCode.LeftArrow, leftPrefab);
+        views.Add(KeyCode.RightArrow, rightPrefab);
+        views.Add(KeyCode.Y, yPrefab);
+        views.Add(KeyCode.N, nPrefab);
     }
 
     private void ToggleWindow()
@@ -38,10 +41,15 @@ public class ArmbandController : MonoBehaviour
         {
             if (Input.GetKeyUp(key))
             {
-                (GameObject prefab, GameObject view) = views[key];
-                GameObject toggleView = view == null ? Instantiate(prefab) : null;
-                if (toggleView == null) Destroy(view);
-                views[key] = (prefab, toggleView);
+                if (lastPressed == KeyCode.None){
+                    currentView = Instantiate(views[key]);
+                    lastPressed = key;
+                    return;
+                }
+                Destroy(currentView);
+                currentView = lastPressed == key ? null : Instantiate(views[key]);
+                lastPressed = lastPressed == key ? KeyCode.None : key;
+                return;
             }
         }
     }

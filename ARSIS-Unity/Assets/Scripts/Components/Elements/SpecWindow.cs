@@ -36,7 +36,11 @@ public class SpecWindow : MonoBehaviour, IRenderable
 
     private void RetrieveSpec(int eva)
     {
-        Spectrometry spectrometry = (Spectrometry)data.Last();
+        Spectrometry spectrometry = (Spectrometry)data.LastOrDefault();
+        if (spectrometry == null) {
+            rockData = null;
+            return;
+        }
         rockData = eva switch
         {
             2 => spectrometry.data.eva2, // eva2
@@ -59,7 +63,8 @@ public class SpecWindow : MonoBehaviour, IRenderable
     // Update is called once per frame
     void Update()
     {
-        if (!changed) return;
+        if (!changed || rockData == null) return;
+        changed = false;
         rockName.text = rockData.name;
         si.text = "SiO2 " + rockData.data.SiO2;
         ti.text = "TiO2 " + rockData.data.TiO2;
@@ -71,6 +76,5 @@ public class SpecWindow : MonoBehaviour, IRenderable
         k.text = "K2O " + rockData.data.K2O;
         p.text = "P2O3 " + rockData.data.P2O3;
         other.text = "Other " + rockData.data.other;
-        changed = false;
     }
 }
