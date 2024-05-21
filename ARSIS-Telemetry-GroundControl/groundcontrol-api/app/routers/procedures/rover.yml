@@ -1,0 +1,17 @@
+category: Built-in
+description: Directing the rover and sampling
+duration: TBD
+name: Rover Procedure
+tasks:
+- description: 'Rover '
+  name: Command rover
+  steps:
+  - body: "After rover location is obtained, LMCC2 command rover to worksite G (up the hill)"
+    type: text
+  - body: "Once at worksite G, LMCC2 collect samples (via QR code)"
+    type: text
+  - body: "Once samples collected, LMCC2 command rover to a rendezvous point and notify EV2"
+    type: text
+  - body: "Once the rover and EV2 are at the rendezvous site, EV2 collect samples from rover"
+    type: text
+  
