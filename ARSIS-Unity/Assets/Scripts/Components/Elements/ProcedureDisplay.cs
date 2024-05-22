@@ -1,18 +1,36 @@
 using ARSIS.EventManager;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class ProcedureDisplay : MonoBehaviour
+public class ProcedureDisplay : Window
 {
     [SerializeField] GameObject previousButton;
     [SerializeField] GameObject nextButton;
     [SerializeField] TextMeshProUGUI taskName;
     [SerializeField] TextMeshProUGUI stepBody;
+
+    private Dictionary<KeyCode, Action> bindings = null;
     private Procedure procedure;
     private int taskIndex = 0;
     private int stepIndex = 0;
+
+    void Start()
+    {
+        bindings = new()
+        {
+            { KeyCode.LeftArrow, Previous },
+            { KeyCode.RightArrow, Next },
+        };
+    }
+
+    public override Dictionary<KeyCode, Action> GetBindings()
+    {
+        Debug.Log("new bindings");
+        return bindings;
+    }
 
     public void SetProcedure(Procedure procedure)
     {
@@ -22,6 +40,7 @@ public class ProcedureDisplay : MonoBehaviour
 
     public void Previous()
     {
+        if (!previousButton.activeSelf) return;
         int nextTask;
         int nextStep;
         if (stepIndex - 1 < 0)
@@ -39,12 +58,13 @@ public class ProcedureDisplay : MonoBehaviour
 
     public void Next()
     {
+        if (!nextButton.activeSelf) return;
         int nextTask;
         int nextStep;
         if (stepIndex + 1 >= procedure.data.tasks[taskIndex].steps.Count)
         {
-           nextStep = 0;
-           nextTask = Mathf.Min(taskIndex + 1, procedure.data.tasks.Count - 1);
+            nextStep = 0;
+            nextTask = Mathf.Min(taskIndex + 1, procedure.data.tasks.Count - 1);
         } 
         else
         {

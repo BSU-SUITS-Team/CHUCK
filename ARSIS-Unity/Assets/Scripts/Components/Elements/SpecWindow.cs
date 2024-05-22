@@ -37,7 +37,11 @@ public class SpecWindow : MonoBehaviour, IRenderable
 
     private void RetrieveSpec(int eva)
     {
-        Spectrometry spectrometry = (Spectrometry)data.Last();
+        Spectrometry spectrometry = (Spectrometry)data.LastOrDefault();
+        if (spectrometry == null) {
+            rockData = null;
+            return;
+        }
         rockData = eva switch
         {
             2 => spectrometry.data.eva2, // eva2
