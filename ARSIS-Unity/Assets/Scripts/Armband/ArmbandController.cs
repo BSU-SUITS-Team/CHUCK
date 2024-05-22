@@ -41,7 +41,7 @@ public class ArmbandController : MonoBehaviour
         {
             if (Input.GetKeyUp(key))
             {
-                if (lastPressed == KeyCode.None){
+                if (currentView == null || lastPressed == KeyCode.None){
                     currentView = Instantiate(views[key]);
                     lastPressed = key;
                     return;
