@@ -48,37 +48,14 @@
 	</div>
 	<br />
 	<br />
-	<Heading tag="h3">Actions</Heading>
-	<br />
-	<Button color="dark">Collect Sample</Button>
-	<Button color="dark">Drop Sample</Button>
-	<Button color="dark">Take Picture</Button>
-	<Button color="dark">Return</Button>
-	<Button>Self Destruct</Button>
-	<br />
-	<br />
 	<Heading tag="h3">Cameras</Heading>
 	<br />
-	<div class="flex flex-row">
-		<div class="p-2">
-			<EmptyVideo name="Main Camera" />
-		</div>
-		<div class="p-2">
-			<EmptyVideo name="Realsense Camera " />
-		</div>
-	</div>
-	<br />
-	<br />
-	<Heading tag="h3">Details</Heading>
-	<br />
-	<div class="flex flex-row flex-wrap">
-		{#each graphs as graph}
-			<button
-				class="w-96 p-2"
-				on:click={() => graphdata.addGraph('ROVER', graph.name, graph.graphdata)}
-			>
-				<Graph {...graph} />
-			</button>
-		{/each}
-	</div>
+	<!-- <div class="flex flex-row"> -->
+	<!-- 	<div class="p-2"> -->
+	<!-- 		<EmptyVideo name="Main Camera" source="FILL IN" /> -->
+	<!-- 	</div> -->
+	<!-- 	<div class="p-2"> -->
+	<!-- 		<EmptyVideo name="Realsense Camera " source="FILL IN"/> -->
+	<!-- 	</div> -->
+	<!-- </div> -->
 </div>
