@@ -9,6 +9,7 @@ class Datastore:
     def __init__(self):
         self.new_data_queue = asyncio.Queue(maxsize=500)
         self.cache = {}
+        self.outputcache = {}
 
     def print_size(self):
         print(f"cache keys {self.cache.keys()}")
@@ -27,7 +28,14 @@ class Datastore:
             response = await get_from_tss(key)
             if response.status_code == 200:
                 new_event = Event.create_event(key, response.json()[key])
-                await self.add_event(key, new_event)
+                if key not in self.outputcache.keys():
+                    self.outputcache[key] = response.json()[key]
+                    await self.add_event(key, new_event)
+                else:
+                    if self.outputcache[key] != response.json()[key]:
+                        self.outputcache[key] = response.json()[key]
+                        await self.add_event(key, new_event)
+
             await asyncio.sleep(1)
 
     async def start_polling(self):
@@ -40,7 +48,6 @@ class Datastore:
                 key, update_data = await self.new_data_queue.get()
                 await self.append(key, update_data)
                 yield update_data
-
         return gen()
 
     async def get_all(self):
