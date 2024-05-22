@@ -6,7 +6,8 @@ using System;
 
 public abstract class IBindings : MonoBehaviour
 {
-    public Dictionary<KeyCode, Action> GetBindings() {
+    public virtual Dictionary<KeyCode, Action> GetBindings()
+    {
         return null;
     }
 }

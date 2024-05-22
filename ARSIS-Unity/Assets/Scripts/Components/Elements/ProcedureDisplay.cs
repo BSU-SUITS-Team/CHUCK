@@ -12,16 +12,24 @@ public class ProcedureDisplay : Window
     [SerializeField] TextMeshProUGUI taskName;
     [SerializeField] TextMeshProUGUI stepBody;
 
+    private Dictionary<KeyCode, Action> bindings = null;
     private Procedure procedure;
     private int taskIndex = 0;
     private int stepIndex = 0;
 
-    public Dictionary<KeyCode, Action> GetBindings()
+    void Start()
     {
-        return new() {
-            { KeyCode.LeftArrow, () => this.Next() },
-            { KeyCode.RightArrow, () => this.Previous() },
+        bindings = new()
+        {
+            { KeyCode.LeftArrow, Previous },
+            { KeyCode.RightArrow, Next },
         };
+    }
+
+    public override Dictionary<KeyCode, Action> GetBindings()
+    {
+        Debug.Log("new bindings");
+        return bindings;
     }
 
     public void SetProcedure(Procedure procedure)
@@ -32,6 +40,7 @@ public class ProcedureDisplay : Window
 
     public void Previous()
     {
+        if (!previousButton.activeSelf) return;
         int nextTask;
         int nextStep;
         if (stepIndex - 1 < 0)
@@ -49,12 +58,13 @@ public class ProcedureDisplay : Window
 
     public void Next()
     {
+        if (!nextButton.activeSelf) return;
         int nextTask;
         int nextStep;
         if (stepIndex + 1 >= procedure.data.tasks[taskIndex].steps.Count)
         {
-           nextStep = 0;
-           nextTask = Mathf.Min(taskIndex + 1, procedure.data.tasks.Count - 1);
+            nextStep = 0;
+            nextTask = Mathf.Min(taskIndex + 1, procedure.data.tasks.Count - 1);
         } 
         else
         {
