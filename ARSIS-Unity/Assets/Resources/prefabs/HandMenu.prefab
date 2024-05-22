@@ -959,6 +959,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Notifications
       objectReference: {fileID: 0}
+    - target: {fileID: 4641341814249502086, guid: bb8301f394a934827aaf38f4f6b826d9, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5148019309500435064, guid: bb8301f394a934827aaf38f4f6b826d9, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -1086,6 +1090,10 @@ PrefabInstance:
     - target: {fileID: 6926546233217622283, guid: bb8301f394a934827aaf38f4f6b826d9, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -15.999994
+      objectReference: {fileID: 0}
+    - target: {fileID: 7061250466987353185, guid: bb8301f394a934827aaf38f4f6b826d9, type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7463019853374893446, guid: bb8301f394a934827aaf38f4f6b826d9, type: 3}
       propertyPath: m_AnchorMax.y
@@ -1313,6 +1321,10 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5741187294164835390, guid: 8528f95d7fd3a4f44b7a6a3b29f9da1d, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6522012444917823761, guid: 8528f95d7fd3a4f44b7a6a3b29f9da1d, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -1396,6 +1408,10 @@ PrefabInstance:
     - target: {fileID: 7942952556349345241, guid: 8528f95d7fd3a4f44b7a6a3b29f9da1d, type: 3}
       propertyPath: m_Name
       value: Pinned
+      objectReference: {fileID: 0}
+    - target: {fileID: 7942952556349345241, guid: 8528f95d7fd3a4f44b7a6a3b29f9da1d, type: 3}
+      propertyPath: m_Layer
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1783,6 +1799,10 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5741187294164835390, guid: 8528f95d7fd3a4f44b7a6a3b29f9da1d, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6522012444917823761, guid: 8528f95d7fd3a4f44b7a6a3b29f9da1d, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -1866,6 +1886,10 @@ PrefabInstance:
     - target: {fileID: 7942952556349345241, guid: 8528f95d7fd3a4f44b7a6a3b29f9da1d, type: 3}
       propertyPath: m_Name
       value: Menu
+      objectReference: {fileID: 0}
+    - target: {fileID: 7942952556349345241, guid: 8528f95d7fd3a4f44b7a6a3b29f9da1d, type: 3}
+      propertyPath: m_Layer
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
