@@ -40,7 +40,7 @@ public class SettingsWindow : MonoBehaviour
     public void SetEndpoint()
     {
         EventManager instance = EventManager.Instance;
-        instance.Endpoint = inputField.text;
+        instance.Endpoint = string.Format("ws://{0}:8181/ws/events", inputField.text);
     }
 
     public void RestartClient()
