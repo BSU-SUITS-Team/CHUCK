@@ -1,18 +1,28 @@
 using ARSIS.EventManager;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class ProcedureDisplay : MonoBehaviour
+public class ProcedureDisplay : Window
 {
     [SerializeField] GameObject previousButton;
     [SerializeField] GameObject nextButton;
     [SerializeField] TextMeshProUGUI taskName;
     [SerializeField] TextMeshProUGUI stepBody;
+
     private Procedure procedure;
     private int taskIndex = 0;
     private int stepIndex = 0;
+
+    public Dictionary<KeyCode, Action> GetBindings()
+    {
+        return new() {
+            { KeyCode.LeftArrow, () => this.Next() },
+            { KeyCode.RightArrow, () => this.Previous() },
+        };
+    }
 
     public void SetProcedure(Procedure procedure)
     {

@@ -1,5 +1,7 @@
 using ARSIS.UI;
+using MixedReality.Toolkit.Input;
 using MixedReality.Toolkit.UX;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
@@ -15,6 +17,7 @@ public class ArmbandController : MonoBehaviour
     [SerializeField] GameObject rightPrefab;
     [SerializeField] GameObject yPrefab;
     [SerializeField] GameObject nPrefab;
+    [SerializeField] GazeInteractor gazeInteractor;
 
 
     public static ArmbandController Instance { get; private set; }
@@ -22,6 +25,7 @@ public class ArmbandController : MonoBehaviour
     private bool isListening = true;
     private KeyCode lastPressed = KeyCode.None;
     private Dictionary<KeyCode, GameObject> views = new();
+    private Dictionary<KeyCode, Action> bindings = null;
 
     // Start is called before the first frame update
     void Start()
@@ -35,23 +39,16 @@ public class ArmbandController : MonoBehaviour
         views.Add(KeyCode.N, nPrefab);
     }
 
-    private void ToggleWindow()
+    private void ToggleWindow(KeyCode key)
     {
-        foreach (KeyCode key in views.Keys)
-        {
-            if (Input.GetKeyUp(key))
-            {
-                if (currentView == null || lastPressed == KeyCode.None){
-                    currentView = Instantiate(views[key]);
-                    lastPressed = key;
-                    return;
-                }
-                Destroy(currentView);
-                currentView = lastPressed == key ? null : Instantiate(views[key]);
-                lastPressed = lastPressed == key ? KeyCode.None : key;
-                return;
-            }
+        if (currentView == null || lastPressed == KeyCode.None){
+            currentView = Instantiate(views[key]);
+            lastPressed = key;
+            return;
         }
+        Destroy(currentView);
+        currentView = lastPressed == key ? null : Instantiate(views[key]);
+        lastPressed = lastPressed == key ? KeyCode.None : key;
     }
 
     public void SetListening(bool listening)
@@ -59,16 +56,49 @@ public class ArmbandController : MonoBehaviour
         isListening = listening;
     }
 
+    public void SetLookingWindow() {
+        var ray = new Ray(gazeInteractor.rayOriginTransform.position,
+                      gazeInteractor.rayOriginTransform.forward * 3);
+        if (Physics.Raycast(ray, out var hit))
+        {
+            Window window = hit.collider.gameObject.GetComponent<Window>();
+            if (window != null)
+            {
+                bindings = window.GetBindings();
+                return;
+            }
+        }
+        bindings = null;
+    }
+
+    public void Execute(KeyCode key)
+    {
+        if (!bindings.ContainsKey(key)) return;
+        Action action = bindings[key]; // execute binding of key
+        action();
+    }
+
     // Update is called once per frame
     void Update()
     {
         if (!isListening) return;
 
-        // if eye gaze on window
-        //     invoke window buttons based on window keymap
-        //     return
+        SetLookingWindow();
 
-        // toggle views if eyegaze not on window
-        ToggleWindow();
+        foreach (KeyCode key in views.Keys)
+        {
+            if (Input.GetKeyUp(key))
+            {
+                if (bindings != null)
+                {
+                    Execute(key);
+                }
+                else 
+                {
+                    ToggleWindow(key);
+                }
+                return; // execute the first key found up
+            }
+        }
     }
 }

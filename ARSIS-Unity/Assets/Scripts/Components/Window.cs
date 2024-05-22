@@ -7,7 +7,7 @@ using UnityEngine;
 /**
  * This script is to be placed at the root gameObject of the Window base prefab.
  */
-public class Window : MonoBehaviour
+public class Window : IBindings
 {
     [SerializeField] GameObject main;
     [SerializeField] GameObject title;
