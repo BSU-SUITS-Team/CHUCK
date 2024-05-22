@@ -37,7 +37,7 @@
 		}
 	});
 
-	datastore.subscribe(console.log);
+	//datastore.subscribe(console.log);
 
 	$: hasSideBar = Object.keys($keepables).length > 0 || Object.keys($graphdata).length > 0;
 </script>

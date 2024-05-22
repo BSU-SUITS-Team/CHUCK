@@ -263,6 +263,70 @@
 		];
 	};
 
+	$: params = [
+		...suitResources(currentAstro),
+		...suitAtmosphere(currentAstro),
+		...suitHelmet(currentAstro),
+		...suitScrubber(currentAstro),
+		...suitTemperature(currentAstro)
+	];
+
+	let currentNotifs = [];
+	let armed = [];
+
+	function sendNotification(param) {
+		if (getColor(param.value, param.range) != goodColor) {
+			if (armed.includes(param.key) && !currentNotifs.includes(param.key)) {
+				console.log('Somthing is out of bounds');
+				const url = 'http://localhost:8181/notifications/';
+
+				const data = {
+					content: `${param.key} is out of range.`,
+					severity: 0
+				};
+
+				const options = {
+					method: 'POST',
+					headers: {
+						accept: 'application/json',
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify(data)
+				};
+
+				fetch(url, options)
+					.then((response) => {
+						console.log('Response Status Code:', response.status);
+						return response.json();
+					})
+					.then((data) => {
+						console.log('Response Body:', data);
+					})
+					.catch((error) => {
+						console.error('Error:', error);
+					});
+				armed.splice(armed.indexOf(param.key), 1);
+				currentNotifs.push(param.key);
+			}
+		}
+	}
+
+	function arm(param) {
+		if (getColor(param.value, param.range) == goodColor) {
+			if (!armed.includes(param.key)) {
+				armed.push(param.key);
+				// conditionally remove from sent notifications
+				let index = currentNotifs.indexOf(param.key);
+				if (index > -1) {
+					currentNotifs.splice(index, 1);
+				}
+			}
+		}
+	}
+
+	$: _ = params.forEach((a) => sendNotification(a));
+	$: __ = params.forEach((a) => arm(a));
+
 	const categories = (eva: Astronaut) => {
 		return {
 			'Suit Resources': suitResources(eva),

@@ -1,0 +1,22 @@
+category: Built-In
+description: Procedure to Perform Geological Sampling
+duration: 10 mins
+name: Geologic Sampling
+tasks:
+- description: (In the below procedures we used x to denote a value that will change depending on if you are Team 1 or 2.)
+  name:
+  steps:
+  - body: 1. Once EVs have arrived at worksite, LMCCx will provide information to EVx on where to search (3 locations)
+    type: text
+  - body: 2. On go from LMCCx, EVx navigate to Station x
+    type: text
+  - body: 3. EVx, perform Scan and Sampling procedure at designated Station
+    type: text
+  - body: 4. EVx navigate to Station x
+    type: text
+  - body: 5. EVx perform Scan and Sampling procedure at designated Station
+    type: text
+  - body: 6. EVx navigate to Station x
+    type: text
+  - body: 7. EVx, perform Scan and Sampling procedure at designated Station
+    type: text

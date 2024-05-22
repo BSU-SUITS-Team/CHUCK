@@ -258,6 +258,10 @@ PrefabInstance:
       propertyPath: m_Size.y
       value: 300
       objectReference: {fileID: 0}
+    - target: {fileID: 2473440477412082138, guid: 8528f95d7fd3a4f44b7a6a3b29f9da1d, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4405021619962798241, guid: 8528f95d7fd3a4f44b7a6a3b29f9da1d, type: 3}
       propertyPath: hostTransform
       value: 
@@ -346,7 +350,13 @@ PrefabInstance:
       propertyPath: m_Name
       value: Plate
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    - target: {fileID: 7942952556349345241, guid: 8528f95d7fd3a4f44b7a6a3b29f9da1d, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 3604168790352250586, guid: 8528f95d7fd3a4f44b7a6a3b29f9da1d, type: 3}
+    - {fileID: 5741187294164835390, guid: 8528f95d7fd3a4f44b7a6a3b29f9da1d, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 6522012444917823761, guid: 8528f95d7fd3a4f44b7a6a3b29f9da1d, type: 3}

@@ -1,0 +1,68 @@
+category: Built-In
+description: Procedure to Perform Cable Repair at Worksite
+duration: 5 mins
+name: Cable Repair
+tasks:
+- description: Perform steps at COMM Tower Screen
+  name: COMM Tower Screen
+  steps:
+  - body: 1. EV1 Select Gear icon
+    type: text
+  - body: 2. EV1 Select Shutdown
+    type: text
+  - body: 3. EV1 Verify shutdown complete and notify EV2 and LMCC1
+    type: text
+- description: Perform steps at MMRTG
+  name: MMRTG
+  steps:
+  - body: 4. EV2 Move POWER – OFF, notify EV1 and LMCC1
+    type: text
+  - body: 5. EV2 Navigate to Comm Tower to retrieve one end of power cable
+    type: text
+- description: Perform steps with Toolbox
+  name: Toolbox
+  steps:
+  - body: 6. EV1 Retrieve spare cable
+    type: text
+  - body: 7. EV2 take appropriate end of cable to MMRTG, notify EV1 and LMCC1 when at MMRTG
+    type: text
+- description: Perform steps at Comm Tower
+  name: Comm Tower
+  steps:
+  - body: 8. EV1 Disconnect damaged cable from Comm Tower, notify EV2 and LMCC1
+    type: text
+- description: Perform steps at MMRTG
+  name: MMRTG
+  steps:
+  - body: 9. EV2 Disconnect damaged cable from MMRTG, notify EV1 and LMCC1
+    type: text
+- description: Perform steps at Comm Tower
+  name: Comm Tower
+  steps:
+  - body: 10. EV1 Connect new cable from Comm Tower, notify EV2 and LMCC1
+    type: text
+- description: Perform steps at MMRTG
+  name: MMRTG
+  steps:
+  - body: 11. EV2 Connect new cable from MMRTG, notify EV1 and LMCC1
+    type: text
+  - body: 12. EV2 Move POWER – ON, notify EV1 and LMCC1
+    type: text
+- description: Perform steps at Comm Tower
+  name: Comm Tower
+  steps:
+  - body: 13. EV1 POWER – ON, notify EV2 and LMCC1
+    type: text
+  - body: 14. EV1 when start up complete, notify EV2 and LMCC1
+- description: Perform steps at COMM Tower Screen
+  name: COMM Tower Screen
+  steps:
+  - body: 15. EV1 Verify channel “B” is operational, notify EV2 and LMCC1
+    type: text
+- description: Perform verify COMM check
+  name: ALL DCU
+  steps:
+  - body: 16. Perform comm check
+    type: text
+  - body: 17. If Comm good, EV1 switch back to COM-A, EV2 continue COM-B,
+    type: text

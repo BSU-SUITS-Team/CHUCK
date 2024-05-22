@@ -1,0 +1,37 @@
+category: Built-In
+description: Procedure to Sample Rocks
+duration: 1 min
+name: Sampling Procedure
+tasks:
+- description: Perform sampling
+  name: Perform XRF Scan
+  steps:
+  - body: 1. Press and HOLD trigger
+    type: text
+  - body: 2. Aim close to sample until beep, then release trigger
+    type: text
+  - body: 3. Display Hand Menu and press Spectrometry
+    type: text
+- description: Analyze Rock Composition
+  name: Samples are considered scientifically significant if
+  steps:
+  - body: SiO2 % <10
+    type: text
+  - body: TiO2 % >1
+    type: text
+  - body: Al2O3 % >10
+    type: text
+  - body: FeO-T % >29
+    type: text
+  - body: MnO % >1
+    type: text
+  - body: MgO % >20
+    type: text
+  - body: CaO % >10
+    type: text
+  - body: K2O % >1
+    type: text
+  - body: P2O5 % >1.5
+    type: text
+  - body: other % >50
+    type: text

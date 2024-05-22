@@ -50,12 +50,12 @@
 	<br />
 	<Heading tag="h3">Cameras</Heading>
 	<br />
-	<div class="flex flex-row">
-		<div class="p-2">
-			<EmptyVideo name="Main Camera" />
-		</div>
-		<div class="p-2">
-			<EmptyVideo name="Realsense Camera " />
-		</div>
-	</div>
+	<!-- <div class="flex flex-row"> -->
+	<!-- 	<div class="p-2"> -->
+	<!-- 		<EmptyVideo name="Main Camera" source="FILL IN" /> -->
+	<!-- 	</div> -->
+	<!-- 	<div class="p-2"> -->
+	<!-- 		<EmptyVideo name="Realsense Camera " source="FILL IN"/> -->
+	<!-- 	</div> -->
+	<!-- </div> -->
 </div>
