@@ -18,39 +18,33 @@ public class ArmbandController : MonoBehaviour
     [SerializeField] GameObject yPrefab;
     [SerializeField] GameObject nPrefab;
     [SerializeField] GazeInteractor gazeInteractor;
-    [SerializeField] GameObject visualizer;
 
 
     public static ArmbandController Instance { get; private set; }
     private GameObject currentView = null;
     private bool isListening = true;
     private KeyCode lastPressed = KeyCode.None;
-    private Dictionary<KeyCode, GameObject> views = new();
+    private Dictionary<KeyCode, (GameObject, GameObject)> views = new();
     private Dictionary<KeyCode, Action> bindings = null;
-    //private Window bindings = null;
 
     // Start is called before the first frame update
     void Start()
     {
         if (Instance == null) Instance = this;
-        views.Add(KeyCode.UpArrow, upPrefab);
-        views.Add(KeyCode.DownArrow, downPrefab);
-        views.Add(KeyCode.LeftArrow, leftPrefab);
-        views.Add(KeyCode.RightArrow, rightPrefab);
-        views.Add(KeyCode.Y, yPrefab);
-        views.Add(KeyCode.N, nPrefab);
+        views.Add(KeyCode.UpArrow, (upPrefab, null));
+        views.Add(KeyCode.DownArrow, (downPrefab, null));
+        views.Add(KeyCode.LeftArrow, (leftPrefab, null));
+        views.Add(KeyCode.RightArrow, (rightPrefab, null));
+        views.Add(KeyCode.Y, (yPrefab, null));
+        views.Add(KeyCode.N, (nPrefab, null));
     }
 
     private void ToggleWindow(KeyCode key)
     {
-        if (currentView == null || lastPressed == KeyCode.None){
-            currentView = Instantiate(views[key]);
-            lastPressed = key;
-            return;
-        }
-        Destroy(currentView);
-        currentView = lastPressed == key ? null : Instantiate(views[key]);
-        lastPressed = lastPressed == key ? KeyCode.None : key;
+        (GameObject prefab, GameObject view) = views[key];
+        GameObject toggleView = view == null ? Instantiate(prefab) : null;
+        if (toggleView == null) Destroy(view);
+        views[key] = (prefab, toggleView);
     }
 
     public void SetListening(bool listening)

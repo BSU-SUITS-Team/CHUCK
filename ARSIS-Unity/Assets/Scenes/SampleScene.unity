@@ -193,7 +193,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 864782693044642440, guid: 1453e7876c2bd614da4d4e7e683dee09, type: 3}
       propertyPath: m_Size.y
-      value: 157
+      value: 165
       objectReference: {fileID: 0}
     - target: {fileID: 894371897405503454, guid: 1453e7876c2bd614da4d4e7e683dee09, type: 3}
       propertyPath: m_Name
@@ -229,7 +229,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1149029048325417955, guid: 1453e7876c2bd614da4d4e7e683dee09, type: 3}
       propertyPath: m_Size.y
-      value: 45.666668
+      value: 48.333336
       objectReference: {fileID: 0}
     - target: {fileID: 1149029048325417958, guid: 1453e7876c2bd614da4d4e7e683dee09, type: 3}
       propertyPath: m_AnchorMax.y
@@ -285,7 +285,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1553695080312038313, guid: 1453e7876c2bd614da4d4e7e683dee09, type: 3}
       propertyPath: m_Size.y
-      value: 45.666668
+      value: 48.333336
       objectReference: {fileID: 0}
     - target: {fileID: 1553695080312038316, guid: 1453e7876c2bd614da4d4e7e683dee09, type: 3}
       propertyPath: m_AnchorMax.y
@@ -469,7 +469,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3726312753104263971, guid: 1453e7876c2bd614da4d4e7e683dee09, type: 3}
       propertyPath: m_Size.y
-      value: 45.666668
+      value: 48.333336
       objectReference: {fileID: 0}
     - target: {fileID: 3726312753104263974, guid: 1453e7876c2bd614da4d4e7e683dee09, type: 3}
       propertyPath: m_AnchorMax.y
@@ -525,7 +525,7 @@ PrefabInstance:
       objectReference: {fileID: 1075922271784969681, guid: 86f8d536a3dc48b4785e5132b68469c6, type: 3}
     - target: {fileID: 4482840679364667315, guid: 1453e7876c2bd614da4d4e7e683dee09, type: 3}
       propertyPath: m_Size.x
-      value: 36.5
+      value: 160
       objectReference: {fileID: 0}
     - target: {fileID: 4482840679364667315, guid: 1453e7876c2bd614da4d4e7e683dee09, type: 3}
       propertyPath: m_Size.y
@@ -641,7 +641,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4871076080765095340, guid: 1453e7876c2bd614da4d4e7e683dee09, type: 3}
       propertyPath: m_Size.y
-      value: 45.666668
+      value: 48.333336
       objectReference: {fileID: 0}
     - target: {fileID: 4871076080765095342, guid: 1453e7876c2bd614da4d4e7e683dee09, type: 3}
       propertyPath: <OnClicked>k__BackingField.m_PersistentCalls.m_Calls.Array.size
@@ -713,7 +713,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4917870212654306602, guid: 1453e7876c2bd614da4d4e7e683dee09, type: 3}
       propertyPath: m_Size.y
-      value: 45.666668
+      value: 48.333336
       objectReference: {fileID: 0}
     - target: {fileID: 4917870212654306607, guid: 1453e7876c2bd614da4d4e7e683dee09, type: 3}
       propertyPath: m_AnchorMax.y
@@ -905,7 +905,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6367885562594573186, guid: 1453e7876c2bd614da4d4e7e683dee09, type: 3}
       propertyPath: m_Size.y
-      value: 45.666668
+      value: 48.333336
       objectReference: {fileID: 0}
     - target: {fileID: 6367885562594573191, guid: 1453e7876c2bd614da4d4e7e683dee09, type: 3}
       propertyPath: m_AnchorMax.y
@@ -1425,6 +1425,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1227130315}
     m_Modifications:
+    - target: {fileID: 1059656148845938526, guid: c0d3a52582cdbe943a3c8d5bcffe53ae, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1075922271784969681, guid: c0d3a52582cdbe943a3c8d5bcffe53ae, type: 3}
       propertyPath: m_Name
       value: NotificationPopUp
@@ -2528,7 +2532,6 @@ MonoBehaviour:
   yPrefab: {fileID: 8734961851248203760, guid: d029c425c05a4fa4b930a399a1f73ee0, type: 3}
   nPrefab: {fileID: 6696151141573330283, guid: 7ca4d7ee4108b427f90e78e289d7e0d4, type: 3}
   gazeInteractor: {fileID: 949461106}
-  visualizer: {fileID: 0}
 --- !u!4 &1645758313
 Transform:
   m_ObjectHideFlags: 0
