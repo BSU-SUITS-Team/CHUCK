@@ -1,8 +1,0 @@
-FROM gcc:latest
-
-WORKDIR /usr/src/myapp
-
-COPY ./TSS_2024 .
-RUN chmod +x ./build.bat && ./build.bat
-
-EXPOSE 14141
