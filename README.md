@@ -11,7 +11,7 @@ memorized instructions. SUITS addresses this problem by creating an AR environme
 will also communicate with ground control, and then be displayed in the astronaut’s helmet 
 with up-to-date information and instructions about the task at hand. 
 
-See last year's [ARSIS project](https://github.com/NASA-SUITS-Teams/ARSIS-6).
+See last year's project on the `2024` branch.
 
 ## Technologies
 
@@ -19,7 +19,7 @@ See last year's [ARSIS project](https://github.com/NASA-SUITS-Teams/ARSIS-6).
 - [Unity 3D](https://unity.com/) Real-Time 3D Engine
 
 ### Ground Control
-- [ReactJS](https://reactjs.org/) Front-end Interface
+- [Svelte Kit](https://kit.svelte.dev) Front-end Interface
 - [NodeJS](https://nodejs.org/en/) Front-end Runtime Environment
 - [FastAPI](https://fastapi.tiangolo.com/) Back-end API
 
