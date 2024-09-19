@@ -20,8 +20,3 @@ services:
       - ./groundcontrol-db/database.env # configure postgres
     ports:
       - "5432:5432"
-  tss:
-    build: ./TSSExtras
-    ports:
-      - 14141:14141
-    command: sh -c "./server.exe > /dev/null"
