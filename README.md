@@ -1,10 +1,10 @@
 # CHUCK
-The sixth iteration of of the ARSIS project.
+The sixth iteration of of the CHUCK project.
 
 ## Project Summary
 
 The Boise State NASA SUITS team is currently in the process of developing an augmented 
-reality application. its purpose of is to help astronauts more easily complete EVA tasks.
+reality application. Its purpose of is to help astronauts more easily complete EVA tasks.
 
 Currently, real-life astronauts’ mission objectives are completed via written or 
 memorized instructions. SUITS addresses this problem by creating an AR environment which 
