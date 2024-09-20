@@ -50,4 +50,4 @@ See more detailed [instructions here](https://www.tomasbeuzen.com/post/git-fork-
 11. Open a pull request in Github to have your feature reviewed and hopefully merged!
 
 ##Resources
-Student Made Unity Documentation: VR Dev Notes --EDIT ME!--/Winter'sArcade__UnityBible.docx
+Student Made Unity Documentation: https://github.com/Win47236/CoreUnityScripts/blob/main/VR%20Dev%20Notes%20--EDIT%20ME!--/Winter'sArcade__UnityBible.docx
