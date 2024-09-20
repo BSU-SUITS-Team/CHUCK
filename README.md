@@ -48,3 +48,6 @@ See more detailed [instructions here](https://www.tomasbeuzen.com/post/git-fork-
 9. Now that your fork has been updated, you should update your current "new_feature" branch with `git checkout new_feature` and `git merge main`
 10. When you believe your feature is production ready, push your branch to your fork with `git push origin new_feature`
 11. Open a pull request in Github to have your feature reviewed and hopefully merged!
+
+##Resources
+Student Made Unity Documentation: VR Dev Notes --EDIT ME!--/Winter'sArcade__UnityBible.docx
