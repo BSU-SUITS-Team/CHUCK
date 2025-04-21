@@ -1,5 +1,9 @@
+import json
 import math
 import heapq
+import os
+import sys
+import pandas as pd
 
 # Define the Cell class
 class Cell:
@@ -11,8 +15,8 @@ class Cell:
         self.h = 0  # Heuristic cost from this cell to destination
 
 # Define the size of the grid
-ROW = 9
-COL = 10
+ROW = 2000
+COL = 2001
 
 # Check if a cell is valid (within the grid)
 def is_valid(row, col):
@@ -40,8 +44,8 @@ def trace_path(cell_details, dest):
     #Initialize fuel and oxygen levels
     inital_fuel = 100.0
     inital_oxygen = 100.0
-    fuel_loss_per_step = 0.05 #5%
-    oxygen_loss_per_step = 0.05
+    fuel_loss_per_step = 0.006 #0.6%
+    oxygen_loss_per_step = 0.005
 
     # Trace the path from destination to source using parent cells
     while not (cell_details[row][col].parent_i == row and cell_details[row][col].parent_j == col):
@@ -68,7 +72,12 @@ def trace_path(cell_details, dest):
 
     print(f"Total steps taken: {steps}")
     print(f"Fuel remaining: {remaining_fuel:.2f}%")
-    print(f"Oxygen remaining: {remaining_fuel:.2f}%")
+    print(f"Oxygen remaining: {remaining_oxygen:.2f}%")
+    dict = {"Path":path, "fuel":remaining_fuel, "oxygen": remaining_oxygen}
+    #dict json object
+    temp = json.dumps(dict)
+    print("View of json obj (ensure its saving correctly)")
+    print(temp)
 
 # Implement the A* search algorithm
 def a_star_search(grid, src, dest):
@@ -159,22 +168,33 @@ def a_star_search(grid, src, dest):
 
 def main():
     # Define the grid (1 for unblocked, 0 for blocked)
-    grid = [
-        [1, 0, 1, 1, 1, 1, 0, 1, 1, 1],
-        [1, 1, 1, 0, 1, 1, 1, 0, 1, 1],
-        [1, 1, 1, 0, 1, 1, 0, 1, 0, 1],
-        [0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
-        [1, 1, 1, 0, 1, 1, 1, 0, 1, 0],
-        [1, 0, 1, 1, 1, 1, 0, 0, 0, 0],
-        [1, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-        [1, 0, 1, 1, 1, 1, 0, 1, 1, 1],
-        [1, 1, 1, 0, 0, 0, 1, 0, 0, 1]
-    ]
+    #if the height of the grid is to high then set it to 0 or set it to 1 otherwise
 
-    # Define the source and destination
-    src = [8, 0]
-    dest = [0, 0]
+    if not os.path.exists('processed_grid.csv'):#checks if processed grid exists if not parse through data.csv
+        df = pd.read_csv('data.csv')
+        grid = df.applymap(lambda x: 1 if -2.0 < x < 5.0 else 0)
+        grid.to_csv('processed_grid.csv', index=False)
+        print("Processed grid created.")
+    else:
+        grid = pd.read_csv('processed_grid.csv')
+        print("Loaded processed grid from file.")
 
+    grid = grid.values.tolist()
+
+    # Get grid size
+    rows = len(grid)
+    cols = len(grid[0]) if rows > 0 else 0
+    print(f"Grid size: {rows} rows x {cols} columns")
+    
+    if len(sys.argv) != 5:
+        print("Usage: python script.py start_row start_col dest_row dest_col")
+        return
+    try:
+        src = [int(sys.argv[1]), int(sys.argv[2])]
+        dest = [int(sys.argv[3]), int(sys.argv[4])]
+    except ValueError:
+        print("Corrdinates must be integers.")
+        return
     # Run the A* search algorithm
     a_star_search(grid, src, dest)
 
