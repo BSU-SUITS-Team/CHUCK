@@ -12,6 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fcd4c23ba9bf1c24f92dd07e08926860, type: 3}
   m_Name: FigmaData
   m_EditorClassIdentifier: 
-  files: []
-  lastRequestedFile: 
-  lastDocumentOpened: 
+  files:
+  - name: BSU MRTK Figma Toolkit - HoloLens, Mixed Reality (Community)
+    fileID: tiJM6Wfj72s40cHRclaEfn
+    textAsset: {fileID: 4900000, guid: 15558d34e74e1ac42b666f0663ff0238, type: 3}
+  lastRequestedFile: tiJM6Wfj72s40cHRclaEfn
+  lastDocumentOpened: tiJM6Wfj72s40cHRclaEfn
