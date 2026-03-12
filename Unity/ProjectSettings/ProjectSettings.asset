@@ -46,7 +46,7 @@ PlayerSettings:
   defaultScreenHeight: 1080
   defaultScreenWidthWeb: 960
   defaultScreenHeightWeb: 600
-  m_StereoRenderingPath: 0
+  m_StereoRenderingPath: 2
   m_ActiveColorSpace: 1
   m_SpriteBatchVertexThreshold: 300
   m_MTRendering: 1
@@ -138,8 +138,8 @@ PlayerSettings:
   bundleVersion: 0.1
   preloadedAssets:
   - {fileID: 11400000, guid: c677e5c4eb85b7849a8da406775c299d, type: 2}
-  - {fileID: -7479196934845487387, guid: e5970d63abf808a47a276ab009926e9e, type: 2}
   - {fileID: 11400000, guid: 0d763875b8a4dc44db0566cdb9b258c4, type: 2}
+  - {fileID: -7479196934845487387, guid: e5970d63abf808a47a276ab009926e9e, type: 2}
   - {fileID: 5928721039695732153, guid: 362aaf4d94336f148a46194625799e20, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
@@ -737,9 +737,9 @@ PlayerSettings:
   webGLMemoryGeometricGrowthCap: 96
   webGLPowerPreference: 2
   scriptingDefineSymbols:
-    Android: USE_INPUT_SYSTEM_POSE_CONTROL
-    Standalone: USE_INPUT_SYSTEM_POSE_CONTROL
-    Windows Store Apps: USE_INPUT_SYSTEM_POSE_CONTROL
+    Android: USE_INPUT_SYSTEM_POSE_CONTROL;USE_STICK_CONTROL_THUMBSTICKS;USE_STICK_CONTROL_THUMBSTICKS
+    Standalone: USE_INPUT_SYSTEM_POSE_CONTROL;USE_STICK_CONTROL_THUMBSTICKS;USE_STICK_CONTROL_THUMBSTICKS
+    Windows Store Apps: USE_INPUT_SYSTEM_POSE_CONTROL;USE_STICK_CONTROL_THUMBSTICKS;USE_STICK_CONTROL_THUMBSTICKS
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend: {}
@@ -775,9 +775,9 @@ PlayerSettings:
   metroPackageVersion: 1.0.0.0
   metroCertificatePath: Assets/WSATestCertificate.pfx
   metroCertificatePassword: 
-  metroCertificateSubject: DefaultCompany
-  metroCertificateIssuer: DefaultCompany
-  metroCertificateNotAfter: 00df282c0201db01
+  metroCertificateSubject: BSUSuits
+  metroCertificateIssuer: BSUSuits
+  metroCertificateNotAfter: 80110bec30cbdd01
   metroApplicationDescription: MRTK3Test
   wsaImages: {}
   metroTileShortName: MRTK3Test
@@ -805,8 +805,8 @@ PlayerSettings:
       LowLevelDevices: True
       InternetClientServer: True
       OfflineMapsManagement: True
-      BackgroundMediaPlayback: True
       Objects3D: True
+      Proximity: True
       RemoteSystem: True
       BlockedChatMessages: True
       PhoneCall: True
@@ -828,9 +828,9 @@ PlayerSettings:
       PointOfService: True
       RecordedCallsFolder: True
       Contacts: True
-      Proximity: True
       InternetClient: True
       CodeGeneration: True
+      BackgroundMediaPlayback: True
       EnterpriseAuthentication: True
   metroTargetDeviceFamilies:
     Desktop: False

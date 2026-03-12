@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fcd4c23ba9bf1c24f92dd07e08926860, type: 3}
+  m_Name: FigmaData
+  m_EditorClassIdentifier: 
+  files:
+  - name: BSU MRTK Figma Toolkit - HoloLens, Mixed Reality (Community)
+    fileID: tiJM6Wfj72s40cHRclaEfn
+    textAsset: {fileID: 4900000, guid: 15558d34e74e1ac42b666f0663ff0238, type: 3}
+  lastRequestedFile: tiJM6Wfj72s40cHRclaEfn
+  lastDocumentOpened: tiJM6Wfj72s40cHRclaEfn
