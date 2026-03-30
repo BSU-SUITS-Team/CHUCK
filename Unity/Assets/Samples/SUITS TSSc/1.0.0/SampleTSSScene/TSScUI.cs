@@ -38,6 +38,8 @@ public class TSScUI : MonoBehaviour
             Debug.Log("UIA Updated");
             string UIAJsonString = TSSc.GetUIAJsonString();
 
+            Debug.Log(UIAJsonString);
+
             // Displays the data on the screen (Your's should be more complicated)
             UIAJsonDisplay.text = UIAJsonString;
         }

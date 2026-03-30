@@ -111,6 +111,7 @@ public class TSScConnection : MonoBehaviour
     {
         using (UnityWebRequest webRequest = UnityWebRequest.Get(this.url + "/json_data/UIA.json"))
         {
+            Debug.Log("Attempting UIA State Update");
             // Request and wait for the desired page.
             yield return webRequest.SendWebRequest();
 
