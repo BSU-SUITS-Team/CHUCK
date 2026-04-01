@@ -9,20 +9,24 @@ PrefabInstance:
     m_TransformParent: {fileID: 1376612269236285823}
     m_Modifications:
     - target: {fileID: 1615930719199993664, guid: 5d7e8dc65613e0c4ba0f64f8fff0a1c3, type: 3}
+      propertyPath: m_Size.x
+      value: 280
+      objectReference: {fileID: 0}
+    - target: {fileID: 1615930719199993664, guid: 5d7e8dc65613e0c4ba0f64f8fff0a1c3, type: 3}
       propertyPath: m_Size.y
-      value: 218.12747
+      value: 208.16733
       objectReference: {fileID: 0}
     - target: {fileID: 1615930719199993664, guid: 5d7e8dc65613e0c4ba0f64f8fff0a1c3, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1615930719199993664, guid: 5d7e8dc65613e0c4ba0f64f8fff0a1c3, type: 3}
       propertyPath: m_Center.x
-      value: 0.000015258789
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1615930719199993664, guid: 5d7e8dc65613e0c4ba0f64f8fff0a1c3, type: 3}
       propertyPath: m_Center.y
-      value: 0.0000076293945
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2202019217811627669, guid: 5d7e8dc65613e0c4ba0f64f8fff0a1c3, type: 3}
       propertyPath: m_Enabled
@@ -187,7 +191,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1922220768106560367, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_text
-      value: EVA Summary Timeline
+      value: EVA LTV Timeline
       objectReference: {fileID: 0}
     - target: {fileID: 2142167140070017856, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_IsActive
@@ -249,21 +253,29 @@ PrefabInstance:
       propertyPath: currentIconName
       value: Icon 35
       objectReference: {fileID: 0}
+    - target: {fileID: 7622856548395854474, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211202, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Name
       value: SummaryTimeline
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211224, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Size.x
-      value: 290
+      value: 280
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211224, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Size.y
       value: 32
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211224, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8376646494505211224, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Center.x
-      value: 0.000015258789
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211224, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Center.y
@@ -445,7 +457,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 220739245136757902, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
       propertyPath: m_Size.y
-      value: 32.87251
+      value: 32.83267
       objectReference: {fileID: 0}
     - target: {fileID: 424854906178323767, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
       propertyPath: m_AnchorMax.y
@@ -571,6 +583,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3114122842630559833, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3164305557132069238, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
       propertyPath: m_Size.y
       value: 33.00797
@@ -581,7 +597,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3337446213332479607, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
       propertyPath: m_fontSize
-      value: 29.4
+      value: 29.35
       objectReference: {fileID: 0}
     - target: {fileID: 3571022054950241779, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
       propertyPath: m_AnchorMax.y
@@ -609,7 +625,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3945599707560585099, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
       propertyPath: m_Size.y
-      value: 32.87251
+      value: 32.83267
       objectReference: {fileID: 0}
     - target: {fileID: 3945599707560585102, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
       propertyPath: m_AnchorMax.y

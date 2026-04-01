@@ -65,7 +65,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 10:00
+  m_text: 7:00
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -268,7 +268,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.007843138, g: 0, b: 1, a: 1}
+  m_Color: {r: 0.30416676, g: 0.735849, b: 0.2256141, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1788,7 +1788,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 15:00
+  m_text: 10:00
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1992,7 +1992,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1922220768106560367, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_text
-      value: Navigate to Station
+      value: '-Connect UIA to DCU
+
+        -EMU config
+
+        -Disconnect'
       objectReference: {fileID: 0}
     - target: {fileID: 2142167140070017856, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_IsActive
@@ -2068,11 +2072,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211224, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Size.x
-      value: 123.5
+      value: 118.5
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211224, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Size.y
-      value: 23.784754
+      value: 22.708519
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211224, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Center.x
@@ -2218,7 +2222,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1922220768106560367, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_text
-      value: Navigate to Comm Tower
+      value: Navigate to LTV location
       objectReference: {fileID: 0}
     - target: {fileID: 2142167140070017856, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_IsActive
@@ -2294,11 +2298,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211224, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Size.x
-      value: 123.5
+      value: 118.5
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211224, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Size.y
-      value: 24.775785
+      value: 23.654709
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211224, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Center.x
@@ -2444,7 +2448,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1922220768106560367, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_text
-      value: Navigate to GS worksite
+      value: Identify and repair issues with LTV
       objectReference: {fileID: 0}
     - target: {fileID: 2142167140070017856, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_IsActive
@@ -2520,11 +2524,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211224, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Size.x
-      value: 123.5
+      value: 118.5
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211224, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Size.y
-      value: 22.793722
+      value: 10.8811655
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211224, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Center.x
@@ -2532,7 +2536,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211224, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Center.y
-      value: 0
+      value: -5.4405828
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211226, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: <OnClicked>k__BackingField.m_PersistentCalls.m_Calls.Array.size
@@ -2774,7 +2778,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3337446213332479607, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
       propertyPath: m_text
-      value: EVA Summary Timeline
+      value: EVA LTV Timeline
       objectReference: {fileID: 0}
     - target: {fileID: 3337446213332479607, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
       propertyPath: m_fontSize
@@ -2981,7 +2985,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1922220768106560367, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_text
-      value: Inspect Comm Tower Worksite
+      value: LTV Repair
       objectReference: {fileID: 0}
     - target: {fileID: 2142167140070017856, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_IsActive
@@ -3057,11 +3061,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211224, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Size.x
-      value: 123.5
+      value: 118.5
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211224, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Size.y
-      value: 22.793722
+      value: 21.762331
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211224, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Center.x
@@ -3207,7 +3211,9 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1922220768106560367, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_text
-      value: Worksite Repair and Test
+      value: 'Complete system scan and restart
+
+'
       objectReference: {fileID: 0}
     - target: {fileID: 2142167140070017856, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_IsActive
@@ -3275,11 +3281,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211224, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Size.x
-      value: 123.5
+      value: 118.5
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211224, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Size.y
-      value: 45.87444
+      value: 45.246635
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211224, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Center.x
@@ -3501,11 +3507,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211224, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Size.x
-      value: 123.5
+      value: 118.5
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211224, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Size.y
-      value: 23.784754
+      value: 22.708519
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211224, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Enabled
@@ -3655,7 +3661,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1922220768106560367, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_text
-      value: Geological Sampling
+      value: Navigate to PR location
       objectReference: {fileID: 0}
     - target: {fileID: 2142167140070017856, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_IsActive
@@ -3731,11 +3737,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211224, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Size.x
-      value: 123.5
+      value: 118.5
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211224, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Size.y
-      value: 44.596413
+      value: 21.289238
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211224, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Enabled
@@ -3747,7 +3753,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211224, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Center.y
-      value: 0
+      value: -10.644619
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211226, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: <OnClicked>k__BackingField.m_PersistentCalls.m_Calls.Array.size
@@ -3961,11 +3967,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211224, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Size.x
-      value: 123.5
+      value: 118.5
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211224, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Size.y
-      value: 44.59641
+      value: 42.578476
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211224, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Enabled
@@ -3977,7 +3983,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211224, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Center.y
-      value: -0.0000019073486
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211226, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: <OnClicked>k__BackingField.m_PersistentCalls.m_Calls.Array.size

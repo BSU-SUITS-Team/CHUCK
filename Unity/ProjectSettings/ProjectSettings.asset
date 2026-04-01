@@ -393,7 +393,7 @@ PlayerSettings:
   - m_BuildTarget: Switch
     m_GraphicsJobs: 1
   - m_BuildTarget: MetroSupport
-    m_GraphicsJobs: 1
+    m_GraphicsJobs: 0
   - m_BuildTarget: AppleTVSupport
     m_GraphicsJobs: 0
   - m_BuildTarget: BJMSupport
@@ -790,7 +790,7 @@ PlayerSettings:
   metroSplashScreenUseBackgroundColor: 0
   platformCapabilities:
     WindowsStoreApps:
-      EnterpriseAuthentication: True
+      CodeGeneration: True
       VideosLibrary: True
       Location: True
       HumanInterfaceDevice: True
@@ -826,8 +826,8 @@ PlayerSettings:
       Contacts: True
       InternetClient: True
       Proximity: True
-      CodeGeneration: True
       BackgroundMediaPlayback: True
+      EnterpriseAuthentication: True
   metroTargetDeviceFamilies:
     Desktop: False
     Holographic: True
