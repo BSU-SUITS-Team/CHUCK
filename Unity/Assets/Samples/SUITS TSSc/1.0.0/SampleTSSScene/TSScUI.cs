@@ -14,14 +14,17 @@ public class TSScUI : MonoBehaviour
     public TMP_InputField InputFieldUrl;
     public Button     ConnectButton;
 
-    // UI Display
-    public TMP_Text UIAJsonDisplay;
-    public TMP_Text DCUJsonDisplay;
+    // // UI Display
+    // public TMP_Text UIAJsonDisplay;
+    // public TMP_Text DCUJsonDisplay;
     public TMP_Text ROVERJsonDisplay;
-    public TMP_Text SPECJsonDisplay;
-    public TMP_Text TELEMETRYJsonDisplay;
-    public TMP_Text COMMJsonDisplay;
-    public TMP_Text IMUJsonDisplay;
+    public TMP_Text EVAJsonDisplay;
+    public TMP_Text LTVJsonDisplay; 
+    public TMP_Text LTVErrorJsonDisplay;
+    // public TMP_Text SPECJsonDisplay;
+    // public TMP_Text TELEMETRYJsonDisplay;
+    // public TMP_Text COMMJsonDisplay;
+    // public TMP_Text IMUJsonDisplay;
 
     // Start is called before the first frame update
     void Start()
@@ -32,29 +35,27 @@ public class TSScUI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // Check if the UIA data has been updated
-        if (TSSc.isUIAUpdated())
-        {
-            Debug.Log("UIA Updated");
-            string UIAJsonString = TSSc.GetUIAJsonString();
+        // // Check if the UIA data has been updated
+        // if (TSSc.isUIAUpdated())
+        // {
+        //     Debug.Log("UIA Updated");
+        //     string UIAJsonString = TSSc.GetUIAJsonString();
 
-            Debug.Log(UIAJsonString);
+        //     // Displays the data on the screen (Your's should be more complicated)
+        //     UIAJsonDisplay.text = UIAJsonString;
+        // }
 
-            // Displays the data on the screen (Your's should be more complicated)
-            UIAJsonDisplay.text = UIAJsonString;
-        }
+        // // Check if the DCU data has been updated
+        // if (TSSc.isDCUUpdated())
+        // {
+        //     Debug.Log("DCU Updated");
 
-        // Check if the DCU data has been updated
-        if (TSSc.isDCUUpdated())
-        {
-            Debug.Log("DCU Updated");
+        //     // Get the Updated DCU Json
+        //     string DCUJsonString = TSSc.GetDCUJsonString();
 
-            // Get the Updated DCU Json
-            string DCUJsonString = TSSc.GetDCUJsonString();
-
-            // Displays the DCU data to the screen (Your's should be more complicated)
-            DCUJsonDisplay.text = DCUJsonString;
-        }
+        //     // Displays the DCU data to the screen (Your's should be more complicated)
+        //     DCUJsonDisplay.text = DCUJsonString;
+        // }
 
         // Check if the ROVER data has been updated
         if (TSSc.isROVERUpdated())
@@ -68,53 +69,53 @@ public class TSScUI : MonoBehaviour
             ROVERJsonDisplay.text = ROVERJsonString;
         }
 
-        // Check if the SPEC data has been updated
-        if (TSSc.isSPECUpdated())
+        // Check if the EVA data has been updated
+        if (TSSc.isEVAUpdated())
         {
-            Debug.Log("SPEC Updated");
+            Debug.Log("EVA Updated");
 
-            // Get the Updated SPEC Json
-            string SPECJsonString = TSSc.GetSPECJsonString();
+            // Get the Updated EVA Json
+            string EVAJsonString = TSSc.GetEVAJsonString();
 
-            // Displays the SPEC data to the screen (Your's should be more complicated)
-            SPECJsonDisplay.text = SPECJsonString;
+            // Displays the EVA data to the screen (Your's should be more complicated)
+            EVAJsonDisplay.text = EVAJsonString;
         }
 
-        // Check if the TELEMETRY data has been updated
-        if (TSSc.isTELEMETRYUpdated())
+        // Check if the LTV data has been updated
+        if (TSSc.isLTVUpdated())
         {
-            Debug.Log("TELEMETRY Updated");
+            Debug.Log("LTV Updated");
 
-            // Get the Updated TELEMETRY Json
-            string TELEMETRYJsonString = TSSc.GetTELEMETRYJsonString();
+            // Get the Updated LTV Json
+            string LTVJsonString = TSSc.GetLTVJsonString();
 
-            // Displays the TELEMETRY data to the screen (Your's should be more complicated)
-            TELEMETRYJsonDisplay.text = TELEMETRYJsonString;
+            // Displays the LTV data to the screen (Your's should be more complicated)
+            LTVJsonDisplay.text = LTVJsonString;
         }
 
-        // Check if the COMM data has been updated
-        if (TSSc.isCOMMUpdated())
+        // Check if the LTV Error data has been updated
+        if (TSSc.isLTVErrorUpdated())
         {
-            Debug.Log("COMM Updated");
+            Debug.Log("LTV Error Updated");
 
-            // Get the Updated COMM Json
-            string COMMJsonString = TSSc.GetCOMMJsonString();
+            // Get the Updated LTV Error Json
+            string LTVErrorJsonString = TSSc.GetLTVErrorJsonString();
 
-            // Displays the COMM data to the screen (Your's should be more complicated)
-            COMMJsonDisplay.text = COMMJsonString;
+            // Displays the LTV Error data to the screen (Your's should be more complicated)
+            LTVErrorJsonDisplay.text = LTVErrorJsonString;
         }
 
-        // Check if the COMM data has been updated
-        if (TSSc.isIMUUpdated())
-        {
-            Debug.Log("IMU Updated");
+        // // Check if the IMU data has been updated
+        // if (TSSc.isIMUUpdated())
+        // {
+        //     Debug.Log("IMU Updated");
 
-            // Get the Updated IMU Json
-            string IMUJsonString = TSSc.GetIMUJsonString();
+        //     // Get the Updated IMU Json
+        //     string IMUJsonString = TSSc.GetIMUJsonString();
 
-            // Displays the IMU data to the screen (Your's should be more complicated)
-            IMUJsonDisplay.text = IMUJsonString;
-        }
+        //     // Displays the IMU data to the screen (Your's should be more complicated)
+        //     IMUJsonDisplay.text = IMUJsonString;
+        // }
     }
 
     // On Connect Button Press
@@ -127,7 +128,7 @@ public class TSScUI : MonoBehaviour
         Debug.Log("Button Pressed: " + host);
 
         // Connect to TSSc at that Host
-        TSSc.ConnectToHost(host, 0);
+        TSSc.ConnectToHost(host);
     }
 
     public void Disconnect_Button()

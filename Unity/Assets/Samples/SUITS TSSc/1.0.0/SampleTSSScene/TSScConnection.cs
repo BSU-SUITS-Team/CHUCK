@@ -12,32 +12,39 @@ public class TSScConnection : MonoBehaviour
     string host;
     string port;
     string url;
-    int    team_number;
+    //int    team_number;
     bool   connected;
     float  time_since_last_update;
 
     // Database Jsons
-    bool UIAUpdated;
-    string UIAJsonString;
-    bool DCUUpdated;
-    string DCUJsonString;
+    //bool UIAUpdated;
+   // string UIAJsonString;
+    //bool DCUUpdated;
+   // string DCUJsonString;
     bool ROVERUpdated;
     string ROVERJsonString;
-    bool SPECUpdated;
-    string SPECJsonString;
-    bool TELEMETRYUpdated;
-    string TELEMETRYJsonString;
-    bool COMMUpdated;
-    string COMMJsonString;
-    bool IMUUpdated;
-    string IMUJsonString;
+    bool EVAUpdated;
+    string EVAJsonString;
+    bool LTVUpdated;
+    string LTVJsonString;
+    bool LTVErrorUpdated;
+    string LTVErrorJsonString;
+
+    // bool SPECUpdated;
+    // string SPECJsonString;
+    // bool TELEMETRYUpdated;
+    // string TELEMETRYJsonString;
+    // bool COMMUpdated;
+    // string COMMJsonString;
+    // bool IMUUpdated;
+    // string IMUJsonString;
 
     // Connect to TSSc with a specific team number
-    public void ConnectToHost(string host, int team_number)
+    public void ConnectToHost(string host) //, int team_number)
     {
         this.host = host;
         this.port = "14141";
-        this.team_number = team_number;
+        //this.team_number = team_number;
         this.url = "http://" + this.host + ":" + this.port;
         Debug.Log(this.url);
 
@@ -67,13 +74,13 @@ public class TSScConnection : MonoBehaviour
             if (time_since_last_update > 1.0f)
             {
                 // Pull TSSc Updates
-                StartCoroutine(GetUIAState());
-                StartCoroutine(GetDCUState()); 
-                StartCoroutine(GetROVERState());
-                StartCoroutine(GetSPECState());
-                StartCoroutine(GetTELEMETRYState());
-                StartCoroutine(GetCOMMState());
-                StartCoroutine(GetIMUState());
+                StartCoroutine(GetEVAState());
+                StartCoroutine(GetROVERState()); 
+                StartCoroutine(GetLTVState());
+                StartCoroutine(GetLTVErrorState());
+                // StartCoroutine(GetTELEMETRYState());
+                // StartCoroutine(GetCOMMState());
+                // StartCoroutine(GetIMUState());
                 time_since_last_update = 0.0f;
             }
         }
@@ -106,80 +113,100 @@ public class TSScConnection : MonoBehaviour
     }
 
     ///////////////////////////////////////////// UIA
+    
+    //  IEnumerator GetEVAState()
+    // {
+    //     using (UnityWebRequest webRequest = UnityWebRequest.Get(this.url + "/data/EVA.json"))
+    //     {
+    //         // Request and wait for the desired page.
+    //         yield return webRequest.SendWebRequest();
 
-    IEnumerator GetUIAState()
-    {
-        using (UnityWebRequest webRequest = UnityWebRequest.Get(this.url + "/json_data/UIA.json"))
-        {
-            Debug.Log("Attempting UIA State Update");
-            // Request and wait for the desired page.
-            yield return webRequest.SendWebRequest();
+    //         switch (webRequest.result)
+    //         {
+    //             case UnityWebRequest.Result.Success:
+    //                 if (this.EVAJsonString != webRequest.downloadHandler.text)
+    //                 {
+    //                     this.EVAupdated = true;
+    //                     this.EVAJsonString = webRequest.downloadHandler.text;
+    //                 }
+    //                 break;
+    //         }
 
-            switch (webRequest.result)
-            {
-                case UnityWebRequest.Result.Success:
-                    if (this.UIAJsonString != webRequest.downloadHandler.text)
-                    {
-                        this.UIAUpdated = true;
-                        this.UIAJsonString = webRequest.downloadHandler.text;
-                    }
-                    break;
-            }
+    //     }
+    // }
 
-        }
-    }
+    // IEnumerator GetUIAState()
+    // {
+    //     using (UnityWebRequest webRequest = UnityWebRequest.Get(this.url + "/data/EVA.json"))
+    //     {
+    //         // Request and wait for the desired page.
+    //         yield return webRequest.SendWebRequest();
 
-    public string GetUIAJsonString()
-    {
-        UIAUpdated = false;
-        return this.UIAJsonString;
-    }
+    //         switch (webRequest.result)
+    //         {
+    //             case UnityWebRequest.Result.Success:
+    //                 if (this.UIAJsonString != webRequest.downloadHandler.text)
+    //                 {
+    //                     this.UIAUpdated = true;
+    //                     this.UIAJsonString = webRequest.downloadHandler.text;
+    //                 }
+    //                 break;
+    //         }
 
-    public bool isUIAUpdated()
-    {
-        return UIAUpdated;
-    }
+    //     }
+    // }
 
-    ///////////////////////////////////////////// DCU
+    // public string GetUIAJsonString()
+    // {
+    //     UIAUpdated = false;
+    //     return this.UIAJsonString;
+    // }
 
-    IEnumerator GetDCUState()
-    {
-        using (UnityWebRequest webRequest = UnityWebRequest.Get(this.url + "/json_data/DCU.json"))
-        {
-            // Request and wait for the desired page.
-            yield return webRequest.SendWebRequest();
+    // public bool isUIAUpdated()
+    // {
+    //     return UIAUpdated;
+    // }
 
-            switch (webRequest.result)
-            {
-                case UnityWebRequest.Result.Success:
-                    if (this.DCUJsonString != webRequest.downloadHandler.text)
-                    {
-                        this.DCUUpdated = true;
-                        this.DCUJsonString = webRequest.downloadHandler.text;
-                        Debug.Log(this.DCUJsonString);
-                    }
-                    break;
-            }
+    // ///////////////////////////////////////////// DCU
 
-        }
-    }
+    // IEnumerator GetDCUState()
+    // {
+    //     using (UnityWebRequest webRequest = UnityWebRequest.Get(this.url + "/json_data/DCU.json"))
+    //     {
+    //         // Request and wait for the desired page.
+    //         yield return webRequest.SendWebRequest();
 
-    public string GetDCUJsonString()
-    {
-        DCUUpdated = false;
-        return this.DCUJsonString;
-    }
+    //         switch (webRequest.result)
+    //         {
+    //             case UnityWebRequest.Result.Success:
+    //                 if (this.DCUJsonString != webRequest.downloadHandler.text)
+    //                 {
+    //                     this.DCUUpdated = true;
+    //                     this.DCUJsonString = webRequest.downloadHandler.text;
+    //                     Debug.Log(this.DCUJsonString);
+    //                 }
+    //                 break;
+    //         }
 
-    public bool isDCUUpdated()
-    {
-        return DCUUpdated;
-    }
+    //     }
+    // }
+
+    // public string GetDCUJsonString()
+    // {
+    //     DCUUpdated = false;
+    //     return this.DCUJsonString;
+    // }
+
+    // public bool isDCUUpdated()
+    // {
+    //     return DCUUpdated;
+    // }
 
     ///////////////////////////////////////////// ROVER
 
     IEnumerator GetROVERState()
     {
-        using (UnityWebRequest webRequest = UnityWebRequest.Get(this.url + "/json_data/ROVER.json"))
+        using (UnityWebRequest webRequest = UnityWebRequest.Get(this.url + "/data/ROVER.json"))
         {
             // Request and wait for the desired page.
             yield return webRequest.SendWebRequest();
@@ -210,11 +237,9 @@ public class TSScConnection : MonoBehaviour
         return ROVERUpdated;
     }
 
-    ///////////////////////////////////////////// SPEC
-
-    IEnumerator GetSPECState()
+    IEnumerator GetEVAState()
     {
-        using (UnityWebRequest webRequest = UnityWebRequest.Get(this.url + "/json_data/SPEC.json"))
+        using (UnityWebRequest webRequest = UnityWebRequest.Get(this.url + "/data/EVA.json"))
         {
             // Request and wait for the desired page.
             yield return webRequest.SendWebRequest();
@@ -222,11 +247,11 @@ public class TSScConnection : MonoBehaviour
             switch (webRequest.result)
             {
                 case UnityWebRequest.Result.Success:
-                    if (this.SPECJsonString != webRequest.downloadHandler.text)
+                    if (this.EVAJsonString != webRequest.downloadHandler.text)
                     {
-                        this.SPECUpdated = true;
-                        this.SPECJsonString = webRequest.downloadHandler.text;
-                        Debug.Log(this.SPECJsonString);
+                        this.EVAUpdated = true;
+                        this.EVAJsonString = webRequest.downloadHandler.text;
+                        Debug.Log(this.EVAJsonString);
                     }
                     break;
             }
@@ -234,121 +259,222 @@ public class TSScConnection : MonoBehaviour
         }
     }
 
-    public string GetSPECJsonString()
+    public string GetEVAJsonString()
     {
-        SPECUpdated = false;
-        return this.SPECJsonString;
+        EVAUpdated = false;
+        return this.EVAJsonString;
     }
 
-    public bool isSPECUpdated()
+    public bool isEVAUpdated()
     {
-        return SPECUpdated;
+        return EVAUpdated;
     }
+
+    IEnumerator GetLTVState()
+    {
+        using (UnityWebRequest webRequest = UnityWebRequest.Get(this.url + "/data/LTV.json"))
+        {
+            // Request and wait for the desired page.
+            yield return webRequest.SendWebRequest();
+
+            switch (webRequest.result)
+            {
+                case UnityWebRequest.Result.Success:
+                    if (this.LTVJsonString != webRequest.downloadHandler.text)
+                    {
+                        this.LTVUpdated = true;
+                        this.LTVJsonString = webRequest.downloadHandler.text;
+                        Debug.Log(this.LTVJsonString);
+                    }
+                    break;
+            }
+
+        }
+    }
+
+    public string GetLTVJsonString()
+    {
+        LTVUpdated = false;
+        return this.LTVJsonString;
+    }
+
+    public bool isLTVUpdated()
+    {
+        return LTVUpdated;
+    }
+
+        IEnumerator GetLTVErrorState()
+    {
+        using (UnityWebRequest webRequest = UnityWebRequest.Get(this.url + "/data/LTV_ERRORS.json"))
+        {
+            // Request and wait for the desired page.
+            yield return webRequest.SendWebRequest();
+
+            switch (webRequest.result)
+            {
+                case UnityWebRequest.Result.Success:
+                    if (this.LTVErrorJsonString != webRequest.downloadHandler.text)
+                    {
+                        this.LTVErrorUpdated = true;
+                        this.LTVErrorJsonString = webRequest.downloadHandler.text;
+                        Debug.Log(this.LTVErrorJsonString);
+                    }
+                    break;
+            }
+
+        }
+    }
+
+    public string GetLTVErrorJsonString()
+    {
+        LTVErrorUpdated = false;
+        return this.LTVErrorJsonString;
+    }
+
+    public bool isLTVErrorUpdated()
+    {
+        return LTVErrorUpdated;
+    }
+
+    ///////////////////////////////////////////// SPEC
+
+    // IEnumerator GetSPECState()
+    // {
+    //     using (UnityWebRequest webRequest = UnityWebRequest.Get(this.url + "/json_data/SPEC.json"))
+    //     {
+    //         // Request and wait for the desired page.
+    //         yield return webRequest.SendWebRequest();
+
+    //         switch (webRequest.result)
+    //         {
+    //             case UnityWebRequest.Result.Success:
+    //                 if (this.SPECJsonString != webRequest.downloadHandler.text)
+    //                 {
+    //                     this.SPECUpdated = true;
+    //                     this.SPECJsonString = webRequest.downloadHandler.text;
+    //                     Debug.Log(this.SPECJsonString);
+    //                 }
+    //                 break;
+    //         }
+
+    //     }
+    // }
+
+    // public string GetSPECJsonString()
+    // {
+    //     SPECUpdated = false;
+    //     return this.SPECJsonString;
+    // }
+
+    // public bool isSPECUpdated()
+    // {
+    //     return SPECUpdated;
+    // }
 
     ///////////////////////////////////////////// TELEMETRY
 
-    IEnumerator GetTELEMETRYState()
-    {
-        using (UnityWebRequest webRequest = UnityWebRequest.Get(this.url + "/json_data/teams/" + this.team_number + "/TELEMETRY.json"))
-        {
-            // Request and wait for the desired page.
-            yield return webRequest.SendWebRequest();
+    // IEnumerator GetTELEMETRYState()
+    // {
+    //     using (UnityWebRequest webRequest = UnityWebRequest.Get(this.url + "/json_data/teams/" + this.team_number + "/TELEMETRY.json"))
+    //     {
+    //         // Request and wait for the desired page.
+    //         yield return webRequest.SendWebRequest();
 
-            switch (webRequest.result)
-            {
-                case UnityWebRequest.Result.Success:
-                    if (this.TELEMETRYJsonString != webRequest.downloadHandler.text)
-                    {
-                        this.TELEMETRYUpdated = true;
-                        this.TELEMETRYJsonString = webRequest.downloadHandler.text;
-                        Debug.Log(this.TELEMETRYJsonString);
-                    }
-                    break;
-            }
+    //         switch (webRequest.result)
+    //         {
+    //             case UnityWebRequest.Result.Success:
+    //                 if (this.TELEMETRYJsonString != webRequest.downloadHandler.text)
+    //                 {
+    //                     this.TELEMETRYUpdated = true;
+    //                     this.TELEMETRYJsonString = webRequest.downloadHandler.text;
+    //                     Debug.Log(this.TELEMETRYJsonString);
+    //                 }
+    //                 break;
+    //         }
 
-        }
-    }
+    //     }
+    // }
 
-    public string GetTELEMETRYJsonString()
-    {
-        TELEMETRYUpdated = false;
-        return this.TELEMETRYJsonString;
-    }
+    // public string GetTELEMETRYJsonString()
+    // {
+    //     TELEMETRYUpdated = false;
+    //     return this.TELEMETRYJsonString;
+    // }
 
-    public bool isTELEMETRYUpdated()
-    {
-        return TELEMETRYUpdated;
-    }
+    // public bool isTELEMETRYUpdated()
+    // {
+    //     return TELEMETRYUpdated;
+    // }
 
-    ///////////////////////////////////////////// COMM
+    // ///////////////////////////////////////////// COMM
 
-    IEnumerator GetCOMMState()
-    {
-        using (UnityWebRequest webRequest = UnityWebRequest.Get(this.url + "/json_data/COMM.json"))
-        {
-            // Request and wait for the desired page.
-            yield return webRequest.SendWebRequest();
+    // IEnumerator GetCOMMState()
+    // {
+    //     using (UnityWebRequest webRequest = UnityWebRequest.Get(this.url + "/json_data/COMM.json"))
+    //     {
+    //         // Request and wait for the desired page.
+    //         yield return webRequest.SendWebRequest();
 
-            switch (webRequest.result)
-            {
-                case UnityWebRequest.Result.Success:
-                    if (this.COMMJsonString != webRequest.downloadHandler.text)
-                    {
-                        this.COMMUpdated = true;
-                        this.COMMJsonString = webRequest.downloadHandler.text;
-                        Debug.Log(this.COMMJsonString);
-                    }
-                    break;
-            }
+    //         switch (webRequest.result)
+    //         {
+    //             case UnityWebRequest.Result.Success:
+    //                 if (this.COMMJsonString != webRequest.downloadHandler.text)
+    //                 {
+    //                     this.COMMUpdated = true;
+    //                     this.COMMJsonString = webRequest.downloadHandler.text;
+    //                     Debug.Log(this.COMMJsonString);
+    //                 }
+    //                 break;
+    //         }
 
-        }
-    }
+    //     }
+    // }
 
-    public string GetCOMMJsonString()
-    {
-        COMMUpdated = false;
-        return this.COMMJsonString;
-    }
+    // public string GetCOMMJsonString()
+    // {
+    //     COMMUpdated = false;
+    //     return this.COMMJsonString;
+    // }
 
-    public bool isCOMMUpdated()
-    {
-        return COMMUpdated;
-    }
+    // public bool isCOMMUpdated()
+    // {
+    //     return COMMUpdated;
+    // }
 
-    ///////////////////////////////////////////// IMU
+    // ///////////////////////////////////////////// IMU
 
-    IEnumerator GetIMUState()
-    {
-        using (UnityWebRequest webRequest = UnityWebRequest.Get(this.url + "/json_data/IMU.json"))
-        {
-            // Request and wait for the desired page.
-            yield return webRequest.SendWebRequest();
+    // IEnumerator GetIMUState()
+    // {
+    //     using (UnityWebRequest webRequest = UnityWebRequest.Get(this.url + "/json_data/IMU.json"))
+    //     {
+    //         // Request and wait for the desired page.
+    //         yield return webRequest.SendWebRequest();
 
-            switch (webRequest.result)
-            {
-                case UnityWebRequest.Result.Success:
-                    if (this.IMUJsonString != webRequest.downloadHandler.text)
-                    {
-                        this.IMUUpdated = true;
-                        this.IMUJsonString = webRequest.downloadHandler.text;
-                        Debug.Log(this.IMUJsonString);
-                    }
-                    break;
-            }
+    //         switch (webRequest.result)
+    //         {
+    //             case UnityWebRequest.Result.Success:
+    //                 if (this.IMUJsonString != webRequest.downloadHandler.text)
+    //                 {
+    //                     this.IMUUpdated = true;
+    //                     this.IMUJsonString = webRequest.downloadHandler.text;
+    //                     Debug.Log(this.IMUJsonString);
+    //                 }
+    //                 break;
+    //         }
 
-        }
-    }
+    //     }
+    // }
 
-    public string GetIMUJsonString()
-    {
-        IMUUpdated = false;
-        return this.IMUJsonString;
-    }
+    // public string GetIMUJsonString()
+    // {
+    //     IMUUpdated = false;
+    //     return this.IMUJsonString;
+    // }
 
-    public bool isIMUUpdated()
-    {
-        return IMUUpdated;
-    }
+    // public bool isIMUUpdated()
+    // {
+    //     return IMUUpdated;
+    // }
 
 
 
