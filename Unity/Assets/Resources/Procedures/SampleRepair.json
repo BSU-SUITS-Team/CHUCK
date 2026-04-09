@@ -1,0 +1,71 @@
+{
+  "name": "Basic Equipment Repair",
+  "description": "Steps to repair common equipment failures",
+  "category": "Maintenance",
+  "duration": "20 minutes",
+  "tasks": [
+    {
+      "name": "Diagnostics",
+      "description": "Identify the problem",
+      "steps": [
+        {
+          "type": "instruction",
+          "body": "Power cycle the equipment by disconnecting and reconnecting",
+          "nextTask": null
+        },
+        {
+          "type": "instruction",
+          "body": "Observe any error lights or display messages",
+          "nextTask": null
+        },
+        {
+          "type": "instruction",
+          "body": "Document the observed behavior",
+          "nextTask": null
+        }
+      ]
+    },
+    {
+      "name": "Repair",
+      "description": "Attempt repair based on diagnostics",
+      "steps": [
+        {
+          "type": "instruction",
+          "body": "Check all cable connections are fully seated",
+          "nextTask": null
+        },
+        {
+          "type": "instruction",
+          "body": "If loose connections found, reseat all cables firmly",
+          "nextTask": null
+        },
+        {
+          "type": "instruction",
+          "body": "Power cycle equipment again to test",
+          "nextTask": null
+        }
+      ]
+    },
+    {
+      "name": "Verification",
+      "description": "Confirm repair was successful",
+      "steps": [
+        {
+          "type": "instruction",
+          "body": "Run full equipment self-test sequence",
+          "nextTask": null
+        },
+        {
+          "type": "instruction",
+          "body": "Verify all systems responding normally",
+          "nextTask": null
+        },
+        {
+          "type": "instruction",
+          "body": "If not resolved, contact ground control for further guidance",
+          "nextTask": null
+        }
+      ]
+    }
+  ]
+}

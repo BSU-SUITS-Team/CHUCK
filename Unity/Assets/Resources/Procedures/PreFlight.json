@@ -1,0 +1,71 @@
+{
+  "name": "Pre-Flight Check",
+  "description": "Initial equipment and suit verification before mission",
+  "category": "Safety",
+  "duration": "15 minutes",
+  "tasks": [
+    {
+      "name": "Suit Integrity",
+      "description": "Verify suit is in good condition",
+      "steps": [
+        {
+          "type": "instruction",
+          "body": "Check all seals are secure and intact",
+          "nextTask": null
+        },
+        {
+          "type": "instruction",
+          "body": "Inspect suit for visible tears or damage",
+          "nextTask": null
+        },
+        {
+          "type": "instruction",
+          "body": "Verify helmet visor is clean and undamaged",
+          "nextTask": null
+        }
+      ]
+    },
+    {
+      "name": "Oxygen Systems",
+      "description": "Verify oxygen levels and connections",
+      "steps": [
+        {
+          "type": "instruction",
+          "body": "Check primary oxygen tank is at 100%",
+          "nextTask": null
+        },
+        {
+          "type": "instruction",
+          "body": "Verify backup oxygen tank is at 100%",
+          "nextTask": null
+        },
+        {
+          "type": "instruction",
+          "body": "Ensure all oxygen connectors are secure",
+          "nextTask": null
+        }
+      ]
+    },
+    {
+      "name": "Equipment Stowage",
+      "description": "Verify all tools and equipment are properly stowed",
+      "steps": [
+        {
+          "type": "instruction",
+          "body": "Ensure all tools are properly secured in equipment belt",
+          "nextTask": null
+        },
+        {
+          "type": "instruction",
+          "body": "Verify communications headset is functional",
+          "nextTask": null
+        },
+        {
+          "type": "instruction",
+          "body": "Check emergency beacon is within reach and functional",
+          "nextTask": null
+        }
+      ]
+    }
+  ]
+}
