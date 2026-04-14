@@ -1,0 +1,21 @@
+{
+  "events": [
+    {
+      "type": "procedure",
+      "time": 0,
+      "label": "Airlock Prep",
+      "data": {
+        "name": "Airlock Prep",
+        "tasks": [
+          {
+            "name": "Task 1",
+            "steps": [
+              { "body": "Step 1" },
+              { "body": "Step 2" }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

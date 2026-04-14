@@ -38,14 +38,18 @@ public class Procedures : MonoBehaviour, IRenderable
 
     void Start()
     {
+        //below is old code for websocket connection
         EventDatastore eventDatastore = EventDatastore.Instance;
         eventDatastore.AddHandler(key, this);
+       //websocket removed for local JSON loading
     }
 
     void OnDestroy()
     {
+        //below is old code for websocket connection
         EventDatastore eventDatastore = EventDatastore.Instance;
         eventDatastore.RemoveHandler(key, this);
+       //websocket removed for local JSON loading
     }
 
     void Update()
