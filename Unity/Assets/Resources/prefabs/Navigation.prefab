@@ -1691,6 +1691,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6719702823663486165, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7016246410536116538, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
       propertyPath: m_Enabled
       value: 0
@@ -1801,5 +1805,4 @@ MonoBehaviour:
   map: {fileID: 2539785728386764720}
   pinPrefab: {fileID: 1813182546661375242, guid: 031036915327bd54bac1aca669a98938, type: 3}
   selectButton: {fileID: 207297717658118879}
-  togglePath: {fileID: 0}
   toggleCapture: {fileID: 2377183030902493286}
