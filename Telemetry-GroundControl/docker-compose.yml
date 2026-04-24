@@ -8,8 +8,6 @@ services:
       - groundcontrol-db
     ports:
       - 8181:8181
-    environment:
-      - TSS_ENDPOINT=http://tss:14141
   lmcc:
     build: ./LMCC
     ports:
