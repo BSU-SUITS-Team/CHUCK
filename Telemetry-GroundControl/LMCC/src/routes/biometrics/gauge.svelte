@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Bounds, Range, Telemetry } from '$lib/biometrics';
+	import type { Range } from '$lib/biometrics';
 	import { Card } from 'flowbite-svelte';
 
 	export let name: string = 'Gauge';
