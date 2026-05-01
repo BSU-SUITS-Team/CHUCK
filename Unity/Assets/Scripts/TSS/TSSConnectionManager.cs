@@ -28,6 +28,9 @@ public class TSSConnectionManager : MonoBehaviour
     public string EvaJson => evaJson;
     public EvaRoot EvaData { get; private set; }
 
+    public int Eva { get; private set; } = 1;
+    public event Action<EvaRoot> EvaSelectionChanged;
+
     // Latched errors
     public ErrorLatch FanErrorLatch { get; } = new ErrorLatch();
     public ErrorLatch OxyErrorLatch { get; } = new ErrorLatch();
@@ -69,6 +72,13 @@ public class TSSConnectionManager : MonoBehaviour
             Disconnect();
             Instance = null;
         }
+    }
+
+    public void SetEva(int eva)
+    {
+        Eva = eva;
+        if (EvaData != null)
+            EvaSelectionChanged?.Invoke(EvaData);
     }
 
     public void Connect(string newHost)

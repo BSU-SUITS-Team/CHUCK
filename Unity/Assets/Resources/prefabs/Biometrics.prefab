@@ -1823,7 +1823,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 220739245136757902, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
       propertyPath: m_Size.y
-      value: 32.003983
+      value: 32
       objectReference: {fileID: 0}
     - target: {fileID: 1059656148845938526, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
       propertyPath: m_Size.x
@@ -1943,7 +1943,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3945599707560585099, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
       propertyPath: m_Size.y
-      value: 32.003983
+      value: 32
       objectReference: {fileID: 0}
     - target: {fileID: 3945599707560585102, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
       propertyPath: m_AnchorMax.y
