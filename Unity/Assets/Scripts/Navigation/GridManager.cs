@@ -2,106 +2,183 @@ using UnityEngine;
 
 public class GridManager : MonoBehaviour
 {
-    [Header("Grid Settings")]
+    public enum AxisReference { Right, Up, Forward, Left, Down, Back }
+
+    [Header("Grid")]
     public int baseGridX = 30;
     public int baseGridY = 25;
     public int subdivisions = 4;
 
-    [Header("Map (Plane)")]
+    [Header("Map Surface")]
     public Transform mapTransform;
+    public Transform gridAreaTransform;
+    public AxisReference mapWidthAxis = AxisReference.Right;
+    public AxisReference mapHeightAxis = AxisReference.Up;
     public float mapWidth = 0.3f;
     public float mapHeight = 0.25f;
+    public Vector2 mapCenterOffset = Vector2.zero;
 
-    [Header("Obstacle Mask")]
+    [Header("Walk mask (same texture as visual map if possible)")]
     public Texture2D obstacleMap;
+    [Range(0f, 1f)] public float walkableBrightnessThreshold = 0.6f;
+    public bool invertObstacleMask = false;
+    public bool flipObstacleX = false;
+    public bool flipObstacleY = false;
+    public Vector2 obstacleUvMin = Vector2.zero;
+    public Vector2 obstacleUvMax = Vector2.one;
+    [Tooltip("0 = strict mask only. Higher values grow walkable into neighbors (can leak into black).")]
+    [Range(0, 3)] public int walkablePaddingCells = 0;
 
     public Node[,] grid;
 
+    public Transform ActiveMapTransform => gridAreaTransform != null ? gridAreaTransform : mapTransform;
     public int GridWidth => baseGridX * subdivisions;
     public int GridHeight => baseGridY * subdivisions;
-
     public float CellWidth => mapWidth / GridWidth;
     public float CellHeight => mapHeight / GridHeight;
+    public Vector3 MapAxisX => GetAxisDirection(mapWidthAxis);
+    public Vector3 MapAxisY => GetAxisDirection(mapHeightAxis);
+    public Vector3 MapNormal => Vector3.Cross(MapAxisX, MapAxisY).normalized;
+    public Vector3 MapPlaneCenter => ActiveMapTransform.position + MapAxisX * mapCenterOffset.x + MapAxisY * mapCenterOffset.y;
 
-    void Start()
-    {
-        GenerateGrid();
-    }
+    private void Start() => GenerateGrid();
 
-    void GenerateGrid()
+    public void GenerateGrid()
     {
+        if (ActiveMapTransform == null || obstacleMap == null)
+        {
+            Debug.LogWarning("GridManager needs map transform and obstacle map.");
+            return;
+        }
+
         grid = new Node[GridWidth, GridHeight];
 
-        int texWidth = obstacleMap.width;
-        int texHeight = obstacleMap.height;
+        float minU = Mathf.Min(obstacleUvMin.x, obstacleUvMax.x);
+        float maxU = Mathf.Max(obstacleUvMin.x, obstacleUvMax.x);
+        float minV = Mathf.Min(obstacleUvMin.y, obstacleUvMax.y);
+        float maxV = Mathf.Max(obstacleUvMin.y, obstacleUvMax.y);
 
         for (int x = 0; x < GridWidth; x++)
         {
             for (int y = 0; y < GridHeight; y++)
             {
-                // Direct 1:1 mapping from grid to texture
-                int px = Mathf.FloorToInt((float)x / GridWidth * texWidth);
-                int py = Mathf.FloorToInt((float)y / GridHeight * texHeight);
+                float tx = (x + 0.5f) / GridWidth;
+                float ty = (y + 0.5f) / GridHeight;
+                if (flipObstacleX) tx = 1f - tx;
+                if (flipObstacleY) ty = 1f - ty;
 
-                px = Mathf.Clamp(px, 0, texWidth - 1);
-                py = Mathf.Clamp(py, 0, texHeight - 1);
+                float u = Mathf.Lerp(minU, maxU, tx);
+                float v = Mathf.Lerp(minV, maxV, ty);
+                Color pixel = obstacleMap.GetPixelBilinear(Mathf.Clamp01(u), Mathf.Clamp01(v));
 
-                Color pixel = obstacleMap.GetPixel(px, py);
+                float brightness = (pixel.r + pixel.g + pixel.b) / 3f;
+                bool walkable = brightness >= walkableBrightnessThreshold;
+                if (invertObstacleMask) walkable = !walkable;
 
-                // White = walkable, anything else = blocked
-                bool isBlocked = Physics.CheckBox(
-                    GridToWorld(x, y),
-                    new Vector3(CellWidth / 2f, 0.01f, CellHeight / 2f)
-                );
+                grid[x, y] = new Node(x, y, walkable);
+            }
+        }
 
-                grid[x, y] = new Node(x, y, !isBlocked);
+        if (walkablePaddingCells > 0)
+            ExpandWalkableCardinal(walkablePaddingCells);
+    }
+
+    private void ExpandWalkableCardinal(int iterations)
+    {
+        for (int it = 0; it < iterations; it++)
+        {
+            bool[,] next = new bool[GridWidth, GridHeight];
+            for (int x = 0; x < GridWidth; x++)
+            {
+                for (int y = 0; y < GridHeight; y++)
+                {
+                    if (grid[x, y].walkable)
+                    {
+                        next[x, y] = true;
+                        continue;
+                    }
+
+                    bool neighborWalkable =
+                        (x > 0 && grid[x - 1, y].walkable) ||
+                        (x < GridWidth - 1 && grid[x + 1, y].walkable) ||
+                        (y > 0 && grid[x, y - 1].walkable) ||
+                        (y < GridHeight - 1 && grid[x, y + 1].walkable);
+
+                    next[x, y] = neighborWalkable;
+                }
+            }
+
+            for (int x = 0; x < GridWidth; x++)
+            {
+                for (int y = 0; y < GridHeight; y++)
+                    grid[x, y].walkable = next[x, y];
             }
         }
     }
 
     public Vector3 GridToWorld(int x, int y)
     {
-        Vector3 bottomLeft =
-            mapTransform.position
-            - mapTransform.right * (mapWidth / 2f)
-            - mapTransform.forward * (mapHeight / 2f);
-
-        return bottomLeft
-            + mapTransform.right * ((x + 0.5f) * CellWidth)
-            + mapTransform.forward * ((y + 0.5f) * CellHeight);
+        Vector3 center = ActiveMapTransform.position + MapAxisX * mapCenterOffset.x + MapAxisY * mapCenterOffset.y;
+        Vector3 bottomLeft = center - MapAxisX * (mapWidth * 0.5f) - MapAxisY * (mapHeight * 0.5f);
+        return bottomLeft + MapAxisX * ((x + 0.5f) * CellWidth) + MapAxisY * ((y + 0.5f) * CellHeight);
     }
 
     public Vector2Int WorldToGrid(Vector3 worldPos)
     {
-        Vector3 local = worldPos - mapTransform.position;
-
-        float x = Vector3.Dot(local, mapTransform.right) + mapWidth / 2f;
-        float y = Vector3.Dot(local, mapTransform.forward) + mapHeight / 2f;
-
-        int gx = Mathf.FloorToInt(x / CellWidth);
-        int gy = Mathf.FloorToInt(y / CellHeight);
-
-        gx = Mathf.Clamp(gx, 0, GridWidth - 1);
-        gy = Mathf.Clamp(gy, 0, GridHeight - 1);
-
+        Vector3 center = ActiveMapTransform.position + MapAxisX * mapCenterOffset.x + MapAxisY * mapCenterOffset.y;
+        Vector3 local = worldPos - center;
+        int gx = Mathf.Clamp(Mathf.FloorToInt((Vector3.Dot(local, MapAxisX) + mapWidth * 0.5f) / CellWidth), 0, GridWidth - 1);
+        int gy = Mathf.Clamp(Mathf.FloorToInt((Vector3.Dot(local, MapAxisY) + mapHeight * 0.5f) / CellHeight), 0, GridHeight - 1);
         return new Vector2Int(gx, gy);
     }
 
-    void OnDrawGizmos()
-    {
-        if (grid == null || mapTransform == null) return;
+    public bool IsInside(Vector2Int p) => p.x >= 0 && p.y >= 0 && p.x < GridWidth && p.y < GridHeight;
+    public bool IsWalkable(Vector2Int p) => grid != null && IsInside(p) && grid[p.x, p.y].walkable;
 
-        for (int x = 0; x < GridWidth; x++)
+    public Vector2Int FindNearestWalkable(Vector2Int origin, int maxRadius = 12)
+    {
+        if (grid == null) return origin;
+        origin.x = Mathf.Clamp(origin.x, 0, GridWidth - 1);
+        origin.y = Mathf.Clamp(origin.y, 0, GridHeight - 1);
+        if (IsWalkable(origin)) return origin;
+
+        for (int r = 1; r <= maxRadius; r++)
         {
-            for (int y = 0; y < GridHeight; y++)
+            int minX = Mathf.Max(0, origin.x - r);
+            int maxX = Mathf.Min(GridWidth - 1, origin.x + r);
+            int minY = Mathf.Max(0, origin.y - r);
+            int maxY = Mathf.Min(GridHeight - 1, origin.y + r);
+            for (int x = minX; x <= maxX; x++)
             {
-                if (!grid[x, y].walkable)
-                {
-                    Vector3 pos = GridToWorld(x, y) + mapTransform.up * 0.001f;
-                    Gizmos.color = Color.red;
-                    Gizmos.DrawCube(pos, Vector3.one * 0.002f);
-                }
+                Vector2Int a = new Vector2Int(x, minY);
+                Vector2Int b = new Vector2Int(x, maxY);
+                if (IsWalkable(a)) return a;
+                if (IsWalkable(b)) return b;
+            }
+            for (int y = minY + 1; y < maxY; y++)
+            {
+                Vector2Int a = new Vector2Int(minX, y);
+                Vector2Int b = new Vector2Int(maxX, y);
+                if (IsWalkable(a)) return a;
+                if (IsWalkable(b)) return b;
             }
         }
+        return origin;
+    }
+
+    private Vector3 GetAxisDirection(AxisReference axis)
+    {
+        Transform t = ActiveMapTransform;
+        if (t == null) return Vector3.right;
+        return axis switch
+        {
+            AxisReference.Right => t.right,
+            AxisReference.Up => t.up,
+            AxisReference.Forward => t.forward,
+            AxisReference.Left => -t.right,
+            AxisReference.Down => -t.up,
+            AxisReference.Back => -t.forward,
+            _ => t.right
+        };
     }
 }
