@@ -1,6 +1,7 @@
 using MixedReality.Toolkit;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using System.Linq;
@@ -15,6 +16,12 @@ public class Navigation : MonoBehaviour, IRenderable
     [SerializeField] GameObject pinPrefab;
     [SerializeField] Button selectButton;
     [SerializeField] Button toggleCapture;
+    [SerializeField, Tooltip("Optional. If unset, uses PathTest.Instance for Find Path / Stop Path.")]
+    private PathTest pathTest;
+    [SerializeField, Tooltip("Optional distance line. Leave empty to auto-create PathDistanceReadout under the Controls column when ensurePathDistanceInSidebar is on.")]
+    private TextMeshProUGUI pathDistanceReadout;
+    [SerializeField, Tooltip("Adds a row under Find Path / pin buttons on the Navigation panel and binds it to PathTest.")]
+    private bool ensurePathDistanceInSidebar = true;
 
     private List<BaseArsisEvent> pins = new();
     private bool changed = true;
@@ -27,6 +34,9 @@ public class Navigation : MonoBehaviour, IRenderable
     private Pins selectedPin;
     private bool isPinActive = false;
     private bool isCapture = false;
+    private bool findPathButtonSynced;
+
+    private PathTest ResolvePathTest() => pathTest != null ? pathTest : PathTest.Instance;
 
     private void SetCaptureButton(bool isPathCapture)
     {
@@ -37,9 +47,35 @@ public class Navigation : MonoBehaviour, IRenderable
         isCapture = isPathCapture;
     }
 
+    private void SyncFindPathButton()
+    {
+        PathTest pt = ResolvePathTest();
+        if (pt == null)
+            return;
+        bool session = pt.IsPathSessionActive();
+        if (findPathButtonSynced == session)
+            return;
+        findPathButtonSynced = session;
+        string icon = session ? "Icon 135" : "Icon 128";
+        string label = session ? "Stop Path" : "Find Path";
+        toggleCapture.SetIcon(true, icon, label);
+    }
+
     public void TogglePathCapture()
     {
-        TranslationController.S.togglePathCapture();
+        PathTest pt = ResolvePathTest();
+        if (pt != null)
+        {
+            pt.SetPathSessionActive(!pt.IsPathSessionActive());
+            findPathButtonSynced = pt.IsPathSessionActive();
+            string icon = findPathButtonSynced ? "Icon 135" : "Icon 128";
+            string label = findPathButtonSynced ? "Stop Path" : "Find Path";
+            toggleCapture.SetIcon(true, icon, label);
+            return;
+        }
+
+        if (TranslationController.S != null)
+            TranslationController.S.togglePathCapture();
     }
 
     public void ToggleActivePin()
@@ -162,20 +198,166 @@ public class Navigation : MonoBehaviour, IRenderable
             Destroy(child.gameObject);
     }
 
+    void Awake()
+    {
+        if (pathDistanceReadout == null && ensurePathDistanceInSidebar)
+            TryInjectPathDistanceSidebar();
+    }
+
     void Start()
     {
-        SetCaptureButton(TranslationController.S.IsPathCapture());
+        SyncPathfindingToActiveMapPlane();
+        PathTest pt = ResolvePathTest();
+        if (pathDistanceReadout != null && pt != null)
+            pt.BindDistanceReadout(pathDistanceReadout);
+        if (pt != null)
+        {
+            bool session = pt.IsPathSessionActive();
+            findPathButtonSynced = session;
+            string icon = session ? "Icon 135" : "Icon 128";
+            string label = session ? "Stop Path" : "Find Path";
+            toggleCapture.SetIcon(true, icon, label);
+        }
+        else if (TranslationController.S != null)
+            SetCaptureButton(TranslationController.S.IsPathCapture());
         EventDatastore.Instance.AddHandler("pins", this);
     }
 
     void OnDestroy()
     {
+        if (pathDistanceReadout != null && PathTest.Instance != null)
+            PathTest.Instance.UnbindDistanceReadout(pathDistanceReadout);
         EventDatastore.Instance.RemoveHandler("pins", this);
+    }
+
+    /// <summary>Called after <see cref="FloatingMenuFromPrefab"/> positions the panel so PathTest uses this instance's map plane (not scene origin).</summary>
+    public void NotifyMenuPlacedInFrontOfUser()
+    {
+        SyncPathfindingToActiveMapPlane();
+    }
+
+    private void SyncPathfindingToActiveMapPlane()
+    {
+        // Chart + texture live on `map`; `image` is often a zoom/pan parent. Binding `image` skews the grid vs the painted quad.
+        RectTransform plane = map != null ? map : image;
+        if (plane == null)
+            return;
+        PathTest pt = ResolvePathTest();
+        pt?.BindActiveNavigationMap(plane);
+    }
+
+    private void TryInjectPathDistanceSidebar()
+    {
+        RectTransform controls = null;
+        foreach (RectTransform rt in GetComponentsInChildren<RectTransform>(true))
+        {
+            if (rt.name != "Controls")
+                continue;
+            Transform existingReadout = rt.Find("PathDistanceReadout");
+            if (existingReadout != null)
+            {
+                pathDistanceReadout = existingReadout.GetComponent<TextMeshProUGUI>();
+                return;
+            }
+
+            if (rt.GetComponent<UnityEngine.UI.HorizontalLayoutGroup>() != null)
+                controls = rt;
+        }
+
+        if (controls == null)
+            return;
+
+        var horizontal = controls.GetComponent<UnityEngine.UI.HorizontalLayoutGroup>();
+        if (horizontal == null)
+            return;
+
+        var toMove = new List<Transform>(controls.childCount);
+        for (int i = 0; i < controls.childCount; i++)
+            toMove.Add(controls.GetChild(i));
+
+        float spacing = horizontal.spacing;
+        RectOffset pad = horizontal.padding;
+        TextAnchor alignment = horizontal.childAlignment;
+        bool ccw = horizontal.childControlWidth;
+        bool cch = horizontal.childControlHeight;
+        bool few = horizontal.childForceExpandWidth;
+        bool feh = horizontal.childForceExpandHeight;
+        Destroy(horizontal);
+
+        UnityEngine.UI.VerticalLayoutGroup vertical = controls.gameObject.AddComponent<UnityEngine.UI.VerticalLayoutGroup>();
+        vertical.spacing = spacing;
+        vertical.padding = new RectOffset(pad.left, pad.right, pad.top, pad.bottom);
+        vertical.childAlignment = TextAnchor.UpperCenter;
+        vertical.childControlWidth = true;
+        vertical.childControlHeight = true;
+        vertical.childForceExpandWidth = true;
+        vertical.childForceExpandHeight = false;
+
+        var rowGo = new GameObject("NavButtonRow", typeof(RectTransform));
+        var rowRt = rowGo.GetComponent<RectTransform>();
+        rowRt.SetParent(controls, false);
+        rowRt.anchorMin = new Vector2(0f, 1f);
+        rowRt.anchorMax = new Vector2(1f, 1f);
+        rowRt.pivot = new Vector2(0.5f, 1f);
+        rowRt.sizeDelta = Vector2.zero;
+        rowRt.anchoredPosition = Vector2.zero;
+
+        var rowHl = rowGo.AddComponent<UnityEngine.UI.HorizontalLayoutGroup>();
+        rowHl.spacing = spacing;
+        rowHl.padding = new RectOffset(pad.left, pad.right, pad.top, pad.bottom);
+        rowHl.childAlignment = alignment;
+        rowHl.childControlWidth = ccw;
+        rowHl.childControlHeight = cch;
+        rowHl.childForceExpandWidth = few;
+        rowHl.childForceExpandHeight = feh;
+
+        var rowLe = rowGo.AddComponent<UnityEngine.UI.LayoutElement>();
+        rowLe.flexibleWidth = 1f;
+        rowLe.minHeight = 48f;
+        rowLe.preferredHeight = 72f;
+
+        foreach (Transform child in toMove)
+            child.SetParent(rowRt, false);
+
+        var distGo = new GameObject("PathDistanceReadout", typeof(RectTransform));
+        var distRt = distGo.GetComponent<RectTransform>();
+        distRt.SetParent(controls, false);
+        distRt.anchorMin = new Vector2(0f, 1f);
+        distRt.anchorMax = new Vector2(1f, 1f);
+        distRt.pivot = new Vector2(0.5f, 1f);
+        distRt.sizeDelta = Vector2.zero;
+
+        var le = distGo.AddComponent<UnityEngine.UI.LayoutElement>();
+        le.preferredHeight = 40f;
+        le.minHeight = 28f;
+        le.flexibleWidth = 1f;
+
+        var tmp = distGo.AddComponent<TextMeshProUGUI>();
+        tmp.text = string.Empty;
+        tmp.fontSize = 11f;
+        tmp.raycastTarget = false;
+        tmp.enableWordWrapping = true;
+        tmp.overflowMode = TextOverflowModes.Ellipsis;
+        tmp.alignment = TextAlignmentOptions.TopLeft;
+        tmp.color = Color.white;
+        if (TMP_Settings.defaultFontAsset != null)
+        {
+            tmp.font = TMP_Settings.defaultFontAsset;
+            tmp.fontSharedMaterial = TMP_Settings.defaultFontAsset.material;
+        }
+
+        rowRt.SetAsFirstSibling();
+        distRt.SetAsLastSibling();
+
+        pathDistanceReadout = tmp;
     }
 
     void Update()
     {
-        SetCaptureButton(TranslationController.S.IsPathCapture());
+        if (ResolvePathTest() != null)
+            SyncFindPathButton();
+        else if (TranslationController.S != null)
+            SetCaptureButton(TranslationController.S.IsPathCapture());
         if (!changed || pins.Count == 0) return;
         changed = false;
         IEnumerable<Pins> points = pins.Where(e => e is Pins location && location.data.type.Equals("Point")).OfType<Pins>();

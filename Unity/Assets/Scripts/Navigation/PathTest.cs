@@ -2,9 +2,26 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
+using UnityEngine.UI;
+
+/// <summary>
+/// Which local axis of the NavArrow mesh should follow the path tangent. Most FBX arrows use +Y as the tip axis; Unity LookRotation uses +Z.
+/// </summary>
+public enum WorldArrowMeshForwardAxis
+{
+    [Tooltip("Align mesh local +Z with path (Quaternion.LookRotation). Default Unity convention.")]
+    MeshPlusZAlongPath,
+    [Tooltip("Align mesh local +Y with path (Quaternion.FromToRotation). Use when the arrow tip points along +Y in the prefab (common for imported arrows) and would otherwise aim into the floor with +Z mode.")]
+    MeshPlusYAlongPath,
+    [Tooltip("Align local -Z with path (opposite to +Z). Use if the model’s forward is backward.")]
+    MeshMinusZAlongPath
+}
 
 public class PathTest : MonoBehaviour
 {
+    /// <summary>First PathTest in the scene (for UI that cannot reference this component directly).</summary>
+    public static PathTest Instance { get; private set; }
+
     [Header("References")]
     public GridManager grid;
     public Pathfinder pathfinder;
@@ -46,11 +63,14 @@ public class PathTest : MonoBehaviour
     [Header("Visualization — map arrows (on map surface)")]
     [FormerlySerializedAs("arrowPrefab")]
     public GameObject mapArrowPrefab;
-    [Tooltip("Parent for map arrows (e.g. this object or Map). Uses map normal for rotation.")]
+    [Tooltip("Parent for map arrows. At play, children are under a child object named ‘MapPathArrows (runtime)’ so they’re easy to find in the hierarchy.")]
     public Transform mapArrowParent;
     public int mapArrowEveryNNodes = 4;
     [FormerlySerializedAs("arrowHeightOffset")]
     public float mapArrowHeightOffset = 0.03f;
+    [Range(-180f, 180f)]
+    [Tooltip("Spin around the map normal after aiming (+/-180 flips tip along the surface). Applied after LookRotation; combined order is roll × aim.")]
+    public float mapArrowRollAroundNormalDegrees = 0f;
 
     [Header("Visualization — world follow arrows (floor copy of map path)")]
     public GameObject worldArrowPrefab;
@@ -73,8 +93,9 @@ public class PathTest : MonoBehaviour
     [Min(1)]
     [Tooltip("Place one world arrow every N path segments (grid steps). The map is often highly subdivided, so 1 stacks many arrows in a small area; try 4–8 to match mapArrowEveryNNodes.")]
     public int worldArrowEveryPathSteps = 1;
+    public WorldArrowMeshForwardAxis worldArrowMeshForwardAxis = WorldArrowMeshForwardAxis.MeshPlusZAlongPath;
     [Range(-180f, 180f)]
-    [Tooltip("Pitch after LookRotation (local). Default 0 = vertical cylinder on the floor, +Z aimed along the path.")]
+    [Tooltip("Extra local Euler X after base aim (tilt). Try ±90 if Mesh Forward Axis doesn’t match your mesh.")]
     public float worldArrowMeshPitchDegrees = 0f;
     [Range(-180f, 180f)]
     [Tooltip("Yaw after LookRotation (local), in the same Euler as pitch.")]
@@ -87,14 +108,21 @@ public class PathTest : MonoBehaviour
     [Tooltip("When a path exists, snap the player transform’s Y rotation so +Z faces the first floor segment (toward the next path node).")]
     public bool snapPlayerYawToWorldPath = true;
 
-    [Header("Markers & surface offset")]
-    public float markerHeightOffset = 0.0125f;
+    [Header("Markers & map lift")]
+    [Tooltip("Meters along the map RectTransform forward (out of the image). Same for green, red, line, arrows. 0 = on the quad.")]
+    public float markerHeightOffset = 0f;
+    [Tooltip("Negates the forward lift.")]
     public bool invertSurfaceOffsetDirection = false;
-    public bool autoFaceUserForOffsets = true;
 
     private readonly List<GameObject> activeMapArrows = new List<GameObject>();
     private readonly List<GameObject> activeWorldArrows = new List<GameObject>();
     private readonly List<Node> currentPath = new List<Node>();
+
+    private Transform mapArrowsRuntimeRoot;
+
+    /// <summary>Latest walkable-snapped cells; line uses these so endpoints match green/red markers.</summary>
+    private Vector2Int _lineResolvedStart;
+    private Vector2Int _lineResolvedEnd;
 
     private Vector3 lastPlayerWorldPos;
     private Vector2 currentCoordinate;
@@ -102,6 +130,108 @@ public class PathTest : MonoBehaviour
     private Vector3 navigationRootInitialLocalPos;
     private bool navigationRootBaselineStored;
     private bool distanceUiCameraWarningLogged;
+    private bool distanceOverlayFixLogged;
+
+    private readonly List<TextMeshProUGUI> boundDistanceReadouts = new List<TextMeshProUGUI>();
+
+    [SerializeField, Tooltip("When false at startup, no path line, arrows, distance, or repaths until SetPathSessionActive(true) (e.g. Find Path in the navigation UI).")]
+    private bool pathSessionActive;
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+            Debug.LogWarning("PathTest: Multiple PathTest components — Instance points to the most recently awakened.");
+        Instance = this;
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+            Instance = null;
+    }
+
+    public bool IsPathSessionActive() => pathSessionActive;
+
+    /// <summary>Navigation UI (e.g. sidebar) can bind extra labels updated with the same distance text and visibility as <see cref="distanceTMP"/>.</summary>
+    public void BindDistanceReadout(TextMeshProUGUI label)
+    {
+        if (label == null || boundDistanceReadouts.Contains(label))
+            return;
+        boundDistanceReadouts.Add(label);
+    }
+
+    public void UnbindDistanceReadout(TextMeshProUGUI label)
+    {
+        if (label == null)
+            return;
+        boundDistanceReadouts.Remove(label);
+    }
+
+    /// <summary>
+    /// Point the pathfinding grid at this Navigation instance's map plane. Required when the panel is placed in front of the user
+    /// while PathTest/GridManager live in the scene — otherwise markers and map arrows stay at the old scene/prefab origin.
+    /// </summary>
+    public void BindActiveNavigationMap(RectTransform mapSurface)
+    {
+        if (grid == null || mapSurface == null)
+            return;
+
+        grid.mapTransform = mapSurface;
+        grid.gridAreaTransform = null;
+        mapArrowParent = mapSurface;
+
+        if (mapArrowsRuntimeRoot != null && mapArrowsRuntimeRoot.parent != mapSurface)
+        {
+            Destroy(mapArrowsRuntimeRoot.gameObject);
+            mapArrowsRuntimeRoot = null;
+        }
+
+        grid.GenerateGrid();
+
+        if (pathSessionActive)
+            ForceRepath();
+    }
+
+    /// <summary>Turns pathfinding visuals and periodic repath on or off (map/world arrows, line, distance, markers).</summary>
+    public void SetPathSessionActive(bool active)
+    {
+        if (pathSessionActive == active)
+            return;
+        pathSessionActive = active;
+        repathTimer = 0f;
+        if (!active)
+            ClearPathVisualization();
+        else
+        {
+            if (mapStartPoint != null)
+                mapStartPoint.gameObject.SetActive(true);
+            if (endPoint != null)
+                endPoint.gameObject.SetActive(true);
+            ForceRepath();
+        }
+    }
+
+    private void ClearPathVisualization()
+    {
+        currentPath.Clear();
+        DestroyArrowList(activeMapArrows);
+        DestroyArrowList(activeWorldArrows);
+        if (pathLine != null)
+        {
+            pathLine.positionCount = 0;
+            pathLine.enabled = false;
+        }
+        foreach (TextMeshProUGUI tmp in EnumerateDistanceReadouts())
+        {
+            tmp.text = string.Empty;
+            tmp.enabled = false;
+        }
+
+        if (mapStartPoint != null)
+            mapStartPoint.gameObject.SetActive(false);
+        if (endPoint != null)
+            endPoint.gameObject.SetActive(false);
+    }
 
     private void OnEnable()
     {
@@ -139,15 +269,16 @@ public class PathTest : MonoBehaviour
         if (pathLine != null)
             pathLine.useWorldSpace = true;
 
-        if (distanceTMP == null)
-            Debug.LogWarning("PathTest: distanceTMP is not assigned — distance will not show. Link the Canvas → Distance TextMeshProUGUI.");
-
-        ForceRepath();
+        if (!pathSessionActive)
+            ClearPathVisualization();
     }
 
     private void Update()
     {
         UpdateCoordinateFromMovement();
+
+        if (!pathSessionActive)
+            return;
 
         repathTimer += Time.deltaTime;
         if (repathTimer >= repathIntervalSeconds)
@@ -156,8 +287,18 @@ public class PathTest : MonoBehaviour
             ForceRepath();
         }
 
-        // RebuildWorldArrows(); // TODO: re-enable when world arrows should follow the player along the path each frame.
         UpdateDistanceUI();
+    }
+
+    private void LateUpdate()
+    {
+        if (!pathSessionActive || grid == null || grid.grid == null)
+            return;
+        if (mapStartPoint == null && endPoint == null)
+            return;
+
+        ResolveStartEndGrid(out Vector2Int rs, out Vector2Int re);
+        PlaceEndpointMarkers(rs, re);
     }
 
     private void UpdateCoordinateFromMovement()
@@ -171,6 +312,35 @@ public class PathTest : MonoBehaviour
         currentCoordinate.y += delta.z * feetPerMeter;
     }
 
+    private void ResolveStartEndGrid(out Vector2Int resolvedStart, out Vector2Int resolvedEnd)
+    {
+        Vector3 startWorld = CoordinateToWorld(currentCoordinate);
+        Vector3 endWorld = CoordinateToWorld(endCoordinate);
+        Vector2Int startGrid = grid.WorldToGrid(startWorld);
+        Vector2Int endGrid = grid.WorldToGrid(endWorld);
+        resolvedStart = grid.FindNearestWalkable(startGrid, nearestWalkableSearchRadius);
+        resolvedEnd = grid.FindNearestWalkable(endGrid, nearestWalkableSearchRadius);
+        _lineResolvedStart = resolvedStart;
+        _lineResolvedEnd = resolvedEnd;
+    }
+
+    private void PlaceEndpointMarkers(Vector2Int resolvedStart, Vector2Int resolvedEnd)
+    {
+        Vector3 lift = MapFaceLift(markerHeightOffset);
+
+        if (mapStartPoint != null)
+        {
+            Vector3 p = grid.SnapOntoVisualMapFace(grid.GridToWorld(resolvedStart.x, resolvedStart.y));
+            mapStartPoint.position = p + lift;
+        }
+
+        if (endPoint != null)
+        {
+            Vector3 p = grid.SnapOntoVisualMapFace(grid.GridToWorld(resolvedEnd.x, resolvedEnd.y));
+            endPoint.position = p + lift;
+        }
+    }
+
     private void ForceRepath()
     {
         if (regenerateGridEachRepath || grid.grid == null)
@@ -179,18 +349,8 @@ public class PathTest : MonoBehaviour
         if (grid.grid == null)
             return;
 
-        Vector3 startWorld = CoordinateToWorld(currentCoordinate);
-        Vector3 endWorld = CoordinateToWorld(endCoordinate);
-
-        Vector2Int startGrid = grid.WorldToGrid(startWorld);
-        Vector2Int endGrid = grid.WorldToGrid(endWorld);
-        Vector2Int resolvedStart = grid.FindNearestWalkable(startGrid, nearestWalkableSearchRadius);
-        Vector2Int resolvedEnd = grid.FindNearestWalkable(endGrid, nearestWalkableSearchRadius);
-
-        if (mapStartPoint != null)
-            mapStartPoint.position = grid.GridToWorld(resolvedStart.x, resolvedStart.y) + SurfaceOffset(markerHeightOffset);
-        if (endPoint != null)
-            endPoint.position = grid.GridToWorld(resolvedEnd.x, resolvedEnd.y) + SurfaceOffset(markerHeightOffset);
+        ResolveStartEndGrid(out Vector2Int resolvedStart, out Vector2Int resolvedEnd);
+        PlaceEndpointMarkers(resolvedStart, resolvedEnd);
 
         List<Node> foundPath = pathfinder.FindPath(resolvedStart, resolvedEnd);
 
@@ -248,37 +408,26 @@ public class PathTest : MonoBehaviour
         return coordinateScalePivot + Vector2.Scale(scaled - coordinateScalePivot, invScale);
     }
 
-    private Vector3 SurfaceOffset(float amount)
+    private Vector3 MapFaceLift(float meters)
     {
-        Vector3 normal = grid.MapNormal;
-        float direction = 1f;
-
-        if (autoFaceUserForOffsets)
-        {
-            Transform reference = player != null ? player : Camera.main != null ? Camera.main.transform : null;
-            if (reference != null && grid.ActiveMapTransform != null)
-            {
-                Vector3 toReference = (reference.position - grid.ActiveMapTransform.position).normalized;
-                if (Vector3.Dot(normal, toReference) < 0f)
-                    direction *= -1f;
-            }
-        }
-
-        if (invertSurfaceOffsetDirection)
-            direction *= -1f;
-
-        return normal * amount * direction;
+        if (grid == null || Mathf.Abs(meters) < 1e-8f)
+            return Vector3.zero;
+        float s = invertSurfaceOffsetDirection ? -1f : 1f;
+        return grid.MapFaceOut * meters * s;
     }
 
     private void DrawPathLine()
     {
-        if (pathLine == null)
+        if (pathLine == null || grid == null || grid.grid == null)
             return;
 
         pathLine.useWorldSpace = true;
 
-        Vector3 start = CoordinateToWorld(currentCoordinate) + SurfaceOffset(lineHeightOffset);
-        Vector3 end = CoordinateToWorld(endCoordinate) + SurfaceOffset(lineHeightOffset);
+        Vector3 lineLift = MapFaceLift(lineHeightOffset);
+        Vector3 startBase = grid.SnapOntoVisualMapFace(grid.GridToWorld(_lineResolvedStart.x, _lineResolvedStart.y));
+        Vector3 endBase = grid.SnapOntoVisualMapFace(grid.GridToWorld(_lineResolvedEnd.x, _lineResolvedEnd.y));
+        Vector3 start = startBase + lineLift;
+        Vector3 end = endBase + lineLift;
 
         if (currentPath.Count == 0)
         {
@@ -300,9 +449,46 @@ public class PathTest : MonoBehaviour
         for (int i = 0; i < currentPath.Count; i++)
         {
             Node n = currentPath[i];
-            pathLine.SetPosition(i + 1, grid.GridToWorld(n.x, n.y) + SurfaceOffset(lineHeightOffset));
+            Vector3 cell = grid.SnapOntoVisualMapFace(grid.GridToWorld(n.x, n.y));
+            pathLine.SetPosition(i + 1, cell + lineLift);
         }
     }
+
+    private Transform EnsureMapArrowsRuntimeRoot()
+    {
+        Transform attachTo = mapArrowParent != null ? mapArrowParent : transform;
+        if (mapArrowsRuntimeRoot == null)
+        {
+            var rootGo = new GameObject("MapPathArrows (runtime)");
+            rootGo.transform.SetParent(attachTo, false);
+            rootGo.transform.localPosition = Vector3.zero;
+            rootGo.transform.localRotation = Quaternion.identity;
+            rootGo.transform.localScale = Vector3.one;
+            mapArrowsRuntimeRoot = rootGo.transform;
+        }
+        else if (mapArrowsRuntimeRoot.parent != attachTo)
+        {
+            mapArrowsRuntimeRoot.SetParent(attachTo, false);
+        }
+
+        return mapArrowsRuntimeRoot;
+    }
+
+    /// <summary>World-space UI parents often have tiny lossy scale; without this, map arrows shrink to invisible.</summary>
+    private static void PreserveChildLossyScale(Transform child, Vector3 targetLossyScale)
+    {
+        Transform p = child.parent;
+        if (p == null)
+            return;
+        Vector3 pl = p.lossyScale;
+        child.localScale = new Vector3(
+            SafeDivScale(targetLossyScale.x, pl.x),
+            SafeDivScale(targetLossyScale.y, pl.y),
+            SafeDivScale(targetLossyScale.z, pl.z));
+    }
+
+    private static float SafeDivScale(float a, float b) =>
+        Mathf.Abs(b) > 1e-8f ? a / b : a;
 
     private void RebuildMapArrows()
     {
@@ -311,23 +497,36 @@ public class PathTest : MonoBehaviour
         if (mapArrowPrefab == null || currentPath.Count < 2)
             return;
 
-        Transform parent = mapArrowParent != null ? mapArrowParent : transform;
+        Transform parent = EnsureMapArrowsRuntimeRoot();
         int step = Mathf.Max(1, mapArrowEveryNNodes);
+        float arrowAmount = mapArrowHeightOffset >= 0f ? mapArrowHeightOffset : lineHeightOffset;
+        Vector3 arrowLift = MapFaceLift(arrowAmount);
+        Vector3 faceNormal = grid.MapFaceOut;
 
         for (int i = 0; i < currentPath.Count - 1; i += step)
         {
             Node current = currentPath[i];
             Node next = currentPath[Mathf.Min(i + 1, currentPath.Count - 1)];
 
-            Vector3 currentPos = grid.GridToWorld(current.x, current.y);
-            Vector3 nextPos = grid.GridToWorld(next.x, next.y);
+            Vector3 currentPos = grid.SnapOntoVisualMapFace(grid.GridToWorld(current.x, current.y));
+            Vector3 nextPos = grid.SnapOntoVisualMapFace(grid.GridToWorld(next.x, next.y));
             Vector3 direction = (nextPos - currentPos).normalized;
             if (direction.sqrMagnitude <= Mathf.Epsilon)
                 continue;
 
-            Quaternion rotation = Quaternion.LookRotation(direction, grid.MapNormal);
-            Vector3 spawnPos = currentPos + SurfaceOffset(mapArrowHeightOffset);
-            activeMapArrows.Add(Instantiate(mapArrowPrefab, spawnPos, rotation, parent));
+            Vector3 spawnPos = currentPos + arrowLift;
+            Quaternion rotation = Quaternion.AngleAxis(mapArrowRollAroundNormalDegrees, faceNormal)
+                * Quaternion.LookRotation(direction, faceNormal);
+
+            GameObject instance = Instantiate(mapArrowPrefab);
+            instance.name = $"{mapArrowPrefab.name} (map seg {i})";
+            instance.SetActive(true);
+            Transform t = instance.transform;
+            Vector3 desiredWorldScale = t.lossyScale;
+            t.SetPositionAndRotation(spawnPos, rotation);
+            t.SetParent(parent, true);
+            PreserveChildLossyScale(t, desiredWorldScale);
+            activeMapArrows.Add(instance);
         }
     }
 
@@ -344,7 +543,7 @@ public class PathTest : MonoBehaviour
             : worldArrowScaleMultiplier;
 
         int pathStep = Mathf.Max(1, worldArrowEveryPathSteps);
-        Quaternion tiltMapPlaneToWorldUp = Quaternion.FromToRotation(grid.MapNormal, Vector3.up);
+        Quaternion tiltMapPlaneToWorldUp = Quaternion.FromToRotation(grid.GetGridPlaneNormal(), Vector3.up);
         Quaternion yaw = Quaternion.Euler(0f, worldPathYawOffsetDegrees, 0f);
         Vector3 startOnMap = grid.GridToWorld(currentPath[0].x, currentPath[0].y);
         Quaternion playerMeshYawOnly = Quaternion.Euler(0f, worldArrowLookYawOffsetDegrees, 0f);
@@ -381,7 +580,7 @@ public class PathTest : MonoBehaviour
             Vector3 direction = tangent.normalized;
             Quaternion rotation =
                 Quaternion.AngleAxis(worldArrowCompassYawDegrees, Vector3.up)
-                * Quaternion.LookRotation(direction, Vector3.up)
+                * WorldArrowBaseRotation(direction, worldArrowMeshForwardAxis)
                 * Quaternion.Euler(worldArrowMeshPitchDegrees, worldArrowLookYawOffsetDegrees, 0f);
             GameObject instance = Instantiate(worldArrowPrefab);
             Transform t = instance.transform;
@@ -433,6 +632,22 @@ public class PathTest : MonoBehaviour
             path.Reverse();
     }
 
+    private static Quaternion WorldArrowBaseRotation(Vector3 direction, WorldArrowMeshForwardAxis axis)
+    {
+        direction = direction.normalized;
+        switch (axis)
+        {
+            case WorldArrowMeshForwardAxis.MeshPlusYAlongPath:
+                if (Mathf.Abs(Vector3.Dot(direction, Vector3.up)) > 0.998f)
+                    return Quaternion.LookRotation(direction, Vector3.forward);
+                return Quaternion.FromToRotation(Vector3.up, direction);
+            case WorldArrowMeshForwardAxis.MeshMinusZAlongPath:
+                return Quaternion.LookRotation(-direction, Vector3.up);
+            default:
+                return Quaternion.LookRotation(direction, Vector3.up);
+        }
+    }
+
     private static void DestroyArrowList(List<GameObject> list)
     {
         for (int i = 0; i < list.Count; i++)
@@ -445,36 +660,101 @@ public class PathTest : MonoBehaviour
 
     private void UpdateDistanceUI()
     {
-        if (distanceTMP == null)
+        PruneDestroyedDistanceReadouts();
+
+        if (!HasAnyDistanceReadout())
             return;
 
-        distanceTMP.enabled = true;
-        distanceTMP.text = $"Distance: {GetPathDistanceFeet():F1} ft";
-
-        Canvas canvas = distanceTMP.canvas;
-        if (canvas != null)
+        if (!pathSessionActive)
         {
-            canvas.enabled = true;
-            if (!canvas.gameObject.activeInHierarchy)
-                canvas.gameObject.SetActive(true);
-            if (canvas.renderMode == RenderMode.WorldSpace || canvas.renderMode == RenderMode.ScreenSpaceCamera)
+            foreach (TextMeshProUGUI tmp in EnumerateDistanceReadouts())
             {
-                Camera cam = ResolveDistanceCanvasCamera();
-                if (cam != null && canvas.worldCamera != cam)
-                    canvas.worldCamera = cam;
-                else if (cam == null && !distanceUiCameraWarningLogged)
-                {
-                    distanceUiCameraWarningLogged = true;
-                    Debug.LogWarning(
-                        "PathTest: No camera found for distance UI canvas. Assign PathTest.distanceUICamera to your HoloLens/XR rig camera so the distance text renders in player builds.");
-                }
+                tmp.enabled = false;
+                tmp.text = string.Empty;
+            }
+
+            return;
+        }
+
+        string line = $"Distance: {GetPathDistanceFeet():F1} ft";
+        foreach (TextMeshProUGUI tmp in EnumerateDistanceReadouts())
+        {
+            tmp.enabled = true;
+            tmp.text = line;
+            EnsureDistanceLabelRenderable(tmp);
+            if (!tmp.gameObject.activeInHierarchy)
+                tmp.gameObject.SetActive(true);
+            tmp.ForceMeshUpdate(true);
+        }
+    }
+
+    private void PruneDestroyedDistanceReadouts()
+    {
+        boundDistanceReadouts.RemoveAll(static x => x == null);
+    }
+
+    private bool HasAnyDistanceReadout()
+    {
+        if (distanceTMP != null)
+            return true;
+        PruneDestroyedDistanceReadouts();
+        return boundDistanceReadouts.Count > 0;
+    }
+
+    private IEnumerable<TextMeshProUGUI> EnumerateDistanceReadouts()
+    {
+        if (distanceTMP != null)
+            yield return distanceTMP;
+        for (int i = 0; i < boundDistanceReadouts.Count; i++)
+        {
+            if (boundDistanceReadouts[i] != null)
+                yield return boundDistanceReadouts[i];
+        }
+    }
+
+    private void EnsureDistanceLabelRenderable(TextMeshProUGUI tmp)
+    {
+        Canvas canvas = tmp.canvas;
+        if (canvas == null)
+            return;
+
+        canvas.enabled = true;
+        if (!canvas.gameObject.activeInHierarchy)
+            canvas.gameObject.SetActive(true);
+
+        Camera cam = ResolveDistanceCanvasCamera();
+
+        if (canvas.renderMode == RenderMode.ScreenSpaceOverlay && cam != null)
+        {
+            canvas.renderMode = RenderMode.ScreenSpaceCamera;
+            canvas.worldCamera = cam;
+            if (canvas.planeDistance < 0.01f || canvas.planeDistance > 500f)
+                canvas.planeDistance = 0.5f;
+            if (!distanceOverlayFixLogged)
+            {
+                distanceOverlayFixLogged = true;
+                Debug.Log(
+                    "PathTest: Distance label canvas was Screen Space Overlay — switched to Screen Space Camera for XR/HoloLens. Prefer binding distance to the Navigation panel TextMeshPro.");
+            }
+        }
+        else if (canvas.renderMode == RenderMode.WorldSpace || canvas.renderMode == RenderMode.ScreenSpaceCamera)
+        {
+            if (cam != null && canvas.worldCamera != cam)
+                canvas.worldCamera = cam;
+            else if (cam == null && !distanceUiCameraWarningLogged)
+            {
+                distanceUiCameraWarningLogged = true;
+                Debug.LogWarning(
+                    "PathTest: No camera found for distance UI canvas. Assign PathTest.distanceUICamera to your HoloLens/XR rig camera so the distance text renders in player builds.");
             }
         }
 
-        if (!distanceTMP.gameObject.activeInHierarchy)
-            distanceTMP.gameObject.SetActive(true);
+        RectTransform crt = canvas.transform as RectTransform;
+        if (crt != null && crt.localScale.sqrMagnitude < 1e-8f)
+            crt.localScale = Vector3.one;
 
-        distanceTMP.ForceMeshUpdate(true);
+        if (tmp.rectTransform.localScale.sqrMagnitude < 1e-8f)
+            tmp.rectTransform.localScale = Vector3.one;
     }
 
     private Camera ResolveDistanceCanvasCamera()
