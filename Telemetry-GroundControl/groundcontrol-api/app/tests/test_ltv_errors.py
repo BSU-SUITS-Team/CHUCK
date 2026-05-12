@@ -29,6 +29,15 @@ def test_normalize_ltv_error_steps_keeps_explicit_step_list():
     ]
 
 
+def test_normalize_ltv_error_steps_filters_empty_steps():
+    assert normalize_ltv_error_steps(["1. ", "", "2. Locate the dust sensor"]) == [
+        "Locate the dust sensor",
+    ]
+    assert split_numbered_steps("1. 2. Locate the dust sensor 3. ") == [
+        "Locate the dust sensor",
+    ]
+
+
 def test_format_ltv_error_procedure_uses_ground_control_shape():
     procedure = format_ltv_error_procedure(
         {

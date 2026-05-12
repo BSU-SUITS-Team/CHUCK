@@ -13,10 +13,10 @@ LTV_ERRORS_URL = getenv(
 )
 LTV_ERROR_POLL_INTERVAL_SECONDS = 3
 
-_NUMBERED_STEP_BOUNDARY_RE = re.compile(r"\s+(?=\d+\.(?=\s|[^\d\s]))")
-_NUMBERED_STEP_PREFIX_RE = re.compile(r"^\d+\.(?=\s|[^\d\s])")
+_NUMBERED_STEP_BOUNDARY_RE = re.compile(r"\s+(?=\d+\.(?=\s|[^\d\s]|$))")
+_NUMBERED_STEP_PREFIX_RE = re.compile(r"^\d+\.(?=\s|[^\d\s]|$)")
 _MISSING_STEP_SPACE_RE = re.compile(r"^(\d+)\.(?=[^\d\s])")
-_LEADING_STEP_NUMBER_RE = re.compile(r"^\d+\.\s*")
+_LEADING_STEP_NUMBER_RE = re.compile(r"^\d+\.(?:\s+|(?=[^\d\s])|$)")
 
 
 ProcedureUpsert = Callable[[dict], Awaitable[bool]]
@@ -31,6 +31,10 @@ def _remove_step_number(step_text: str) -> str:
     return _LEADING_STEP_NUMBER_RE.sub("", step_text).strip()
 
 
+def _filter_empty_steps(steps: list[str]) -> list[str]:
+    return [step for step in steps if step.strip()]
+
+
 def split_numbered_steps(step_text: str) -> list[str]:
     normalized = _clean_step_text(step_text)
     if not normalized:
@@ -39,11 +43,11 @@ def split_numbered_steps(step_text: str) -> list[str]:
     if not _NUMBERED_STEP_PREFIX_RE.match(normalized):
         return [normalized]
 
-    return [
+    return _filter_empty_steps([
         _remove_step_number(_clean_step_text(step))
         for step in _NUMBERED_STEP_BOUNDARY_RE.split(normalized)
         if step.strip()
-    ]
+    ])
 
 
 def normalize_ltv_error_steps(raw_steps) -> list[str]:
@@ -62,9 +66,9 @@ def normalize_ltv_error_steps(raw_steps) -> list[str]:
         if _NUMBERED_STEP_PREFIX_RE.match(step):
             steps.extend(split_numbered_steps(step))
         else:
-            steps.append(step)
+            steps.append(_remove_step_number(step))
 
-    return steps
+    return _filter_empty_steps(steps)
 
 
 def format_ltv_error_procedure(error_procedure: dict) -> dict:
