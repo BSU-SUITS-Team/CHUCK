@@ -628,6 +628,37 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!1 &7203079873782490741
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4779505322126007357}
+  m_Layer: 0
+  m_Name: NorthReference
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4779505322126007357
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7203079873782490741}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -40.000008, y: 382, z: -7}
+  m_LocalScale: {x: 1000, y: 1000, z: 1000}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6974268899290434192}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7524080289168672605
 GameObject:
   m_ObjectHideFlags: 0
@@ -799,7 +830,7 @@ MeshCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
@@ -1092,6 +1123,9 @@ PrefabInstance:
     - {fileID: 7016246410536116538, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 7126323385947712949, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4779505322126007357}
     - targetCorrespondingSourceObject: {fileID: 8867329628179837176, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2433407873217402012}
@@ -1126,6 +1160,7 @@ MonoBehaviour:
   selectButton: {fileID: 6356445495911797092}
   toggleCapture: {fileID: 3181180865388684518}
   pathTest: {fileID: 0}
+  mapNorthReference: {fileID: 4779505322126007357}
   pathDistanceReadout: {fileID: 0}
   ensurePathDistanceInSidebar: 1
 --- !u!114 &9182736455463728190
@@ -1140,11 +1175,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4a8f91d2e6b4f0a9e3d7c1b5a8e2f64, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  distanceMeters: 0.85
+  distanceMeters: 0.65
   heightOffsetMeters: 0
   placementCameraOverride: {fileID: 0}
   yawOffsetDegrees: 180
   pitchOffsetDegrees: 0
+  followCameraWhileOpen: 1
+  followUpdateIntervalSeconds: 0.05
+  followRecenterDistanceMeters: 0.2
+  followRecenterYawDegrees: 18
+--- !u!4 &6974268899290434192 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7126323385947712949, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
+  m_PrefabInstance: {fileID: 156603166328760101}
+  m_PrefabAsset: {fileID: 0}
 --- !u!224 &8728900289615009757 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8867329628179837176, guid: 8eedee802484a9145946c5fe3408883e, type: 3}

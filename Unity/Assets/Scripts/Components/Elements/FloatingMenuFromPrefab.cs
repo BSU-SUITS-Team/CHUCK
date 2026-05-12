@@ -33,7 +33,27 @@ namespace ARSIS.UI
         [SerializeField]
         private float pitchOffsetDegrees;
 
+        [Tooltip("When true, keeps the menu in front of the active camera while enabled. Turn off if this menu should stay fixed after opening.")]
+        [SerializeField]
+        private bool followCameraWhileOpen;
+
+        [Tooltip("Seconds between follow updates when followCameraWhileOpen is enabled.")]
+        [SerializeField]
+        private float followUpdateIntervalSeconds = 0.05f;
+
+        [Tooltip("Only re-center while open when the camera has moved at least this many meters since the last placement.")]
+        [SerializeField]
+        private float followRecenterDistanceMeters = 0.2f;
+
+        [Tooltip("Only re-center while open when camera yaw changes by at least this many degrees since the last placement.")]
+        [SerializeField]
+        private float followRecenterYawDegrees = 18f;
+
         private int _registeredPrefabInstanceId = -1;
+        private float _followTimer;
+        private Vector3 _lastPlacementCameraPos;
+        private Vector3 _lastPlacementCameraForward = Vector3.forward;
+        private bool _hasPlacementCameraPose;
 
         public static void OpenOrFocus(GameObject prefabAsset)
         {
@@ -75,12 +95,52 @@ namespace ARSIS.UI
                 ByPrefabId.Remove(_registeredPrefabInstanceId);
         }
 
+        private void Update()
+        {
+            if (!followCameraWhileOpen || !gameObject.activeInHierarchy)
+                return;
+            _followTimer += Time.deltaTime;
+            if (_followTimer < Mathf.Max(0.01f, followUpdateIntervalSeconds))
+                return;
+            _followTimer = 0f;
+
+            Camera cam = ResolvePlacementCamera();
+            if (cam == null)
+                return;
+
+            if (!_hasPlacementCameraPose)
+            {
+                ApplyPlacement(notifyNavigation: false, cam);
+                return;
+            }
+
+            float movedMeters = Vector3.Distance(_lastPlacementCameraPos, cam.transform.position);
+            Vector3 lastFlat = Vector3.ProjectOnPlane(_lastPlacementCameraForward, Vector3.up);
+            Vector3 nowFlat = Vector3.ProjectOnPlane(cam.transform.forward, Vector3.up);
+            if (lastFlat.sqrMagnitude < 1e-6f) lastFlat = Vector3.forward;
+            if (nowFlat.sqrMagnitude < 1e-6f) nowFlat = Vector3.forward;
+            float yawDelta = Vector3.Angle(lastFlat.normalized, nowFlat.normalized);
+
+            bool movedEnough = movedMeters >= Mathf.Max(0f, followRecenterDistanceMeters);
+            bool turnedEnough = yawDelta >= Mathf.Max(0f, followRecenterYawDegrees);
+            if (movedEnough || turnedEnough)
+                ApplyPlacement(notifyNavigation: false, cam);
+        }
+
         /// <summary>Call after enabling to move the whole instance in front of the user.</summary>
         public void ApplyPlacement()
         {
-            Camera cam = placementCameraOverride != null && placementCameraOverride.isActiveAndEnabled
+            ApplyPlacement(notifyNavigation: true, null);
+        }
+
+        private Camera ResolvePlacementCamera() =>
+            placementCameraOverride != null && placementCameraOverride.isActiveAndEnabled
                 ? placementCameraOverride
                 : ResolveActiveCamera();
+
+        private void ApplyPlacement(bool notifyNavigation, Camera providedCamera)
+        {
+            Camera cam = providedCamera != null ? providedCamera : ResolvePlacementCamera();
             if (cam == null)
             {
                 Debug.LogWarning("FloatingMenuFromPrefab: No camera found for placement.");
@@ -97,10 +157,16 @@ namespace ARSIS.UI
             Quaternion face = FacingUserRotation(pos, cam.transform.position);
             face *= Quaternion.Euler(pitchOffsetDegrees, yawOffsetDegrees, 0f);
             root.SetPositionAndRotation(pos, face);
+            _lastPlacementCameraPos = cam.transform.position;
+            _lastPlacementCameraForward = cam.transform.forward;
+            _hasPlacementCameraPose = true;
 
-            Navigation[] navs = root.GetComponentsInChildren<Navigation>(true);
-            for (int i = 0; i < navs.Length; i++)
-                navs[i].NotifyMenuPlacedInFrontOfUser();
+            if (notifyNavigation)
+            {
+                Navigation[] navs = root.GetComponentsInChildren<Navigation>(true);
+                for (int i = 0; i < navs.Length; i++)
+                    navs[i].NotifyMenuPlacedInFrontOfUser();
+            }
         }
 
         private static Quaternion FacingUserRotation(Vector3 panelPosition, Vector3 headPosition)

@@ -1,23 +1,27 @@
-using MixedReality.Toolkit;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.XR.Interaction.Toolkit;
 using System.Linq;
-using MixedReality.Toolkit.UX.Experimental;
 using ARSIS.EventManager;
-using ARSIS.UI;
+using MixedReality.Toolkit.UX;
 
 public class Navigation : MonoBehaviour, IRenderable
 {
+    /// <summary>Most recently enabled Navigation panel — used to refresh GridManager when starting a path from an arbitrary pose.</summary>
+    private static Navigation s_lastActiveInstance;
+
     [SerializeField] RectTransform image;
     [SerializeField] RectTransform map;
     [SerializeField] GameObject pinPrefab;
-    [SerializeField] Button selectButton;
-    [SerializeField] Button toggleCapture;
+    [SerializeField] ARSIS.UI.Button selectButton;
+    [SerializeField] ARSIS.UI.Button toggleCapture;
     [SerializeField, Tooltip("Optional. If unset, uses PathTest.Instance for Find Path / Stop Path.")]
     private PathTest pathTest;
+    [SerializeField, Tooltip("Optional north marker on this prefab (e.g. empty under Map). Copied to PathTest.mapNorthReference whenever this panel syncs. Leave empty to use PathTest’s own assignment or default map-up north.")]
+    private Transform mapNorthReference;
     [SerializeField, Tooltip("Optional distance line. Leave empty to auto-create PathDistanceReadout under the Controls column when ensurePathDistanceInSidebar is on.")]
     private TextMeshProUGUI pathDistanceReadout;
     [SerializeField, Tooltip("Adds a row under Find Path / pin buttons on the Navigation panel and binds it to PathTest.")]
@@ -37,6 +41,25 @@ public class Navigation : MonoBehaviour, IRenderable
     private bool findPathButtonSynced;
 
     private PathTest ResolvePathTest() => pathTest != null ? pathTest : PathTest.Instance;
+
+    /// <summary>Call when PathTest starts a session so the grid uses this menu’s map plane (same as at Start / after floating placement).</summary>
+    public static void RefreshPathfindingMapBindingStatic()
+    {
+        if (s_lastActiveInstance != null)
+            s_lastActiveInstance.SyncPathfindingToActiveMapPlane();
+    }
+
+    private void OnEnable()
+    {
+        s_lastActiveInstance = this;
+        SyncPathfindingToActiveMapPlane();
+    }
+
+    private void OnDisable()
+    {
+        if (s_lastActiveInstance == this)
+            s_lastActiveInstance = null;
+    }
 
     private void SetCaptureButton(bool isPathCapture)
     {
@@ -61,11 +84,19 @@ public class Navigation : MonoBehaviour, IRenderable
         toggleCapture.SetIcon(true, icon, label);
     }
 
+    /// <summary>Assume you are facing chart north in world space; stores map→world north yaw on PathTest (does not toggle pathfinding).</summary>
+    public void OrientNorthFromMenu()
+    {
+        PathTest pt = ResolvePathTest();
+        pt?.CalibrateNorthFromUserFacing();
+    }
+
     public void TogglePathCapture()
     {
         PathTest pt = ResolvePathTest();
         if (pt != null)
         {
+            SyncPathfindingToActiveMapPlane();
             pt.SetPathSessionActive(!pt.IsPathSessionActive());
             findPathButtonSynced = pt.IsPathSessionActive();
             string icon = findPathButtonSynced ? "Icon 135" : "Icon 128";
@@ -202,6 +233,7 @@ public class Navigation : MonoBehaviour, IRenderable
     {
         if (pathDistanceReadout == null && ensurePathDistanceInSidebar)
             TryInjectPathDistanceSidebar();
+        TryEnsureOrientNorthButton();
     }
 
     void Start()
@@ -243,7 +275,14 @@ public class Navigation : MonoBehaviour, IRenderable
         if (plane == null)
             return;
         PathTest pt = ResolvePathTest();
-        pt?.BindActiveNavigationMap(plane);
+        if (pt == null)
+            return;
+        pt.BindActiveNavigationMap(plane);
+        if (mapNorthReference != null)
+        {
+            pt.mapNorthReference = mapNorthReference;
+            pt.RefreshMapNorthReferenceVisibility();
+        }
     }
 
     private void TryInjectPathDistanceSidebar()
@@ -257,6 +296,7 @@ public class Navigation : MonoBehaviour, IRenderable
             if (existingReadout != null)
             {
                 pathDistanceReadout = existingReadout.GetComponent<TextMeshProUGUI>();
+                TryEnsureOrientNorthButtonUnderControls(rt);
                 return;
             }
 
@@ -350,6 +390,68 @@ public class Navigation : MonoBehaviour, IRenderable
         distRt.SetAsLastSibling();
 
         pathDistanceReadout = tmp;
+        TryEnsureOrientNorthButtonUnderControls(controls);
+    }
+
+    private void TryEnsureOrientNorthButton()
+    {
+        foreach (RectTransform rt in GetComponentsInChildren<RectTransform>(true))
+        {
+            if (rt.name != "Controls")
+                continue;
+            if (rt.GetComponent<VerticalLayoutGroup>() == null)
+                continue;
+            TryEnsureOrientNorthButtonUnderControls(rt);
+            return;
+        }
+    }
+
+    private void TryEnsureOrientNorthButtonUnderControls(RectTransform controls)
+    {
+        if (controls == null || toggleCapture == null)
+            return;
+
+        Transform legacyRow = controls.Find("OrientNorthRow");
+        if (legacyRow != null)
+            Destroy(legacyRow.gameObject);
+
+        Transform pathParent = toggleCapture.transform.parent;
+        if (pathParent == null)
+            return;
+
+        Transform existing = pathParent.Find("OrientNorthButton");
+        if (existing != null)
+        {
+            ConfigureOrientNorthButton(existing.gameObject);
+            return;
+        }
+
+        GameObject clone = Instantiate(toggleCapture.gameObject, pathParent);
+        clone.name = "OrientNorthButton";
+        ConfigureOrientNorthButton(clone);
+        clone.transform.SetSiblingIndex(toggleCapture.transform.GetSiblingIndex() + 1);
+    }
+
+    private void ConfigureOrientNorthButton(GameObject buttonObject)
+    {
+        if (buttonObject == null)
+            return;
+        ARSIS.UI.Button arsisBtn = buttonObject.GetComponent<ARSIS.UI.Button>();
+        if (arsisBtn != null)
+        {
+            arsisBtn.SetIcon(false, string.Empty, string.Empty);
+            arsisBtn.SetText(true, "Orient North");
+        }
+
+        PressableButton pb = arsisBtn != null ? arsisBtn.GetPressableButton() : buttonObject.GetComponentInChildren<PressableButton>(true);
+        if (pb != null)
+        {
+            // Clone carries Find Path persistent listener(s); disable all of them so this button cannot toggle path session.
+            for (int i = 0; i < pb.OnClicked.GetPersistentEventCount(); i++)
+                pb.OnClicked.SetPersistentListenerState(i, UnityEngine.Events.UnityEventCallState.Off);
+            pb.OnClicked.RemoveAllListeners();
+            pb.OnClicked.AddListener(OrientNorthFromMenu);
+        }
     }
 
     void Update()

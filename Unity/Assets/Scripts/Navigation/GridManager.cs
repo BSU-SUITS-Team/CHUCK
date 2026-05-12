@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class GridManager : MonoBehaviour
@@ -24,7 +25,8 @@ public class GridManager : MonoBehaviour
     public float mapHeight = 0.25f;
     public Vector2 mapCenterOffset = Vector2.zero;
 
-    [Header("Walk mask (same texture as visual map if possible)")]
+    [Header("Walk mask — can differ from the on-screen map image")]
+    [Tooltip("Grayscale/B&W texture used only for walkability sampling (see walkableBrightnessThreshold). The chart image the user sees should be the RawImage/Image material on this map transform — not required to use this texture. Same UV/world mapping as the visual when laid out with useRectTransformWorldCorners.")]
     public Texture2D obstacleMap;
     [Range(0f, 1f)] public float walkableBrightnessThreshold = 0.6f;
     public bool invertObstacleMask = false;
@@ -196,6 +198,23 @@ public class GridManager : MonoBehaviour
         }
     }
 
+    /// <summary>Same UV math as <see cref="GridToWorld"/> but using frozen corner positions (e.g. captured at repath) so world visuals do not drift when the map panel moves.</summary>
+    public Vector3 GridToWorldUsingRectCorners(int x, int y, Vector3 c0, Vector3 c1, Vector3 c3)
+    {
+        CellToNormalizedMapUV(x, y, out float u, out float v);
+        return c0 + u * (c3 - c0) + v * (c1 - c0);
+    }
+
+    /// <summary>Copies the quad’s current world corners (same order as RectTransform.GetWorldCorners). Returns false if not using rect corner layout.</summary>
+    public bool TryCopyRectWorldCorners(Vector3[] destFour)
+    {
+        if (!UsesRectCornerLayout || destFour == null || destFour.Length < 4)
+            return false;
+        RefreshRectWorldCorners();
+        Array.Copy(_rectWorldCorners, destFour, 4);
+        return true;
+    }
+
     public Vector3 GridToWorld(int x, int y)
     {
         if (UsesRectCornerLayout)
@@ -204,8 +223,7 @@ public class GridManager : MonoBehaviour
             Vector3 c0 = _rectWorldCorners[0];
             Vector3 c1 = _rectWorldCorners[1];
             Vector3 c3 = _rectWorldCorners[3];
-            CellToNormalizedMapUV(x, y, out float u, out float v);
-            return c0 + u * (c3 - c0) + v * (c1 - c0);
+            return GridToWorldUsingRectCorners(x, y, c0, c1, c3);
         }
 
         Vector3 center = ActiveMapTransform.position + MapAxisX * mapCenterOffset.x + MapAxisY * mapCenterOffset.y;
