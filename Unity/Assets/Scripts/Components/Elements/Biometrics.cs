@@ -112,6 +112,11 @@ public class Biometrics : MonoBehaviour
         coolantGas.currentValue   = s.coolant_gas_pressure;
     }
 }
+
+
+
+// Old ARSIS Biometrics code for reference; not deleted yet in case we want to revert
+
 // public class Biometrics : MonoBehaviour, IRenderable
 // {
 //     // Suit Resources
