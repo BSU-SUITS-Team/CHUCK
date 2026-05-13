@@ -239,23 +239,7 @@ public class GridManager : MonoBehaviour
             Vector3 c0 = _rectWorldCorners[0];
             Vector3 ex = _rectWorldCorners[3] - c0;
             Vector3 ey = _rectWorldCorners[1] - c0;
-            Vector3 w = worldPos - c0;
-            float a = Vector3.Dot(ex, ex);
-            float b = Vector3.Dot(ex, ey);
-            float c = Vector3.Dot(ey, ey);
-            float d = Vector3.Dot(ex, w);
-            float e = Vector3.Dot(ey, w);
-            float det = a * c - b * b;
-            if (Mathf.Abs(det) < 1e-14f)
-                return Vector2Int.zero;
-            float u = (c * d - b * e) / det;
-            float v = (a * e - b * d) / det;
-            u = Mathf.Clamp01(u);
-            v = Mathf.Clamp01(v);
-            NormalizedMapUVToCellFraction(u, v, out float uCellFrac, out float vCellFrac);
-            int gx = Mathf.Clamp(Mathf.Min(GridWidth - 1, Mathf.FloorToInt(uCellFrac * GridWidth)), 0, GridWidth - 1);
-            int gy = Mathf.Clamp(Mathf.Min(GridHeight - 1, Mathf.FloorToInt(vCellFrac * GridHeight)), 0, GridHeight - 1);
-            return new Vector2Int(gx, gy);
+            return WorldToGridFromRectAxes(worldPos, c0, ex, ey);
         }
 
         Vector3 center = ActiveMapTransform.position + MapAxisX * mapCenterOffset.x + MapAxisY * mapCenterOffset.y;
@@ -263,6 +247,38 @@ public class GridManager : MonoBehaviour
         int gx2 = Mathf.Clamp(Mathf.FloorToInt((Vector3.Dot(local, MapAxisX) + mapWidth * 0.5f) / CellWidth), 0, GridWidth - 1);
         int gy2 = Mathf.Clamp(Mathf.FloorToInt((Vector3.Dot(local, MapAxisY) + mapHeight * 0.5f) / CellHeight), 0, GridHeight - 1);
         return new Vector2Int(gx2, gy2);
+    }
+
+    /// <summary>
+    /// Same cell mapping as rect-corner <see cref="WorldToGrid"/> but using explicit world corners (e.g. snapshot from PathTest
+    /// while the live map transform is disabled after closing the Navigation panel).
+    /// </summary>
+    public Vector2Int WorldToGridFromCorners(Vector3 worldPos, Vector3 c0, Vector3 c1, Vector3 c3)
+    {
+        Vector3 ex = c3 - c0;
+        Vector3 ey = c1 - c0;
+        return WorldToGridFromRectAxes(worldPos, c0, ex, ey);
+    }
+
+    private Vector2Int WorldToGridFromRectAxes(Vector3 worldPos, Vector3 c0, Vector3 ex, Vector3 ey)
+    {
+        Vector3 w = worldPos - c0;
+        float a = Vector3.Dot(ex, ex);
+        float b = Vector3.Dot(ex, ey);
+        float c = Vector3.Dot(ey, ey);
+        float d = Vector3.Dot(ex, w);
+        float e = Vector3.Dot(ey, w);
+        float det = a * c - b * b;
+        if (Mathf.Abs(det) < 1e-14f)
+            return Vector2Int.zero;
+        float u = (c * d - b * e) / det;
+        float v = (a * e - b * d) / det;
+        u = Mathf.Clamp01(u);
+        v = Mathf.Clamp01(v);
+        NormalizedMapUVToCellFraction(u, v, out float uCellFrac, out float vCellFrac);
+        int gx = Mathf.Clamp(Mathf.Min(GridWidth - 1, Mathf.FloorToInt(uCellFrac * GridWidth)), 0, GridWidth - 1);
+        int gy = Mathf.Clamp(Mathf.Min(GridHeight - 1, Mathf.FloorToInt(vCellFrac * GridHeight)), 0, GridHeight - 1);
+        return new Vector2Int(gx, gy);
     }
 
     public bool IsInside(Vector2Int p) => p.x >= 0 && p.y >= 0 && p.x < GridWidth && p.y < GridHeight;

@@ -75,6 +75,8 @@ public class PathTest : MonoBehaviour
     public float destinationReachedFeet = 10f;
     [Tooltip("Shown when remaining distance ≤ destinationReachedFeet (path session active).")]
     public string destinationReachedText = "Destination reached";
+    [Tooltip("Shown instead of a numeric distance when A* cannot connect start to end (e.g. blocked by obstacles, or endpoints beyond the walkable area).")]
+    public string noPathAvailableText = "No Available Path";
 
     [Header("Visualization — line")]
     public LineRenderer pathLine;
@@ -137,21 +139,33 @@ public class PathTest : MonoBehaviour
     public bool snapPlayerYawToWorldPath = false;
 
     [Header("HUD — off-screen destination turn cue")]
-    [Tooltip("Defaults to worldArrowPrefab when empty. NavArrow mesh parented to the headset camera when the goal is outside the view frustum.")]
+    [Tooltip("Defaults to worldArrowPrefab when empty. When Parent Off Screen Turn Cue To Distance Readout is on (default), cues are parented to the Distance row on the Navigation panel so they are not occluded by the map; otherwise they are parented to the headset camera.")]
     public GameObject offScreenTurnCuePrefab;
     [Tooltip("Shrink the “visible” viewport by this fraction on each side (0 = use full screen).")]
     [Range(0f, 0.45f)]
     public float offScreenTurnCueViewportMargin = 0.04f;
-    [Tooltip("Meters in front of the camera (local +Z) for the cue.")]
+    [Tooltip("Meters in front of the camera (local +Z) for the cue. Only used when the cue is parented to the headset camera (see Parent Off Screen Turn Cue To Distance Readout / HUD anchor). When parented to the Navigation distance row, anchored offsets are used instead so the cue is not drawn behind the panel.")]
     public float offScreenTurnCueLocalDepth = 1.2f;
-    [Tooltip("Meters left/right of view center (camera local ±X).")]
+    [Tooltip("Meters left/right of view center (camera local ±X). Only used for camera-parented cues.")]
     public float offScreenTurnCueLocalX = 0.38f;
-    [Tooltip("Meters up/down from view center (camera local Y).")]
+    [Tooltip("Meters up/down from view center (camera local Y). Only used for camera-parented cues.")]
     public float offScreenTurnCueLocalY = -0.06f;
     [Tooltip("Local scale applied to the cue instance.")]
     public Vector3 offScreenTurnCueLocalScale = new Vector3(0.6f, 0.6f, 0.6f);
     [Tooltip("Extra local rotation after aiming the mesh along screen left/right (degrees).")]
     public Vector3 offScreenTurnCueRotationExtraEuler = Vector3.zero;
+    [Tooltip("Optional. When set, off-screen turn cues are parented here (e.g. an empty next to the Distance label) so they share the same depth/sorting as your Navigation UI instead of sitting behind the panel on the camera.")]
+    public Transform offScreenTurnCueHudAnchor;
+    [Tooltip("When true (default), parent turn cues to the first bound distance readout (BindDistanceReadout / Navigation sidebar) so they sit on the same UI plane as the Distance text. Falls back to the headset camera when no readout is bound. Ignored if Off Screen Turn Cue HUD Anchor is assigned.")]
+    public bool parentOffScreenTurnCueToDistanceReadout = true;
+    [Tooltip("When parented to a RectTransform (distance readout or HUD anchor), horizontal offset magnitude from the readout’s pivot: right cue uses +X, left cue uses −X (same |value|).")]
+    public float offScreenTurnCueHudAnchoredOffsetX = 120f;
+    [Tooltip("When parented to a RectTransform, vertical offset from the readout’s pivot (anchoredPosition Y).")]
+    public float offScreenTurnCueHudAnchoredOffsetY = 2f;
+    [Tooltip("Uniform local scale for the cue mesh when parented under UI (world-space canvas units differ from meters). Increase if the arrow is still tiny on HoloLens.")]
+    public float offScreenTurnCueHudMeshUniformScale = 96f;
+    [Tooltip("When parented under UI, optional MeshRenderer.sortingOrder so the cue draws above the map image on the same canvas. 0 = leave default.")]
+    public int offScreenTurnCueHudMeshSortingOrder = 32000;
 
     [Header("Markers & map lift")]
     [Tooltip("Meters along the map RectTransform forward (out of the image). Same for green, red, line, arrows. 0 = on the quad.")]
@@ -169,6 +183,8 @@ public class PathTest : MonoBehaviour
     private bool northOrientationLocked;
     [SerializeField]
     private float lockedNorthYawDegrees;
+    [Tooltip("Flip the tracking transform's forward axis before computing the Orient North yaw. Use when your tracking transform / Main Camera reports its +Z axis OPPOSITE to your actual gaze (common on editor cameras parked facing the panel) so pressing Orient North while looking forward stops laying out the world route behind you.")]
+    public bool invertOrientNorthFacing = false;
 
     /// <summary>Map tilt + north locked on session start / Orient North. Floor path is rebuilt each repath from the map polyline.</summary>
     private bool _worldCalibCaptured;
@@ -206,11 +222,12 @@ public class PathTest : MonoBehaviour
     private Vector3 navigationRootInitialLocalPos;
     private bool navigationRootBaselineStored;
     private bool distanceUiCameraWarningLogged;
-    private bool distanceOverlayFixLogged;
     private bool endPointMarkerScaleWarningLogged;
     private Transform cachedEndPointWorldMarker;
     private Vector3 cachedEndPointWorldMarkerBaseLocalScale;
     private bool mapNorthReferenceRenderersHidden;
+    /// <summary>True while the Navigation floating panel is closed/disabled but a path session is still active — hide map markers/line/map arrows without stopping pathfinding HUD.</summary>
+    private bool _suppressMapFaceVisualsWhileNavPanelClosed;
 
     private GameObject _offScreenCueLeft;
     private GameObject _offScreenCueRight;
@@ -260,7 +277,10 @@ public class PathTest : MonoBehaviour
         Transform tr = ResolveTrackingTransform();
         if (tr == null)
             return;
-        Vector3 userF = Vector3.ProjectOnPlane(tr.forward, Vector3.up);
+        Vector3 rawForward = tr.forward;
+        if (invertOrientNorthFacing)
+            rawForward = -rawForward;
+        Vector3 userF = Vector3.ProjectOnPlane(rawForward, Vector3.up);
         if (userF.sqrMagnitude < 1e-8f)
             return;
         userF.Normalize();
@@ -268,6 +288,7 @@ public class PathTest : MonoBehaviour
         lockedNorthYawDegrees = Vector3.SignedAngle(mapN, userF, Vector3.up);
         northOrientationLocked = true;
         CaptureWorldSpatialCalibration();
+
         if (pathSessionActive)
             ForceRepath();
     }
@@ -328,6 +349,7 @@ public class PathTest : MonoBehaviour
         if (grid == null || mapSurface == null)
             return;
 
+        _suppressMapFaceVisualsWhileNavPanelClosed = false;
         grid.mapTransform = mapSurface;
         grid.gridAreaTransform = null;
         mapArrowParent = mapSurface;
@@ -355,7 +377,10 @@ public class PathTest : MonoBehaviour
         if (tracking != null)
             repathAnchorWorld = tracking.position;
         if (!active)
+        {
+            _suppressMapFaceVisualsWhileNavPanelClosed = false;
             ClearPathVisualization();
+        }
         else
         {
             TryRefreshNavigationMapBinding();
@@ -374,6 +399,21 @@ public class PathTest : MonoBehaviour
     public void TryRefreshNavigationMapBinding()
     {
         Navigation.RefreshPathfindingMapBindingStatic();
+    }
+
+    /// <summary>
+    /// Called when the Navigation floating menu is disabled/closed (e.g. X) while a path session may still be active.
+    /// Hides map-only markers and stops sampling a disabled map for grid regen; distance / world route / off-screen cues keep updating on PathTest.
+    /// </summary>
+    public void NotifyNavigationPanelHidden()
+    {
+        if (!pathSessionActive)
+            return;
+        _suppressMapFaceVisualsWhileNavPanelClosed = true;
+        SetMapVisualsVisible(false);
+        // Rebuild world-route snapshot immediately using frozen map geometry so distance + off-screen cues do not wait
+        // for the next repath interval (and so layout is not stuck behind a failed live-rect WorldToGrid sample).
+        ForceRepath();
     }
 
     private void ClearPathVisualization()
@@ -470,6 +510,20 @@ public class PathTest : MonoBehaviour
     {
         if (mapNorthReference == null || !hideMapNorthReferenceRenderers || mapNorthReferenceRenderersHidden)
             return;
+
+        // SAFETY: if mapNorthReference points at a prefab ASSET (e.g. someone dragged NavArrow.prefab into this slot
+        // in the inspector), GetComponentsInChildren walks the asset and Unity persists renderer.enabled=false to disk —
+        // which silently breaks every future Instantiate of that prefab. Refuse to operate on anything that is not a scene instance.
+        if (!mapNorthReference.gameObject.scene.IsValid())
+        {
+            Debug.LogWarning(
+                $"PathTest: 'Map North Reference' is assigned to a prefab asset ('{mapNorthReference.name}'), not a scene transform. " +
+                "Skipping renderer hide — otherwise Unity would persist Renderer.enabled=false back into the prefab asset (breaking every Instantiate). " +
+                "Clear this field on the scene PathTest, or assign it to a scene-instance Transform (e.g. an empty under the Navigation prefab).");
+            mapNorthReferenceRenderersHidden = true;
+            return;
+        }
+
         var renderers = mapNorthReference.GetComponentsInChildren<Renderer>(true);
         for (int i = 0; i < renderers.Length; i++)
             renderers[i].enabled = false;
@@ -487,7 +541,9 @@ public class PathTest : MonoBehaviour
 
         Quaternion tilt = preferCapturedTilt && _worldCalibCaptured
             ? _worldCalibTiltToHorizontal
-            : Quaternion.FromToRotation(grid.GetGridPlaneNormal(), Vector3.up);
+            : (!CanRegenerateGridFromLiveMap() && _worldCalibCaptured
+                ? _worldCalibTiltToHorizontal
+                : Quaternion.FromToRotation(grid.GetGridPlaneNormal(), Vector3.up));
         Vector3 h = Vector3.ProjectOnPlane(tilt * tangentWorld, Vector3.up);
         if (h.sqrMagnitude < 1e-8f)
             return Vector3.forward;
@@ -504,10 +560,17 @@ public class PathTest : MonoBehaviour
         if (grid == null)
             return Vector3.forward;
 
-        Vector3 center = grid.SnapOntoVisualMapFace(grid.MapPlaneCenter);
-        if (mapNorthReference != null)
+        Vector3 center;
+        if (!CanRegenerateGridFromLiveMap() && _worldCalibCaptured)
+            center = _worldCalibIsRect ? FrozenRectMapPlaneCenter() : _worldCalibCenter;
+        else
+            center = grid.SnapOntoVisualMapFace(grid.MapPlaneCenter);
+
+        if (mapNorthReference != null && mapNorthReference.gameObject.activeInHierarchy)
         {
-            Vector3 refOnPlane = grid.SnapOntoVisualMapFace(mapNorthReference.position);
+            Vector3 refOnPlane = CanRegenerateGridFromLiveMap()
+                ? grid.SnapOntoVisualMapFace(mapNorthReference.position)
+                : ProjectOntoFrozenMapPlane(mapNorthReference.position);
             Vector3 d = refOnPlane - center;
             return MapPlaneTangentToHorizontalWorld(d, preferCapturedTilt);
         }
@@ -515,8 +578,8 @@ public class PathTest : MonoBehaviour
         int mx = Mathf.Clamp(grid.GridWidth / 2, 0, grid.GridWidth - 1);
         int my = Mathf.Clamp(grid.GridHeight / 2, 0, grid.GridHeight - 1);
         int ny = Mathf.Min(grid.GridHeight - 1, my + 1);
-        Vector3 c = grid.GridToWorld(mx, my);
-        Vector3 n = grid.GridToWorld(mx, ny);
+        Vector3 c = MapWorldFromCellIndices(mx, my);
+        Vector3 n = MapWorldFromCellIndices(mx, ny);
         return MapPlaneTangentToHorizontalWorld(n - c, preferCapturedTilt);
     }
 
@@ -571,7 +634,7 @@ public class PathTest : MonoBehaviour
 
         ResolveStartEndGrid(out Vector2Int rs, out Vector2Int re);
 
-        if (!IsMapSurfaceVisible())
+        if (!IsMapFaceShownForVisuals())
         {
             SetMapVisualsVisible(false);
             UpdateEndPointWorldMarker();
@@ -602,6 +665,108 @@ public class PathTest : MonoBehaviour
         if (grid == null || grid.ActiveMapTransform == null)
             return false;
         return grid.ActiveMapTransform.gameObject.activeInHierarchy;
+    }
+
+    private bool IsMapFaceShownForVisuals()
+    {
+        return IsMapSurfaceVisible() && !_suppressMapFaceVisualsWhileNavPanelClosed;
+    }
+
+    /// <summary>Walkability sampling must not run against a disabled/invisible map rect or it can corrupt the grid mid-session.</summary>
+    private bool CanRegenerateGridFromLiveMap()
+    {
+        return grid != null && grid.ActiveMapTransform != null && grid.ActiveMapTransform.gameObject.activeInHierarchy;
+    }
+
+    /// <summary>World cell → map face world position using the live map when available, otherwise the last spatial snapshot (Navigation panel closed while path is active).</summary>
+    private Vector3 MapWorldFromCellIndices(int xi, int yi)
+    {
+        if (grid == null)
+            return Vector3.zero;
+        if (!CanRegenerateGridFromLiveMap() && _worldCalibCaptured)
+        {
+            if (_worldCalibIsRect)
+                return grid.GridToWorldUsingRectCorners(xi, yi, _worldCalibCorner0, _worldCalibCorner1, _worldCalibCorner3);
+            return GridToWorldSnapshot(xi, yi);
+        }
+        return grid.GridToWorld(xi, yi);
+    }
+
+    private Vector3 MapCellWorldSnapped(int xi, int yi)
+    {
+        Vector3 w = MapWorldFromCellIndices(xi, yi);
+        if (CanRegenerateGridFromLiveMap())
+            return grid.SnapOntoVisualMapFace(w);
+        return w;
+    }
+
+    private Vector2Int WorldToGridForSession(Vector3 worldPos)
+    {
+        if (grid == null)
+            return Vector2Int.zero;
+        if (!CanRegenerateGridFromLiveMap() && _worldCalibCaptured)
+        {
+            if (_worldCalibIsRect)
+                return grid.WorldToGridFromCorners(worldPos, _worldCalibCorner0, _worldCalibCorner1, _worldCalibCorner3);
+            return WorldToGridAxisSnapshot(worldPos);
+        }
+        return grid.WorldToGrid(worldPos);
+    }
+
+    /// <summary>
+    /// Same cell mapping as <see cref="GridManager"/> axis layout, using the last captured map pose (Navigation panel disabled).
+    /// </summary>
+    private Vector2Int WorldToGridAxisSnapshot(Vector3 worldPos)
+    {
+        Vector3 local = worldPos - _worldCalibCenter;
+        float cellW = _worldCalibMapW / Mathf.Max(1, _worldCalibGw);
+        float cellH = _worldCalibMapH / Mathf.Max(1, _worldCalibGh);
+        int gx = Mathf.Clamp(
+            Mathf.FloorToInt((Vector3.Dot(local, _worldCalibAxisX) + _worldCalibMapW * 0.5f) / Mathf.Max(1e-8f, cellW)),
+            0,
+            _worldCalibGw - 1);
+        int gy = Mathf.Clamp(
+            Mathf.FloorToInt((Vector3.Dot(local, _worldCalibAxisY) + _worldCalibMapH * 0.5f) / Mathf.Max(1e-8f, cellH)),
+            0,
+            _worldCalibGh - 1);
+        return new Vector2Int(gx, gy);
+    }
+
+    private Vector3 FrozenRectMapPlaneCenter()
+    {
+        Vector3 c0 = _worldCalibCorner0;
+        Vector3 ex = _worldCalibCorner3 - c0;
+        Vector3 ey = _worldCalibCorner1 - c0;
+        return c0 + 0.5f * ex + 0.5f * ey;
+    }
+
+    private Vector3 ProjectOntoFrozenMapPlane(Vector3 worldPos)
+    {
+        if (!_worldCalibCaptured || !_worldCalibIsRect)
+            return worldPos;
+        Vector3 c0 = _worldCalibCorner0;
+        Vector3 ex = _worldCalibCorner3 - c0;
+        Vector3 ey = _worldCalibCorner1 - c0;
+        Vector3 n = Vector3.Cross(ex, ey);
+        if (n.sqrMagnitude < 1e-12f)
+            return worldPos;
+        n.Normalize();
+        return worldPos - Vector3.Dot(worldPos - c0, n) * n;
+    }
+
+    private Vector3 MapFaceOutForSession()
+    {
+        if (CanRegenerateGridFromLiveMap())
+            return grid.MapFaceOut;
+        if (_worldCalibCaptured && _worldCalibIsRect)
+        {
+            Vector3 c0 = _worldCalibCorner0;
+            Vector3 n = Vector3.Cross(_worldCalibCorner3 - c0, _worldCalibCorner1 - c0);
+            if (n.sqrMagnitude < 1e-12f)
+                return Vector3.forward;
+            return n.normalized;
+        }
+        return grid != null ? grid.MapFaceOut : Vector3.forward;
     }
 
     private void SetMapVisualsVisible(bool visible)
@@ -662,8 +827,8 @@ public class PathTest : MonoBehaviour
     {
         Vector3 startWorld = CoordinateToWorld(currentCoordinate);
         Vector3 endWorld = CoordinateToWorld(endCoordinate);
-        Vector2Int startGrid = grid.WorldToGrid(startWorld);
-        Vector2Int endGrid = grid.WorldToGrid(endWorld);
+        Vector2Int startGrid = WorldToGridForSession(startWorld);
+        Vector2Int endGrid = WorldToGridForSession(endWorld);
         resolvedStart = grid.FindNearestWalkable(startGrid, nearestWalkableSearchRadius);
         resolvedEnd = grid.FindNearestWalkable(endGrid, nearestWalkableSearchRadius);
         _lineResolvedStart = resolvedStart;
@@ -676,13 +841,13 @@ public class PathTest : MonoBehaviour
 
         if (mapStartPoint != null)
         {
-            Vector3 p = grid.SnapOntoVisualMapFace(grid.GridToWorld(resolvedStart.x, resolvedStart.y));
+            Vector3 p = MapCellWorldSnapped(resolvedStart.x, resolvedStart.y);
             mapStartPoint.position = p + lift;
         }
 
         if (endPoint != null)
         {
-            Vector3 p = grid.SnapOntoVisualMapFace(grid.GridToWorld(resolvedEnd.x, resolvedEnd.y));
+            Vector3 p = MapCellWorldSnapped(resolvedEnd.x, resolvedEnd.y);
             endPoint.position = p + lift;
         }
     }
@@ -747,14 +912,16 @@ public class PathTest : MonoBehaviour
 
     private void ForceRepath()
     {
-        if (regenerateGridEachRepath || grid.grid == null)
+        if (grid.grid == null)
+            grid.GenerateGrid();
+        else if (regenerateGridEachRepath && CanRegenerateGridFromLiveMap())
             grid.GenerateGrid();
 
         if (grid.grid == null)
             return;
 
         ResolveStartEndGrid(out Vector2Int resolvedStart, out Vector2Int resolvedEnd);
-        bool mapVisible = IsMapSurfaceVisible();
+        bool mapVisible = IsMapFaceShownForVisuals();
         SetMapVisualsVisible(mapVisible);
         if (mapVisible)
             PlaceEndpointMarkers(resolvedStart, resolvedEnd);
@@ -762,7 +929,7 @@ public class PathTest : MonoBehaviour
         List<Node> foundPath = pathfinder.FindPath(resolvedStart, resolvedEnd);
 
         currentPath.Clear();
-        if (foundPath != null)
+        if (foundPath != null && foundPath.Count > 0)
         {
             EnsurePathRunsStartToEnd(foundPath, resolvedStart, resolvedEnd);
             if (invertPathVisualizationOrder)
@@ -808,7 +975,7 @@ public class PathTest : MonoBehaviour
 
         float x = tx * (grid.GridWidth - 1);
         float y = ty * (grid.GridHeight - 1);
-        return grid.GridToWorld(Mathf.RoundToInt(x), Mathf.RoundToInt(y));
+        return MapWorldFromCellIndices(Mathf.RoundToInt(x), Mathf.RoundToInt(y));
     }
 
     /// <summary>
@@ -837,7 +1004,7 @@ public class PathTest : MonoBehaviour
         if (grid == null || Mathf.Abs(meters) < 1e-8f)
             return Vector3.zero;
         float s = invertSurfaceOffsetDirection ? -1f : 1f;
-        return grid.MapFaceOut * meters * s;
+        return MapFaceOutForSession() * meters * s;
     }
 
     private void DrawPathLine()
@@ -854,8 +1021,8 @@ public class PathTest : MonoBehaviour
         pathLine.useWorldSpace = true;
 
         Vector3 lineLift = MapFaceLift(lineHeightOffset);
-        Vector3 startBase = grid.SnapOntoVisualMapFace(grid.GridToWorld(_lineResolvedStart.x, _lineResolvedStart.y));
-        Vector3 endBase = grid.SnapOntoVisualMapFace(grid.GridToWorld(_lineResolvedEnd.x, _lineResolvedEnd.y));
+        Vector3 startBase = MapCellWorldSnapped(_lineResolvedStart.x, _lineResolvedStart.y);
+        Vector3 endBase = MapCellWorldSnapped(_lineResolvedEnd.x, _lineResolvedEnd.y);
         Vector3 start = startBase + lineLift;
         Vector3 end = endBase + lineLift;
 
@@ -888,7 +1055,7 @@ public class PathTest : MonoBehaviour
         for (int i = 0; i < currentPath.Count; i++)
         {
             Node n = GetCurrentPathNodeJourneyOrder(i);
-            Vector3 cell = grid.SnapOntoVisualMapFace(grid.GridToWorld(n.x, n.y));
+            Vector3 cell = MapCellWorldSnapped(n.x, n.y);
             pathLine.SetPosition(i + 1, cell + lineLift);
         }
     }
@@ -933,7 +1100,7 @@ public class PathTest : MonoBehaviour
     {
         DestroyArrowList(activeMapArrows);
 
-        if (mapArrowPrefab == null || currentPath.Count < 2)
+        if (mapArrowPrefab == null || currentPath.Count < 2 || grid == null || !IsMapFaceShownForVisuals())
             return;
 
         bool useJourneySnap = _snapPathNodes.Count == currentPath.Count
@@ -944,7 +1111,7 @@ public class PathTest : MonoBehaviour
         int step = Mathf.Max(1, mapArrowEveryNNodes);
         float arrowAmount = mapArrowHeightOffset >= 0f ? mapArrowHeightOffset : lineHeightOffset;
         Vector3 arrowLift = MapFaceLift(arrowAmount);
-        Vector3 faceNormal = grid.MapFaceOut;
+        Vector3 faceNormal = MapFaceOutForSession();
 
         int pathCount = useJourneySnap ? _snapPathNodes.Count : currentPath.Count;
         for (int i = 0; i < pathCount - 1; i += step)
@@ -955,10 +1122,10 @@ public class PathTest : MonoBehaviour
 
             Vector3 currentPos = useJourneySnap
                 ? _snapPathMapPoints[i]
-                : grid.SnapOntoVisualMapFace(grid.GridToWorld(current.x, current.y));
+                : MapCellWorldSnapped(current.x, current.y);
             Vector3 nextPos = useJourneySnap
                 ? _snapPathMapPoints[nextIdx]
-                : grid.SnapOntoVisualMapFace(grid.GridToWorld(next.x, next.y));
+                : MapCellWorldSnapped(next.x, next.y);
             Vector3 direction = (nextPos - currentPos).normalized;
             if (direction.sqrMagnitude <= Mathf.Epsilon)
                 continue;
@@ -1043,7 +1210,7 @@ public class PathTest : MonoBehaviour
         {
             Node n = currentPath[i];
             _snapPathNodes.Add(n);
-            Vector3 mapPoint = grid.SnapOntoVisualMapFace(grid.GridToWorld(n.x, n.y));
+            Vector3 mapPoint = MapCellWorldSnapped(n.x, n.y);
             _snapPathMapPoints.Add(mapPoint);
         }
 
@@ -1066,8 +1233,8 @@ public class PathTest : MonoBehaviour
                 }
                 else
                 {
-                    Vector3 startSnap = grid.SnapOntoVisualMapFace(grid.GridToWorld(_lineResolvedStart.x, _lineResolvedStart.y));
-                    Vector3 endSnap = grid.SnapOntoVisualMapFace(grid.GridToWorld(_lineResolvedEnd.x, _lineResolvedEnd.y));
+                    Vector3 startSnap = MapCellWorldSnapped(_lineResolvedStart.x, _lineResolvedStart.y);
+                    Vector3 endSnap = MapCellWorldSnapped(_lineResolvedEnd.x, _lineResolvedEnd.y);
                     int last = _snapPathMapPoints.Count - 1;
                     float forwardCost =
                         (_snapPathMapPoints[0] - startSnap).sqrMagnitude +
@@ -1133,10 +1300,21 @@ public class PathTest : MonoBehaviour
         {
             // Grid layout already lives in calibrated north basis — only apply the user's extra yaw offset.
             // Legacy tilt mode lacks that pre-alignment, so it still needs the captured north yaw.
-            float extraYaw = worldFloorUsesGridLayout
-                ? worldPathYawOffsetDegrees
-                : worldPathYawOffsetDegrees + _worldCalibNorthYawDeg;
-            if (flipWorldFloorDefaultDirection)
+            //
+            // IMPORTANT: worldPathYawOffsetDegrees and flipWorldFloorDefaultDirection are *default-direction overrides*
+            // (used when mapN happens to point the wrong way at scene start). Once the user has explicitly locked a
+            // direction with Orient North, that lock is the source of truth and these manual overrides MUST be ignored,
+            // otherwise they stack on top of the lock and flip the path 180° away from where the user calibrated.
+            float extraYaw;
+            if (worldFloorUsesGridLayout)
+            {
+                extraYaw = northOrientationLocked ? 0f : worldPathYawOffsetDegrees;
+            }
+            else
+            {
+                extraYaw = worldPathYawOffsetDegrees + _worldCalibNorthYawDeg;
+            }
+            if (flipWorldFloorDefaultDirection && !northOrientationLocked)
                 extraYaw += 180f;
             Quaternion qNorth = Quaternion.Euler(0f, extraYaw, 0f);
             w1 = w0 + qNorth * rawFlat[rawFlat.Count - 1];
@@ -1178,7 +1356,7 @@ public class PathTest : MonoBehaviour
     {
         if (grid == null || !_worldLayoutValid || !_worldCalibCaptured)
             return GetWorldPathFloorAnchor() + Vector3.up * worldArrowHeightAbovePlayer;
-        Vector3 p = grid.SnapOntoVisualMapFace(grid.GridToWorld(gx, gy));
+        Vector3 p = MapCellWorldSnapped(gx, gy);
         return WorldArrowFloorFromSnapshotMapPoint(p);
     }
 
@@ -1208,8 +1386,9 @@ public class PathTest : MonoBehaviour
         if (!_worldLayoutValid || _snapPathMapPoints.Count != currentPath.Count || currentPath.Count < 1)
             RefreshWorldRouteLayoutSnapshot();
 
-        if (worldArrowPrefab == null || grid == null || grid.grid == null || currentPath.Count < 2 || !_worldCalibCaptured || !_worldLayoutValid
-            || _snapPathMapPoints.Count < 2 || _worldPathFloorPositions.Count != _snapPathMapPoints.Count)
+        if (worldArrowPrefab == null || grid == null || grid.grid == null || currentPath.Count < 2
+            || !_worldCalibCaptured || !_worldLayoutValid || _snapPathMapPoints.Count < 2
+            || _worldPathFloorPositions.Count != _snapPathMapPoints.Count)
             return;
 
         float spaceScale = Mathf.Max(0.001f, worldPathUniformSpaceScale);
@@ -1377,36 +1556,135 @@ public class PathTest : MonoBehaviour
         _offScreenCueRight = null;
     }
 
-    private bool EnsureOffScreenTurnCuePair(Camera cam, GameObject prefab)
+    private bool EnsureOffScreenTurnCuePair(Transform parent, GameObject prefab)
     {
-        if (cam == null || prefab == null)
+        if (parent == null || prefab == null)
             return false;
+
+        bool parentChanged = _offScreenCueLeft != null && _offScreenCueLeft.transform.parent != parent
+            || _offScreenCueRight != null && _offScreenCueRight.transform.parent != parent;
+        if (parentChanged)
+            DestroyOffScreenTurnCueInstances();
 
         if (_offScreenCueLeft == null)
         {
-            _offScreenCueLeft = Instantiate(prefab, cam.transform);
+            _offScreenCueLeft = Instantiate(prefab, parent);
             _offScreenCueLeft.name = "OffScreenTurnCue_Left";
         }
-        else if (_offScreenCueLeft.transform.parent != cam.transform)
-            _offScreenCueLeft.transform.SetParent(cam.transform, false);
+        else if (_offScreenCueLeft.transform.parent != parent)
+            _offScreenCueLeft.transform.SetParent(parent, false);
 
         if (_offScreenCueRight == null)
         {
-            _offScreenCueRight = Instantiate(prefab, cam.transform);
+            _offScreenCueRight = Instantiate(prefab, parent);
             _offScreenCueRight.name = "OffScreenTurnCue_Right";
         }
-        else if (_offScreenCueRight.transform.parent != cam.transform)
-            _offScreenCueRight.transform.SetParent(cam.transform, false);
+        else if (_offScreenCueRight.transform.parent != parent)
+            _offScreenCueRight.transform.SetParent(parent, false);
 
-        _offScreenCueLeft.transform.localScale = offScreenTurnCueLocalScale;
-        _offScreenCueRight.transform.localScale = offScreenTurnCueLocalScale;
+        bool hudRect = IsHudRectParent(parent);
+        if (hudRect)
+        {
+            ConfigureHudRectCueInstance(_offScreenCueLeft);
+            ConfigureHudRectCueInstance(_offScreenCueRight);
+        }
+        else
+        {
+            _offScreenCueLeft.transform.localScale = offScreenTurnCueLocalScale;
+            _offScreenCueRight.transform.localScale = offScreenTurnCueLocalScale;
+        }
+
         return true;
+    }
+
+    private Transform ResolveOffScreenCueParentTransform(Camera cam)
+    {
+        if (offScreenTurnCueHudAnchor != null && offScreenTurnCueHudAnchor.gameObject.activeInHierarchy)
+            return offScreenTurnCueHudAnchor;
+        if (parentOffScreenTurnCueToDistanceReadout)
+        {
+            // Prefer any readout that is still in an active hierarchy (Navigation sidebar may be disabled while path runs).
+            foreach (TextMeshProUGUI tmp in EnumerateDistanceReadouts())
+            {
+                if (tmp != null && tmp.gameObject.activeInHierarchy)
+                    return tmp.rectTransform;
+            }
+        }
+        return cam != null ? cam.transform : null;
+    }
+
+    private bool IsHudRectParent(Transform parent)
+    {
+        return parent != null && parent is RectTransform;
+    }
+
+    private void ConfigureHudRectCueInstance(GameObject cue)
+    {
+        if (cue == null)
+            return;
+        var rt = cue.GetComponent<RectTransform>();
+        if (rt == null)
+            rt = cue.AddComponent<RectTransform>();
+        rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.sizeDelta = Vector2.zero;
+        rt.localScale = Vector3.one * Mathf.Max(0.01f, offScreenTurnCueHudMeshUniformScale);
+        if (offScreenTurnCueHudMeshSortingOrder != 0)
+        {
+            var renderers = cue.GetComponentsInChildren<MeshRenderer>(true);
+            for (int i = 0; i < renderers.Length; i++)
+                renderers[i].sortingOrder = offScreenTurnCueHudMeshSortingOrder;
+        }
+    }
+
+    private Quaternion ComputeOffScreenCueAimWorld(Camera cam, bool turnRight)
+    {
+        Vector3 dirWorld = turnRight ? cam.transform.right : -cam.transform.right;
+        return Quaternion.AngleAxis(worldArrowCompassYawDegrees, Vector3.up)
+            * WorldArrowBaseRotation(dirWorld, worldArrowMeshForwardAxis)
+            * Quaternion.Euler(worldArrowMeshPitchDegrees, worldArrowLookYawOffsetDegrees, 0f)
+            * Quaternion.Euler(offScreenTurnCueRotationExtraEuler);
+    }
+
+    private void ApplyOffScreenCueLayout(GameObject show, Camera cam, Transform parent, bool hudRectMode, bool turnRight)
+    {
+        if (show == null || cam == null || parent == null)
+            return;
+
+        Quaternion aimWorld = ComputeOffScreenCueAimWorld(cam, turnRight);
+        if (hudRectMode && parent is RectTransform)
+        {
+            var rt = show.GetComponent<RectTransform>();
+            if (rt == null)
+            {
+                ConfigureHudRectCueInstance(show);
+                rt = show.GetComponent<RectTransform>();
+            }
+            float ax = Mathf.Abs(offScreenTurnCueHudAnchoredOffsetX);
+            rt.anchoredPosition = new Vector2(turnRight ? ax : -ax, offScreenTurnCueHudAnchoredOffsetY);
+            rt.localRotation = Quaternion.Inverse(parent.rotation) * aimWorld;
+            show.transform.SetAsLastSibling();
+        }
+        else
+        {
+            float x = Mathf.Abs(offScreenTurnCueLocalX);
+            show.transform.localPosition = turnRight
+                ? new Vector3(x, offScreenTurnCueLocalY, offScreenTurnCueLocalDepth)
+                : new Vector3(-x, offScreenTurnCueLocalY, offScreenTurnCueLocalDepth);
+            show.transform.localRotation = Quaternion.Inverse(cam.transform.rotation) * aimWorld;
+        }
     }
 
     private void UpdateOffScreenTurnCues()
     {
         GameObject prefab = offScreenTurnCuePrefab != null ? offScreenTurnCuePrefab : worldArrowPrefab;
-        if (prefab == null || !TryGetWorldPathDestinationWorld(out Vector3 destWorld))
+        if (prefab == null)
+        {
+            HideOffScreenTurnCues();
+            return;
+        }
+
+        if (!TryGetWorldPathDestinationWorld(out Vector3 destWorld))
         {
             HideOffScreenTurnCues();
             return;
@@ -1419,7 +1697,15 @@ public class PathTest : MonoBehaviour
             return;
         }
 
-        if (!EnsureOffScreenTurnCuePair(cam, prefab))
+        Transform cueParent = ResolveOffScreenCueParentTransform(cam);
+        if (cueParent == null)
+        {
+            HideOffScreenTurnCues();
+            return;
+        }
+
+        bool hudRectMode = IsHudRectParent(cueParent);
+        if (!EnsureOffScreenTurnCuePair(cueParent, prefab))
         {
             HideOffScreenTurnCues();
             return;
@@ -1465,18 +1751,7 @@ public class PathTest : MonoBehaviour
         hide.SetActive(false);
         show.SetActive(true);
 
-        float x = Mathf.Abs(offScreenTurnCueLocalX);
-        show.transform.localPosition = turnRightIsShorter
-            ? new Vector3(x, offScreenTurnCueLocalY, offScreenTurnCueLocalDepth)
-            : new Vector3(-x, offScreenTurnCueLocalY, offScreenTurnCueLocalDepth);
-
-        Vector3 dirWorld = turnRightIsShorter ? cam.transform.right : -cam.transform.right;
-        Quaternion aimWorld =
-            Quaternion.AngleAxis(worldArrowCompassYawDegrees, Vector3.up)
-            * WorldArrowBaseRotation(dirWorld, worldArrowMeshForwardAxis)
-            * Quaternion.Euler(worldArrowMeshPitchDegrees, worldArrowLookYawOffsetDegrees, 0f)
-            * Quaternion.Euler(offScreenTurnCueRotationExtraEuler);
-        show.transform.localRotation = Quaternion.Inverse(cam.transform.rotation) * aimWorld;
+        ApplyOffScreenCueLayout(show, cam, cueParent, hudRectMode, turnRightIsShorter);
     }
 
     private void UpdateDistanceUI()
@@ -1498,9 +1773,14 @@ public class PathTest : MonoBehaviour
         }
 
         float remainingFeet = GetRemainingRouteDistanceFeet();
-        string line = remainingFeet <= Mathf.Max(0f, destinationReachedFeet)
-            ? destinationReachedText
-            : $"Distance: {remainingFeet:F1} ft";
+        bool noPath = currentPath.Count < 2;
+        string line;
+        if (noPath)
+            line = noPathAvailableText;
+        else if (remainingFeet <= Mathf.Max(0f, destinationReachedFeet))
+            line = destinationReachedText;
+        else
+            line = $"Distance: {remainingFeet:F1} ft";
         foreach (TextMeshProUGUI tmp in EnumerateDistanceReadouts())
         {
             tmp.enabled = true;
@@ -1510,6 +1790,9 @@ public class PathTest : MonoBehaviour
                 tmp.gameObject.SetActive(true);
             tmp.ForceMeshUpdate(true);
         }
+
+        if (pathSessionActive && HasAnyDistanceReadout())
+            Canvas.ForceUpdateCanvases();
     }
 
     private void PruneDestroyedDistanceReadouts()
@@ -1554,12 +1837,6 @@ public class PathTest : MonoBehaviour
             canvas.worldCamera = cam;
             if (canvas.planeDistance < 0.01f || canvas.planeDistance > 500f)
                 canvas.planeDistance = 0.5f;
-            if (!distanceOverlayFixLogged)
-            {
-                distanceOverlayFixLogged = true;
-                Debug.Log(
-                    "PathTest: Distance label canvas was Screen Space Overlay — switched to Screen Space Camera for XR/HoloLens. Prefer binding distance to the Navigation panel TextMeshPro.");
-            }
         }
         else if (canvas.renderMode == RenderMode.WorldSpace || canvas.renderMode == RenderMode.ScreenSpaceCamera)
         {

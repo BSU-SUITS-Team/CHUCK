@@ -1,22 +1,16 @@
-using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.XR.Interaction.Toolkit;
-using System.Linq;
-using ARSIS.EventManager;
 using MixedReality.Toolkit.UX;
 
-public class Navigation : MonoBehaviour, IRenderable
+public class Navigation : MonoBehaviour
 {
     /// <summary>Most recently enabled Navigation panel — used to refresh GridManager when starting a path from an arbitrary pose.</summary>
     private static Navigation s_lastActiveInstance;
 
     [SerializeField] RectTransform image;
     [SerializeField] RectTransform map;
-    [SerializeField] GameObject pinPrefab;
-    [SerializeField] ARSIS.UI.Button selectButton;
     [SerializeField] ARSIS.UI.Button toggleCapture;
     [SerializeField, Tooltip("Optional. If unset, uses PathTest.Instance for Find Path / Stop Path.")]
     private PathTest pathTest;
@@ -24,21 +18,16 @@ public class Navigation : MonoBehaviour, IRenderable
     private Transform mapNorthReference;
     [SerializeField, Tooltip("Optional distance line. Leave empty to auto-create PathDistanceReadout under the Controls column when ensurePathDistanceInSidebar is on.")]
     private TextMeshProUGUI pathDistanceReadout;
-    [SerializeField, Tooltip("Adds a row under Find Path / pin buttons on the Navigation panel and binds it to PathTest.")]
+    [SerializeField, Tooltip("Adds a row under Find Path on the Navigation panel and binds it to PathTest.")]
     private bool ensurePathDistanceInSidebar = true;
 
-    private List<BaseArsisEvent> pins = new();
-    private bool changed = true;
-    private float maxScale = 2f;
-    private float minScale = 0.05f;
-    private float pinWidth = 60f;
-    private float pinHeight = 120f;
-    private float pinScale = 2f;
-    private float selectProximity = 240f;
-    private Pins selectedPin;
-    private bool isPinActive = false;
     private bool isCapture = false;
     private bool findPathButtonSynced;
+
+    private const float PrimaryNavButtonMinHeight = 72f;
+    private const float PrimaryNavButtonPreferredHeight = 96f;
+    private const float NavButtonRowMinHeight = 72f;
+    private const float NavButtonRowPreferredHeight = 96f;
 
     private PathTest ResolvePathTest() => pathTest != null ? pathTest : PathTest.Instance;
 
@@ -57,8 +46,15 @@ public class Navigation : MonoBehaviour, IRenderable
 
     private void OnDisable()
     {
-        if (s_lastActiveInstance == this)
+        // Only the panel that currently drives PathTest's map binding should hide map-face visuals when it closes.
+        bool wasActiveBinder = s_lastActiveInstance == this;
+        if (wasActiveBinder)
+        {
+            PathTest pt = ResolvePathTest();
+            if (pt != null)
+                pt.NotifyNavigationPanelHidden();
             s_lastActiveInstance = null;
+        }
     }
 
     private void SetCaptureButton(bool isPathCapture)
@@ -109,131 +105,12 @@ public class Navigation : MonoBehaviour, IRenderable
             TranslationController.S.togglePathCapture();
     }
 
-    public void ToggleActivePin()
-    {
-        isPinActive = !isPinActive;
-        selectButton.SetIcon(isPinActive ? "Icon 16" : "Icon 14");
-        selectButton.SetText((isPinActive ? "Hide " : "Show ") + selectedPin.data.properties.name);
-    }
-
-    private void SetSelectedPin(Pins pin)
-    {
-        selectedPin = pin;
-        if (selectedPin == null)
-        {
-            selectButton.SetIcon("Icon 80");
-            selectButton.SetText("No Pin Selected");
-            return;
-        }
-        isPinActive = false;
-        selectButton.SetIcon("Icon 14");
-        selectButton.SetText("Show " + selectedPin.data.properties.name);
-    }
-
-    public void adjustScale(float adjust)
-    {
-        if (image == null) return;
-        float scale = image.localScale.x;
-        float newScale = Mathf.Clamp(scale + adjust, minScale, maxScale);
-        image.localScale = new Vector3(newScale, newScale, 0);
-    }
-
-    private GameObject CreatePin(Vector2 anchored)
-    {
-        GameObject pin = Instantiate(pinPrefab);
-        pin.transform.SetParent(image, false);
-        pin.transform.localScale = Vector3.zero * pinScale;
-        pin.transform.SetParent(map, true);
-        RectTransform pinTrans = pin.GetComponent<RectTransform>();
-        pinTrans.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, 0, pinWidth);
-        pinTrans.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, 0, pinHeight);
-        pinTrans.anchoredPosition = anchored;
-        pin.transform.SetParent(image, true);
-        return pin;
-    }
-
-    private void PlacePoint(Pins point)
-    {
-        GameObject pin = Instantiate(pinPrefab);
-        pin.transform.SetParent(image, false);
-        RectTransform pinTrans = pin.GetComponent<RectTransform>();
-        pinTrans.localScale = Vector3.one * pinScale;
-        pinTrans.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, 0, pinWidth);
-        pinTrans.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, 0, pinHeight);
-        pinTrans.localPosition = Vector3.zero;
-        pinTrans.anchoredPosition = new Vector2(point.data.properties.x, -point.data.properties.y + pinHeight);
-        BeaconObject beacon = pin.GetComponent<BeaconObject>();
-        beacon.SetText(point.data.properties.name);
-        beacon.SetDistance("XXX meters");
-    }
-
-    private Vector2 CalculateAnchor(Vector3 hit)
-    {
-        Vector3[] corners = new Vector3[4];
-        map.GetWorldCorners(corners);
-        Vector3 bottomLeft = corners[0];
-        Vector3 topLeft = corners[1];
-        Vector3 topRight = corners[2];
-        Vector3 direction = hit - topLeft;
-        Vector3 width = topRight - topLeft;
-        Vector3 height = bottomLeft - topLeft;
-        float widthFactor = Vector3.Dot(direction, width) / width.magnitude / width.magnitude;
-        float heightFactor = Vector3.Dot(direction, height) / height.magnitude / height.magnitude;
-        Debug.Log($"x: {widthFactor * map.sizeDelta.x}, y: {heightFactor * -map.sizeDelta.y}");
-        return new Vector2(widthFactor * map.sizeDelta.x, heightFactor * -map.sizeDelta.y);
-    }
-
-    public void SelectPin(Vector2 point, float proximity)
-    {
-        GameObject pin = CreatePin(point);
-        RectTransform cursor = pin.GetComponent<RectTransform>();
-        Pins closest = null;
-        float closestProximity = Mathf.Infinity;
-        IEnumerable<Pins> points = pins.Where(e => e is Pins location && location.data.type.Equals("Point")).OfType<Pins>();
-        foreach (Pins p in points)
-        {
-            Vector2 a = new Vector2(p.data.properties.x, -p.data.properties.y);
-            float distance = Vector2.Distance(a, cursor.anchoredPosition);
-            if (distance <= proximity)
-            {
-                if (closest == null || distance <= closestProximity)
-                {
-                    closest = p;
-                    closestProximity = distance;
-                }
-            }
-        }
-        SetSelectedPin(closest);
-        Destroy(pin);
-        Debug.Log($"selectedPin: {selectedPin}");
-    }
-
-    public void HandleSelect(SelectExitEventArgs e)
-    {
-        IXRSelectInteractor interactor = e.interactorObject;
-        IXRSelectInteractable interactable = e.interactableObject;
-        Transform trans = interactor.GetAttachTransform(interactable).parent;
-        RaycastHit hit;
-        if (!Physics.Raycast(trans.position, trans.forward, out hit)) return;
-        if (hit.transform.gameObject != map.gameObject) return;
-        Debug.Log($"hit: {hit.point}");
-        Vector2 anchored = CalculateAnchor(hit.point);
-        Debug.Log($"anchored: {anchored}");
-        //CreatePin(anchored);
-        SelectPin(anchored, selectProximity);
-    }
-
-    void RemovePins()
-    {
-        foreach (Transform child in image.transform)
-            Destroy(child.gameObject);
-    }
-
     void Awake()
     {
         if (pathDistanceReadout == null && ensurePathDistanceInSidebar)
             TryInjectPathDistanceSidebar();
         TryEnsureOrientNorthButton();
+        ApplyPrimaryNavigationButtonSizing();
     }
 
     void Start()
@@ -252,14 +129,12 @@ public class Navigation : MonoBehaviour, IRenderable
         }
         else if (TranslationController.S != null)
             SetCaptureButton(TranslationController.S.IsPathCapture());
-        EventDatastore.Instance.AddHandler("pins", this);
     }
 
     void OnDestroy()
     {
         if (pathDistanceReadout != null && PathTest.Instance != null)
             PathTest.Instance.UnbindDistanceReadout(pathDistanceReadout);
-        EventDatastore.Instance.RemoveHandler("pins", this);
     }
 
     /// <summary>Called after <see cref="FloatingMenuFromPrefab"/> positions the panel so PathTest uses this instance's map plane (not scene origin).</summary>
@@ -353,8 +228,8 @@ public class Navigation : MonoBehaviour, IRenderable
 
         var rowLe = rowGo.AddComponent<UnityEngine.UI.LayoutElement>();
         rowLe.flexibleWidth = 1f;
-        rowLe.minHeight = 48f;
-        rowLe.preferredHeight = 72f;
+        rowLe.minHeight = NavButtonRowMinHeight;
+        rowLe.preferredHeight = NavButtonRowPreferredHeight;
 
         foreach (Transform child in toMove)
             child.SetParent(rowRt, false);
@@ -454,25 +329,39 @@ public class Navigation : MonoBehaviour, IRenderable
         }
     }
 
+    /// <summary>
+    /// Taller hit targets for Find Path / Stop Path and Orient North (layout + optional BoxCollider on the shared button prefab).
+    /// </summary>
+    private void ApplyPrimaryNavigationButtonSizing()
+    {
+        if (toggleCapture != null)
+            ApplyLayoutSizingToButtonRoot(toggleCapture.transform, PrimaryNavButtonMinHeight, PrimaryNavButtonPreferredHeight);
+
+        Transform pathParent = toggleCapture != null ? toggleCapture.transform.parent : null;
+        if (pathParent == null)
+            return;
+        Transform orient = pathParent.Find("OrientNorthButton");
+        if (orient != null)
+            ApplyLayoutSizingToButtonRoot(orient, PrimaryNavButtonMinHeight, PrimaryNavButtonPreferredHeight);
+    }
+
+    private static void ApplyLayoutSizingToButtonRoot(Transform buttonRoot, float minHeight, float preferredHeight)
+    {
+        if (buttonRoot == null)
+            return;
+        var le = buttonRoot.GetComponent<LayoutElement>();
+        if (le == null)
+            le = buttonRoot.gameObject.AddComponent<LayoutElement>();
+        le.minHeight = minHeight;
+        le.preferredHeight = preferredHeight;
+        le.flexibleWidth = Mathf.Max(le.flexibleWidth, 1f);
+    }
+
     void Update()
     {
         if (ResolvePathTest() != null)
             SyncFindPathButton();
         else if (TranslationController.S != null)
             SetCaptureButton(TranslationController.S.IsPathCapture());
-        if (!changed || pins.Count == 0) return;
-        changed = false;
-        IEnumerable<Pins> points = pins.Where(e => e is Pins location && location.data.type.Equals("Point")).OfType<Pins>();
-        RemovePins();
-        foreach (Pins point in points)
-        {
-            PlacePoint(point);
-        }
-    }
-
-    void IRenderable.Render(List<BaseArsisEvent> data)
-    {
-        changed = true;
-        pins = data;
     }
 }
