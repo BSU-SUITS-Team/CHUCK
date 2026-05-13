@@ -17,6 +17,9 @@ using MixedReality.Toolkit.SpatialManipulation;
 
 public class ArmbarControllable : MonoBehaviour
 {
+    //Should we ignore arm bar inputs?
+    public bool locked {get; set;}
+
     [Tooltip("A list of all button indicators on this menu. This is used to show or hide indicators when the user starts or stops looking at the window.")]
     public List<GameObject> indicators = new List<GameObject>();
 
@@ -45,5 +48,35 @@ public class ArmbarControllable : MonoBehaviour
     public void ShowHideIndicators(bool show)
     {
         foreach(GameObject indicator in indicators) indicator.SetActive(show);
+    }
+
+    public void InvokeButton(int i)
+    {
+        if (!locked)
+        {
+            switch (i)
+            {
+                case 1:
+                    Button1Pressed.Invoke();
+                    break;
+                case 2:
+                    Button2Pressed.Invoke();
+                    break;
+                case 3:
+                    Button3Pressed.Invoke();
+                    break;
+                case 4:
+                    Button4Pressed.Invoke();
+                    break;
+                case 5:
+                    Button5Pressed.Invoke();
+                    break;
+                case 6:
+                    Button6Pressed.Invoke();
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 }
