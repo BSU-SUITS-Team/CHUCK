@@ -10,13 +10,16 @@ ENV YOUR_ENV=${YOUR_ENV} \
   PIP_NO_CACHE_DIR=off \
   PIP_DISABLE_PIP_VERSION_CHECK=on \
   PIP_DEFAULT_TIMEOUT=100 \
-  POETRY_VERSION=1.3.2
+  POETRY_VERSION=1.3.2 \
+  PIP_CONSTRAINT=/tmp/pip-build-constraints.txt
 
-RUN apt-get update && \ 
+RUN printf "setuptools<70\n" > /tmp/pip-build-constraints.txt
+
+RUN apt-get update && \
     apt-get install -y gdal-bin libgdal-dev
 
 # System deps:
-RUN pip install "poetry==$POETRY_VERSION"
+RUN pip install "setuptools<70" wheel "poetry==$POETRY_VERSION"
 
 # Copy only requirements to cache them in docker layer
 WORKDIR /code
@@ -34,4 +37,3 @@ COPY ./app /code/app
 
 #
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8181"]
-

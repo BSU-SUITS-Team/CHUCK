@@ -14,6 +14,9 @@
 		Toggle
 	} from 'flowbite-svelte';
 	import { onMount } from 'svelte';
+
+	const enableLocalStagedProcedures = false;
+
 	let searchTerm = '';
 	$: procedureNames = Object.keys($datastore.procedure ?? {});
 	$: filteredItems = procedureNames.filter((item) => {
@@ -513,7 +516,9 @@
 	];
 	let showEmergency = false;
 
-	$: filteredNewProcedures = other.filter((element) => !procedureNames.includes(element.name));
+	$: filteredNewProcedures = enableLocalStagedProcedures
+		? other.filter((element) => !procedureNames.includes(element.name))
+		: [];
 
 	function createNewProcedure(procedure: Object) {
 		const endpoint = 'http://localhost:8181/procedures/';
@@ -527,6 +532,10 @@
 	}
 
 	onMount(() => {
+		if (!enableLocalStagedProcedures) {
+			return;
+		}
+
 		stagedProcedures.forEach((procedure) => createNewProcedure(procedure));
 	});
 </script>

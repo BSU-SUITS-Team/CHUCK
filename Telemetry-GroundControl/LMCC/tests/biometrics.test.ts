@@ -46,9 +46,9 @@ test('compareValueToBounds(60_000, HelmetBounds.fan_pri_rpm) returns Max', () =>
 test('compareValueToBounds(80, ScrubberBounds.scrubber_b_co2_storage) returns Max', () => {
 	expect(compareValueToBounds(80, ScrubberBounds.scrubber_b_co2_storage)).toBe(Threshold.Max);
 });
-test('compareValueToBounds(32, TemperatureBounds.temperature) returns Min', () => {
-	expect(compareValueToBounds(32, TemperatureBounds.temperature)).toBe(Threshold.Min);
+test('compareValueToBounds(0, TemperatureBounds.temperature) returns Min', () => {
+	expect(compareValueToBounds(0, TemperatureBounds.temperature)).toBe(Threshold.Min);
 });
-test('compareValueToBounds(79, ResourceBounds.coolant_ml) returns Min', () => {
-	expect(compareValueToBounds(79, ResourceBounds.coolant_ml)).toBe(Threshold.Min);
+test('compareValueToBounds(19, ResourceBounds.coolant_storage) returns Min', () => {
+	expect(compareValueToBounds(19, ResourceBounds.coolant_storage)).toBe(Threshold.Min);
 });

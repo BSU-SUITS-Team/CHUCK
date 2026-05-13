@@ -2,7 +2,6 @@ from app.datastore import ds
 from app.event import Event
 from app.routers.on_server_procedures.create_procedure import CreateProcedure
 from fastapi import APIRouter
-import asyncio
 import os
 import base64
 import yaml
@@ -44,11 +43,22 @@ async def add_procedure_to_ds(procedure):
     await ds.add_event("procedure", procedure_event)
 
 
-ts = []
-for p in procedure_list:
-    t = asyncio.create_task(add_procedure_to_ds(p))
-    ts.append(t)
-asyncio.gather(*ts)
+async def upsert_procedure(procedure):
+    if procedure.get('name') is None:
+        return False
+
+    current_procedure = in_mem_procedures.get(procedure['name'])
+    if current_procedure == procedure:
+        return False
+
+    in_mem_procedures[procedure['name']] = procedure
+    await add_procedure_to_ds(procedure)
+    return True
+
+
+async def sync_loaded_procedures_to_ds():
+    for procedure in procedure_list:
+        await add_procedure_to_ds(procedure)
 
 
 @router.get("/")
@@ -88,9 +98,8 @@ def procedure_DELETE(name: str):
 
 
 @router.post("/")
-def procedure_POST(new_procedure: dict):
-    in_mem_procedures[new_procedure['name']] = new_procedure
-    asyncio.run(add_procedure_to_ds(new_procedure))
+async def procedure_POST(new_procedure: dict):
+    await upsert_procedure(new_procedure)
     return {"message": "Procedure successfully created"}
 
 

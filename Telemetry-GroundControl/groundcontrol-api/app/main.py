@@ -1,6 +1,7 @@
 import asyncio
 
 from app.datastore import ds
+from app.ltv_errors import poll_ltv_error_procedures
 from app.routers import chat, logs, navigation, procedures, ws, warnings
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -29,7 +30,9 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def startup_event():
+    await procedures.sync_loaded_procedures_to_ds()
     asyncio.create_task(ds.start_polling())
+    asyncio.create_task(poll_ltv_error_procedures(procedures.upsert_procedure))
 
 
 @app.get("/")
