@@ -32119,6 +32119,7 @@ GameObject:
   m_Component:
   - component: {fileID: 423317636}
   - component: {fileID: 423317637}
+  - component: {fileID: 423317638}
   m_Layer: 0
   m_Name: TSSManager
   m_TagString: Untagged
@@ -32159,6 +32160,18 @@ MonoBehaviour:
   connectOnStart: 0
   connectionDebugText: {fileID: 2006786916}
   evaJson: 
+--- !u!114 &423317638
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 423317635}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70c488a178deaac45a36202bbe7de8ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &423584090
 GameObject:
   m_ObjectHideFlags: 0
