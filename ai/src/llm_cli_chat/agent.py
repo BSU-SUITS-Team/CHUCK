@@ -12,7 +12,7 @@ from llm_cli_chat.context import MissionContextProvider
 
 
 DEFAULT_AGENT_NAME = "assistant"
-DEFAULT_MODEL = "generic.gpt-oss:20b?reasoning=low"
+DEFAULT_MODEL = "generic.ggml-org/Qwen3-Coder-30B-A3B-Instruct-Q8_0-GGUF"
 DEFAULT_INSTRUCTION = (
     "You are a concise, helpful assistant for an EVA terminal chat application. "
     "Respond with only a few words whenever possible. Responses are spoken "

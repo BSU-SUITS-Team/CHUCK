@@ -18,20 +18,28 @@ source .venv/bin/activate
 uv sync
 ```
 
-The default model is Ollama `gpt-oss:20b` via fast-agent's `generic` provider, with reasoning set to `low`.
-Install/start Ollama and make sure the model is available:
+The default model is the llama.cpp server model exposed at
+`http://127.0.0.1:8012/v1` via fast-agent's `generic` OpenAI-compatible
+provider. Start `llama-server` with the model you want to use:
 
 ```bash
-ollama pull gpt-oss:20b
+llama-server -hf ggml-org/Qwen3-Coder-30B-A3B-Instruct-Q8_0-GGUF --host 127.0.0.1 --port 8012
 ```
 
-If Ollama is not already running as a background service:
+The configured default model id is:
 
 ```bash
-ollama serve
+ggml-org/Qwen3-Coder-30B-A3B-Instruct-Q8_0-GGUF
 ```
 
-You can override the default Ollama endpoint if needed:
+If you start `llama-server` with `--alias`, use that alias in `fastagent.config.yaml`
+and in `LLM_CHAT_MODEL`. You can confirm the active model id with:
+
+```bash
+curl http://127.0.0.1:8012/v1/models
+```
+
+You can override the default llama.cpp endpoint if needed:
 
 ```bash
 cp .env.example .env
@@ -48,7 +56,7 @@ uv run llm-chat
 You can still override the model:
 
 ```bash
-uv run llm-chat --model "generic.gpt-oss:20b?reasoning=low"
+uv run llm-chat --model "generic.ggml-org/Qwen3-Coder-30B-A3B-Instruct-Q8_0-GGUF"
 ```
 
 Inside the app, type a message and press Enter. Use `Ctrl+C` to quit and `Ctrl+L` to clear the chat log.
