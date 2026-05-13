@@ -13,6 +13,9 @@ class AgentConfigTests(unittest.TestCase):
     def test_default_instruction_is_tts_concise(self) -> None:
         self.assertIn("few words", DEFAULT_INSTRUCTION)
         self.assertIn("TTS", DEFAULT_INSTRUCTION)
+        self.assertIn("use only the provided biometrics", DEFAULT_INSTRUCTION)
+        self.assertIn("available procedures", DEFAULT_INSTRUCTION)
+        self.assertIn("say you do not know", DEFAULT_INSTRUCTION)
 
 
 if __name__ == "__main__":

@@ -10,7 +10,7 @@ default_model: "generic.ggml-org/Qwen3-Coder-30B-A3B-Instruct-Q8_0-GGUF"
 
 generic:
   api_key: "sk-no-key-required"
-  base_url: "http://127.0.0.1:8012/v1"
+  base_url: "http://127.0.0.1:8080/v1"
   default_model: "ggml-org/Qwen3-Coder-30B-A3B-Instruct-Q8_0-GGUF"
 
 # Add MCP servers or provider-specific settings here as the app grows.

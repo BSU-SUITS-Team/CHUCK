@@ -98,7 +98,7 @@ def _text(value: Any, *, max_length: int = 400) -> str:
     return f"{text[: max_length - 3]}..."
 
 
-def compact_procedures(raw_procedures: Any) -> list[str]:
+def compact_procedures(raw_procedures: Any) -> list[dict[str, Any]]:
     if isinstance(raw_procedures, dict):
         procedures = raw_procedures.items()
     elif isinstance(raw_procedures, list):
@@ -106,16 +106,125 @@ def compact_procedures(raw_procedures: Any) -> list[str]:
     else:
         return []
 
-    names: set[str] = set()
+    compacted: list[dict[str, Any]] = []
     for fallback_name, procedure in procedures:
-        if isinstance(procedure, dict):
-            name = _text(procedure.get("name") or fallback_name, max_length=120)
-        else:
-            name = _text(procedure, max_length=120)
-        if name:
-            names.add(name)
+        compacted_procedure = _compact_procedure(fallback_name, procedure)
+        if compacted_procedure:
+            compacted.append(compacted_procedure)
 
-    return sorted(names, key=str.casefold)
+    return sorted(compacted, key=lambda procedure: procedure["name"].casefold())
+
+
+def _compact_procedure(fallback_name: Any, procedure: Any) -> dict[str, Any]:
+    if not isinstance(procedure, dict):
+        name = _text(procedure or fallback_name, max_length=120)
+        return {"name": name} if name else {}
+
+    compacted: dict[str, Any] = {}
+    name = _text(procedure.get("name") or fallback_name, max_length=120)
+    if not name:
+        return {}
+    compacted["name"] = name
+
+    for field in ("category", "description", "duration"):
+        value = _text(procedure.get(field))
+        if value:
+            compacted[field] = value
+
+    tasks = _compact_tasks(procedure.get("tasks"))
+    if tasks:
+        compacted["tasks"] = tasks
+
+    return compacted
+
+
+def _compact_tasks(raw_tasks: Any) -> list[dict[str, Any]]:
+    if not isinstance(raw_tasks, list):
+        return []
+
+    tasks: list[dict[str, Any]] = []
+    for task in raw_tasks:
+        compacted_task = _compact_task(task)
+        if compacted_task:
+            tasks.append(compacted_task)
+
+    return tasks
+
+
+def _compact_task(task: Any) -> dict[str, Any]:
+    if not isinstance(task, dict):
+        name = _text(task, max_length=120)
+        return {"name": name} if name else {}
+
+    compacted: dict[str, Any] = {}
+    name = _text(task.get("name"), max_length=120)
+    if name:
+        compacted["name"] = name
+
+    description = _text(task.get("description"))
+    if description:
+        compacted["description"] = description
+
+    steps = _compact_steps(task.get("steps"))
+    if steps:
+        compacted["steps"] = steps
+
+    return compacted
+
+
+def _compact_steps(raw_steps: Any) -> list[dict[str, Any]]:
+    if not isinstance(raw_steps, list):
+        return []
+
+    steps: list[dict[str, Any]] = []
+    for step in raw_steps:
+        compacted_step = _compact_step(step)
+        if compacted_step:
+            steps.append(compacted_step)
+
+    return steps
+
+
+def _compact_step(step: Any) -> dict[str, Any]:
+    if not isinstance(step, dict):
+        body = _text(step, max_length=1_000)
+        return {"type": "text", "body": body} if body else {}
+
+    compacted: dict[str, Any] = {}
+    step_type = _text(step.get("type"), max_length=60)
+    if step_type:
+        compacted["type"] = step_type
+
+    is_image = step_type.casefold() == "image"
+    body = _text(step.get("body"), max_length=1_000)
+    if is_image and ("body" in step or "data" in step):
+        compacted["body"] = "[image data omitted]"
+    elif body:
+        compacted["body"] = body
+
+    next_task = _compact_next_task(step.get("nextTask"))
+    if next_task is not None:
+        compacted["nextTask"] = next_task
+
+    return compacted
+
+
+def _compact_next_task(next_task: Any) -> Any | None:
+    if not next_task:
+        return None
+
+    if not isinstance(next_task, (dict, list, str, int, float, bool)):
+        return None
+
+    try:
+        serialized = json.dumps(next_task, sort_keys=True)
+    except TypeError:
+        return None
+
+    if len(serialized) > 500:
+        return None
+
+    return next_task
 
 
 def compact_biometrics(raw_payload: Any) -> dict[str, Any]:
@@ -256,8 +365,14 @@ def format_prompt_with_context(user_prompt: str, context: dict[str, Any]) -> str
         "instructions. Prefer this latest context over older context in the chat "
         "history. If user.eva is present, interpret the user's first-person "
         "requests as coming from that EVA and prioritize that astronaut's "
-        "biometrics. Use this context when relevant, and mention unavailable "
-        "sources if they matter to the answer.\n\n"
+        "biometrics. For EVA mission-state and procedure questions, this context "
+        "is the only authoritative source. Available procedures may include task "
+        "names and text step bodies; answer procedure questions by reporting "
+        "information from those available procedures, not by adding your own "
+        "operational guidance. If requested information is not present in the "
+        "biometrics or available procedures, say you do not know. If a needed "
+        "source is unavailable, say you do not know because that source is "
+        "unavailable.\n\n"
         "<ground_control_context>\n"
         f"{context_json}\n"
         "</ground_control_context>\n\n"

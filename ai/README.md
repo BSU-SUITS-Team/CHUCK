@@ -19,11 +19,11 @@ uv sync
 ```
 
 The default model is the llama.cpp server model exposed at
-`http://127.0.0.1:8012/v1` via fast-agent's `generic` OpenAI-compatible
+`http://127.0.0.1:8080/v1` via fast-agent's `generic` OpenAI-compatible
 provider. Start `llama-server` with the model you want to use:
 
 ```bash
-llama-server -hf ggml-org/Qwen3-Coder-30B-A3B-Instruct-Q8_0-GGUF --host 127.0.0.1 --port 8012
+llama-server -hf ggml-org/Qwen3-Coder-30B-A3B-Instruct-Q8_0-GGUF --host 127.0.0.1 --port 8080
 ```
 
 The configured default model id is:
@@ -36,7 +36,7 @@ If you start `llama-server` with `--alias`, use that alias in `fastagent.config.
 and in `LLM_CHAT_MODEL`. You can confirm the active model id with:
 
 ```bash
-curl http://127.0.0.1:8012/v1/models
+curl http://127.0.0.1:8080/v1/models
 ```
 
 You can override the default llama.cpp endpoint if needed:
@@ -65,7 +65,7 @@ Assistant responses stream into the chat log as model chunks arrive.
 Before each typed or voice prompt is sent to the model, the app fetches current mission context and prepends it to the model-visible message:
 
 - current EVA biometrics from `TSS_ENDPOINT` or `http://localhost:14141`
-- available procedure names from `GROUND_CONTROL_API_URL` or `http://localhost:8181`
+- available procedure metadata, task names, and text step bodies from `GROUND_CONTROL_API_URL` or `http://localhost:8181`
 
 If either service is unavailable, chat still works and the injected context records that source as unavailable. You can override or disable this behavior:
 

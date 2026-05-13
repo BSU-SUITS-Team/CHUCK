@@ -36,7 +36,7 @@ class MissionContextTests(unittest.TestCase):
             },
         )
 
-    def test_compact_procedures_keeps_only_names(self) -> None:
+    def test_compact_procedures_keeps_text_step_bodies(self) -> None:
         payload = {
             "Cable Repair": {
                 "name": "Cable Repair",
@@ -50,13 +50,43 @@ class MissionContextTests(unittest.TestCase):
                         "steps": [
                             {"type": "text", "body": "1. EV1 Select Gear icon"},
                             {"type": "image", "data": "a" * 1000},
+                            {
+                                "type": "text",
+                                "body": "Continue with the next procedure",
+                                "nextTask": [{"procedure": "Other", "task": 2}],
+                            },
                         ],
                     }
                 ],
             }
         }
 
-        self.assertEqual(compact_procedures(payload), ["Cable Repair"])
+        self.assertEqual(
+            compact_procedures(payload),
+            [
+                {
+                    "name": "Cable Repair",
+                    "category": "Built-In",
+                    "description": "Procedure to Perform Cable Repair at Worksite",
+                    "duration": "5 mins",
+                    "tasks": [
+                        {
+                            "name": "COMM Tower Screen",
+                            "description": "Perform steps at COMM Tower Screen",
+                            "steps": [
+                                {"type": "text", "body": "1. EV1 Select Gear icon"},
+                                {"type": "image", "body": "[image data omitted]"},
+                                {
+                                    "type": "text",
+                                    "body": "Continue with the next procedure",
+                                    "nextTask": [{"procedure": "Other", "task": 2}],
+                                },
+                            ],
+                        }
+                    ],
+                }
+            ],
+        )
 
     def test_format_prompt_places_context_before_user_prompt(self) -> None:
         context = {"available_procedures": {"status": "ok", "data": []}}
@@ -65,6 +95,9 @@ class MissionContextTests(unittest.TestCase):
 
         self.assertLess(message.index("<ground_control_context>"), message.index("<user_prompt>"))
         self.assertIn(json.dumps(context, indent=2, sort_keys=True), message)
+        self.assertIn("only authoritative source", message)
+        self.assertIn("not by adding your own operational guidance", message)
+        self.assertIn("say you do not know", message)
         self.assertTrue(message.rstrip().endswith("</user_prompt>"))
 
     def test_normalize_user_eva_accepts_common_flag_values(self) -> None:
