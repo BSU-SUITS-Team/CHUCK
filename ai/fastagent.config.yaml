@@ -1,0 +1,18 @@
+# fast-agent looks for this file from the current directory upward.
+# The app also sets this model explicitly by default, so this file is here for
+# fast-agent tools and future scripts run from the project root.
+
+default_model: "generic.gpt-oss:20b?reasoning=low"
+
+generic:
+  api_key: "ollama"
+  base_url: "http://localhost:11434/v1"
+
+# Add MCP servers or provider-specific settings here as the app grows.
+#
+# Example MCP server:
+# mcp:
+#   servers:
+#     filesystem:
+#       command: "npx"
+#       args: ["-y", "@modelcontextprotocol/server-filesystem", "."]
