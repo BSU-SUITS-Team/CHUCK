@@ -2,16 +2,15 @@
 # The app also sets this model explicitly by default, so this file is here for
 # fast-agent tools and future scripts run from the project root.
 #
-# llama.cpp's llama-server exposes an OpenAI-compatible API under /v1. The
-# model id below is the id currently returned by GET /v1/models on the local
-# server. If llama-server is started with --alias, use that alias here instead.
+# Ollama exposes an OpenAI-compatible API under /v1. The default model below
+# uses Qwen3.6 with reasoning disabled by the app request parameters.
 
-default_model: "generic.ggml-org/Qwen3-Coder-30B-A3B-Instruct-Q8_0-GGUF"
+default_model: "generic.qwen3.6:35b-a3b?reasoning=off"
 
 generic:
-  api_key: "sk-no-key-required"
-  base_url: "http://127.0.0.1:8080/v1"
-  default_model: "ggml-org/Qwen3-Coder-30B-A3B-Instruct-Q8_0-GGUF"
+  api_key: "ollama"
+  base_url: "http://localhost:11434/v1"
+  default_model: "qwen3.6:35b-a3b"
 
 # Add MCP servers or provider-specific settings here as the app grows.
 #

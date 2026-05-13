@@ -18,28 +18,29 @@ source .venv/bin/activate
 uv sync
 ```
 
-The default model is the llama.cpp server model exposed at
-`http://127.0.0.1:8080/v1` via fast-agent's `generic` OpenAI-compatible
-provider. Start `llama-server` with the model you want to use:
+The default model is Qwen3.6 through Ollama's OpenAI-compatible endpoint at
+`http://localhost:11434/v1` via fast-agent's `generic` provider. Start Ollama
+and make sure the model is available:
 
 ```bash
-llama-server -hf ggml-org/Qwen3-Coder-30B-A3B-Instruct-Q8_0-GGUF --host 127.0.0.1 --port 8080
+ollama serve
+ollama pull qwen3.6:35b-a3b
 ```
 
 The configured default model id is:
 
 ```bash
-ggml-org/Qwen3-Coder-30B-A3B-Instruct-Q8_0-GGUF
+qwen3.6:35b-a3b
 ```
 
-If you start `llama-server` with `--alias`, use that alias in `fastagent.config.yaml`
-and in `LLM_CHAT_MODEL`. You can confirm the active model id with:
+The app passes no-thinking request parameters for this default model. You can
+confirm the active Ollama model id with:
 
 ```bash
-curl http://127.0.0.1:8080/v1/models
+curl http://localhost:11434/v1/models
 ```
 
-You can override the default llama.cpp endpoint if needed:
+You can override the default Ollama endpoint if needed:
 
 ```bash
 cp .env.example .env
@@ -56,7 +57,7 @@ uv run llm-chat
 You can still override the model:
 
 ```bash
-uv run llm-chat --model "generic.ggml-org/Qwen3-Coder-30B-A3B-Instruct-Q8_0-GGUF"
+uv run llm-chat --model "generic.qwen3.6:35b-a3b?reasoning=off"
 ```
 
 Inside the app, type a message and press Enter. Use `Ctrl+C` to quit and `Ctrl+L` to clear the chat log.
@@ -64,8 +65,11 @@ Assistant responses stream into the chat log as model chunks arrive.
 
 Before each typed or voice prompt is sent to the model, the app fetches current mission context and prepends it to the model-visible message:
 
-- current EVA biometrics from `TSS_ENDPOINT` or `http://localhost:14141`
-- available procedure metadata, task names, and text step bodies from `GROUND_CONTROL_API_URL` or `http://localhost:8181`
+- available procedure names from `GROUND_CONTROL_API_URL` or `http://localhost:8181`
+
+Current biometrics and full procedure text are fetched through model-callable
+tools. When the model starts one of those tool calls, the chat output shows
+`Checking current data...` before the final answer.
 
 If either service is unavailable, chat still works and the injected context records that source as unavailable. You can override or disable this behavior:
 
