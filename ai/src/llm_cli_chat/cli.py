@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import shlex
 from pathlib import Path
 
 from llm_cli_chat.agent import DEFAULT_MODEL, FastAgentChatBackend
@@ -14,10 +15,25 @@ from llm_cli_chat.context import (
     USER_EVA_CHOICES,
     normalize_user_eva,
 )
-from llm_cli_chat.voice import VoiceInputConfig, load_whisper_model, resolve_whisper_device
+from llm_cli_chat.voice import (
+    VoiceInputConfig,
+    build_whisper_stream_command,
+    load_whisper_model,
+    resolve_voice_engine,
+    resolve_whisper_device,
+    whisper_stream_unavailable_reason,
+)
 
 
 DEFAULT_WHISPER_MODEL = "tiny.en"
+DEFAULT_WHISPER_STREAM_MODEL = Path("ggml-base.en.bin")
+
+
+def optional_int_env(name: str) -> int | None:
+    value = os.getenv(name)
+    if value is None or value == "":
+        return None
+    return int(value)
 
 
 def parse_user_eva(value: str) -> str:
@@ -48,6 +64,15 @@ def parse_args() -> argparse.Namespace:
         "--voice",
         action="store_true",
         help="Enable Space-toggle voice input instead of the text input box.",
+    )
+    parser.add_argument(
+        "--voice-engine",
+        choices=("auto", "whisper-stream", "python"),
+        default=os.getenv("LLM_CHAT_VOICE_ENGINE", "auto"),
+        help=(
+            "Voice transcription engine. auto prefers whisper-stream when available "
+            "and falls back to Python Whisper."
+        ),
     )
     parser.add_argument(
         "--user-eva",
@@ -103,22 +128,62 @@ def parse_args() -> argparse.Namespace:
         help="Optional spoken language hint for Whisper, for example 'en'.",
     )
     parser.add_argument(
+        "--whisper-stream-command",
+        default=os.getenv("LLM_CHAT_WHISPER_STREAM_COMMAND", "whisper-stream"),
+        help="Command used by the whisper-stream voice engine.",
+    )
+    parser.add_argument(
+        "--whisper-stream-model",
+        type=Path,
+        default=Path(
+            os.getenv("LLM_CHAT_WHISPER_STREAM_MODEL", str(DEFAULT_WHISPER_STREAM_MODEL)),
+        ),
+        help=(
+            "ggml model path used by the whisper-stream voice engine "
+            f"(default: {str(DEFAULT_WHISPER_STREAM_MODEL)!r})."
+        ),
+    )
+    parser.add_argument(
+        "--whisper-stream-threads",
+        type=int,
+        default=int(os.getenv("LLM_CHAT_WHISPER_STREAM_THREADS", "8")),
+        help="Thread count passed to whisper-stream.",
+    )
+    parser.add_argument(
+        "--whisper-stream-step",
+        type=int,
+        default=int(os.getenv("LLM_CHAT_WHISPER_STREAM_STEP", "500")),
+        help="Audio step size in milliseconds passed to whisper-stream.",
+    )
+    parser.add_argument(
+        "--whisper-stream-length",
+        type=int,
+        default=int(os.getenv("LLM_CHAT_WHISPER_STREAM_LENGTH", "5000")),
+        help="Audio window length in milliseconds passed to whisper-stream.",
+    )
+    parser.add_argument(
+        "--whisper-stream-keep",
+        type=int,
+        default=optional_int_env("LLM_CHAT_WHISPER_STREAM_KEEP"),
+        help="Optional prior audio in milliseconds kept between whisper-stream chunks.",
+    )
+    parser.add_argument(
         "--realtime-interval",
         type=float,
-        default=float(os.getenv("LLM_CHAT_REALTIME_INTERVAL", "0.25")),
-        help="Seconds between live transcription updates in voice mode.",
+        default=float(os.getenv("LLM_CHAT_REALTIME_INTERVAL", "0.5")),
+        help="Seconds between live transcription updates for the Python Whisper engine.",
     )
     parser.add_argument(
         "--realtime-window",
         type=float,
-        default=float(os.getenv("LLM_CHAT_REALTIME_WINDOW", "2.0")),
-        help="Seconds of recent audio to use for each live transcription update.",
+        default=float(os.getenv("LLM_CHAT_REALTIME_WINDOW", "5.0")),
+        help="Seconds of recent audio to use for each Python Whisper live update.",
     )
     parser.add_argument(
         "--commit-interval",
         type=float,
-        default=float(os.getenv("LLM_CHAT_COMMIT_INTERVAL", "1.5")),
-        help="Seconds of new audio to commit between live transcript drafts.",
+        default=float(os.getenv("LLM_CHAT_COMMIT_INTERVAL", "5.0")),
+        help="Seconds of new audio to commit between Python Whisper live transcript drafts.",
     )
     parser.add_argument(
         "--keep-overlap",
@@ -147,8 +212,15 @@ def main() -> None:
         include_mission_context=not args.no_mission_context,
     )
     voice_config = VoiceInputConfig(
+        voice_engine=args.voice_engine,
         whisper_model=args.whisper_model,
         whisper_device=args.whisper_device,
+        whisper_stream_command=args.whisper_stream_command,
+        whisper_stream_model=args.whisper_stream_model,
+        whisper_stream_threads=args.whisper_stream_threads,
+        whisper_stream_step_ms=args.whisper_stream_step,
+        whisper_stream_length_ms=args.whisper_stream_length,
+        whisper_stream_keep_ms=args.whisper_stream_keep,
         realtime_interval_seconds=args.realtime_interval,
         realtime_window_seconds=args.realtime_window,
         commit_interval_seconds=args.commit_interval,
@@ -157,12 +229,24 @@ def main() -> None:
     )
     voice_model = None
     if args.voice:
-        whisper_device = resolve_whisper_device(args.whisper_device)
-        print(f"Loading Whisper model '{args.whisper_model}' on {whisper_device}...")
-        try:
-            voice_model = load_whisper_model(args.whisper_model, device=args.whisper_device)
-        except Exception as exc:  # noqa: BLE001 - fail before Textual takes over the terminal.
-            raise SystemExit(f"Could not load Whisper model '{args.whisper_model}': {exc}") from exc
+        if args.voice_engine == "whisper-stream":
+            unavailable = whisper_stream_unavailable_reason(voice_config)
+            if unavailable is not None:
+                raise SystemExit(f"Could not use whisper-stream voice engine: {unavailable}")
+
+        voice_engine = resolve_voice_engine(voice_config)
+        if voice_engine == "whisper-stream":
+            print(
+                "Using whisper-stream for voice transcription: "
+                f"{shlex.join(build_whisper_stream_command(voice_config))}"
+            )
+        else:
+            whisper_device = resolve_whisper_device(args.whisper_device)
+            print(f"Loading Whisper model '{args.whisper_model}' on {whisper_device}...")
+            try:
+                voice_model = load_whisper_model(args.whisper_model, device=args.whisper_device)
+            except Exception as exc:  # noqa: BLE001 - fail before Textual takes over the terminal.
+                raise SystemExit(f"Could not load Whisper model '{args.whisper_model}': {exc}") from exc
 
     ChatApp(
         backend,

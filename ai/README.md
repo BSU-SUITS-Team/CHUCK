@@ -75,9 +75,26 @@ Voice mode replaces the text input box with a simple Space-toggle recorder:
 uv run llm-chat --voice
 ```
 
-Press Space to start recording. While recording, the app shows a spinner and reveals a compact live transcript only after speech is recognized. The live transcript uses a committed-text plus live-draft model similar to `whisper.cpp`: each chunk keeps a small audio overlap, replaces the current draft, and periodically commits stable text. Space again stops recording and sends the committed transcript plus the current draft to the model. If no live transcript is ready yet, the app falls back to one final transcription pass.
+Press Space to start recording. While recording, the app shows a spinner and reveals a compact live transcript only after speech is recognized. Space again stops recording and sends the collected transcript to the model.
 
-The project pins the latest OpenAI Whisper package release available now, `openai-whisper==20250625`, and defaults to Whisper's `tiny.en` speech model for low latency. Voice mode loads the Whisper model before the TUI starts so model downloads and cache repairs happen outside Textual.
+By default, voice mode now uses the `whisper-stream` binary when it is available on `PATH` and `ggml-base.en.bin` exists in the working directory. This matches the low-repeat command:
+
+```bash
+whisper-stream -m ggml-base.en.bin -t 8 --step 500 --length 5000
+```
+
+The app launches that process on Space and reads transcription text from stdout while recording. If `whisper-stream` or the ggml model is unavailable, `--voice-engine auto` falls back to the Python Whisper engine.
+
+You can force either engine:
+
+```bash
+uv run llm-chat --voice --voice-engine whisper-stream
+uv run llm-chat --voice --voice-engine python
+```
+
+The project pins `openai-whisper==20250625` and defaults to Whisper's `tiny.en` speech model for the Python fallback. When the Python engine is used, voice mode loads the Whisper model before the TUI starts so model downloads and cache repairs happen outside Textual.
+
+The Python fallback uses a committed-text plus live-draft model similar to `whisper.cpp`: each chunk keeps a small audio overlap, replaces the current draft, and periodically commits stable text. If no live transcript is ready yet, the app falls back to one final transcription pass.
 
 Device selection defaults to `auto`, which uses CUDA when available and otherwise CPU. On this machine, Apple MPS is available, but the `tiny.en` benchmark was faster on CPU for short realtime chunks. You can still force a device:
 
@@ -91,10 +108,16 @@ You can override the speech model or language hint:
 uv run llm-chat --voice --whisper-model base.en --voice-language en
 ```
 
-You can tune live transcription responsiveness:
+You can tune `whisper-stream` responsiveness:
 
 ```bash
-uv run llm-chat --voice --realtime-interval 0.2 --realtime-window 1.5 --commit-interval 1.2 --keep-overlap 0.2
+uv run llm-chat --voice --whisper-stream-step 500 --whisper-stream-length 5000
+```
+
+You can tune Python Whisper live transcription responsiveness:
+
+```bash
+uv run llm-chat --voice --voice-engine python --realtime-interval 0.5 --realtime-window 5.0 --commit-interval 5.0 --keep-overlap 0.2
 ```
 
 On macOS, microphone access may require Microphone permission for the terminal app. The first voice run may also download the selected Whisper model weights.
