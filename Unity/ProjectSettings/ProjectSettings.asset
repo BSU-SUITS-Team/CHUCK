@@ -805,6 +805,7 @@ PlayerSettings:
       LowLevelDevices: True
       InternetClientServer: True
       OfflineMapsManagement: True
+      BackgroundMediaPlayback: True
       Objects3D: True
       InternetClient: True
       RemoteSystem: True
@@ -828,9 +829,9 @@ PlayerSettings:
       PointOfService: True
       RecordedCallsFolder: True
       Contacts: True
+      InternetClient: True
       Proximity: True
       CodeGeneration: True
-      BackgroundMediaPlayback: True
       EnterpriseAuthentication: True
   metroTargetDeviceFamilies:
     Desktop: False

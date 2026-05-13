@@ -443,8 +443,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 93b3fd8ee5150414b8845d137389a560, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MiniNotifObj: {fileID: 6376812684128528963, guid: c403953733608b94598e26de5990d74f, type: 3}
+  miniNotifPrefab: {fileID: 6376812684128528963, guid: c403953733608b94598e26de5990d74f, type: 3}
   miniParentObject: {fileID: 1700170123812427549}
+  resetAllButton: {fileID: 0}
 --- !u!1 &2472518441137513179
 GameObject:
   m_ObjectHideFlags: 0
