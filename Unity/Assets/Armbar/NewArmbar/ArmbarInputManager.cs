@@ -55,11 +55,11 @@ public class ArmbarInputManager : MonoBehaviour
         if (controlledMenu == null) return;
 
         //Invoke events when a button is pressed. This is an else if list so we can't press two buttons on the same frame.
-        if (Input.GetKeyDown("1")) controlledMenu.Button1Pressed.Invoke();
-        else if (Input.GetKeyDown("2")) controlledMenu.Button2Pressed.Invoke();
-        else if (Input.GetKeyDown("3")) controlledMenu.Button3Pressed.Invoke();
-        else if (Input.GetKeyDown("4")) controlledMenu.Button4Pressed.Invoke();
-        else if (Input.GetKeyDown("5")) controlledMenu.Button5Pressed.Invoke();
-        else if (Input.GetKeyDown("6")) controlledMenu.Button6Pressed.Invoke();
+        if (Input.GetKeyDown("1")) controlledMenu.InvokeButton(1);
+        else if (Input.GetKeyDown("2")) controlledMenu.InvokeButton(2);
+        else if (Input.GetKeyDown("3")) controlledMenu.InvokeButton(3);
+        else if (Input.GetKeyDown("4")) controlledMenu.InvokeButton(4);
+        else if (Input.GetKeyDown("5")) controlledMenu.InvokeButton(5);
+        else if (Input.GetKeyDown("6")) controlledMenu.InvokeButton(6);
     }
 }
