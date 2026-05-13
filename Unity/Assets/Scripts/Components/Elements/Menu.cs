@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using ARSIS.EventManager;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEditor;
 
 namespace ARSIS.UI
 {
@@ -23,6 +22,13 @@ namespace ARSIS.UI
                 Debug.Log("FAILED TO LOAD PREFAB");
                 return;
             }
+
+            if (prefab.GetComponentInChildren<FloatingMenuFromPrefab>(true) != null)
+            {
+                FloatingMenuFromPrefab.OpenOrFocus(prefab);
+                return;
+            }
+
             Instantiate(prefab);
         }
 
