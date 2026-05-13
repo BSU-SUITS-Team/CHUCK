@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+//using MixedReality.Toolkit.SpatialManipulation;
 
 /**
  * This script is to be placed at the root gameObject of the SettingsWindow variant prefab.
@@ -23,7 +24,18 @@ public class SettingsWindow : MonoBehaviour
     {
         EventManager instance = EventManager.Instance;
         inputField.text = instance.Endpoint;
+        //StartCoroutine(StopFollow());
     }
+
+    // private IEnumerator StopFollow()
+    // {
+    //     yield return new WaitForSeconds(0.1f);
+    //     Follow followObject = GetComponent<Follow>();
+    //     if (followObject != null)
+    //     {
+    //         followObject.enabled = false;
+    //     }
+    // }
 
     private void OnDestroy()
     {
