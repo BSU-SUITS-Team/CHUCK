@@ -2,8 +2,7 @@ version: "3.8"
 
 services:
   tss:
-    build:
-      context: https://github.com/Aetheris743/TSS2026.git#main
+    build: ./TSS2026
     ports:
       - "14141:14141/tcp"
       - "14141:14141/udp"
