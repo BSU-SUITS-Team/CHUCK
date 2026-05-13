@@ -35,6 +35,8 @@ public class SettingsWindow : MonoBehaviour
         EventManager instance = EventManager.Instance;
         instance.Eva = eva;
         EventDatastore.Instance.NotifyAll();
+
+        TSSConnectionManager.Instance?.SetEva(eva);
     }
 
     public void SetEndpoint()

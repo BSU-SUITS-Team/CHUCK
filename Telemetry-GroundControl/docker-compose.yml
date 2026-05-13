@@ -1,10 +1,19 @@
 version: "3.8"
 
 services:
+  tss:
+    build: ./TSS2026
+    ports:
+      - "14141:14141/tcp"
+      - "14141:14141/udp"
+    stdin_open: true
+    tty: true
+
   groundcontrol-api:
     command: sh -c "sleep 3; uvicorn app.main:app --host 0.0.0.0 --port 8181"
     build: ./groundcontrol-api
     depends_on:
+      - tss
       - groundcontrol-db
     ports:
       - 8181:8181

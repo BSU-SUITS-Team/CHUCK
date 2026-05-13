@@ -1,7 +1,5 @@
-import { readable } from 'svelte/store';
-
 export type Range = {
-	units: '' | '%' | 'psi' | 'bpm' | 'psi/min' | 'rpm' | '℉';
+	units: '' | '%' | 'psi' | 'bpm' | 'psi/min' | 'rpm' | 'C';
 	min: number;
 	nominal: number | undefined;
 	max: number;
@@ -17,13 +15,15 @@ export enum Threshold {
 export type Category = 'Resources' | 'Atmosphere' | 'Helmet' | 'Scrubber' | 'Temperature';
 
 export type Resources = {
-	batt_time_left: number;
+	primary_battery_level?: number;
+	secondary_battery_level?: number;
+	battery_level?: number;
 	oxy_pri_storage: number;
 	oxy_sec_storage: number;
 	oxy_pri_pressure: number;
 	oxy_sec_pressure: number;
-	oxy_time_left: number;
-	coolant_ml: number;
+	coolant_storage: number;
+	eva_elapsed_time: number;
 };
 
 export type Atmosphere = {
@@ -55,21 +55,45 @@ export type Temperature = {
 
 export type Astronaut = Resources & Atmosphere & Helmet & Scrubbers & Temperature;
 
-export type Telemetry = {
-	eva_time: number;
-	time: number;
-	[eva: string]: Astronaut | number;
+export type TelemetryEvent = {
+	time?: number;
+	[eva: string]: Astronaut | number | undefined;
 };
 
-export type Bounds<T> = { [K in keyof T]: Range };
+export type EVAPayload = {
+	telemetry: TelemetryEvent;
+	status?: Record<string, unknown>;
+	dcu?: Record<string, unknown>;
+	error?: Record<string, unknown>;
+	imu?: Record<string, unknown>;
+	uia?: Record<string, unknown>;
+};
+
+export type Telemetry = TelemetryEvent | EVAPayload;
+
+export type Bounds<T> = { [K in keyof T]-?: Range };
 
 export const ResourceBounds: Bounds<Resources> = {
-	batt_time_left: {
-		units: '',
-		min: 3600,
+	primary_battery_level: {
+		units: '%',
+		min: 20,
 		nominal: undefined,
-		max: 10800,
-		limit: [0, 10800]
+		max: 100,
+		limit: [0, 100]
+	},
+	secondary_battery_level: {
+		units: '%',
+		min: 20,
+		nominal: undefined,
+		max: 100,
+		limit: [0, 100]
+	},
+	battery_level: {
+		units: '%',
+		min: 20,
+		nominal: undefined,
+		max: 100,
+		limit: [0, 100]
 	},
 	oxy_pri_storage: {
 		units: '%',
@@ -99,19 +123,19 @@ export const ResourceBounds: Bounds<Resources> = {
 		max: 3000,
 		limit: [0, 4000]
 	},
-	oxy_time_left: {
-		units: '',
-		min: 3600,
-		nominal: undefined,
-		max: 21000,
-		limit: [0, 21000]
-	},
-	coolant_ml: {
+	coolant_storage: {
 		units: '%',
-		min: 80,
-		nominal: 100,
+		min: 20,
+		nominal: undefined,
 		max: 100,
 		limit: [0, 100]
+	},
+	eva_elapsed_time: {
+		units: '',
+		min: 0,
+		nominal: undefined,
+		max: 36000,
+		limit: [0, 36000]
 	}
 };
 
@@ -156,7 +180,7 @@ export const AtmosphereBounds: Bounds<Atmosphere> = {
 		min: 0.0,
 		nominal: 0.0,
 		max: 0.5,
-		limit: [0, 0.1]
+		limit: [0, 0.5]
 	},
 	suit_pressure_total: {
 		units: 'psi',
@@ -210,11 +234,11 @@ export const ScrubberBounds: Bounds<Scrubbers> = {
 
 export const TemperatureBounds: Bounds<Temperature> = {
 	temperature: {
-		units: '℉',
-		min: 50,
-		nominal: 70,
-		max: 90,
-		limit: [32, 100]
+		units: 'C',
+		min: 10,
+		nominal: 21,
+		max: 32,
+		limit: [0, 45]
 	},
 	coolant_gas_pressure: {
 		units: 'psi',
@@ -226,76 +250,144 @@ export const TemperatureBounds: Bounds<Temperature> = {
 	coolant_liquid_pressure: {
 		units: 'psi',
 		min: 0,
-		nominal: 0,
+		nominal: 500,
 		max: 700,
 		limit: [0, 800]
 	}
 };
 
-export const sampleTelemetry: Telemetry = {
-	time: 0,
-	eva_time: 0,
-	eva1: {
-		batt_time_left: 5077.148926,
-		oxy_pri_storage: 23.755802,
-		oxy_sec_storage: 15.489529,
-		oxy_pri_pressure: 0.0,
-		oxy_sec_pressure: 0.0,
-		oxy_time_left: 4238,
-		heart_rate: 90.0,
-		oxy_consumption: 0.0,
-		co2_production: 0.0,
-		suit_pressure_oxy: 3.0723,
-		suit_pressure_co2: 0.0059,
-		suit_pressure_other: 11.5542,
-		suit_pressure_total: 14.632401,
-		fan_pri_rpm: 0.0,
-		fan_sec_rpm: 0.0,
-		helmet_pressure_co2: 0.0,
-		scrubber_a_co2_storage: 0.0,
-		scrubber_b_co2_storage: 0.0,
-		temperature: 70.0,
-		coolant_ml: 20.508068,
-		coolant_gas_pressure: 0.0,
-		coolant_liquid_pressure: 0.0
+export const sampleTelemetry: EVAPayload = {
+	telemetry: {
+		eva1: {
+			primary_battery_level: 100,
+			secondary_battery_level: 100,
+			oxy_pri_storage: 100,
+			oxy_sec_storage: 100,
+			oxy_pri_pressure: 0,
+			oxy_sec_pressure: 0,
+			suit_pressure_oxy: 4,
+			suit_pressure_co2: 0,
+			suit_pressure_other: 0,
+			suit_pressure_total: 0,
+			helmet_pressure_co2: 0,
+			fan_pri_rpm: 0,
+			fan_sec_rpm: 30000,
+			scrubber_a_co2_storage: 0,
+			scrubber_b_co2_storage: 0,
+			temperature: 21.100000381469727,
+			coolant_storage: 100,
+			coolant_gas_pressure: 0,
+			coolant_liquid_pressure: 500,
+			heart_rate: 0,
+			oxy_consumption: 0,
+			co2_production: 0,
+			eva_elapsed_time: 0
+		},
+		eva2: {
+			battery_level: 100,
+			oxy_pri_storage: 100,
+			oxy_sec_storage: 100,
+			oxy_pri_pressure: 0,
+			oxy_sec_pressure: 0,
+			suit_pressure_oxy: 4,
+			suit_pressure_co2: 0.05000000074505806,
+			suit_pressure_other: 0,
+			suit_pressure_total: 0,
+			helmet_pressure_co2: 0,
+			fan_pri_rpm: 0,
+			fan_sec_rpm: 0,
+			scrubber_a_co2_storage: 30,
+			scrubber_b_co2_storage: 30,
+			temperature: 21.100000381469727,
+			coolant_storage: 0,
+			coolant_gas_pressure: 0,
+			coolant_liquid_pressure: 500,
+			heart_rate: 0,
+			oxy_consumption: 0,
+			co2_production: 0,
+			eva_elapsed_time: 0
+		}
 	},
-	eva2: {
-		batt_time_left: 3384.893799,
-		oxy_pri_storage: 24.231962,
-		oxy_sec_storage: 19.419136,
-		oxy_pri_pressure: 0.0,
-		oxy_sec_pressure: 0.0,
-		oxy_time_left: 4714,
-		heart_rate: 90.0,
-		oxy_consumption: 0.0,
-		co2_production: 0.0,
-		suit_pressure_oxy: 3.0723,
-		suit_pressure_co2: 0.0059,
-		suit_pressure_other: 11.5542,
-		suit_pressure_total: 14.632401,
-		fan_pri_rpm: 0.0,
-		fan_sec_rpm: 0.0,
-		helmet_pressure_co2: 0.0,
-		scrubber_a_co2_storage: 0.0,
-		scrubber_b_co2_storage: 0.0,
-		temperature: 70.0,
-		coolant_ml: 22.034748,
-		coolant_gas_pressure: 0.0,
-		coolant_liquid_pressure: 0.0
+	status: {
+		started: false
+	},
+	dcu: {
+		eva1: {
+			oxy: false,
+			fan: false,
+			pump: false,
+			co2: false,
+			batt: {
+				lu: false,
+				ps: false
+			}
+		},
+		eva2: {
+			batt: false,
+			oxy: false,
+			comm: false,
+			fan: false,
+			pump: false,
+			co2: false
+		}
+	},
+	error: {
+		fan_error: false,
+		oxy_error: false,
+		power_error: false,
+		scrubber_error: false
+	},
+	imu: {
+		eva1: {
+			posx: -6804.291504,
+			posy: -10868.504883,
+			heading: 0
+		},
+		eva2: {
+			posx: -6804.300781,
+			posy: -10868.552734,
+			heading: 0
+		}
+	},
+	uia: {
+		eva1_power: false,
+		eva1_oxy: false,
+		eva1_water_supply: false,
+		eva1_water_waste: false,
+		eva2_power: false,
+		eva2_oxy: false,
+		eva2_water_supply: false,
+		eva2_water_waste: false,
+		oxy_vent: false,
+		depress: false
 	}
 };
 
-export function getAstronauts(event: Telemetry): string[] {
-	const keys = Object.keys(event).filter((key, _) => key != 'eva_time' && key != 'time');
-	return keys;
+export function getTelemetryEvent(event: Telemetry | undefined): TelemetryEvent {
+	if (!event) return {};
+
+	if ('telemetry' in event && event.telemetry) {
+		return event.telemetry;
+	}
+
+	return event as TelemetryEvent;
 }
 
-export function getEVA(event: Telemetry, eva: string): Astronaut | undefined {
-	if (eva !== 'eva_time' && !getAstronauts(event).includes(eva)) {
-		console.log(`Unable to find astronaut: ${eva} in telemetry event!`, event, eva);
+export function getAstronauts(event: Telemetry | undefined): string[] {
+	const telemetry = getTelemetryEvent(event);
+	return Object.keys(telemetry).filter((key) => {
+		const value = telemetry[key];
+		return key !== 'time' && typeof value === 'object' && value !== null;
+	});
+}
+
+export function getEVA(event: Telemetry | undefined, eva: string): Astronaut | undefined {
+	const telemetry = getTelemetryEvent(event);
+	if (!getAstronauts(event).includes(eva)) {
 		return undefined;
 	}
-	return event[eva] as Astronaut;
+
+	return telemetry[eva] as Astronaut;
 }
 
 export function compareValueToBounds(number: number, range: Range): Threshold {

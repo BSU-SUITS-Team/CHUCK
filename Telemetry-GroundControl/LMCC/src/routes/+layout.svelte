@@ -39,7 +39,21 @@
 
 	//datastore.subscribe(console.log);
 
+	const getElapsedTime = (store) => {
+		const telemetry = store.telemetry?.[store.telemetry.length - 1];
+		if (!telemetry) return undefined;
+
+		const elapsedTimes = Object.entries(telemetry)
+			.filter(([key, value]) => key !== 'time' && value && typeof value === 'object')
+			.map(([, eva]) => eva.eva_elapsed_time)
+			.filter((value) => Number.isFinite(value));
+
+		if (!elapsedTimes.length) return undefined;
+		return Math.max(...elapsedTimes);
+	};
+
 	$: hasSideBar = Object.keys($keepables).length > 0 || Object.keys($graphdata).length > 0;
+	$: elapsedTime = getElapsedTime($datastore);
 </script>
 
 <div class="flex flex-col h-screen">
@@ -48,8 +62,8 @@
 	>
 		<div class="flex flex-row">
 			<p class="pr-12">Oxygen: <span class="text-blue-600 font-bold">96 Minuties<span /></span></p>
-			{#if $datastore.eva}
-				<p>Elapsed Time: {formatTime($datastore.eva[$datastore.eva.length - 1].total_time)}</p>
+			{#if elapsedTime !== undefined}
+				<p>Elapsed Time: {formatTime(elapsedTime)}</p>
 			{/if}
 		</div>
 		<p>

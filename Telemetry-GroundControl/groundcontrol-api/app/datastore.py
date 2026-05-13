@@ -27,13 +27,19 @@ class Datastore:
         while True:
             response = await get_from_tss(key)
             if response.status_code == 200:
-                new_event = Event.create_event(key, response.json()[key])
+                payload = response.json()
+                if key not in payload:
+                    await asyncio.sleep(1)
+                    continue
+
+                value = payload[key]
+                new_event = Event.create_event(key, value)
                 if key not in self.outputcache.keys():
-                    self.outputcache[key] = response.json()[key]
+                    self.outputcache[key] = value
                     await self.add_event(key, new_event)
                 else:
-                    if self.outputcache[key] != response.json()[key]:
-                        self.outputcache[key] = response.json()[key]
+                    if self.outputcache[key] != value:
+                        self.outputcache[key] = value
                         await self.add_event(key, new_event)
 
             await asyncio.sleep(1)
