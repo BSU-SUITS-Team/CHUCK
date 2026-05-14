@@ -33,7 +33,13 @@ public class Procedures : MonoBehaviour, IRenderable
 
     public void ShowSummaryTimeline()
     {
-        Instantiate(summaryTimeline);
+        if (summaryTimeline == null)
+        {
+            Debug.LogWarning("Procedures: summaryTimeline prefab is not assigned.");
+            return;
+        }
+
+        FloatingMenuFromPrefab.OpenOrFocus(summaryTimeline);
     }
 
     void Start()
