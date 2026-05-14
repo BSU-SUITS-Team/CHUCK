@@ -1680,6 +1680,10 @@ PrefabInstance:
       propertyPath: m_fontSize
       value: 28.95
       objectReference: {fileID: 0}
+    - target: {fileID: 3404618005435537226, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3571022054950241779, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -1783,6 +1787,10 @@ PrefabInstance:
     - target: {fileID: 6009671963900098207, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
       propertyPath: m_ChildControlHeight
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6719702823663486165, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6797478236667559647, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
       propertyPath: m_AdditionalShaderChannelsFlag
@@ -2153,7 +2161,7 @@ PrefabInstance:
       addedObject: {fileID: 1956913060141342972}
     - targetCorrespondingSourceObject: {fileID: 1075922271784969681, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 809458938987866393}
+      addedObject: {fileID: 8665727572069544078}
   m_SourcePrefab: {fileID: 100100000, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
 --- !u!1 &646569633205481146 stripped
 GameObject:
@@ -2302,7 +2310,7 @@ MonoBehaviour:
   scrubberLiveText: {fileID: 0}
   scrubberLatchedText: {fileID: 0}
   scrubberSecondsText: {fileID: 0}
---- !u!114 &809458938987866393
+--- !u!114 &8665727572069544078
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2311,9 +2319,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 646569633205481146}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4ea793ed18189944c9471233fbc45433, type: 3}
+  m_Script: {fileID: 11500000, guid: c4a8f91d2e6b4f0a9e3d7c1b5a8e2f64, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  distanceMeters: 0.85
+  heightOffsetMeters: 0
+  placementCameraOverride: {fileID: 0}
+  yawOffsetDegrees: 180
+  pitchOffsetDegrees: 0
+  followCameraWhileOpen: 0
+  followUpdateIntervalSeconds: 0.05
+  followRecenterDistanceMeters: 0.2
+  followRecenterYawDegrees: 18
 --- !u!1 &3507423128532952121 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3943953690407923538, guid: 8eedee802484a9145946c5fe3408883e, type: 3}

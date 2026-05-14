@@ -13,6 +13,8 @@ GameObject:
   - component: {fileID: 6153840783764113318}
   - component: {fileID: 6719702823663486165}
   - component: {fileID: 3562144073984655980}
+  - component: {fileID: 8128100812779338558}
+  - component: {fileID: 1185691174972976878}
   m_Layer: 0
   m_Name: NotificationWindow
   m_TagString: Untagged
@@ -78,7 +80,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1075922271784969681}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 07606d041cd57684c85e7122ad8e3897, type: 3}
   m_Name: 
@@ -167,6 +169,39 @@ MonoBehaviour:
   Button6Pressed:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8128100812779338558
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1075922271784969681}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ea793ed18189944c9471233fbc45433, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1185691174972976878
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1075922271784969681}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4a8f91d2e6b4f0a9e3d7c1b5a8e2f64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  distanceMeters: 0.85
+  heightOffsetMeters: 0
+  placementCameraOverride: {fileID: 0}
+  yawOffsetDegrees: 180
+  pitchOffsetDegrees: 0
+  followCameraWhileOpen: 0
+  followUpdateIntervalSeconds: 0.05
+  followRecenterDistanceMeters: 0.2
+  followRecenterYawDegrees: 18
 --- !u!1 &1300197805499173707
 GameObject:
   m_ObjectHideFlags: 0

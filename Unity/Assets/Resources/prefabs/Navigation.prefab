@@ -1008,17 +1008,6 @@ PrefabInstance:
       addedObject: {fileID: 5611667743724324262}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
---- !u!114 &207297717658118879 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1250240117953602634, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
-  m_PrefabInstance: {fileID: 1421385884616609429}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8e9196da1d9824364937902676589c0f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!224 &7459673423419202504 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8376646494505211229, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
@@ -2508,6 +2497,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   image: {fileID: 7106214694060995529}
   map: {fileID: 2539785728386764720}
-  pinPrefab: {fileID: 1813182546661375242, guid: 031036915327bd54bac1aca669a98938, type: 3}
-  selectButton: {fileID: 207297717658118879}
   toggleCapture: {fileID: 2377183030902493286}
+  pathTest: {fileID: 0}
+  mapNorthReference: {fileID: 0}
+  pathDistanceReadout: {fileID: 0}
+  ensurePathDistanceInSidebar: 1
