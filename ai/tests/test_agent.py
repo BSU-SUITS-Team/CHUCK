@@ -26,6 +26,9 @@ class AgentConfigTests(unittest.TestCase):
         self.assertIn("mission-data tools", DEFAULT_INSTRUCTION)
         self.assertIn("Call get_current_biometrics", DEFAULT_INSTRUCTION)
         self.assertIn("Call get_procedure", DEFAULT_INSTRUCTION)
+        self.assertIn("Do not call a tool when", DEFAULT_INSTRUCTION)
+        self.assertIn("audio transcripts", DEFAULT_INSTRUCTION)
+        self.assertIn("similar-sounding", DEFAULT_INSTRUCTION)
         self.assertIn("say you do not know", DEFAULT_INSTRUCTION)
 
     def test_default_model_request_params_disable_ollama_thinking(self) -> None:

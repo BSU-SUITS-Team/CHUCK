@@ -129,6 +129,9 @@ class MissionContextTests(unittest.TestCase):
         self.assertIn("Call get_current_biometrics", message)
         self.assertIn("Call get_procedure", message)
         self.assertIn("do not infer procedure details from names", message)
+        self.assertIn("Do not call a tool when", message)
+        self.assertIn("audio transcripts", message)
+        self.assertIn("similar-sounding", message)
         self.assertIn("say you do not know", message)
         self.assertTrue(message.rstrip().endswith("</user_prompt>"))
 
