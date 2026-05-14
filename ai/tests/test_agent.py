@@ -30,6 +30,7 @@ class AgentConfigTests(unittest.TestCase):
         self.assertIn("audio transcripts", DEFAULT_INSTRUCTION)
         self.assertIn("similar-sounding", DEFAULT_INSTRUCTION)
         self.assertIn("say you do not know", DEFAULT_INSTRUCTION)
+        self.assertIn("Hololens command tool", DEFAULT_INSTRUCTION)
 
     def test_default_model_request_params_disable_ollama_thinking(self) -> None:
         request_params = no_thinking_request_params(DEFAULT_MODEL)
@@ -56,6 +57,9 @@ class AgentConfigTests(unittest.TestCase):
                 "get_current_biometrics",
                 "get_procedure",
                 "get_all_procedures",
+                "open_window",
+                "close_window",
+                "open_procedure",
             },
         )
         self.assertEqual(config.default_request_params.metadata, OLLAMA_NO_THINK_METADATA)

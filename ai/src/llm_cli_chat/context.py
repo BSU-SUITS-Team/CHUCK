@@ -14,6 +14,31 @@ DEFAULT_GROUND_CONTROL_API_URL = "http://localhost:8181"
 DEFAULT_TSS_ENDPOINT = "http://localhost:14141"
 DEFAULT_CONTEXT_TIMEOUT_SECONDS = 2.0
 USER_EVA_CHOICES = ("eva1", "eva2")
+HOLOLENS_COMMAND_EVENT_TYPE = "hololens_command"
+HOLOLENS_COMMAND_SOURCE = "AIA"
+HOLOLENS_WINDOW_IDS = (
+    "biometrics",
+    "navigation",
+    "procedures",
+    "spectrometry",
+    "notifications",
+    "settings",
+    "summary_timeline",
+)
+HOLOLENS_WINDOW_ALIASES = {
+    "map": "navigation",
+    "nav": "navigation",
+    "procedure": "procedures",
+    "procedures_window": "procedures",
+    "spectrometry_window": "spectrometry",
+    "notification": "notifications",
+    "notifications_window": "notifications",
+    "notification_window": "notifications",
+    "settings_window": "settings",
+    "summarytimeline": "summary_timeline",
+    "timeline": "summary_timeline",
+    "eva_summary_timeline": "summary_timeline",
+}
 
 BIOMETRIC_FIELDS = {
     "primary_battery_level",
@@ -72,6 +97,17 @@ def normalize_user_eva(value: str | None) -> str | None:
     return eva_map.get(normalized)
 
 
+def normalize_hololens_window(value: str | None) -> str | None:
+    if value is None:
+        return None
+
+    normalized = value.strip().lower().replace(" ", "_").replace("-", "_")
+    window_id = HOLOLENS_WINDOW_ALIASES.get(normalized, normalized)
+    if window_id in HOLOLENS_WINDOW_IDS:
+        return window_id
+    return None
+
+
 def _join_url(base_url: str, path: str) -> str:
     return urljoin(base_url.rstrip("/") + "/", path.lstrip("/"))
 
@@ -83,6 +119,27 @@ def _fetch_json(url: str, timeout_seconds: float) -> dict[str, Any]:
         payload = response.read().decode(charset)
 
     data = json.loads(payload)
+    if not isinstance(data, dict):
+        return {"value": data}
+    return data
+
+
+def _post_json(
+    url: str,
+    payload: dict[str, Any],
+    timeout_seconds: float,
+) -> dict[str, Any]:
+    request = Request(
+        url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Accept": "application/json", "Content-Type": "application/json"},
+        method="POST",
+    )
+    with urlopen(request, timeout=timeout_seconds) as response:
+        charset = response.headers.get_content_charset() or "utf-8"
+        response_payload = response.read().decode(charset)
+
+    data = json.loads(response_payload) if response_payload else {}
     if not isinstance(data, dict):
         return {"value": data}
     return data
@@ -344,6 +401,10 @@ class MissionContextProvider:
                     "Call get_procedure for one full procedure or get_all_procedures "
                     "to search all procedure details."
                 ),
+                "hololens_commands": (
+                    "Call open_window, close_window, or open_procedure for requests "
+                    "to change what is displayed on the Hololens."
+                ),
             },
         }
         if self.user_eva is not None:
@@ -467,6 +528,89 @@ class MissionContextProvider:
             }
         )
 
+    async def open_hololens_window(self, window_name: str) -> str:
+        return await self._send_hololens_window_command("open_window", window_name)
+
+    async def close_hololens_window(self, window_name: str) -> str:
+        return await self._send_hololens_window_command("close_window", window_name)
+
+    async def open_hololens_procedure(self, procedure_name: str) -> str:
+        procedure = str(procedure_name or "").strip()
+        if not procedure:
+            return _tool_json(
+                {
+                    "status": "invalid_procedure",
+                    "error": "procedure_name is required",
+                    "event_type": HOLOLENS_COMMAND_EVENT_TYPE,
+                }
+            )
+
+        return await self._send_hololens_command(
+            {
+                "action": "open_procedure",
+                "procedure": procedure,
+                "window": "procedures",
+            }
+        )
+
+    async def _send_hololens_window_command(
+        self,
+        action: str,
+        window_name: str,
+    ) -> str:
+        window_id = normalize_hololens_window(window_name)
+        if window_id is None:
+            return _tool_json(
+                {
+                    "status": "invalid_window",
+                    "requested_window": window_name,
+                    "available_windows": list(HOLOLENS_WINDOW_IDS),
+                    "event_type": HOLOLENS_COMMAND_EVENT_TYPE,
+                }
+            )
+
+        return await self._send_hololens_command(
+            {
+                "action": action,
+                "window": window_id,
+            }
+        )
+
+    async def _send_hololens_command(self, command: dict[str, Any]) -> str:
+        source = _join_url(self.ground_control_api_url, "/hololens/commands")
+        payload = {
+            **command,
+            "target": "hololens",
+            "source": HOLOLENS_COMMAND_SOURCE,
+        }
+        try:
+            response = await asyncio.to_thread(
+                _post_json,
+                source,
+                payload,
+                self.timeout_seconds,
+            )
+        except (HTTPError, URLError, TimeoutError, OSError, json.JSONDecodeError) as exc:
+            return _tool_json(
+                {
+                    "source": source,
+                    "status": "unavailable",
+                    "error": str(exc),
+                    "event_type": HOLOLENS_COMMAND_EVENT_TYPE,
+                    "command": payload,
+                }
+            )
+
+        return _tool_json(
+            {
+                "source": source,
+                "status": "sent",
+                "event_type": HOLOLENS_COMMAND_EVENT_TYPE,
+                "command": payload,
+                "response": response,
+            }
+        )
+
     async def _fetch_biometrics(self) -> ContextFetchResult:
         source = _join_url(self.tss_endpoint, "/data/EVA.json")
         try:
@@ -529,7 +673,10 @@ def format_prompt_with_context(user_prompt: str, context: dict[str, Any]) -> str
         "available. "
         "Report information from those tools instead of adding your own "
         "operational guidance. If requested information is not present in the "
-        "tool data or a needed source is unavailable, say you do not know.\n\n"
+        "tool data or a needed source is unavailable, say you do not know. "
+        "For requests to open or close Hololens windows or display a procedure "
+        "on Hololens, use the Hololens command tools and report the tool "
+        "status.\n\n"
         "<ground_control_context>\n"
         f"{context_json}\n"
         "</ground_control_context>\n\n"

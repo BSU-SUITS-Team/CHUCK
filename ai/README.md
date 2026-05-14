@@ -68,7 +68,9 @@ Before each typed or voice prompt is sent to the model, the app fetches current 
 - available procedure names from `GROUND_CONTROL_API_URL` or `http://localhost:8181`
 
 Current biometrics and full procedure text are fetched through model-callable
-tools. When the model starts one of those tool calls, the chat output shows
+tools. The assistant can also issue Hololens display commands through
+`GROUND_CONTROL_API_URL` to open or close windows and display a named procedure.
+When the model starts one of those tool calls, the chat output shows
 `Checking current data...` before the final answer.
 
 If either service is unavailable, chat still works and the injected context records that source as unavailable. You can override or disable this behavior:

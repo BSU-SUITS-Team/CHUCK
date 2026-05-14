@@ -6,11 +6,14 @@ import unittest
 from unittest.mock import patch
 
 from llm_cli_chat.context import (
+    HOLOLENS_COMMAND_EVENT_TYPE,
+    HOLOLENS_COMMAND_SOURCE,
     MissionContextProvider,
     compact_biometrics,
     compact_full_procedures,
     compact_procedures,
     format_prompt_with_context,
+    normalize_hololens_window,
     normalize_user_eva,
 )
 
@@ -133,6 +136,7 @@ class MissionContextTests(unittest.TestCase):
         self.assertIn("audio transcripts", message)
         self.assertIn("similar-sounding", message)
         self.assertIn("say you do not know", message)
+        self.assertIn("Hololens command tools", message)
         self.assertTrue(message.rstrip().endswith("</user_prompt>"))
 
     def test_biometrics_tool_text_filters_selected_eva(self) -> None:
@@ -185,6 +189,109 @@ class MissionContextTests(unittest.TestCase):
         self.assertEqual(normalize_user_eva("1"), "eva1")
         self.assertEqual(normalize_user_eva("EVA 2"), "eva2")
         self.assertIsNone(normalize_user_eva("eva3"))
+
+    def test_normalize_hololens_window_accepts_aliases(self) -> None:
+        self.assertEqual(normalize_hololens_window("map"), "navigation")
+        self.assertEqual(normalize_hololens_window("EVA Summary Timeline"), "summary_timeline")
+        self.assertIsNone(normalize_hololens_window("unknown"))
+
+    def test_open_hololens_window_posts_command_event(self) -> None:
+        provider = MissionContextProvider(
+            ground_control_api_url="http://ground",
+            timeout_seconds=1,
+        )
+        api_response = {
+            "message": "Hololens command sent",
+            "event": {"type": HOLOLENS_COMMAND_EVENT_TYPE},
+        }
+
+        with patch("llm_cli_chat.context._post_json", return_value=api_response) as post_json:
+            result = asyncio.run(provider.open_hololens_window("map"))
+
+        post_json.assert_called_once()
+        url, command, timeout = post_json.call_args.args
+        self.assertEqual(url, "http://ground/hololens/commands")
+        self.assertEqual(timeout, 1)
+        self.assertEqual(
+            command,
+            {
+                "action": "open_window",
+                "window": "navigation",
+                "target": "hololens",
+                "source": HOLOLENS_COMMAND_SOURCE,
+            },
+        )
+
+        payload = json.loads(result)
+        self.assertEqual(payload["status"], "sent")
+        self.assertEqual(payload["event_type"], HOLOLENS_COMMAND_EVENT_TYPE)
+        self.assertEqual(payload["command"], command)
+        self.assertEqual(payload["response"], api_response)
+
+    def test_close_hololens_window_rejects_unknown_window(self) -> None:
+        provider = MissionContextProvider(
+            ground_control_api_url="http://ground",
+            timeout_seconds=1,
+        )
+
+        with patch("llm_cli_chat.context._post_json") as post_json:
+            result = asyncio.run(provider.close_hololens_window("unknown"))
+
+        post_json.assert_not_called()
+        payload = json.loads(result)
+        self.assertEqual(payload["status"], "invalid_window")
+        self.assertEqual(payload["event_type"], HOLOLENS_COMMAND_EVENT_TYPE)
+
+    def test_close_hololens_window_posts_command_event(self) -> None:
+        provider = MissionContextProvider(
+            ground_control_api_url="http://ground",
+            timeout_seconds=1,
+        )
+
+        with patch("llm_cli_chat.context._post_json", return_value={}) as post_json:
+            result = asyncio.run(provider.close_hololens_window("settings"))
+
+        post_json.assert_called_once()
+        _, command, _ = post_json.call_args.args
+        self.assertEqual(
+            command,
+            {
+                "action": "close_window",
+                "window": "settings",
+                "target": "hololens",
+                "source": HOLOLENS_COMMAND_SOURCE,
+            },
+        )
+
+        payload = json.loads(result)
+        self.assertEqual(payload["status"], "sent")
+        self.assertEqual(payload["event_type"], HOLOLENS_COMMAND_EVENT_TYPE)
+
+    def test_open_hololens_procedure_posts_command_event(self) -> None:
+        provider = MissionContextProvider(
+            ground_control_api_url="http://ground",
+            timeout_seconds=1,
+        )
+
+        with patch("llm_cli_chat.context._post_json", return_value={}) as post_json:
+            result = asyncio.run(provider.open_hololens_procedure("Cable Repair"))
+
+        post_json.assert_called_once()
+        _, command, _ = post_json.call_args.args
+        self.assertEqual(
+            command,
+            {
+                "action": "open_procedure",
+                "procedure": "Cable Repair",
+                "window": "procedures",
+                "target": "hololens",
+                "source": HOLOLENS_COMMAND_SOURCE,
+            },
+        )
+
+        payload = json.loads(result)
+        self.assertEqual(payload["status"], "sent")
+        self.assertEqual(payload["event_type"], HOLOLENS_COMMAND_EVENT_TYPE)
 
 
 if __name__ == "__main__":

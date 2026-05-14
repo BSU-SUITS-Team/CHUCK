@@ -43,7 +43,9 @@ DEFAULT_INSTRUCTION = (
     "Provide information from tool results instead of giving your own "
     "operational guidance. If the answer is not in the tool results or a "
     "listed procedure name, say you do not know. Ask clarifying questions only "
-    "when needed for safety or correctness."
+    "when needed for safety or correctness. For requests to open or close "
+    "Hololens windows or display a procedure on Hololens, call the matching "
+    "Hololens command tool and report the tool status."
 )
 
 
@@ -115,6 +117,38 @@ def build_fast_agent(
         )
         async def get_all_procedures() -> str:
             return await context_provider.fetch_all_procedures_text()
+
+        @chat_agent.tool(
+            name="open_window",
+            description=(
+                "Open a Hololens UI window by name. Valid windows are "
+                "biometrics, navigation, procedures, spectrometry, "
+                "notifications, settings, and summary_timeline."
+            ),
+        )
+        async def open_window(window_name: str) -> str:
+            return await context_provider.open_hololens_window(window_name)
+
+        @chat_agent.tool(
+            name="close_window",
+            description=(
+                "Close a Hololens UI window by name. Valid windows are "
+                "biometrics, navigation, procedures, spectrometry, "
+                "notifications, settings, and summary_timeline."
+            ),
+        )
+        async def close_window(window_name: str) -> str:
+            return await context_provider.close_hololens_window(window_name)
+
+        @chat_agent.tool(
+            name="open_procedure",
+            description=(
+                "Display a specific procedure on the Hololens by procedure "
+                "name."
+            ),
+        )
+        async def open_procedure(procedure_name: str) -> str:
+            return await context_provider.open_hololens_procedure(procedure_name)
 
     return fast
 
