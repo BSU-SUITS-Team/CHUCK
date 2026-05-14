@@ -1,3 +1,4 @@
+using System;
 using ARSIS.EventManager;
 using ARSIS.UI;
 using MixedReality.Toolkit.Experimental;
@@ -23,7 +24,7 @@ public class Procedures : MonoBehaviour, IRenderable
         changed = true;
     }
 
-    void CreateProcedureDisplay(Procedure procedure)
+    public void CreateProcedureDisplay(Procedure procedure)
     {
         GameObject display = Instantiate(procedureDisplay); // procedureDisplay prefab is active = false by default
         ProcedureDisplay view = display.GetComponent<ProcedureDisplay>();
@@ -31,9 +32,44 @@ public class Procedures : MonoBehaviour, IRenderable
         display.SetActive(true); // enable after procedure is applied
     }
 
+    public bool OpenProcedureByName(string procedureName)
+    {
+        Procedure procedure = FindProcedureByName(procedureName);
+        if (procedure == null)
+        {
+            Debug.LogWarning($"Procedures: No procedure found named '{procedureName}'.");
+            return false;
+        }
+
+        CreateProcedureDisplay(procedure);
+        return true;
+    }
+
+    private Procedure FindProcedureByName(string procedureName)
+    {
+        if (string.IsNullOrWhiteSpace(procedureName)) return null;
+
+        List<BaseArsisEvent> currentProcedures = EventDatastore.Instance.GetEvents(key);
+        foreach (BaseArsisEvent baseArsisEvent in currentProcedures)
+        {
+            if (baseArsisEvent is Procedure procedure &&
+                procedure.data != null &&
+                string.Equals(procedure.data.name, procedureName, StringComparison.OrdinalIgnoreCase))
+                return procedure;
+        }
+
+        return null;
+    }
+
     public void ShowSummaryTimeline()
     {
-        Instantiate(summaryTimeline);
+        if (summaryTimeline == null)
+        {
+            Debug.LogWarning("Procedures: summaryTimeline prefab is not assigned.");
+            return;
+        }
+
+        FloatingMenuFromPrefab.OpenOrFocus(summaryTimeline);
     }
 
     void Start()

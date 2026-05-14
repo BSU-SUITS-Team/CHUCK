@@ -34,6 +34,13 @@ namespace ARSIS.EventManager
             NotifyHandlers(key);
         }
 
+        public List<BaseArsisEvent> GetEvents(string key)
+        {
+            List<BaseArsisEvent> list;
+            InitializeOrReturn(key, out list);
+            return new List<BaseArsisEvent>(list);
+        }
+
         private void NotifyHandlers(string key)
         {
             List<BaseArsisEvent> list;

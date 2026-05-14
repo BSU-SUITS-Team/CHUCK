@@ -12,7 +12,9 @@
 		MapPinAltSolid,
 		UserGroupSolid,
 		AdjustmentsHorizontalSolid,
-		BookSolid
+		BookSolid,
+		AnnotationOutline,
+		WindowOutline
 	} from 'flowbite-svelte-icons';
 	$: activeUrl = $page.url.pathname;
 </script>
@@ -43,6 +45,20 @@
 			<SidebarItem label="Map" href="/map">
 				<svelte:fragment slot="icon">
 					<MapPinAltSolid
+						class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+					/>
+				</svelte:fragment>
+			</SidebarItem>
+			<SidebarItem label="Event Log" href="/events" active={activeUrl == '/events'}>
+				<svelte:fragment slot="icon">
+					<AnnotationOutline
+						class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+					/>
+				</svelte:fragment>
+			</SidebarItem>
+			<SidebarItem label="Windows" href="/windows" active={activeUrl == '/windows'}>
+				<svelte:fragment slot="icon">
+					<WindowOutline
 						class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
 					/>
 				</svelte:fragment>

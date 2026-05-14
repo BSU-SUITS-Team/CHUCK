@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Linq;
 
-public class Biometrics : MonoBehaviour, IRenderable
+public class Biometrics : MonoBehaviour
 {
     // Suit Resources
     [SerializeField] vertGauge2Drain battery;
@@ -40,76 +40,187 @@ public class Biometrics : MonoBehaviour, IRenderable
     [SerializeField] archGauge coolantLiquid;
     [SerializeField] vertGaugeBuild3 coolantGas;
 
+    private TSSConnectionManager Manager => TSSConnectionManager.Instance;
 
-    private Boolean changed = true;
-    private List<BaseArsisEvent> data = new();
-    private TelemetryEva evaData;
-    private string key = "telemetry";
-
-    public void Render(List<BaseArsisEvent> data)
+    private void OnEnable()
     {
-        this.data = data;
-        changed = true;
-    }
-
-    private void RetrieveEva(int eva)
-    {
-        Telemetry telemetry = (Telemetry)data.Last();
-        evaData = eva switch
+        if (Manager == null)
         {
-            2 => telemetry.data.eva2, // eva2
-            _ => telemetry.data.eva1, // default or eva1
-        };
+            Debug.LogError("Biometrics: TSSConnectionManager not found.");
+            return;
+        }
+
+        Manager.EvaUpdated += HandleEvaUpdated;
+        Manager.EvaSelectionChanged += HandleEvaUpdated;
+
+        if (Manager.EvaData != null)
+            HandleEvaUpdated(Manager.EvaData);
     }
 
-    private void UpdateGauges()
+    private void OnDisable()
     {
-        battery.currentValue = evaData.batt_time_left;
-        oxyPriSto.currentValue = evaData.oxy_pri_storage;
-        oxySecSto.currentValue = evaData.oxy_sec_storage;
-        oxyPriPre.currentValue = evaData.oxy_pri_pressure;
-        oxySecPre.currentValue = evaData.oxy_sec_pressure;
-        oxyTime.currentValue = evaData.oxy_time_left;
-        coolantSto.currentValue = evaData.coolant_ml;
-
-        heartRate.biosValue = evaData.heart_rate;
-        oxyConsump.biosValue = evaData.oxy_consumption;
-        co2Prod.biosValue = evaData.co2_production;
-        suitPreO2.biosValue = evaData.suit_pressure_oxy;
-        suitPreCO2.currentValue = evaData.suit_pressure_co2;
-        suitPreOther.currentValue = evaData.suit_pressure_other;
-        suitPreTotal.biosValue = evaData.suit_pressure_total;
-        helmPreCO2.currentValue = evaData.helmet_pressure_co2;
-
-        fanPri.currentValue = evaData.fan_pri_rpm;
-        fanSec.currentValue = evaData.fan_sec_rpm;
-
-        scrubberA.currentValue = evaData.scrubber_a_co2_storage;
-        scrubberB.currentValue = evaData.scrubber_b_co2_storage;
-
-        temperature.biosValue = evaData.temperature;
-        coolantLiquid.biosValue = evaData.coolant_liquid_pressure;
-        coolantGas.currentValue = evaData.coolant_gas_pressure;
+        if (Manager != null)
+        {
+            Manager.EvaUpdated -= HandleEvaUpdated;
+            Manager.EvaSelectionChanged -= HandleEvaUpdated;
+        }
     }
 
-    void Update()
+    private void HandleEvaUpdated(EvaRoot data)
     {
-        if (!changed || data == null || data.Count == 0) return;
-        if (data.Last() is not Telemetry) return;
-        EventManager eventManager = EventManager.Instance;
-        RetrieveEva(eventManager.Eva);
-        UpdateGauges();
+        if (data?.telemetry == null) return;
+
+        EvaSuit suit = Manager.Eva == 2
+            ? data.telemetry.eva2
+            : data.telemetry.eva1;
+
+        if (suit == null) return;
+        UpdateGauges(suit, Manager.Eva);
     }
 
-    void Start()
+    private void UpdateGauges(EvaSuit s, int evaNum)
     {
-        EventDatastore eventDatastore = EventDatastore.Instance;
-        eventDatastore.AddHandler(key, this);
-    }
+        float battValue = (evaNum == 2 && s.battery_level != 0f)
+            ? s.battery_level
+            : s.primary_battery_level;
 
-    void OnDestroy()
-    {
-        EventDatastore eventDatastore = EventDatastore.Instance;
-        eventDatastore.RemoveHandler(key, this);
+        battery.currentValue      = battValue;
+        oxyPriSto.currentValue    = s.oxy_pri_storage;
+        oxySecSto.currentValue    = s.oxy_sec_storage;
+        oxyPriPre.currentValue    = s.oxy_pri_pressure;
+        oxySecPre.currentValue    = s.oxy_sec_pressure;
+        oxyTime.currentValue      = s.eva_elapsed_time; // repurposed; no oxy_time_left in new API
+        coolantSto.currentValue   = s.coolant_storage;
+
+        heartRate.biosValue       = s.heart_rate;
+        oxyConsump.biosValue      = s.oxy_consumption;
+        co2Prod.biosValue         = s.co2_production;
+        suitPreO2.biosValue       = s.suit_pressure_oxy;
+        suitPreCO2.currentValue   = s.suit_pressure_co2;
+        suitPreOther.currentValue = s.suit_pressure_other;
+        suitPreTotal.biosValue    = s.suit_pressure_total;
+        helmPreCO2.currentValue   = s.helmet_pressure_co2;
+
+        fanPri.currentValue       = s.fan_pri_rpm;
+        fanSec.currentValue       = s.fan_sec_rpm;
+
+        scrubberA.currentValue    = s.scrubber_a_co2_storage;
+        scrubberB.currentValue    = s.scrubber_b_co2_storage;
+
+        temperature.biosValue     = s.temperature;
+        coolantLiquid.biosValue   = s.coolant_liquid_pressure;
+        coolantGas.currentValue   = s.coolant_gas_pressure;
     }
 }
+
+
+
+// Old ARSIS Biometrics code for reference; not deleted yet in case we want to revert
+
+// public class Biometrics : MonoBehaviour, IRenderable
+// {
+//     // Suit Resources
+//     [SerializeField] vertGauge2Drain battery;
+//     [SerializeField] vertGauge2Drain oxyPriSto;
+//     [SerializeField] vertGauge2Drain oxySecSto;
+//     [SerializeField] vertGauge2Drain oxyPriPre;
+//     [SerializeField] vertGauge2Drain oxySecPre;
+//     [SerializeField] vertGauge2Drain oxyTime;
+//     [SerializeField] vertGauge2Drain coolantSto;
+
+//     // Suit Atmosphere
+//     [SerializeField] archGauge heartRate;
+//     [SerializeField] archGauge oxyConsump;
+//     [SerializeField] archGauge co2Prod;
+//     [SerializeField] archGauge suitPreO2;
+//     [SerializeField] vertGaugeBuild3 suitPreCO2;
+//     [SerializeField] vertGaugeBuild3 suitPreOther;
+//     [SerializeField] archGauge suitPreTotal;
+//     [SerializeField] vertGaugeBuild3 helmPreCO2;
+
+//     // Fan
+//     [SerializeField] vertGauge2Drain fanPri;
+//     [SerializeField] vertGauge2Drain fanSec;
+
+//     // Scrubber
+//     [SerializeField] vertGaugeSplit1 scrubberA;
+//     [SerializeField] vertGaugeSplit1 scrubberB;
+
+//     // Temperature
+//     [SerializeField] archGauge temperature;
+//     [SerializeField] archGauge coolantLiquid;
+//     [SerializeField] vertGaugeBuild3 coolantGas;
+
+
+//     private Boolean changed = true;
+//     private List<BaseArsisEvent> data = new();
+//     private TelemetryEva evaData;
+//     private string key = "telemetry";
+
+//     public void Render(List<BaseArsisEvent> data)
+//     {
+//         this.data = data;
+//         changed = true;
+//     }
+
+//     private void RetrieveEva(int eva)
+//     {
+//         Telemetry telemetry = (Telemetry)data.Last();
+//         evaData = eva switch
+//         {
+//             2 => telemetry.data.eva2, // eva2
+//             _ => telemetry.data.eva1, // default or eva1
+//         };
+//     }
+
+//     private void UpdateGauges()
+//     {
+//         battery.currentValue = evaData.batt_time_left;
+//         oxyPriSto.currentValue = evaData.oxy_pri_storage;
+//         oxySecSto.currentValue = evaData.oxy_sec_storage;
+//         oxyPriPre.currentValue = evaData.oxy_pri_pressure;
+//         oxySecPre.currentValue = evaData.oxy_sec_pressure;
+//         oxyTime.currentValue = evaData.oxy_time_left;
+//         coolantSto.currentValue = evaData.coolant_ml;
+
+//         heartRate.biosValue = evaData.heart_rate;
+//         oxyConsump.biosValue = evaData.oxy_consumption;
+//         co2Prod.biosValue = evaData.co2_production;
+//         suitPreO2.biosValue = evaData.suit_pressure_oxy;
+//         suitPreCO2.currentValue = evaData.suit_pressure_co2;
+//         suitPreOther.currentValue = evaData.suit_pressure_other;
+//         suitPreTotal.biosValue = evaData.suit_pressure_total;
+//         helmPreCO2.currentValue = evaData.helmet_pressure_co2;
+
+//         fanPri.currentValue = evaData.fan_pri_rpm;
+//         fanSec.currentValue = evaData.fan_sec_rpm;
+
+//         scrubberA.currentValue = evaData.scrubber_a_co2_storage;
+//         scrubberB.currentValue = evaData.scrubber_b_co2_storage;
+
+//         temperature.biosValue = evaData.temperature;
+//         coolantLiquid.biosValue = evaData.coolant_liquid_pressure;
+//         coolantGas.currentValue = evaData.coolant_gas_pressure;
+//     }
+
+//     void Update()
+//     {
+//         if (!changed || data == null || data.Count == 0) return;
+//         if (data.Last() is not Telemetry) return;
+//         EventManager eventManager = EventManager.Instance;
+//         RetrieveEva(eventManager.Eva);
+//         UpdateGauges();
+//     }
+
+//     void Start()
+//     {
+//         EventDatastore eventDatastore = EventDatastore.Instance;
+//         eventDatastore.AddHandler(key, this);
+//     }
+
+//     void OnDestroy()
+//     {
+//         EventDatastore eventDatastore = EventDatastore.Instance;
+//         eventDatastore.RemoveHandler(key, this);
+//     }
+// }

@@ -1,3 +1,6 @@
 [submodule "Telemetry-GroundControl/TSSExtras/TSS_2024"]
 	path = Telemetry-GroundControl/TSSExtras/TSS_2024
 	url = https://github.com/BSU-SUITS-Team/TSS_2024
+[submodule "Telemetry-GroundControl/TSS2026"]
+	path = Telemetry-GroundControl/TSS2026
+	url = https://github.com/Aetheris743/TSS2026

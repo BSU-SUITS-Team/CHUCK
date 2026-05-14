@@ -24,6 +24,7 @@ namespace ARSIS.EventManager
             { "spec", typeof(Spectrometry) },
             { "notification", typeof(Notifications) },
             { "pins", typeof(Pins) },
+            { "hololens_command", typeof(HololensCommand) },
         };
 
         public string type;

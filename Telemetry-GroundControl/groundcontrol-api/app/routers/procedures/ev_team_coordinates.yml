@@ -1,0 +1,42 @@
+category: Built-In
+description: EV Team coordinates for the NASA SUITS 2025-26 Challenge Rock Yard. All
+  coordinates follow TSS units (meters) and are approximations accurate to within
+  10 meters. Exact coordinates may vary slightly during Test Week.
+duration: TBD
+name: EV Team Coordinates
+tasks:
+- description: Identify which LTV Task Board corresponds to your team's test session.
+    Two boards (Alpha and Bravo) are placed at different Rock Yard locations to support
+    concurrent team testing.
+  name: Identify Task Board Assignment
+  steps:
+  - body: "Confirm with LMCC which Task Board (Alpha or Bravo) is assigned to your\
+      \ team for Test Week."
+    type: text
+  - body: "Note: Task Board Alpha and Task Board Bravo are at separate locations within\
+      \ the Rock Yard."
+    type: text
+
+- description: Reference coordinates for key Rock Yard locations. All values are in
+    meters (TSS units).
+  name: Rock Yard Coordinates
+  steps:
+  - body: "HAB (Egress/Ingress Point) — X: -5670, Y: -10060"
+    type: text
+  - body: "LTV Task Board Alpha — X: -5635, Y: -9960"
+    type: text
+  - body: "LTV Task Board Bravo — X: -5515, Y: -9995"
+    type: text
+
+- description: Navigate to the assigned Task Board from the HAB Egress/Ingress point
+    using the confirmed coordinates.
+  name: Navigate to Task Board
+  steps:
+  - body: "EV1 and EV2 egress HAB at coordinates X: -5670, Y: -10060."
+    type: text
+  - body: "If assigned Task Board Alpha, navigate to X: -5635, Y: -9960."
+    type: text
+  - body: "If assigned Task Board Bravo, navigate to X: -5515, Y: -9995."
+    type: text
+  - body: "Notify LMCC upon arrival at assigned Task Board."
+    type: text

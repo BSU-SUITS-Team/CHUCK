@@ -83,11 +83,10 @@
 			<span class="p-8 text-center">
 				<Heading tag="h1">CHUCK</Heading>
 			</span>
-			<div>
+			<div class="min-h-0 flex-1 overflow-y-auto">
 				<Sidebar />
 			</div>
-			<div class="flex-grow" />
-			<div class="p-4">
+			<div class="p-4 shrink-0">
 				<DarkMode />
 			</div>
 		</aside>
