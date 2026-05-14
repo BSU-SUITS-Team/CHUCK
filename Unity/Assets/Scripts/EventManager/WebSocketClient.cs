@@ -2,6 +2,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using UnityEngine;
 using WebSocketSharp;
 using WebSocket = WebSocketSharp.WebSocket;
@@ -15,9 +16,22 @@ namespace ARSIS.EventManager
         private ConcurrentQueue<string> receiveQueue = new();
         private WebSocket connection;
         private readonly int delay = 1; // number of seconds to wait before reconnecting
+        private const long NanosecondsPerTick = 100L;
+        private static readonly DateTime UnixEpoch = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        private static readonly HashSet<long> SeenCommandTimes = new();
+        private static readonly object SeenCommandTimesLock = new();
+        private readonly long applicationStartTimeNs;
 
-        public WebSocketClient(string endpoint) {
+        public WebSocketClient(string endpoint) : this(endpoint, GetUnixTimeNanoseconds()) { }
+
+        public WebSocketClient(string endpoint, long applicationStartTimeNs) {
             this.endpoint = endpoint;
+            this.applicationStartTimeNs = applicationStartTimeNs;
+        }
+
+        public static long GetUnixTimeNanoseconds()
+        {
+            return (DateTime.UtcNow.Ticks - UnixEpoch.Ticks) * NanosecondsPerTick;
         }
 
         /// <summary>
@@ -47,6 +61,11 @@ namespace ARSIS.EventManager
         {
             EventDatastore eventDatastore = EventDatastore.Instance;
             BaseArsisEvent wsEvent = PerformReflection(e.Data.ToString());
+            if (wsEvent == null) return;
+
+            if (ShouldDiscardCommand(wsEvent))
+                return;
+
             Debug.Log(wsEvent);
             if (wsEvent.label != null && wsEvent.label.Length > 0)
             {
@@ -56,6 +75,31 @@ namespace ARSIS.EventManager
             {
                 eventDatastore.Append(wsEvent.type, wsEvent);
             }
+        }
+
+        private bool ShouldDiscardCommand(BaseArsisEvent wsEvent)
+        {
+            if (!(wsEvent is HololensCommand))
+                return false;
+
+            if (wsEvent.time <= applicationStartTimeNs)
+            {
+                Debug.Log($"Discarding stale {wsEvent.type} event from before app start.");
+                return true;
+            }
+
+            lock (SeenCommandTimesLock)
+            {
+                if (SeenCommandTimes.Contains(wsEvent.time))
+                {
+                    Debug.Log($"Discarding duplicate {wsEvent.type} event with time {wsEvent.time}.");
+                    return true;
+                }
+
+                SeenCommandTimes.Add(wsEvent.time);
+            }
+
+            return false;
         }
 
         public string GetStatus()

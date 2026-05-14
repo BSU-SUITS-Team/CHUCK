@@ -11,13 +11,17 @@
 		TableBodyCell,
 		TableSearch,
 		Button,
-		Toggle
+		Toggle,
+		Badge
 	} from 'flowbite-svelte';
 	import { onMount } from 'svelte';
+	import { openHololensProcedure } from '$lib/hololens';
 
 	const enableLocalStagedProcedures = false;
 
 	let searchTerm = '';
+	let sentProcedure = '';
+	let procedureSendError = '';
 	$: procedureNames = Object.keys($datastore.procedure ?? {});
 	$: filteredItems = procedureNames.filter((item) => {
 		let category = $datastore.procedure[item].category;
@@ -531,6 +535,16 @@
 		}).catch((error) => console.log(error));
 	}
 
+	async function sendProcedureToHololens(procedureName: string) {
+		procedureSendError = '';
+		try {
+			await openHololensProcedure(procedureName);
+			sentProcedure = procedureName;
+		} catch (error) {
+			procedureSendError = error instanceof Error ? error.message : String(error);
+		}
+	}
+
 	onMount(() => {
 		if (!enableLocalStagedProcedures) {
 			return;
@@ -552,11 +566,22 @@
 			<Button color="alternative" href="/new/procedure">New</Button>
 		</div>
 	</div>
+	{#if sentProcedure || procedureSendError}
+		<div class="mb-3 flex gap-2">
+			{#if sentProcedure}
+				<Badge color="green">Sent {sentProcedure} to Hololens</Badge>
+			{/if}
+			{#if procedureSendError}
+				<Badge color="red">Hololens send failed</Badge>
+			{/if}
+		</div>
+	{/if}
 	<TableSearch hoverable bind:inputValue={searchTerm}>
 		<TableHead>
 			<TableHeadCell>Procedure Name</TableHeadCell>
 			<TableHeadCell>Category</TableHeadCell>
 			<TableHeadCell>Duration</TableHeadCell>
+			<TableHeadCell>Hololens</TableHeadCell>
 		</TableHead>
 		<TableBody>
 			{#each filteredItems as prcedure}
@@ -568,6 +593,15 @@
 					>
 					<TableBodyCell>{$datastore['procedure'][prcedure]['category']}</TableBodyCell>
 					<TableBodyCell>{$datastore['procedure'][prcedure]['duration']}</TableBodyCell>
+					<TableBodyCell>
+						<Button
+							size="xs"
+							color="alternative"
+							on:click={() => sendProcedureToHololens(prcedure)}
+						>
+							Send
+						</Button>
+					</TableBodyCell>
 				</TableBodyRow>
 			{/each}
 			{#each filteredNewProcedures as proc}
@@ -575,7 +609,7 @@
 					<TableBodyCell>{proc.name}</TableBodyCell>
 					<TableBodyCell>Staged</TableBodyCell>
 					<TableBodyCell>
-						<div class="flex justify-between w-full items-center m-0">
+						<div class="flex justify-between w-full items-center m-0 gap-2">
 							<p>{proc.duration}</p>
 							<Button
 								color="dark"
@@ -586,6 +620,15 @@
 								Send Procedure
 							</Button>
 						</div>
+					</TableBodyCell>
+					<TableBodyCell>
+						<Button
+							size="xs"
+							color="alternative"
+							on:click={() => sendProcedureToHololens(proc.name)}
+						>
+							Send
+						</Button>
 					</TableBodyCell>
 				</TableBodyRow>
 			{/each}

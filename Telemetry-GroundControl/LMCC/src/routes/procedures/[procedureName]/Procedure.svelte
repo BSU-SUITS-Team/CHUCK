@@ -4,11 +4,13 @@
 	import ProcedureStep from './ProcedureStep.svelte';
 	import { datastore } from '$lib/datastore';
 	import { get, writable } from 'svelte/store';
+	import { openHololensProcedure } from '$lib/hololens';
 
 	export let name: string;
 	let editMode = false;
 	let newname = name;
 	let allSteps = [];
+	let sendStatus = '';
 	function setSteps() {
 		if (editMode) {
 			return;
@@ -51,15 +53,37 @@
 		allSteps.splice(position, 1);
 		allSteps = allSteps;
 	}
+
+	async function sendCurrentProcedureToHololens() {
+		sendStatus = '';
+		try {
+			await openHololensProcedure(name);
+			sendStatus = 'sent';
+		} catch {
+			sendStatus = 'failed';
+		}
+	}
 </script>
 
 <div class="flex justify-between">
-	<Heading tag="h2" class="mb-3">{name}</Heading>
-	{#if !editMode}
-		<Button color="none" on:click={toggleEditMode}><EditOutline /></Button>
-	{:else}
-		<Button color="alternative" on:click={toggleEditMode}>Save</Button>
-	{/if}
+	<div>
+		<Heading tag="h2" class="mb-3">{name}</Heading>
+		{#if sendStatus === 'sent'}
+			<p class="mb-3 text-sm text-green-600 dark:text-green-400">Sent to Hololens</p>
+		{:else if sendStatus === 'failed'}
+			<p class="mb-3 text-sm text-red-600 dark:text-red-400">Hololens send failed</p>
+		{/if}
+	</div>
+	<div class="flex gap-2">
+		{#if !editMode}
+			<Button color="alternative" on:click={sendCurrentProcedureToHololens}>
+				Send to Hololens
+			</Button>
+			<Button color="none" on:click={toggleEditMode}><EditOutline /></Button>
+		{:else}
+			<Button color="alternative" on:click={toggleEditMode}>Save</Button>
+		{/if}
+	</div>
 </div>
 {#if editMode}
 	<h1>Metadata</h1>
