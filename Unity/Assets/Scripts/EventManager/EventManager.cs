@@ -9,12 +9,20 @@ namespace ARSIS.EventManager
         public WebSocketClient Client { get; private set; }
         public string Endpoint { get; set; } = "ws://localhost:8181/ws/events";
         public int Eva { get; set; } = 1;
+        public long ApplicationStartTimeNs { get; private set; }
 
         [ContextMenu("Start Client")]
         public void StartClient()
         {
-            Client = new WebSocketClient(Endpoint);
+            EnsureApplicationStartTime();
+            Client = new WebSocketClient(Endpoint, ApplicationStartTimeNs);
             Client.StartClient();
+        }
+
+        private void EnsureApplicationStartTime()
+        {
+            if (ApplicationStartTimeNs == 0)
+                ApplicationStartTimeNs = WebSocketClient.GetUnixTimeNanoseconds();
         }
 
         [ContextMenu("End Client")]
@@ -25,6 +33,8 @@ namespace ARSIS.EventManager
 
         void Awake()
         {
+            EnsureApplicationStartTime();
+
             if (Instance != null && Instance != this)
             {
                 Destroy(this);
