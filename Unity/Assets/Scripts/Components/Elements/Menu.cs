@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using ARSIS.EventManager;
 using UnityEngine;
@@ -9,6 +8,8 @@ namespace ARSIS.UI
     public class Menu : MonoBehaviour, IRenderable
     {
         private const string CommandKey = "hololens_command";
+        private const string ProcedureEventKey = "procedure";
+        private const string ProcedureDisplayPrefabPath = "prefabs/Procedure";
 
         private static readonly Dictionary<string, string> WindowPrefabPaths = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -166,8 +167,12 @@ namespace ARSIS.UI
             if (WindowPrefabPaths.TryGetValue(id, out string prefabPath))
             {
                 GameObject prefab = Resources.Load<GameObject>(prefabPath);
-                if (FloatingMenuFromPrefab.Close(prefab))
+                GameObject floatingInstance = FindFloatingWindowInstance(prefab, id);
+                if (floatingInstance != null)
+                {
+                    DestroyWindowInstance(floatingInstance);
                     return;
+                }
             }
 
             Debug.LogWarning($"Menu: No open hololens window found for '{windowName}'.");
@@ -181,12 +186,47 @@ namespace ARSIS.UI
                 return null;
             }
 
-            GameObject instance = prefab.GetComponentInChildren<FloatingMenuFromPrefab>(true) != null
-                ? FloatingMenuFromPrefab.OpenOrFocus(prefab)
-                : Instantiate(prefab);
+            GameObject instance;
+            if (prefab.GetComponentInChildren<FloatingMenuFromPrefab>(true) != null)
+            {
+                FloatingMenuFromPrefab.OpenOrFocus(prefab);
+                instance = FindFloatingWindowInstance(prefab, windowId);
+            }
+            else
+            {
+                instance = Instantiate(prefab);
+            }
 
             RegisterWindowInstance(windowId, prefab, instance);
             return instance;
+        }
+
+        private GameObject FindFloatingWindowInstance(GameObject prefab, string windowId)
+        {
+            string normalizedWindowId = NormalizeWindowName(windowId);
+            string normalizedPrefabId = NormalizeWindowName(prefab != null ? prefab.name : null);
+            FloatingMenuFromPrefab[] floatingMenus = FindObjectsOfType<FloatingMenuFromPrefab>(true);
+
+            foreach (FloatingMenuFromPrefab floatingMenu in floatingMenus)
+            {
+                GameObject root = floatingMenu.transform.root.gameObject;
+                string rootId = NormalizeWindowName(RemoveCloneSuffix(root.name));
+                string menuId = NormalizeWindowName(RemoveCloneSuffix(floatingMenu.gameObject.name));
+
+                if (rootId == normalizedWindowId || rootId == normalizedPrefabId ||
+                    menuId == normalizedWindowId || menuId == normalizedPrefabId)
+                    return root;
+            }
+
+            return null;
+        }
+
+        private static string RemoveCloneSuffix(string objectName)
+        {
+            if (string.IsNullOrWhiteSpace(objectName))
+                return string.Empty;
+
+            return objectName.Replace("(Clone)", string.Empty).Trim();
         }
 
         private void DestroyWindowInstance(GameObject instance)
@@ -219,22 +259,56 @@ namespace ARSIS.UI
 
         private void OpenProcedure(string procedureName)
         {
-            OpenWindow("procedures");
-            StartCoroutine(OpenProcedureAfterWindowCreated(procedureName));
-        }
-
-        private IEnumerator OpenProcedureAfterWindowCreated(string procedureName)
-        {
-            yield return null;
-
-            Procedures procedures = FindObjectOfType<Procedures>();
-            if (procedures == null)
+            Procedure procedure = FindProcedureByName(procedureName);
+            if (procedure == null)
             {
-                Debug.LogWarning("Menu: Procedures window is not available to open a procedure.");
-                yield break;
+                Debug.LogWarning($"Menu: No procedure found named '{procedureName}'.");
+                return;
             }
 
-            procedures.OpenProcedureByName(procedureName);
+            GameObject procedureDisplayPrefab = Resources.Load<GameObject>(ProcedureDisplayPrefabPath);
+            if (procedureDisplayPrefab == null)
+            {
+                Debug.LogWarning($"Menu: Could not load procedure display prefab at Resources/{ProcedureDisplayPrefabPath}.");
+                return;
+            }
+
+            GameObject display = Instantiate(procedureDisplayPrefab);
+            ProcedureDisplay view = display.GetComponent<ProcedureDisplay>();
+            if (view == null)
+            {
+                Debug.LogWarning("Menu: Procedure display prefab has no ProcedureDisplay component.");
+                Destroy(display);
+                return;
+            }
+
+            view.SetProcedure(procedure);
+            display.SetActive(true);
+            RegisterOwnedInstance($"procedure_display:{NormalizeWindowName(procedure.data.name)}:{display.GetInstanceID()}", display);
+        }
+
+        private Procedure FindProcedureByName(string procedureName)
+        {
+            if (string.IsNullOrWhiteSpace(procedureName)) return null;
+
+            List<BaseArsisEvent> currentProcedures = EventDatastore.Instance.GetEvents(ProcedureEventKey);
+            foreach (BaseArsisEvent baseArsisEvent in currentProcedures)
+            {
+                if (baseArsisEvent is Procedure procedure &&
+                    procedure.data != null &&
+                    string.Equals(procedure.data.name, procedureName, StringComparison.OrdinalIgnoreCase))
+                    return procedure;
+            }
+
+            return null;
+        }
+
+        private void RegisterOwnedInstance(string key, GameObject instance)
+        {
+            if (instance == null || string.IsNullOrEmpty(key))
+                return;
+
+            WindowInstances[key] = instance;
         }
 
         private static string NormalizeWindowName(string windowName)
