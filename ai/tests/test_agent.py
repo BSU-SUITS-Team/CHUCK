@@ -8,8 +8,10 @@ from llm_cli_chat.agent import (
     DEFAULT_MODEL,
     OLLAMA_NO_THINK_METADATA,
     TOOL_STATUS_MESSAGE,
+    TOOL_STATUS_MESSAGES,
     build_fast_agent,
     no_thinking_request_params,
+    tool_status_message,
 )
 from llm_cli_chat.context import MissionContextProvider
 
@@ -64,6 +66,28 @@ class AgentConfigTests(unittest.TestCase):
         )
         self.assertEqual(config.default_request_params.metadata, OLLAMA_NO_THINK_METADATA)
         self.assertIn("Checking current data", TOOL_STATUS_MESSAGE)
+
+    def test_tool_status_message_matches_tool_name(self) -> None:
+        self.assertEqual(
+            tool_status_message({"tool_name": "open_window"}),
+            TOOL_STATUS_MESSAGES["open_window"],
+        )
+        self.assertEqual(
+            tool_status_message({"tool_name": "close_window"}),
+            TOOL_STATUS_MESSAGES["close_window"],
+        )
+        self.assertEqual(
+            tool_status_message({"tool_name": "open_procedure"}),
+            TOOL_STATUS_MESSAGES["open_procedure"],
+        )
+        self.assertEqual(
+            tool_status_message({"tool_name": "get_current_biometrics"}),
+            TOOL_STATUS_MESSAGES["get_current_biometrics"],
+        )
+
+    def test_tool_status_message_falls_back_for_unknown_tools(self) -> None:
+        self.assertEqual(tool_status_message({"tool_name": "unknown"}), TOOL_STATUS_MESSAGE)
+        self.assertEqual(tool_status_message({}), TOOL_STATUS_MESSAGE)
 
 
 if __name__ == "__main__":

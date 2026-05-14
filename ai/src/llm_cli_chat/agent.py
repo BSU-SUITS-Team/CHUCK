@@ -16,6 +16,14 @@ from llm_cli_chat.context import MissionContextProvider
 DEFAULT_AGENT_NAME = "assistant"
 DEFAULT_MODEL = "generic.qwen3.6:35b-a3b?reasoning=off"
 TOOL_STATUS_MESSAGE = "Checking current data...\n\n"
+TOOL_STATUS_MESSAGES = {
+    "get_current_biometrics": "Checking current biometrics...\n\n",
+    "get_procedure": "Loading procedure...\n\n",
+    "get_all_procedures": "Loading procedures...\n\n",
+    "open_window": "Opening window...\n\n",
+    "close_window": "Closing window...\n\n",
+    "open_procedure": "Opening procedure...\n\n",
+}
 OLLAMA_NO_THINK_METADATA = {
     "reasoning_effort": "none",
     "extra_body": {
@@ -163,6 +171,17 @@ def no_thinking_request_params(model: str | None) -> RequestParams | None:
     return None
 
 
+def tool_status_message(info: dict[str, Any] | None = None) -> str:
+    if not info:
+        return TOOL_STATUS_MESSAGE
+
+    tool_name = info.get("tool_name") or info.get("name")
+    if not isinstance(tool_name, str):
+        return TOOL_STATUS_MESSAGE
+
+    return TOOL_STATUS_MESSAGES.get(tool_name, TOOL_STATUS_MESSAGE)
+
+
 class FastAgentChatBackend:
     """Owns the fast-agent runtime for the lifetime of the TUI app."""
 
@@ -212,12 +231,12 @@ class FastAgentChatBackend:
 
         message = await self._build_contextual_message(message)
         agent = self._agents.get_agent(self.agent_name)
-        tool_notice_sent = False
+        tool_notice_message: str | None = None
 
         def on_tool_event(event_type: str, info: dict[str, Any] | None = None) -> None:
-            nonlocal tool_notice_sent
-            if event_type == "start":
-                tool_notice_sent = True
+            nonlocal tool_notice_message
+            if event_type == "start" and tool_notice_message is None:
+                tool_notice_message = tool_status_message(info)
 
         remove_tool_listener = None
         if agent is not None and hasattr(agent, "add_tool_stream_listener"):
@@ -230,8 +249,8 @@ class FastAgentChatBackend:
                 remove_tool_listener()
 
         response = str(result)
-        if tool_notice_sent:
-            return f"{TOOL_STATUS_MESSAGE}{response}"
+        if tool_notice_message is not None:
+            return f"{tool_notice_message}{response}"
         return response
 
     async def stream(self, message: str) -> AsyncIterator[str]:
@@ -266,7 +285,7 @@ class FastAgentChatBackend:
             if event_type != "start" or tool_notice_sent:
                 return
             tool_notice_sent = True
-            loop.call_soon_threadsafe(queue.put_nowait, TOOL_STATUS_MESSAGE)
+            loop.call_soon_threadsafe(queue.put_nowait, tool_status_message(info))
 
         remove_tool_listener = None
         if hasattr(agent, "add_tool_stream_listener"):

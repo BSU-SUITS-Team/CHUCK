@@ -70,8 +70,9 @@ Before each typed or voice prompt is sent to the model, the app fetches current 
 Current biometrics and full procedure text are fetched through model-callable
 tools. The assistant can also issue Hololens display commands through
 `GROUND_CONTROL_API_URL` to open or close windows and display a named procedure.
-When the model starts one of those tool calls, the chat output shows
-`Checking current data...` before the final answer.
+When the model starts one of those tool calls, the chat output shows a short
+status message that matches the active tool, such as `Opening window...` or
+`Checking current biometrics...`, before the final answer.
 
 If either service is unavailable, chat still works and the injected context records that source as unavailable. You can override or disable this behavior:
 
