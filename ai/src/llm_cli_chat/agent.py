@@ -20,7 +20,6 @@ OLLAMA_NO_THINK_METADATA = {
     "reasoning_effort": "none",
     "extra_body": {
         "think": False,
-        "reasoning": False,
     },
 }
 DEFAULT_INSTRUCTION = (

@@ -33,6 +33,8 @@ class AgentConfigTests(unittest.TestCase):
 
         self.assertIsNotNone(request_params)
         self.assertEqual(request_params.metadata, OLLAMA_NO_THINK_METADATA)
+        self.assertNotIn("reasoning", request_params.metadata)
+        self.assertEqual(request_params.metadata["reasoning_effort"], "none")
 
     def test_build_fast_agent_registers_mission_tools(self) -> None:
         provider = MissionContextProvider()
