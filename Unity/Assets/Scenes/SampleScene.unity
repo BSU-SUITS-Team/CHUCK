@@ -366,7 +366,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 524043166}
-  m_Father: {fileID: 778977578}
+  m_Father: {fileID: 295719404}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -424,7 +424,7 @@ Canvas:
   serializedVersion: 3
   m_RenderMode: 1
   m_Camera: {fileID: 778977579}
-  m_PlaneDistance: 0.5
+  m_PlaneDistance: 0.01
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
@@ -34194,7 +34194,7 @@ MonoBehaviour:
   endPointWorldMarkerScaleMultiplier: 100
   endPointWorldMarkerFallbackBaseScale: {x: 1, y: 1, z: 1}
   distanceTMP: {fileID: 436612935}
-  distanceUICamera: {fileID: 1155626853}
+  distanceUICamera: {fileID: 0}
   navigationVisualRoot: {fileID: 0}
   navigationMenuRaiseMeters: 0.08
   mapCoordMin: {x: -5762, y: -10076}
@@ -61811,11 +61811,6 @@ PrefabInstance:
       addedObject: {fileID: 3222259}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4d7e2f87fefe0ba468719b15288b46e7, type: 3}
---- !u!4 &778977578 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 2351505567455720332, guid: 4d7e2f87fefe0ba468719b15288b46e7, type: 3}
-  m_PrefabInstance: {fileID: 778977577}
-  m_PrefabAsset: {fileID: 0}
 --- !u!20 &778977579 stripped
 Camera:
   m_CorrespondingSourceObject: {fileID: 2351505566771328527, guid: 4d7e2f87fefe0ba468719b15288b46e7, type: 3}
@@ -81763,7 +81758,7 @@ Canvas:
   m_Enabled: 1
   serializedVersion: 3
   m_RenderMode: 1
-  m_Camera: {fileID: 1155626853}
+  m_Camera: {fileID: 0}
   m_PlaneDistance: 0.5
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
@@ -97510,11 +97505,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!20 &1155626853 stripped
-Camera:
-  m_CorrespondingSourceObject: {fileID: 2351505566771328527, guid: 4d7e2f87fefe0ba468719b15288b46e7, type: 3}
-  m_PrefabInstance: {fileID: 778977577}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1158891660
 GameObject:
   m_ObjectHideFlags: 0
@@ -171181,3 +171171,5 @@ SceneRoots:
   - {fileID: 451538878}
   - {fileID: 13196107}
   - {fileID: 993496884}
+  - {fileID: 722413638}
+  - {fileID: 1207583584}
