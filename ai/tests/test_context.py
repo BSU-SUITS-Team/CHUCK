@@ -135,6 +135,8 @@ class MissionContextTests(unittest.TestCase):
         self.assertIn("Do not call a tool when", message)
         self.assertIn("audio transcripts", message)
         self.assertIn("similar-sounding", message)
+        self.assertIn("the user is that EVA astronaut", message)
+        self.assertIn("mention only that user's EVA", message)
         self.assertIn("say you do not know", message)
         self.assertIn("Hololens command tools", message)
         self.assertTrue(message.rstrip().endswith("</user_prompt>"))

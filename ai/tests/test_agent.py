@@ -31,6 +31,8 @@ class AgentConfigTests(unittest.TestCase):
         self.assertIn("Do not call a tool when", DEFAULT_INSTRUCTION)
         self.assertIn("audio transcripts", DEFAULT_INSTRUCTION)
         self.assertIn("similar-sounding", DEFAULT_INSTRUCTION)
+        self.assertIn("the user is that EVA astronaut", DEFAULT_INSTRUCTION)
+        self.assertIn("mention only that user's EVA", DEFAULT_INSTRUCTION)
         self.assertIn("say you do not know", DEFAULT_INSTRUCTION)
         self.assertIn("Hololens command tool", DEFAULT_INSTRUCTION)
 
