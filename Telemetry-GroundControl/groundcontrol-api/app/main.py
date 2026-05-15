@@ -2,7 +2,7 @@ import asyncio
 
 from app.datastore import ds
 from app.ltv_errors import poll_ltv_error_procedures
-from app.routers import chat, hololens, logs, navigation, procedures, ws, warnings
+from app.routers import chat, hololens, logs, navigation, procedures, voice, ws, warnings
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -14,6 +14,7 @@ app.include_router(ws.router)
 app.include_router(chat.router)
 app.include_router(warnings.router)
 app.include_router(hololens.router)
+app.include_router(voice.router)
 
 
 origins = [
