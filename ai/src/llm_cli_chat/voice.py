@@ -5,7 +5,7 @@ import shutil
 import signal
 import subprocess
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from threading import Lock, RLock, Thread, current_thread
 from time import sleep
@@ -24,6 +24,7 @@ class VoiceInputConfig:
     voice_engine: str = "auto"
     whisper_model: str = "tiny.en"
     whisper_device: str = "auto"
+    audio_input_device: int | None = None
     whisper_stream_command: str = "whisper-stream"
     whisper_stream_model: Path = Path("ggml-base.en.bin")
     whisper_stream_threads: int = 8
@@ -40,6 +41,15 @@ class VoiceInputConfig:
     speech_rms_threshold: float = 0.003
     send_realtime_on_stop: bool = True
     language: str | None = None
+
+
+@dataclass(frozen=True)
+class AudioInputDevice:
+    index: int
+    name: str
+    max_input_channels: int
+    default_samplerate: float | None = None
+    is_default: bool = False
 
 
 class VoiceInputController:
@@ -115,6 +125,14 @@ class VoiceInputController:
 
         self._start_recording()
 
+    def set_audio_input_device(self, audio_input_device: int | None) -> bool:
+        with self._recording_lock:
+            if self._recording:
+                return False
+
+            self.config = replace(self.config, audio_input_device=audio_input_device)
+            return True
+
     @property
     def is_recording(self) -> bool:
         with self._recording_lock:
@@ -158,11 +176,12 @@ class VoiceInputController:
             session_id = self._session_id
 
         try:
-            import sounddevice as sd
+            sd = _load_sounddevice()
 
             stream = sd.InputStream(
                 samplerate=self.config.sample_rate,
                 channels=self.config.channels,
+                device=self.config.audio_input_device,
                 dtype="float32",
                 callback=self._audio_callback,
             )
@@ -693,6 +712,9 @@ def build_whisper_stream_command(config: VoiceInputConfig) -> list[str]:
         "--length",
         str(config.whisper_stream_length_ms),
     ]
+    if config.audio_input_device is not None:
+        command.extend(["--capture", str(config.audio_input_device)])
+
     if config.whisper_stream_keep_ms is not None and config.whisper_stream_keep_ms >= 0:
         command.extend(["--keep", str(config.whisper_stream_keep_ms)])
 
@@ -700,6 +722,86 @@ def build_whisper_stream_command(config: VoiceInputConfig) -> list[str]:
         command.extend(["--language", config.language])
 
     return command
+
+
+def list_audio_input_devices() -> list[AudioInputDevice]:
+    sd = _load_sounddevice()
+    default_index = default_audio_input_device_index(sd)
+    devices = []
+
+    for index, device in enumerate(sd.query_devices()):
+        max_input_channels = _device_int(device, "max_input_channels")
+        if max_input_channels <= 0:
+            continue
+
+        name = str(device.get("name") or f"Input device {index}")
+        samplerate = _device_float(device, "default_samplerate")
+        devices.append(
+            AudioInputDevice(
+                index=index,
+                name=name,
+                max_input_channels=max_input_channels,
+                default_samplerate=samplerate,
+                is_default=index == default_index,
+            )
+        )
+
+    return devices
+
+
+def audio_input_device_label(device: AudioInputDevice) -> str:
+    details = [f"{device.max_input_channels} ch"]
+    if device.default_samplerate is not None:
+        details.append(f"{device.default_samplerate:g} Hz")
+    if device.is_default:
+        details.append("default")
+
+    return f"{device.index}: {device.name} ({', '.join(details)})"
+
+
+def default_audio_input_device_index(sd: Any) -> int | None:
+    try:
+        default_device = sd.default.device
+    except Exception:
+        return None
+
+    if isinstance(default_device, (list, tuple)):
+        default_device = default_device[0] if default_device else None
+
+    try:
+        index = int(default_device)
+    except (TypeError, ValueError):
+        return None
+
+    return index if index >= 0 else None
+
+
+def _load_sounddevice() -> Any:
+    import sounddevice as sd
+
+    return sd
+
+
+def _device_int(device: Any, key: str) -> int:
+    try:
+        return int(device.get(key) or 0)
+    except (TypeError, ValueError, AttributeError):
+        return 0
+
+
+def _device_float(device: Any, key: str) -> float | None:
+    try:
+        value = device.get(key)
+    except AttributeError:
+        return None
+
+    if value is None:
+        return None
+
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
 
 
 def uses_cuda(model: Any) -> bool:

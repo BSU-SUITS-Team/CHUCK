@@ -123,6 +123,15 @@ def parse_args() -> argparse.Namespace:
         help="Device for Whisper. auto uses CUDA when available, otherwise CPU.",
     )
     parser.add_argument(
+        "--audio-input-device",
+        type=int,
+        default=optional_int_env("LLM_CHAT_AUDIO_INPUT_DEVICE"),
+        help=(
+            "Optional microphone/capture device ID. Voice mode also lets this "
+            "be changed from the TUI."
+        ),
+    )
+    parser.add_argument(
         "--voice-language",
         default=os.getenv("LLM_CHAT_WHISPER_LANGUAGE"),
         help="Optional spoken language hint for Whisper, for example 'en'.",
@@ -215,6 +224,7 @@ def main() -> None:
         voice_engine=args.voice_engine,
         whisper_model=args.whisper_model,
         whisper_device=args.whisper_device,
+        audio_input_device=args.audio_input_device,
         whisper_stream_command=args.whisper_stream_command,
         whisper_stream_model=args.whisper_stream_model,
         whisper_stream_threads=args.whisper_stream_threads,
@@ -253,4 +263,5 @@ def main() -> None:
         voice_enabled=args.voice,
         voice_config=voice_config,
         voice_model=voice_model,
+        voice_event_api_url=args.ground_control_api_url,
     ).run()

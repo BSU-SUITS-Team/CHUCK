@@ -14,6 +14,7 @@ dependencies = [
     "openai-whisper==20250625",
     "sounddevice>=0.5.5",
     "textual>=8.2.3",
+    "websockets>=16.0",
 ]
 
 [project.scripts]

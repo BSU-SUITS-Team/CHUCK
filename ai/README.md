@@ -92,6 +92,19 @@ uv run llm-chat --voice
 
 Press Space to start recording. While recording, the app shows a spinner and reveals a compact live transcript only after speech is recognized. Space again stops recording and sends the collected transcript to the model.
 
+Voice mode includes a microphone menu above the recorder controls. Choosing a
+device uses that microphone for subsequent recordings. You can also set an
+initial input device ID from the CLI:
+
+```bash
+uv run llm-chat --voice --audio-input-device 2
+```
+
+When voice mode is enabled, the app also listens to the Ground Control API
+event websocket derived from `--ground-control-api-url`. A
+`POST /voice/transcription/toggle` request on that API emits a voice command
+event that toggles recording in the TUI.
+
 By default, voice mode now uses the `whisper-stream` binary when it is available on `PATH` and `ggml-base.en.bin` exists in the working directory. This matches the low-repeat command:
 
 ```bash

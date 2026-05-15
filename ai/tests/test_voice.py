@@ -6,10 +6,14 @@ from pathlib import Path
 from unittest import mock
 
 from llm_cli_chat.voice import (
+    AudioInputDevice,
     VoiceInputConfig,
+    VoiceInputController,
+    audio_input_device_label,
     build_whisper_stream_command,
     clean_whisper_stream_text,
     current_whisper_stream_transcript,
+    list_audio_input_devices,
     merge_transcript_update,
     resolve_voice_engine,
     update_whisper_stream_transcript,
@@ -35,6 +39,75 @@ class VoiceHelperTests(unittest.TestCase):
                 "--length",
                 "5000",
             ],
+        )
+
+    def test_build_whisper_stream_command_includes_capture_device_when_selected(self) -> None:
+        command = build_whisper_stream_command(
+            VoiceInputConfig(
+                whisper_stream_model=Path("ggml-base.en.bin"),
+                audio_input_device=3,
+            ),
+        )
+
+        self.assertIn("--capture", command)
+        self.assertEqual(command[command.index("--capture") + 1], "3")
+
+    def test_python_recording_passes_selected_input_device_to_sounddevice(self) -> None:
+        stream = mock.Mock()
+        fake_sd = mock.Mock()
+        fake_sd.InputStream.return_value = stream
+        controller = VoiceInputController(
+            VoiceInputConfig(voice_engine="python", audio_input_device=7),
+            model=mock.Mock(),
+            on_ready=mock.Mock(),
+            on_recording_started=mock.Mock(),
+            on_realtime_transcript=mock.Mock(),
+            on_recording_stopped=mock.Mock(),
+            on_final_transcript=mock.Mock(),
+            on_error=mock.Mock(),
+        )
+
+        with mock.patch("llm_cli_chat.voice._load_sounddevice", return_value=fake_sd):
+            controller._start_python_recording()
+            controller._finish_python_recording(send_final=False, notify=False)
+
+        fake_sd.InputStream.assert_called_once()
+        self.assertEqual(fake_sd.InputStream.call_args.kwargs["device"], 7)
+
+    def test_list_audio_input_devices_filters_outputs_and_marks_default(self) -> None:
+        fake_sd = mock.Mock()
+        fake_sd.default.device = (2, 4)
+        fake_sd.query_devices.return_value = [
+            {"name": "Speaker", "max_input_channels": 0},
+            {"name": "Backup Mic", "max_input_channels": 1, "default_samplerate": 44100},
+            {"name": "Suit Mic", "max_input_channels": 2, "default_samplerate": 48000},
+        ]
+
+        with mock.patch("llm_cli_chat.voice._load_sounddevice", return_value=fake_sd):
+            devices = list_audio_input_devices()
+
+        self.assertEqual(
+            devices,
+            [
+                AudioInputDevice(
+                    index=1,
+                    name="Backup Mic",
+                    max_input_channels=1,
+                    default_samplerate=44100.0,
+                    is_default=False,
+                ),
+                AudioInputDevice(
+                    index=2,
+                    name="Suit Mic",
+                    max_input_channels=2,
+                    default_samplerate=48000.0,
+                    is_default=True,
+                ),
+            ],
+        )
+        self.assertEqual(
+            audio_input_device_label(devices[1]),
+            "2: Suit Mic (2 ch, 48000 Hz, default)",
         )
 
     def test_clean_whisper_stream_text_removes_timestamps_and_status_lines(self) -> None:
