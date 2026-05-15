@@ -909,6 +909,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3945599707560585097, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
+      propertyPath: <IsToggled>k__BackingField.active
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3945599707560585099, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
       propertyPath: m_Size.x
       value: 32
@@ -1039,27 +1043,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8762147279310951890, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
       propertyPath: Button3Pressed.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8762147279310951890, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
       propertyPath: Button3Pressed.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 7048723302844477834}
+      objectReference: {fileID: 8914096212895216375}
     - target: {fileID: 8762147279310951890, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
       propertyPath: Button3Pressed.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8762147279310951890, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
       propertyPath: Button3Pressed.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: TogglePathCapture
+      value: ActivateMRTKButton
       objectReference: {fileID: 0}
     - target: {fileID: 8762147279310951890, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
       propertyPath: Button3Pressed.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: Navigation, Assembly-CSharp
+      value: ArmbarControllable, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 8762147279310951890, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
+      propertyPath: Button3Pressed.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgument
+      value: 
+      objectReference: {fileID: 5279272636303742454}
+    - target: {fileID: 8762147279310951890, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
       propertyPath: Button3Pressed.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
-      value: UnityEngine.Object, UnityEngine
+      value: MixedReality.Toolkit.UX.PressableButton, MixedReality.Toolkit.UXCore
       objectReference: {fileID: 0}
     - target: {fileID: 8867329628179837176, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
       propertyPath: m_AnchorMax.y
@@ -1168,6 +1176,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 8867329628179837176, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
   m_PrefabInstance: {fileID: 156603166328760101}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &8914096212895216375 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8762147279310951890, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
+  m_PrefabInstance: {fileID: 156603166328760101}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 919346043493450484}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f9587d468039274db29dae018c9498b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &4430536972688294060
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1372,6 +1391,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 8376646494505211229, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
   m_PrefabInstance: {fileID: 4430536972688294060}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &5279272636303742454 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8376646494505211226, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
+  m_PrefabInstance: {fileID: 4430536972688294060}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c32e8a7644144f8419bb881ad588ed0e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &5897491472326519640
 PrefabInstance:
   m_ObjectHideFlags: 0
