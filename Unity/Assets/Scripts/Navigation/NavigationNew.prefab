@@ -1144,7 +1144,7 @@ MonoBehaviour:
   placementCameraOverride: {fileID: 0}
   yawOffsetDegrees: 180
   pitchOffsetDegrees: 0
-  followCameraWhileOpen: 1
+  followCameraWhileOpen: 0
   followUpdateIntervalSeconds: 0.05
   followRecenterDistanceMeters: 0.2
   followRecenterYawDegrees: 18
