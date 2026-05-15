@@ -128,13 +128,14 @@ MonoBehaviour:
   Button1Pressed:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1121197634055370439}
-        m_TargetAssemblyTypeName: Window, Assembly-CSharp
-        m_MethodName: Close
-        m_Mode: 1
+      - m_Target: {fileID: 8762147279310951890}
+        m_TargetAssemblyTypeName: ArmbarControllable, Assembly-CSharp
+        m_MethodName: ActivateMRTKButton
+        m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgument: {fileID: 220739245136757900}
+          m_ObjectArgumentAssemblyTypeName: MixedReality.Toolkit.UX.PressableButton,
+            MixedReality.Toolkit.UXCore
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -145,11 +146,12 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 8762147279310951890}
         m_TargetAssemblyTypeName: ArmbarControllable, Assembly-CSharp
-        m_MethodName: ToggleFollow
-        m_Mode: 1
+        m_MethodName: ActivateMRTKButton
+        m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgument: {fileID: 3945599707560585097}
+          m_ObjectArgumentAssemblyTypeName: MixedReality.Toolkit.UX.PressableButton,
+            MixedReality.Toolkit.UXCore
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -1242,6 +1244,17 @@ PrefabInstance:
       addedObject: {fileID: 8325298896569025578}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
+--- !u!114 &3945599707560585097 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8376646494505211226, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
+  m_PrefabInstance: {fileID: 4827372393230611155}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c32e8a7644144f8419bb881ad588ed0e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &3945599707560585102 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8376646494505211229, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
@@ -1436,3 +1449,14 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 8376646494505211229, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
   m_PrefabInstance: {fileID: 8588341083910197718}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &220739245136757900 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8376646494505211226, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
+  m_PrefabInstance: {fileID: 8588341083910197718}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c32e8a7644144f8419bb881ad588ed0e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
