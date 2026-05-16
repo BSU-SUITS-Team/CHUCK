@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { Chart, Card } from 'flowbite-svelte';
+	import { Card } from 'flowbite-svelte';
+	import Chart from '$lib/Chart.svelte';
 
 	export let name = 'Power Level';
 	export let status = '12.1V';
