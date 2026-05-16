@@ -121,6 +121,7 @@ public class NotificationWindowManager : MonoBehaviour, IRenderable
         }
 
         Manager.ResetAllErrors();
+        EventDatastore.Instance.ClearKey("notification");
     }
 
     // -------------------------------------------------------------------------
