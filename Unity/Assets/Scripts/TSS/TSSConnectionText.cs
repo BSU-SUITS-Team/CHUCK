@@ -13,6 +13,5 @@ public class TSSConnectionText : MonoBehaviour
     public void OpenSystemKeyboardTSS()
     {
         keyboard = TouchScreenKeyboard.Open(inputField.text, TouchScreenKeyboardType.URL, false, false, false, false);
-        //ArmbandController.Instance.SetListening(false);
     }
 }

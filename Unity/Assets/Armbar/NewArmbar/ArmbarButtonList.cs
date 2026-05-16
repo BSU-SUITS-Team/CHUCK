@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using MixedReality.Toolkit.UX;
 
+[RequireComponent(typeof(ArmbarControllable))]
 public class ArmbarButtonList : MonoBehaviour
 {
     //A list of each PressableButton in the list. Gets populated with all PressableButton children in buttonListParent on Awake.
@@ -39,7 +40,7 @@ public class ArmbarButtonList : MonoBehaviour
 
     public void PressSelectedButton()
     {
-        buttons[index].OnClicked.Invoke();
+        GetComponent<ArmbarControllable>().ActivateMRTKButton(buttons[index]);
     }
 
     private void UpdateIndicators()

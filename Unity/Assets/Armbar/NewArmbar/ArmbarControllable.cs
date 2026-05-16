@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using MixedReality.Toolkit.SpatialManipulation;
+using MixedReality.Toolkit.UX;
+using MixedReality.Toolkit;
 
 //This script goes on windows (such as the Biometrics window) to tell it what to do when a particular button is pressed
 //Typically, Button1 is used for closing the window and Button2 is used for toggling window following
@@ -36,18 +38,23 @@ public class ArmbarControllable : MonoBehaviour
         ShowHideIndicators(false);
     }
 
-    //Follow doesn't have a function to toggle it on and off, and adding our own to it wouldn't sync over GitHub as Follow is part of the MRTK library.
-    //So, this function has to be here (outside of any libraries) so we can toggle following and make sure it gets synced over GitHub.
-    public void ToggleFollow()
-    {
-        Follow follow = GetComponent<Follow>();
-        if (follow != null) follow.enabled = !follow.enabled;
-    }
-
     //Toggle whether the indicators are visible. This is called by ArmbarInputManager when the menu being controlled changes.
     public void ShowHideIndicators(bool show)
     {
         foreach(GameObject indicator in indicators) indicator.SetActive(show);
+    }
+
+    public void ActivateMRTKButton(PressableButton button)
+    {
+        if (button == null)
+            return;
+
+        StatefulInteractable interactable = button;
+
+        bool current = interactable.IsToggled;
+        interactable.ForceSetToggled(!current);
+     
+        button.OnClicked.Invoke();
     }
 
     public void InvokeButton(int i)
