@@ -34,6 +34,6 @@ public class ButtonColorToggle : MonoBehaviour
             return;
         }
 
-        image.color = state ? secondColor : firstColor;
+        image.color = state ? firstColor : secondColor;
     }
 }
