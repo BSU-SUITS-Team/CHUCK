@@ -1,0 +1,16 @@
+category: Built-In
+description: Procedure for handling off-nominal helmet CO2 pressure during EVA. Will NOT prematurely end the test.
+duration: TBD
+name: Off Nominal Helmet CO2 Pressure
+tasks:
+- description: EV helmet CO2 pressure has exceeded the nominal range
+  name: Off Nominal Helmet CO2 Pressure
+  steps:
+  - body: 1. DCU: CO2 – SEC
+    type: text
+  - body: 2. Return to PR as soon as possible
+    type: text
+  - body: 3. Start the Navigate to PR procedure
+    type: text
+  - body: 4. Start Ingress procedure upon arrival at PR
+    type: text

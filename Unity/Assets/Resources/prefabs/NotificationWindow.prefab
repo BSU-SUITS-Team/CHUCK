@@ -1607,7 +1607,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5095746839500215027, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_text
-      value: "\uF34D"
+      value: "\uF4A0"
       objectReference: {fileID: 0}
     - target: {fileID: 7216918420766221479, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_AnchorMax.y
@@ -1635,7 +1635,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7245587814888172855, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: currentIconName
-      value: Icon 76
+      value: Icon 96
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211202, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Name

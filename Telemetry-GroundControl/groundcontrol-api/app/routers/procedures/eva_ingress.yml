@@ -1,0 +1,41 @@
+category: Built-In
+description: Procedure to perform EVA Ingress
+duration: 2 mins
+name: EVA Ingress
+tasks:
+- description: Reconnect umbilical and power on suit
+  name: Connect UIA to DCU
+  steps:
+  - body: 1. UIA and DCU: EV1 connect UIA and DCU umbilical
+    type: text
+  - body: 2. UIA: EV-1 EMU PWR – ON
+    type: text
+  - body: 3. DCU: BATT – UMB
+    type: text
+- description: Vent O2 tanks
+  name: Vent O2 Tanks
+  steps:
+  - body: 4. UIA: OXYGEN O2 VENT – OPEN (Vent O2 tanks)
+    type: text
+  - body: 5. HMD: Wait until both Primary and Secondary OXY tanks are < 10 psi
+    type: text
+  - body: 6. UIA: OXYGEN O2 VENT – CLOSE
+    type: text
+- description: Empty coolant water tanks
+  name: Empty Water Tanks
+  steps:
+  - body: 7. DCU: PUMP – OPEN (Empty water tanks)
+    type: text
+  - body: 8. UIA: EV-1 WASTE WATER – OPEN
+    type: text
+  - body: 9. HMD: Wait until water EV1 Coolant tank is < 5%
+    type: text
+  - body: 10. UIA: EV-1 WASTE WATER – CLOSE
+    type: text
+- description: Power down suit and disconnect umbilical
+  name: EMU Config and Disconnect
+  steps:
+  - body: 11. UIA: EV-1 EMU PWR – OFF
+    type: text
+  - body: 12. DCU: EV-1 disconnect umbilical
+    type: text

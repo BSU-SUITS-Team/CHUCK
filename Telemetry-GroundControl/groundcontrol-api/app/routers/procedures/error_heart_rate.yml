@@ -1,0 +1,14 @@
+category: Built-In
+description: Procedure for handling off-nominal heart rate during EVA. Will NOT prematurely end the test.
+duration: TBD
+name: Off Nominal Heart Rate
+tasks:
+- description: EV heart rate has exceeded the nominal range
+  name: Off Nominal Heart Rate
+  steps:
+  - body: "1. Announce heart rate exceeds nominal range, reduce physical activity: \"Heart rate too high, slowing down temporarily\""
+    type: text
+  - body: 2. Control breathing and monitor heart rate until nominal
+    type: text
+  - body: "3. Announce when heart rate is nominal, resume activity: \"Heart rate back in range\""
+    type: text
