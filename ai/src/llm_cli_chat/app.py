@@ -13,7 +13,7 @@ from textual.app import App, ComposeResult
 from textual.containers import VerticalScroll
 from textual.widgets import Footer, Header, Input, LoadingIndicator, Select, Static
 
-from llm_cli_chat.aia_events import send_aia_message_event
+from llm_cli_chat.aia_events import AiaMessageLineSender
 from llm_cli_chat.agent import FastAgentChatBackend
 from llm_cli_chat.voice import (
     VoiceInputConfig,
@@ -229,12 +229,14 @@ class ChatApp(App[None]):
         self._log_user(prompt)
         self._status("Streaming assistant response...")
         assistant_message = self._start_assistant_message()
+        aia_message_sender = AiaMessageLineSender(self.aia_event_api_url)
         response = ""
 
         try:
             async for chunk in self.backend.stream(prompt):
                 response += chunk
                 self._update_assistant_message(assistant_message, response)
+                await self._send_aia_completed_lines(aia_message_sender, response)
         except Exception as exc:  # noqa: BLE001 - surface backend errors in the TUI.
             self._log_system(f"Agent error: {exc}")
             self._status("Error")
@@ -242,14 +244,28 @@ class ChatApp(App[None]):
             if not response:
                 self._update_assistant_message(assistant_message, "(no response)")
             else:
-                await self._send_aia_message_event(response)
+                await self._send_aia_remaining_message(aia_message_sender, response)
             self._status("Ready")
         finally:
             self._set_text_input_enabled(True)
 
-    async def _send_aia_message_event(self, message: str) -> None:
+    async def _send_aia_completed_lines(
+        self,
+        sender: AiaMessageLineSender,
+        accumulated_message: str,
+    ) -> None:
         try:
-            await send_aia_message_event(self.aia_event_api_url, message)
+            await sender.send_completed_lines(accumulated_message)
+        except Exception as exc:  # noqa: BLE001 - speaking support should not break chat.
+            self._log_system(f"Could not send AIA message event: {exc}")
+
+    async def _send_aia_remaining_message(
+        self,
+        sender: AiaMessageLineSender,
+        accumulated_message: str,
+    ) -> None:
+        try:
+            await sender.send_remaining(accumulated_message)
         except Exception as exc:  # noqa: BLE001 - speaking support should not break chat.
             self._log_system(f"Could not send AIA message event: {exc}")
 

@@ -271,24 +271,23 @@ class FastAgentChatBackend:
         message = await self._build_contextual_message(message)
         loop = asyncio.get_running_loop()
         queue: asyncio.Queue[str] = asyncio.Queue()
-        streamed = False
+        assistant_streamed = False
 
         def on_chunk(chunk: Any) -> None:
+            nonlocal assistant_streamed
             if getattr(chunk, "is_reasoning", False):
                 return
 
             text = getattr(chunk, "text", "")
             if text:
+                assistant_streamed = True
                 loop.call_soon_threadsafe(queue.put_nowait, str(text))
 
         remove_listener = agent.add_stream_listener(on_chunk)
-        tool_notice_sent = False
 
         def on_tool_event(event_type: str, info: dict[str, Any] | None = None) -> None:
-            nonlocal tool_notice_sent
-            if event_type != "start" or tool_notice_sent:
+            if event_type != "start":
                 return
-            tool_notice_sent = True
             loop.call_soon_threadsafe(queue.put_nowait, tool_status_message(info))
 
         remove_tool_listener = None
@@ -306,7 +305,6 @@ class FastAgentChatBackend:
                 except asyncio.TimeoutError:
                     continue
 
-                streamed = True
                 yield chunk
 
             response = await send_task
@@ -315,7 +313,7 @@ class FastAgentChatBackend:
             if remove_tool_listener is not None:
                 remove_tool_listener()
 
-        if not streamed and response:
+        if not assistant_streamed and response:
             yield str(response)
 
     async def _build_contextual_message(self, message: str) -> str:
