@@ -1,0 +1,14 @@
+category: Built-In
+description: Procedure for handling off-nominal temperature during EVA. Will NOT prematurely end the test.
+duration: TBD
+name: Off Nominal Temperature
+tasks:
+- description: EV temperature has exceeded the nominal range
+  name: Off Nominal Temperature
+  steps:
+  - body: "1. Announce temperature exceeds nominal range, reduce physical activity: \"Temperature too high, slowing down temporarily\""
+    type: text
+  - body: 2. Control breathing and monitor temperature values until nominal
+    type: text
+  - body: "3. Announce when temperature is nominal, resume activity: \"Temperature back in range\""
+    type: text

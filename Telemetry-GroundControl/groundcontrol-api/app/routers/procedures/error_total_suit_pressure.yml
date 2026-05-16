@@ -1,0 +1,16 @@
+category: Built-In
+description: Procedure for handling off-nominal total suit pressure during EVA. Will NOT prematurely end the test.
+duration: TBD
+name: Off Nominal Total Suit Pressure
+tasks:
+- description: EV total suit pressure is off nominal
+  name: Off Nominal Total Suit Pressure
+  steps:
+  - body: 1. Check oxygen tank pressure
+    type: text
+  - body: 2. If oxygen tank value deviates from the nominal range, perform Off Nominal Suit Oxygen Pressure procedure
+    type: text
+  - body: 3. Check CO2 scrubber value
+    type: text
+  - body: 4. If CO2 scrubber value deviates from the nominal range, perform Off Nominal Suit CO2 Pressure procedure
+    type: text

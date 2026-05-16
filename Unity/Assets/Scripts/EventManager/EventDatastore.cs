@@ -17,6 +17,13 @@ namespace ARSIS.EventManager
             NotifyAll();
         }
 
+        public void ClearKey(string key)
+        {
+            if (datastore.TryGetValue(key, out List<BaseArsisEvent> list))
+                list.Clear();
+            NotifyHandlers(key);
+        }
+
         public void RemoveHandler(string key, IRenderable handler)
         {
             List<IRenderable> components;

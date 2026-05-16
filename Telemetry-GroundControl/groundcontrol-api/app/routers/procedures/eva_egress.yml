@@ -1,0 +1,81 @@
+category: Built-In
+description: Procedure to perform EVA Egress
+duration: 7 mins
+name: EVA Egress
+tasks:
+- description: Connect UIA to DCU and initiate suit depressurization
+  name: Connect UIA to DCU and Start Depress
+  steps:
+  - body: 1. UIA and DCU: EV1 verify umbilical connection from UIA to DCU
+    type: text
+  - body: 2. UIA: EV1 - EMU PWR – ON
+    type: text
+  - body: 3. DCU: BATT – UMB
+    type: text
+  - body: 4. UIA: DEPRESS PUMP – ON
+    type: text
+- description: Fill EV1 primary and secondary O2 tanks
+  name: Prep O2 Tanks
+  steps:
+  - body: 1. UIA: OXYGEN O2 VENT – OPEN
+    type: text
+  - body: 2. HMD: Wait until both Primary and Secondary OXY tanks are < 10 psi
+    type: text
+  - body: 3. UIA: OXYGEN O2 VENT – CLOSE
+    type: text
+  - body: 4. DCU: OXY – PRI
+    type: text
+  - body: 5. UIA: OXYGEN EMU-1 – OPEN
+    type: text
+  - body: 6. HMD: Wait until EV1 Primary O2 tank > 2950 psi
+    type: text
+  - body: 7. UIA: OXYGEN EMU-1 – CLOSE
+    type: text
+  - body: 8. DCU: OXY – SEC
+    type: text
+  - body: 9. UIA: OXYGEN EMU-1 – OPEN
+    type: text
+  - body: 10. HMD: Wait until EV1 Secondary O2 tank > 2950 psi
+    type: text
+  - body: 11. UIA: OXYGEN EMU-1 – CLOSE
+    type: text
+  - body: 12. DCU: OXY – PRI
+    type: text
+- description: Fill EV1 coolant storage tank
+  name: Prep Coolant Tank
+  steps:
+  - body: 1. DCU: PUMP – OPEN (Fill water tanks)
+    type: text
+  - body: 2. UIA: EV-1 SUPPLY WATER – OPEN
+    type: text
+  - body: 3. HMD: Wait until water EV1 Coolant Storage is > 95%
+    type: text
+  - body: 4. UIA: EV-1 SUPPLY WATER – CLOSE
+    type: text
+- description: Complete depressurization, verify all switch states, and disconnect umbilical
+  name: End Depress, Check Switches and Disconnect
+  steps:
+  - body: 1. HMD: Wait until SUIT Pressure and O2 Pressure = 4
+    type: text
+  - body: 2. UIA: DEPRESS PUMP PWR – OFF
+    type: text
+  - body: 3. DCU: BATT – PRI
+    type: text
+  - body: 4. DCU: BATT – LOCAL
+    type: text
+  - body: 5. UIA: EV-1 EMU PWR – OFF
+    type: text
+  - body: 6. DCU: FAN – PRI
+    type: text
+  - body: 7. DCU: PUMP – CLOSE
+    type: text
+  - body: 8. DCU: CO2 – PRI
+    type: text
+  - body: 9. DCU: Verify OXY – PRI
+    type: text
+  - body: 10. EV-1 disconnect UIA and DCU umbilical
+    type: text
+  - body: 11. Verbally announce completion of egress
+    type: text
+  - body: 12. Begin navigation procedure
+    type: text

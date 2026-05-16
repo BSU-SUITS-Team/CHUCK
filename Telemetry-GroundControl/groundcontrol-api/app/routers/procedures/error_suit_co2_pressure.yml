@@ -1,0 +1,10 @@
+category: Built-In
+description: Procedure for handling off-nominal suit CO2 pressure during EVA. Will NOT prematurely end the test.
+duration: TBD
+name: Off Nominal Suit CO2 Pressure
+tasks:
+- description: EV suit CO2 pressure has exceeded the nominal range
+  name: Off Nominal Suit CO2 Pressure
+  steps:
+  - body: 1. If DCU CO2 – PRI, switch DCU CO2 – SEC; If DCU CO2 – SEC, switch DCU CO2 – PRI
+    type: text
