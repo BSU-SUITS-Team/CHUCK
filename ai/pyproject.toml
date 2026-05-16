@@ -1,0 +1,24 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "llm-cli-chat"
+version = "0.1.0"
+description = "A simple Textual TUI chat client backed by fast-agent."
+readme = "README.md"
+requires-python = ">=3.13.5,<3.15"
+dependencies = [
+    "fast-agent-mcp>=0.6.18",
+    "numpy>=2.4.4",
+    "openai-whisper==20250625",
+    "sounddevice>=0.5.5",
+    "textual>=8.2.3",
+    "websockets>=16.0",
+]
+
+[project.scripts]
+llm-chat = "llm_cli_chat.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/llm_cli_chat"]
