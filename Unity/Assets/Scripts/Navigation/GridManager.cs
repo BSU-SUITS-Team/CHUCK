@@ -205,6 +205,38 @@ public class GridManager : MonoBehaviour
         return c0 + u * (c3 - c0) + v * (c1 - c0);
     }
 
+    /// <summary>Rect-corner layout with fractional cell indices (for chart↔world Jacobians without integer snapping).</summary>
+    public Vector3 GridToWorldUsingRectCornersFractional(float gx, float gy, Vector3 c0, Vector3 c1, Vector3 c3)
+    {
+        FractionalCellToNormalizedMapUV(gx, gy, out float u, out float v);
+        return c0 + u * (c3 - c0) + v * (c1 - c0);
+    }
+
+    /// <summary>Fractional cell index → world on the active map (rect corners or axis layout).</summary>
+    public Vector3 GridToWorldFractional(float gx, float gy)
+    {
+        if (UsesRectCornerLayout)
+        {
+            RefreshRectWorldCorners();
+            return GridToWorldUsingRectCornersFractional(
+                gx, gy, _rectWorldCorners[0], _rectWorldCorners[1], _rectWorldCorners[3]);
+        }
+
+        Vector3 center = ActiveMapTransform.position + MapAxisX * mapCenterOffset.x + MapAxisY * mapCenterOffset.y;
+        Vector3 bottomLeft = center - MapAxisX * (mapWidth * 0.5f) - MapAxisY * (mapHeight * 0.5f);
+        return bottomLeft + MapAxisX * ((gx + 0.5f) * CellWidth) + MapAxisY * ((gy + 0.5f) * CellHeight);
+    }
+
+    private void FractionalCellToNormalizedMapUV(float gx, float gy, out float u, out float v)
+    {
+        u = (gx + 0.5f) / GridWidth;
+        v = (gy + 0.5f) / GridHeight;
+        if (UsesRectCornerLayout && mirrorRectCornerU) u = 1f - u;
+        if (UsesRectCornerLayout && mirrorRectCornerV) v = 1f - v;
+        if (flipObstacleX) u = 1f - u;
+        if (flipObstacleY) v = 1f - v;
+    }
+
     /// <summary>Copies the quad’s current world corners (same order as RectTransform.GetWorldCorners). Returns false if not using rect corner layout.</summary>
     public bool TryCopyRectWorldCorners(Vector3[] destFour)
     {
@@ -258,6 +290,33 @@ public class GridManager : MonoBehaviour
         Vector3 ex = c3 - c0;
         Vector3 ey = c1 - c0;
         return WorldToGridFromRectAxes(worldPos, c0, ex, ey);
+    }
+
+    /// <summary>Inverse of <see cref="GridToWorldUsingRectCornersFractional"/> for a point on (or near) the map quad.</summary>
+    public bool TryWorldToFractionalGridFromCorners(
+        Vector3 worldPos, Vector3 c0, Vector3 c1, Vector3 c3, out float gx, out float gy)
+    {
+        gx = 0f;
+        gy = 0f;
+        Vector3 ex = c3 - c0;
+        Vector3 ey = c1 - c0;
+        Vector3 w = worldPos - c0;
+        float a = Vector3.Dot(ex, ex);
+        float b = Vector3.Dot(ex, ey);
+        float c = Vector3.Dot(ey, ey);
+        float d = Vector3.Dot(ex, w);
+        float e = Vector3.Dot(ey, w);
+        float det = a * c - b * b;
+        if (Mathf.Abs(det) < 1e-14f)
+            return false;
+        float u = (c * d - b * e) / det;
+        float v = (a * e - b * d) / det;
+        u = Mathf.Clamp01(u);
+        v = Mathf.Clamp01(v);
+        NormalizedMapUVToCellFraction(u, v, out float uCellFrac, out float vCellFrac);
+        gx = uCellFrac * GridWidth - 0.5f;
+        gy = vCellFrac * GridHeight - 0.5f;
+        return true;
     }
 
     private Vector2Int WorldToGridFromRectAxes(Vector3 worldPos, Vector3 c0, Vector3 ex, Vector3 ey)

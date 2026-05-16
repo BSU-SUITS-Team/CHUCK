@@ -26,7 +26,7 @@ public class PathTest : MonoBehaviour
     public GridManager grid;
     public Pathfinder pathfinder;
     public Transform player;
-    [Tooltip("Optional tracked head/root transform for movement + world-arrow anchoring. If unset, falls back to player, then a live camera transform.")]
+    [Tooltip("XR Origin / rig root (floor height). Walking progress uses the rig's Camera child on device; assign this root for editor testing. Optional trackingTransformOverride wins.")]
     public Transform trackingTransformOverride;
     public Transform mapStartPoint;
     public Transform endPoint;
@@ -41,7 +41,7 @@ public class PathTest : MonoBehaviour
     [Tooltip("If the marker's authored localScale is near zero, this fallback base scale is used before applying the multiplier.")]
     public Vector3 endPointWorldMarkerFallbackBaseScale = Vector3.one;
     public TextMeshProUGUI distanceTMP;
-    [Tooltip("HoloLens / XR: assign the active scene camera (e.g. Main Camera on the rig). Player builds often lack a reliable Camera.main — without this, Screen Space Camera / some World Space canvases won’t render.")]
+    [Tooltip("HoloLens / XR: camera for distance TMP / canvas only. Do not use for path movement or floor anchor — assign PathTest.player / trackingTransformOverride for that.")]
     public Camera distanceUICamera;
     [Tooltip("Whole navigation panel / rig to lift so it sits above the floor (local Y offset, applied once on enable).")]
     public Transform navigationVisualRoot;
@@ -49,6 +49,7 @@ public class PathTest : MonoBehaviour
     public float navigationMenuRaiseMeters = 0.08f;
 
     [Header("Map coordinates (feet on chart)")]
+    [Tooltip("Start/end and path distance use these chart (floor-plan) coordinates. Walking in the room updates chart position from headset movement vs the map captured at Find Path — not from projecting your camera onto the floating map panel.")]
     public Vector2 mapCoordMin = new Vector2(-5758f, -10076f);
     public Vector2 mapCoordMax = new Vector2(-5545f, -9940f);
     public Vector2 startCoordinate = new Vector2(-5668f, -10060f);
@@ -70,6 +71,12 @@ public class PathTest : MonoBehaviour
     public float repathMinPlayerMoveMeters = 0.08f;
     public bool regenerateGridEachRepath = true;
     public int nearestWalkableSearchRadius = 20;
+    [Tooltip("How fast progress advances along the A* route from chart movement (nodes per second). Prevents erratic jumps from projecting feet onto a head-locked map.")]
+    [Min(0.25f)]
+    public float maxJourneyNodeAdvancePerSecond = 2f;
+    [Header("Debug")]
+    [Tooltip("Logs path start/end, node count, distance, and map-arrow rebuilds to the Unity Console after each repath.")]
+    public bool logPathDiagnostics;
     [Header("Distance display")]
     [Tooltip("When remaining route distance is at or below this value (feet), the UI shows destinationReachedText instead of a numeric distance.")]
     public float destinationReachedFeet = 10f;
@@ -92,6 +99,9 @@ public class PathTest : MonoBehaviour
     [Tooltip("Parent for map arrows. At play, children are under a child object named ‘MapPathArrows (runtime)’ so they’re easy to find in the hierarchy.")]
     public Transform mapArrowParent;
     public int mapArrowEveryNNodes = 4;
+    [Tooltip("Target spacing between arrows along the route polyline (feet). Shorter remaining paths spawn fewer arrows instead of packing the same count closer together.")]
+    [Min(0.5f)]
+    public float pathArrowSpacingFeet = 4f;
     [FormerlySerializedAs("arrowHeightOffset")]
     public float mapArrowHeightOffset = 0.03f;
     [Range(-180f, 180f)]
@@ -214,14 +224,40 @@ public class PathTest : MonoBehaviour
     /// <summary>Latest walkable-snapped cells; line uses these so endpoints match green/red markers.</summary>
     private Vector2Int _lineResolvedStart;
     private Vector2Int _lineResolvedEnd;
+    private Vector2Int _chartGridAtLastRepath;
+
+    /// <summary>World-space base for the red floor marker (last polyline point + arrow height). Frozen after first successful layout for <see cref="_sessionWorldGoalLockEndCell"/>; repaths only move the trail start, not this goal.</summary>
+    private Vector3 _sessionWorldGoalLockBaseWorld;
+    private bool _sessionWorldGoalLockValid;
+    private Vector2Int _sessionWorldGoalLockEndCell;
 
     private Vector3 lastPlayerWorldPos;
     private Vector2 currentCoordinate;
+    /// <summary>Chart + world rig pose at Find Path; chart updates from frozen-map inverse + offset (and horizontal world delta fallback).</summary>
+    private Vector2 _sessionChartAtMovementCalib;
+    private Vector3 _sessionTrackingWorldAtCalib;
+    private Vector2 _chartOffsetFromFrozenWorld;
+    private bool _sessionChartMovementValid;
+    /// <summary>Floor anchor at route start (Find Path); progress is arc-length along the full session floor polyline.</summary>
+    private Vector3 _sessionRouteStartFeetWorld;
+    private bool _sessionRouteStartFeetValid;
+    private readonly List<Node> _sessionFullSnapNodes = new List<Node>();
+    private readonly List<Vector3> _sessionFullWorldFloorPolyline = new List<Vector3>();
+    private bool _sessionFullRouteValid;
+    /// <summary>Unclamped arc along session floor poly / poly length — negative if you stepped past the plotted start.</summary>
+    private float _sessionRouteProgressT;
+    /// <summary>When true, next Find Path restores chart/route progress instead of resetting to <see cref="startCoordinate"/>.</summary>
+    private bool _persistNavigationProgress;
+    private Vector2 _lastMapVisualChartCoord;
+    /// <summary>Monotonic index along <see cref="_snapPathNodes"/> for distance + repath start (world polyline can shrink while chart start was stuck at session origin).</summary>
+    private int _journeyProgressIndex;
     private float repathTimer;
     private Vector3 repathAnchorWorld;
     private Vector3 navigationRootInitialLocalPos;
     private bool navigationRootBaselineStored;
     private bool distanceUiCameraWarningLogged;
+    private bool trackingTransformWarningLogged;
+    private bool orientNorthCalibWarningLogged;
     private bool endPointMarkerScaleWarningLogged;
     private Transform cachedEndPointWorldMarker;
     private Vector3 cachedEndPointWorldMarkerBaseLocalScale;
@@ -273,7 +309,20 @@ public class PathTest : MonoBehaviour
     /// </summary>
     public void CalibrateNorthFromUserFacing()
     {
-        Vector3 mapN = GetMapNorthDirectionWorldHorizontal(false);
+        if (!_worldCalibCaptured || CanRegenerateGridFromLiveMap())
+            CaptureWorldSpatialCalibration(pathSessionActive && _sessionFullRouteValid);
+        if (!_worldCalibCaptured)
+        {
+            if (!orientNorthCalibWarningLogged)
+            {
+                orientNorthCalibWarningLogged = true;
+                Debug.LogWarning(
+                    "PathTest: Orient North skipped — no spatial calibration. Open the navigation map or start Find Path first.");
+            }
+            return;
+        }
+
+        Vector3 mapN = GetMapNorthDirectionWorldHorizontal(true);
         Transform tr = ResolveTrackingTransform();
         if (tr == null)
             return;
@@ -284,22 +333,56 @@ public class PathTest : MonoBehaviour
         if (userF.sqrMagnitude < 1e-8f)
             return;
         userF.Normalize();
-        // World yaw to apply so projected map “north” matches the direction you were looking when you pressed Orient North.
+
+        Vector2 preservedChart = currentCoordinate;
+        float routeTBeforeOrient = _sessionRouteProgressT;
+
+        _sessionWorldGoalLockValid = false;
         lockedNorthYawDegrees = Vector3.SignedAngle(mapN, userF, Vector3.up);
         northOrientationLocked = true;
-        CaptureWorldSpatialCalibration();
+
+        // User is facing map north here: anchor the floor route at their feet and rebuild world layout in the new basis.
+        _sessionRouteStartFeetWorld = GetNavigationWorldPosition();
+        _sessionRouteStartFeetValid = true;
+
+        // Keep remaining distance: full snap still referenced original path start unless we clip to current progress first.
+        if (_sessionFullRouteValid && routeTBeforeOrient > 1e-4f)
+            TrimSessionFullRoutePrefixBeforeReanchor(routeTBeforeOrient);
+
+        CaptureWorldSpatialCalibration(pathSessionActive && _sessionFullRouteValid);
+
+        if (_sessionFullRouteValid)
+            RebuildSessionFullWorldFloorPolylineAndGoalLock();
 
         if (pathSessionActive)
+        {
+            currentCoordinate = preservedChart;
+
+            if (_sessionFullRouteValid && _sessionFullWorldFloorPolyline.Count >= 2)
+            {
+                Vector3 feet = GetNavigationWorldPosition();
+                float wTot = PolylineHorizontalLengthMeters(_sessionFullWorldFloorPolyline);
+                if (wTot > 1e-8f)
+                    _sessionRouteProgressT = GetHorizontalPolylineClosestArcAlongUnbounded(
+                                                 _sessionFullWorldFloorPolyline, feet)
+                                             / wTot;
+            }
+
+            _lastMapVisualChartCoord = currentCoordinate - Vector2.one * 1000f;
             ForceRepath();
+        }
     }
 
     /// <summary>Clear Orient North lock; world route yaw returns to chart-only (no locked heading).</summary>
     public void ClearNorthOrientationLock()
     {
         northOrientationLocked = false;
+        _sessionWorldGoalLockValid = false;
         if (pathSessionActive)
         {
-            CaptureWorldSpatialCalibration();
+            CaptureWorldSpatialCalibration(_sessionFullRouteValid);
+            if (_sessionFullRouteValid)
+                RebuildSessionFullWorldFloorPolylineAndGoalLock();
             ForceRepath();
         }
     }
@@ -311,18 +394,87 @@ public class PathTest : MonoBehaviour
         ApplyMapNorthReferenceVisibility();
     }
 
+    /// <summary>Chart↔world for movement integration uses calibration captured at Find Path so a head-locked map does not zero out walking deltas.</summary>
+    private bool UseSessionFrozenMapSpatial() => pathSessionActive && _worldCalibCaptured;
+
+    /// <summary>Rig root reference (mainly floor Y). Prefer <see cref="GetNavigationWorldPosition"/> for walking.</summary>
+    private Transform ResolveMovementTransform()
+    {
+        if (trackingTransformOverride != null)
+            return trackingTransformOverride;
+        if (player != null)
+            return player;
+        return ResolveTrackingTransform();
+    }
+
+    /// <summary>
+    /// World position that tracks physical walking. Uses the HMD/camera (moves on HoloLens); dragging the XR Origin in-editor
+    /// still works because the camera child moves with the rig.
+    /// </summary>
+    private Vector3 GetNavigationWorldPosition()
+    {
+        if (trackingTransformOverride != null)
+            return trackingTransformOverride.position;
+
+        Transform tracking = ResolveTrackingTransform();
+        Vector3 pos = tracking != null ? tracking.position : _worldCalibAnchor;
+        if (player != null)
+            pos.y = player.position.y;
+        return pos;
+    }
+
     private Transform ResolveTrackingTransform()
     {
         if (trackingTransformOverride != null)
             return trackingTransformOverride;
-        if (distanceUICamera != null && distanceUICamera.isActiveAndEnabled)
-            return distanceUICamera.transform;
-        if (Camera.main != null && Camera.main.isActiveAndEnabled)
-            return Camera.main.transform;
+
         if (player != null)
+        {
+            Camera childCam = player.GetComponentInChildren<Camera>(true);
+            if (childCam != null && childCam.isActiveAndEnabled)
+                return childCam.transform;
+            if (player.GetComponent<Camera>() is Camera selfCam && selfCam.isActiveAndEnabled)
+                return player;
             return player;
-        Camera cam = ResolveDistanceCanvasCamera();
-        return cam != null ? cam.transform : null;
+        }
+
+        if (Camera.main != null && Camera.main.isActiveAndEnabled && !IsLikelyNonTrackingCamera(Camera.main))
+            return Camera.main.transform;
+
+        Camera[] cams = FindObjectsOfType<Camera>();
+        Camera best = null;
+        for (int i = 0; i < cams.Length; i++)
+        {
+            Camera c = cams[i];
+            if (c == null || !c.isActiveAndEnabled || !c.gameObject.activeInHierarchy)
+                continue;
+            if (c.targetTexture != null)
+                continue;
+            if (IsLikelyNonTrackingCamera(c))
+                continue;
+            best = c;
+            break;
+        }
+
+        if (best != null)
+            return best.transform;
+
+        if (!trackingTransformWarningLogged)
+        {
+            trackingTransformWarningLogged = true;
+            Debug.LogWarning(
+                "PathTest: No tracking transform. Assign player to the XR head/camera (not a static XR Origin root), or trackingTransformOverride.");
+        }
+
+        return null;
+    }
+
+    private static bool IsLikelyNonTrackingCamera(Camera cam)
+    {
+        if (cam == null)
+            return true;
+        Canvas canvas = cam.GetComponentInParent<Canvas>();
+        return canvas != null && canvas.renderMode != RenderMode.WorldSpace;
     }
 
     /// <summary>Navigation UI (e.g. sidebar) can bind extra labels updated with the same distance text and visibility as <see cref="distanceTMP"/>.</summary>
@@ -373,26 +525,56 @@ public class PathTest : MonoBehaviour
             return;
         pathSessionActive = active;
         repathTimer = 0f;
-        Transform tracking = ResolveTrackingTransform();
-        if (tracking != null)
-            repathAnchorWorld = tracking.position;
+        if (ResolveTrackingTransform() != null || player != null || trackingTransformOverride != null)
+            repathAnchorWorld = GetNavigationWorldPosition();
         if (!active)
         {
             _suppressMapFaceVisualsWhileNavPanelClosed = false;
-            ClearPathVisualization();
+            _persistNavigationProgress = HasNavigationProgressToResume();
+            ClearPathSessionVisualsOnly();
         }
         else
         {
+            bool resume = _persistNavigationProgress;
+            _persistNavigationProgress = false;
+
             TryRefreshNavigationMapBinding();
-            if (tracking != null)
-                lastPlayerWorldPos = tracking.position;
+            if (ResolveTrackingTransform() != null || player != null || trackingTransformOverride != null)
+                lastPlayerWorldPos = GetNavigationWorldPosition();
             if (mapStartPoint != null)
                 mapStartPoint.gameObject.SetActive(true);
             if (endPoint != null)
                 endPoint.gameObject.SetActive(true);
-            CaptureWorldSpatialCalibration();
+
+            if (!resume)
+                ResetNavigationProgressState();
+            else
+                _lastMapVisualChartCoord = currentCoordinate;
+
+            CaptureWorldSpatialCalibration(resume);
             ForceRepath();
         }
+    }
+
+    private bool HasNavigationProgressToResume()
+    {
+        if (_sessionFullRouteValid && Mathf.Abs(_sessionRouteProgressT) > 1e-4f)
+            return true;
+        return Vector2.Distance(currentCoordinate, startCoordinate) > 0.5f;
+    }
+
+    private void ResetNavigationProgressState()
+    {
+        currentCoordinate = startCoordinate;
+        _sessionWorldGoalLockValid = false;
+        _journeyProgressIndex = 0;
+        _sessionChartMovementValid = false;
+        _sessionRouteStartFeetValid = false;
+        _sessionFullRouteValid = false;
+        _sessionFullSnapNodes.Clear();
+        _sessionFullWorldFloorPolyline.Clear();
+        _sessionRouteProgressT = 0f;
+        _lastMapVisualChartCoord = currentCoordinate;
     }
 
     /// <summary>Rebinds GridManager to the Navigation panel that is currently open so map markers match the menu (not the scene prefab pose).</summary>
@@ -416,11 +598,11 @@ public class PathTest : MonoBehaviour
         ForceRepath();
     }
 
-    private void ClearPathVisualization()
+    /// <summary>Hides route visuals only (Stop Path). Progress, goal lock, and full route are kept for resume.</summary>
+    private void ClearPathSessionVisualsOnly()
     {
         currentPath.Clear();
         _worldLayoutValid = false;
-        _worldCalibCaptured = false;
         _snapPathMapPoints.Clear();
         _snapPathNodes.Clear();
         _worldPathFloorPositions.Clear();
@@ -444,6 +626,15 @@ public class PathTest : MonoBehaviour
         if (endPointWorldMarker != null)
             endPointWorldMarker.gameObject.SetActive(false);
         HideOffScreenTurnCues();
+    }
+
+    /// <summary>Full reset (scene load / inactive PathTest at Start).</summary>
+    private void ClearPathVisualization()
+    {
+        ResetNavigationProgressState();
+        _worldCalibCaptured = false;
+        _persistNavigationProgress = false;
+        ClearPathSessionVisualsOnly();
     }
 
     private void OnEnable()
@@ -474,11 +665,11 @@ public class PathTest : MonoBehaviour
         }
 
         currentCoordinate = startCoordinate;
-        Transform tracking = ResolveTrackingTransform();
-        if (tracking != null)
+        if (ResolveTrackingTransform() != null || player != null)
         {
-            lastPlayerWorldPos = tracking.position;
-            repathAnchorWorld = tracking.position;
+            Vector3 navPos = GetNavigationWorldPosition();
+            lastPlayerWorldPos = navPos;
+            repathAnchorWorld = navPos;
         }
         else
         {
@@ -606,19 +797,40 @@ public class PathTest : MonoBehaviour
     private void Update()
     {
         UpdateCoordinateFromMovement();
+        if (pathSessionActive)
+            AdvanceJourneyProgress();
 
         if (!pathSessionActive)
             return;
+
+        Vector2Int chartGridNow = ChartCoordinateToGridCell(currentCoordinate);
+        if (chartGridNow != _chartGridAtLastRepath)
+        {
+            _chartGridAtLastRepath = chartGridNow;
+            repathAnchorWorld = GetNavigationWorldPosition();
+            ForceRepath();
+            repathTimer = 0f;
+        }
 
         repathTimer += Time.deltaTime;
         bool intervalElapsed = repathTimer >= Mathf.Max(0.05f, repathIntervalSeconds);
         if (intervalElapsed)
         {
             repathTimer = 0f;
-            Transform tracking = ResolveTrackingTransform();
-            if (tracking != null)
-                repathAnchorWorld = tracking.position;
-            ForceRepath();
+            if (ResolveTrackingTransform() != null || player != null || trackingTransformOverride != null)
+            {
+                Vector3 navPos = GetNavigationWorldPosition();
+                float moved = Vector3.Distance(navPos, repathAnchorWorld);
+                if (moved >= repathMinPlayerMoveMeters)
+                {
+                    repathAnchorWorld = navPos;
+                    ForceRepath();
+                }
+            }
+            else
+            {
+                ForceRepath();
+            }
         }
 
         UpdateDistanceUI();
@@ -650,12 +862,9 @@ public class PathTest : MonoBehaviour
         }
 
         SetMapVisualsVisible(true);
-        PlaceEndpointMarkers(rs, re);
+        PlaceEndpointMarkers();
+        RefreshMapRouteVisualsFromCurrentChartPosition();
         UpdateEndPointWorldMarker();
-
-        // Map arrows are parented to the moving map; pathLine is world-space and must be refreshed when it is used.
-        if (pathLine != null && pathSessionActive && showMapPathLine)
-            DrawPathLine();
 
         UpdateOffScreenTurnCues();
     }
@@ -678,7 +887,7 @@ public class PathTest : MonoBehaviour
         return grid != null && grid.ActiveMapTransform != null && grid.ActiveMapTransform.gameObject.activeInHierarchy;
     }
 
-    /// <summary>World cell → map face world position using the live map when available, otherwise the last spatial snapshot (Navigation panel closed while path is active).</summary>
+    /// <summary>Map markers, arrows, and line — always on the live map face when the panel is visible.</summary>
     private Vector3 MapWorldFromCellIndices(int xi, int yi)
     {
         if (grid == null)
@@ -692,11 +901,33 @@ public class PathTest : MonoBehaviour
         return grid.GridToWorld(xi, yi);
     }
 
+    /// <summary>Chart coordinate → world for movement deltas. Always frozen during an active session so a head-locked map does not zero out walking.</summary>
+    private Vector3 MapWorldFromCellIndicesForChartMovement(int xi, int yi)
+    {
+        if (grid == null)
+            return Vector3.zero;
+        if (UseSessionFrozenMapSpatial())
+        {
+            if (_worldCalibIsRect)
+                return grid.GridToWorldUsingRectCorners(xi, yi, _worldCalibCorner0, _worldCalibCorner1, _worldCalibCorner3);
+            return GridToWorldSnapshot(xi, yi);
+        }
+        if (!CanRegenerateGridFromLiveMap() && _worldCalibCaptured)
+        {
+            if (_worldCalibIsRect)
+                return grid.GridToWorldUsingRectCorners(xi, yi, _worldCalibCorner0, _worldCalibCorner1, _worldCalibCorner3);
+            return GridToWorldSnapshot(xi, yi);
+        }
+        return grid.GridToWorld(xi, yi);
+    }
+
     private Vector3 MapCellWorldSnapped(int xi, int yi)
     {
-        Vector3 w = MapWorldFromCellIndices(xi, yi);
+        if (grid == null)
+            return Vector3.zero;
         if (CanRegenerateGridFromLiveMap())
-            return grid.SnapOntoVisualMapFace(w);
+            return grid.SnapOntoVisualMapFace(grid.GridToWorld(xi, yi));
+        Vector3 w = MapWorldFromCellIndices(xi, yi);
         return w;
     }
 
@@ -704,7 +935,9 @@ public class PathTest : MonoBehaviour
     {
         if (grid == null)
             return Vector2Int.zero;
-        if (!CanRegenerateGridFromLiveMap() && _worldCalibCaptured)
+        if (CanRegenerateGridFromLiveMap())
+            return grid.WorldToGrid(worldPos);
+        if (_worldCalibCaptured)
         {
             if (_worldCalibIsRect)
                 return grid.WorldToGridFromCorners(worldPos, _worldCalibCorner0, _worldCalibCorner1, _worldCalibCorner3);
@@ -742,16 +975,29 @@ public class PathTest : MonoBehaviour
 
     private Vector3 ProjectOntoFrozenMapPlane(Vector3 worldPos)
     {
-        if (!_worldCalibCaptured || !_worldCalibIsRect)
+        if (!_worldCalibCaptured)
             return worldPos;
-        Vector3 c0 = _worldCalibCorner0;
-        Vector3 ex = _worldCalibCorner3 - c0;
-        Vector3 ey = _worldCalibCorner1 - c0;
-        Vector3 n = Vector3.Cross(ex, ey);
+
+        Vector3 planePoint;
+        Vector3 n = GetFrozenMapPlaneNormal(out planePoint);
         if (n.sqrMagnitude < 1e-12f)
             return worldPos;
-        n.Normalize();
-        return worldPos - Vector3.Dot(worldPos - c0, n) * n;
+        return worldPos - Vector3.Dot(worldPos - planePoint, n) * n;
+    }
+
+    private Vector3 GetFrozenMapPlaneNormal(out Vector3 planePoint)
+    {
+        if (_worldCalibIsRect)
+        {
+            Vector3 c0 = _worldCalibCorner0;
+            Vector3 ex = _worldCalibCorner3 - c0;
+            Vector3 ey = _worldCalibCorner1 - c0;
+            planePoint = c0;
+            return Vector3.Cross(ex, ey).normalized;
+        }
+
+        planePoint = _worldCalibCenter;
+        return Vector3.Cross(_worldCalibAxisX, _worldCalibAxisY).normalized;
     }
 
     private Vector3 MapFaceOutForSession()
@@ -798,26 +1044,733 @@ public class PathTest : MonoBehaviour
 
     private void UpdateCoordinateFromMovement()
     {
-        Transform tracking = ResolveTrackingTransform();
-        if (tracking == null)
-            return;
-        Vector3 delta = tracking.position - lastPlayerWorldPos;
-        lastPlayerWorldPos = tracking.position;
-        Vector3 deltaFlat = Vector3.ProjectOnPlane(delta, Vector3.up);
-        if (deltaFlat.sqrMagnitude <= Mathf.Epsilon)
+        if (grid == null || (ResolveTrackingTransform() == null && player == null && trackingTransformOverride == null))
             return;
 
-        Vector3 north = GetCalibratedChartNorthWorldHorizontal();
-        Vector3 east = Vector3.Cross(Vector3.up, north);
-        if (east.sqrMagnitude < 1e-8f)
-            east = Vector3.right;
+        Vector3 worldPos = GetNavigationWorldPosition();
+        Vector3 delta = worldPos - lastPlayerWorldPos;
+        lastPlayerWorldPos = worldPos;
+
+        // Same horizontal feet→goal model as the world floor polyline.
+        if (pathSessionActive && _sessionWorldGoalLockValid && _sessionRouteStartFeetValid
+            && SyncChartPositionFromFeetProgressAlongRoute())
+            return;
+
+        if (UseSessionFrozenMapSpatial() && _sessionChartMovementValid)
+        {
+            if (TryGetChartFromFrozenWorldPosition(worldPos, out Vector2 chartOnFrozen))
+                currentCoordinate = chartOnFrozen + _chartOffsetFromFrozenWorld;
+            else
+            {
+                Vector3 worldMotion = worldPos - _sessionTrackingWorldAtCalib;
+                Vector3 horizontalMotion = Vector3.ProjectOnPlane(worldMotion, Vector3.up);
+                currentCoordinate = ApplyWorldMotionToChart(_sessionChartAtMovementCalib, horizontalMotion);
+            }
+
+            return;
+        }
+
+        if (delta.sqrMagnitude <= Mathf.Epsilon)
+            return;
+
+        Vector3 horizontalDelta = Vector3.ProjectOnPlane(delta, Vector3.up);
+        currentCoordinate = ApplyWorldMotionToChart(currentCoordinate, horizontalDelta);
+    }
+
+    /// <summary>
+    /// Advances <see cref="currentCoordinate"/> by arc-length along the full session floor route (same parameter for map + world).
+    /// </summary>
+    private bool SyncChartPositionFromFeetProgressAlongRoute()
+    {
+        if (!_sessionFullRouteValid || _sessionFullSnapNodes.Count < 2 || _sessionFullWorldFloorPolyline.Count < 2)
+            return false;
+
+        Vector3 feet = GetNavigationWorldPosition();
+        float wTot = PolylineHorizontalLengthMeters(_sessionFullWorldFloorPolyline);
+        if (wTot < 1e-8f)
+            return false;
+
+        float arc = GetHorizontalPolylineClosestArcAlongUnbounded(_sessionFullWorldFloorPolyline, feet);
+        _sessionRouteProgressT = arc / wTot;
+
+        float chartLen = TotalChartPolylineUnits(_sessionFullSnapNodes);
+        currentCoordinate = SampleChartAtDistanceAlongNodes(_sessionFullSnapNodes, _sessionRouteProgressT * chartLen);
+        return true;
+    }
+
+    private Vector3 GetLockedWorldGoalFloorPosition()
+    {
+        Vector3 goal = _sessionWorldGoalLockBaseWorld - Vector3.up * worldArrowHeightAbovePlayer;
+        if (player != null)
+            goal.y = player.position.y;
+        return goal;
+    }
+
+    private void TryCaptureSessionFullRoute(IReadOnlyList<Vector3> mapPointsForSnap)
+    {
+        if (_sessionFullRouteValid || _snapPathNodes.Count < 5 || !_sessionWorldGoalLockValid)
+            return;
+
+        Vector2Int sessionStart = ChartCoordinateToGridCell(startCoordinate);
+        if ((sessionStart - _lineResolvedStart).sqrMagnitude > 9)
+            return;
+
+        if (!_sessionRouteStartFeetValid)
+        {
+            _sessionRouteStartFeetWorld = GetNavigationWorldPosition();
+            _sessionRouteStartFeetValid = true;
+        }
+
+        _sessionFullSnapNodes.Clear();
+        for (int i = 0; i < _snapPathNodes.Count; i++)
+            _sessionFullSnapNodes.Add(_snapPathNodes[i]);
+
+        RebuildSessionFullWorldFloorPolylineAndGoalLock(mapPointsForSnap);
+        _sessionRouteProgressT = 0f;
+    }
+
+    /// <summary>
+    /// Lays the full chart A* route on the floor using calibrated chart north (Orient North) from route-start feet to the goal.
+    /// </summary>
+    private void RebuildSessionFullWorldFloorPolylineAndGoalLock(IReadOnlyList<Vector3> mapPointsForSnap = null)
+    {
+        if (_sessionFullSnapNodes.Count < 2)
+            return;
+
+        var mapPts = new List<Vector3>(_sessionFullSnapNodes.Count);
+        if (mapPointsForSnap != null && mapPointsForSnap.Count == _sessionFullSnapNodes.Count)
+        {
+            for (int i = 0; i < mapPointsForSnap.Count; i++)
+                mapPts.Add(mapPointsForSnap[i]);
+        }
         else
-            east.Normalize();
+        {
+            for (int i = 0; i < _sessionFullSnapNodes.Count; i++)
+            {
+                Node n = _sessionFullSnapNodes[i];
+                mapPts.Add(MapCellWorldSnapped(n.x, n.y));
+            }
+        }
 
-        float eastFeet = Vector3.Dot(deltaFlat, east) * feetPerMeter;
-        float northFeet = Vector3.Dot(deltaFlat, north) * feetPerMeter;
-        currentCoordinate.x += eastFeet;
-        currentCoordinate.y += northFeet;
+        Vector3 w0 = _sessionRouteStartFeetValid
+            ? _sessionRouteStartFeetWorld
+            : GetNavigationWorldPosition();
+        Vector3 w1 = ComputeWorldGoalFloorFromSnapLayout(w0, _sessionFullSnapNodes, mapPts);
+
+        BuildStretchedWorldFloorPolyline(_sessionFullSnapNodes, mapPts, w0, w1, _sessionFullWorldFloorPolyline);
+        _sessionFullRouteValid = _sessionFullWorldFloorPolyline.Count >= 2;
+
+        if (_sessionFullRouteValid && worldRouteGoalWorld == null)
+            EstablishSessionGoalLockFromFullPolyline();
+    }
+
+    private void EstablishSessionGoalLockFromFullPolyline()
+    {
+        if (_sessionFullWorldFloorPolyline.Count < 1 || _sessionFullSnapNodes.Count < 1)
+            return;
+
+        Vector3 lockFloor = _sessionFullWorldFloorPolyline[_sessionFullWorldFloorPolyline.Count - 1];
+        _sessionWorldGoalLockBaseWorld = lockFloor + Vector3.up * worldArrowHeightAbovePlayer;
+        Node tail = _sessionFullSnapNodes[_sessionFullSnapNodes.Count - 1];
+        _sessionWorldGoalLockEndCell = new Vector2Int(tail.x, tail.y);
+        _sessionWorldGoalLockValid = true;
+    }
+
+    private Vector3 ComputeWorldGoalFloorFromSnapLayout(
+        Vector3 w0, IReadOnlyList<Node> nodes, IReadOnlyList<Vector3> mapPoints)
+    {
+        if (worldRouteGoalWorld != null)
+        {
+            Vector3 w1 = worldRouteGoalWorld.position;
+            w1.y = w0.y;
+            return w1;
+        }
+
+        var rawFlat = new List<Vector3>();
+        BuildRawFlatForWorldFloor(nodes, mapPoints, rawFlat);
+        if (rawFlat.Count == 0)
+            return w0;
+
+        float extraYaw = worldFloorUsesGridLayout
+            ? (northOrientationLocked ? 0f : worldPathYawOffsetDegrees)
+            : worldPathYawOffsetDegrees + _worldCalibNorthYawDeg;
+        if (flipWorldFloorDefaultDirection && !northOrientationLocked)
+            extraYaw += 180f;
+
+        return w0 + Quaternion.Euler(0f, extraYaw, 0f) * rawFlat[rawFlat.Count - 1];
+    }
+
+    private void BuildRawFlatForWorldFloor(
+        IReadOnlyList<Node> nodes, IReadOnlyList<Vector3> mapPoints, List<Vector3> rawFlat)
+    {
+        rawFlat.Clear();
+        if (nodes == null || nodes.Count < 1 || mapPoints == null || mapPoints.Count < 1)
+            return;
+
+        float spaceScale = Mathf.Max(0.001f, worldPathUniformSpaceScale);
+        if (worldFloorUsesGridLayout)
+        {
+            Vector3 northDir = GetCalibratedChartNorthWorldHorizontal();
+            if (northDir.sqrMagnitude < 1e-8f) northDir = Vector3.forward;
+            else northDir.Normalize();
+            Vector3 eastDir = Vector3.Cross(Vector3.up, northDir);
+            if (eastDir.sqrMagnitude < 1e-8f) eastDir = Vector3.right;
+            else eastDir.Normalize();
+
+            Node startNode = nodes[0];
+            float cellW = Mathf.Max(1e-6f, grid.CellWidth);
+            float cellH = Mathf.Max(1e-6f, grid.CellHeight);
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                Node n = nodes[i];
+                float gx = (n.x - startNode.x) * cellW * spaceScale;
+                float gy = (n.y - startNode.y) * cellH * spaceScale;
+                rawFlat.Add(eastDir * gx + northDir * gy);
+            }
+        }
+        else
+        {
+            for (int i = 0; i < mapPoints.Count; i++)
+            {
+                Vector3 d = mapPoints[i] - mapPoints[0];
+                Vector3 flat = Vector3.ProjectOnPlane(_worldCalibTiltToHorizontal * d * spaceScale, Vector3.up);
+                rawFlat.Add(flat);
+            }
+        }
+    }
+
+    private void ApplySessionRouteProgressTrimmedVisuals()
+    {
+        if (!_sessionFullRouteValid)
+            return;
+
+        _worldPathFloorPositions.Clear();
+        float wTot = PolylineHorizontalLengthMeters(_sessionFullWorldFloorPolyline);
+        AppendFloorPolylineFromArcAlongMeters(_sessionFullWorldFloorPolyline, _sessionRouteProgressT * wTot,
+            _worldPathFloorPositions);
+
+        int startIdx = GetSnapNodeIndexAtRouteProgress(_sessionFullSnapNodes, _sessionRouteProgressT);
+        _snapPathNodes.Clear();
+        _snapPathMapPoints.Clear();
+        for (int i = startIdx; i < _sessionFullSnapNodes.Count; i++)
+        {
+            Node n = _sessionFullSnapNodes[i];
+            _snapPathNodes.Add(n);
+            _snapPathMapPoints.Add(MapCellWorldSnapped(n.x, n.y));
+        }
+
+        if (_snapPathNodes.Count > 0)
+        {
+            _snapStartX = _snapPathNodes[0].x;
+            _snapStartY = _snapPathNodes[0].y;
+            _snapMapStartWorld = _snapPathMapPoints[0];
+        }
+
+        _worldLayoutValid = _worldPathFloorPositions.Count >= 1;
+    }
+
+    private int GetSnapNodeIndexAtRouteProgress(IReadOnlyList<Node> nodes, float worldProgressRatio)
+    {
+        if (nodes == null || nodes.Count == 0)
+            return 0;
+
+        float chartLen = TotalChartPolylineUnits(nodes);
+        if (chartLen < 1e-8f)
+            return 0;
+
+        Vector2 chart = SampleChartAtDistanceAlongNodes(nodes, worldProgressRatio * chartLen);
+        int best = 0;
+        float bestD = float.MaxValue;
+        for (int i = 0; i < nodes.Count; i++)
+        {
+            Vector2 c = GridCellToChartCoordinate(nodes[i].x, nodes[i].y);
+            float d = (c - chart).sqrMagnitude;
+            if (d < bestD)
+            {
+                bestD = d;
+                best = i;
+            }
+        }
+
+        return best;
+    }
+
+    /// <summary>Horizontal chart length of snapped node polyline (map/chart units).</summary>
+    private float TotalChartPolylineUnits(IReadOnlyList<Node> nodes)
+    {
+        if (nodes == null || nodes.Count < 2)
+            return 0f;
+
+        float s = 0f;
+        for (int i = 1; i < nodes.Count; i++)
+        {
+            Vector2 a = GridCellToChartCoordinate(nodes[i - 1].x, nodes[i - 1].y);
+            Vector2 b = GridCellToChartCoordinate(nodes[i].x, nodes[i].y);
+            s += Vector2.Distance(a, b);
+        }
+
+        return s;
+    }
+
+    /// <summary>Distance along chart edges of <paramref name="nodes"/> — negative extrapolates before node 0, past end extrapolates beyond last node.</summary>
+    private Vector2 SampleChartAtDistanceAlongNodes(IReadOnlyList<Node> nodes, float distanceFromStartAlongPolyline)
+    {
+        if (nodes == null || nodes.Count == 0)
+            return Vector2.zero;
+        if (nodes.Count == 1)
+            return GridCellToChartCoordinate(nodes[0].x, nodes[0].y);
+
+        Vector2 first = GridCellToChartCoordinate(nodes[0].x, nodes[0].y);
+        Vector2 second = GridCellToChartCoordinate(nodes[1].x, nodes[1].y);
+        Vector2 firstSeg = second - first;
+        float seg0Len = firstSeg.magnitude;
+
+        if (distanceFromStartAlongPolyline <= 0f)
+        {
+            if (seg0Len < 1e-8f)
+                return first;
+            return first + (firstSeg / seg0Len) * distanceFromStartAlongPolyline;
+        }
+
+        float acc = 0f;
+        Vector2 prev = first;
+        for (int i = 1; i < nodes.Count; i++)
+        {
+            Vector2 cur = GridCellToChartCoordinate(nodes[i].x, nodes[i].y);
+            float seg = Vector2.Distance(prev, cur);
+            if (acc + seg >= distanceFromStartAlongPolyline - 1e-6f)
+            {
+                float u = seg > 1e-8f ? (distanceFromStartAlongPolyline - acc) / seg : 0f;
+                return Vector2.Lerp(prev, cur, Mathf.Clamp01(u));
+            }
+
+            acc += seg;
+            prev = cur;
+        }
+
+        Vector2 cEnd = GridCellToChartCoordinate(nodes[nodes.Count - 1].x, nodes[nodes.Count - 1].y);
+        Vector2 cPrevEnd = GridCellToChartCoordinate(nodes[nodes.Count - 2].x, nodes[nodes.Count - 2].y);
+        Vector2 outbound = cEnd - cPrevEnd;
+        float outLen = outbound.magnitude;
+        if (outLen < 1e-8f)
+            return cEnd;
+        return cEnd + (outbound / outLen) * (distanceFromStartAlongPolyline - acc);
+    }
+
+    /// <summary>
+    /// Drops path-prefix nodes already traveled (by chart route progress). Used when Orient North re-anchors world feet —
+    /// otherwise rebuild still used the original chart start→goal span and snapped distance back to full length (~89 ft).
+    /// </summary>
+    private void TrimSessionFullRoutePrefixBeforeReanchor(float tPreserveWorldRatio)
+    {
+        if (!_sessionFullRouteValid || _sessionFullSnapNodes.Count < 2)
+            return;
+
+        float trimRatio = Mathf.Max(0f, tPreserveWorldRatio);
+        if (trimRatio < 1e-4f)
+            return;
+
+        int startIdx = GetSnapNodeIndexAtRouteProgress(_sessionFullSnapNodes, trimRatio);
+        if (startIdx <= 0)
+            return;
+
+        if (_sessionFullSnapNodes.Count - startIdx < 2)
+            return;
+
+        _sessionFullSnapNodes.RemoveRange(0, startIdx);
+    }
+
+    /// <summary>Closest arc length from first floor point along the polyline to <paramref name="worldPoint"/> (XZ). First segment can extend backward; last can extend past the end.</summary>
+    private static float GetHorizontalPolylineClosestArcAlongUnbounded(
+        IReadOnlyList<Vector3> polyline, Vector3 worldPoint)
+    {
+        if (polyline == null || polyline.Count < 2)
+            return 0f;
+
+        float y = worldPoint.y;
+        float bestArc = 0f;
+        float bestDistSq = float.MaxValue;
+        float walked = 0f;
+        int segCount = polyline.Count - 1;
+
+        for (int i = 0; i < segCount; i++)
+        {
+            Vector3 a = polyline[i];
+            Vector3 b = polyline[i + 1];
+            a.y = y;
+            b.y = y;
+            Vector3 ab = b - a;
+            float segLenSq = ab.x * ab.x + ab.z * ab.z;
+            float segLen = Mathf.Sqrt(segLenSq);
+            float tAlong;
+            if (segLen < 1e-8f)
+            {
+                float dSq =
+                    (worldPoint.x - a.x) * (worldPoint.x - a.x)
+                    + (worldPoint.z - a.z) * (worldPoint.z - a.z);
+                if (dSq < bestDistSq)
+                {
+                    bestDistSq = dSq;
+                    bestArc = walked;
+                }
+
+                walked += segLen;
+                continue;
+            }
+
+            tAlong =
+                Vector2.Dot(new Vector2(worldPoint.x - a.x, worldPoint.z - a.z),
+                    new Vector2(ab.x, ab.z)) / segLenSq;
+
+            bool firstSeg = i == 0;
+            bool lastSeg = i == segCount - 1;
+            if (firstSeg && lastSeg)
+            {
+                // Single segment polyline — allow extrapolation either way.
+            }
+            else if (firstSeg)
+                tAlong = Mathf.Min(1f, tAlong);
+            else if (lastSeg)
+                tAlong = Mathf.Max(0f, tAlong);
+            else
+                tAlong = Mathf.Clamp01(tAlong);
+
+            Vector3 closest = a + ab * tAlong;
+            float dSqClosest =
+                (worldPoint.x - closest.x) * (worldPoint.x - closest.x)
+                + (worldPoint.z - closest.z) * (worldPoint.z - closest.z);
+
+            if (dSqClosest < bestDistSq)
+            {
+                bestDistSq = dSqClosest;
+                bestArc = walked + tAlong * segLen;
+            }
+
+            walked += segLen;
+        }
+
+        return bestArc;
+    }
+
+    /// <summary>Remainder of floor poly from arc length <paramref name="arcAlongMeters"/> (negative extrapolates before first point).</summary>
+    private static void AppendFloorPolylineFromArcAlongMeters(IReadOnlyList<Vector3> source, float arcAlongMeters,
+        List<Vector3> dest)
+    {
+        dest.Clear();
+        if (source == null || source.Count == 0)
+            return;
+        if (source.Count == 1)
+        {
+            dest.Add(source[0]);
+            return;
+        }
+
+        float totalLen = PolylineHorizontalLengthMeters(source);
+
+        float yRef = source[0].y;
+        if (arcAlongMeters < -1e-5f)
+        {
+            Vector3 p0 = source[0];
+            Vector3 p1 = source[1];
+            p0.y = yRef;
+            p1.y = yRef;
+            Vector3 ab = p1 - p0;
+            ab.y = 0f;
+            float sl = ab.magnitude;
+            if (sl < 1e-6f)
+                dest.Add(source[0]);
+            else
+            {
+                Vector3 q = source[0] + (ab / sl) * arcAlongMeters;
+                q.y = source[0].y;
+                dest.Add(q);
+            }
+
+            for (int i = 0; i < source.Count; i++)
+                dest.Add(source[i]);
+
+            return;
+        }
+
+        if (arcAlongMeters > totalLen + 1e-5f)
+        {
+            Vector3 a = source[source.Count - 2];
+            Vector3 b = source[source.Count - 1];
+            a.y = yRef;
+            b.y = yRef;
+            Vector3 ab = b - a;
+            ab.y = 0f;
+            float sl = ab.magnitude;
+            if (sl < 1e-6f)
+            {
+                dest.Add(source[source.Count - 1]);
+                return;
+            }
+
+            Vector3 q = source[source.Count - 1] + (ab / sl) * (arcAlongMeters - totalLen);
+            q.y = source[source.Count - 1].y;
+            dest.Add(q);
+            return;
+        }
+
+        float targetLen = Mathf.Clamp(arcAlongMeters, 0f, totalLen);
+        float walkedSeg = 0f;
+        for (int i = 0; i < source.Count - 1; i++)
+        {
+            Vector3 a = source[i];
+            Vector3 b = source[i + 1];
+            Vector3 d = b - a;
+            d.y = 0f;
+            float segLen = d.magnitude;
+            if (segLen < 1e-8f)
+                continue;
+
+            if (walkedSeg + segLen >= targetLen - 1e-6f)
+            {
+                float u = Mathf.Clamp01((targetLen - walkedSeg) / segLen);
+                dest.Add(Vector3.Lerp(a, b, u));
+                for (int j = i + 1; j < source.Count; j++)
+                    dest.Add(source[j]);
+                return;
+            }
+
+            walkedSeg += segLen;
+        }
+
+        dest.Add(source[source.Count - 1]);
+    }
+
+    private static void AppendPolylineFromArcLength(
+        IReadOnlyList<Vector3> source, float t01, List<Vector3> dest)
+    {
+        dest.Clear();
+        if (source == null || source.Count == 0)
+            return;
+        if (source.Count == 1 || t01 <= 1e-6f)
+        {
+            for (int i = 0; i < source.Count; i++)
+                dest.Add(source[i]);
+            return;
+        }
+
+        t01 = Mathf.Clamp01(t01);
+        float totalLen = PolylineHorizontalLengthMeters(source);
+        if (totalLen < 1e-8f)
+        {
+            dest.Add(source[source.Count - 1]);
+            return;
+        }
+
+        float targetLen = t01 * totalLen;
+        float walked = 0f;
+        for (int i = 0; i < source.Count - 1; i++)
+        {
+            Vector3 a = source[i];
+            Vector3 b = source[i + 1];
+            Vector3 d = b - a;
+            d.y = 0f;
+            float segLen = d.magnitude;
+            if (segLen < 1e-8f)
+                continue;
+
+            if (walked + segLen >= targetLen - 1e-6f)
+            {
+                float u = Mathf.Clamp01((targetLen - walked) / segLen);
+                dest.Add(Vector3.Lerp(a, b, u));
+                for (int j = i + 1; j < source.Count; j++)
+                    dest.Add(source[j]);
+                return;
+            }
+
+            walked += segLen;
+        }
+
+        dest.Add(source[source.Count - 1]);
+    }
+
+    private void BuildStretchedWorldFloorPolyline(
+        IReadOnlyList<Node> nodes,
+        IReadOnlyList<Vector3> mapPoints,
+        Vector3 w0,
+        Vector3 w1,
+        List<Vector3> dest)
+    {
+        dest.Clear();
+        if (nodes == null || nodes.Count < 1 || mapPoints == null || mapPoints.Count < 1)
+            return;
+
+        w1.y = w0.y;
+        var rawFlat = new List<Vector3>();
+        BuildRawFlatForWorldFloor(nodes, mapPoints, rawFlat);
+
+        Vector3 target = Vector3.ProjectOnPlane(w1 - w0, Vector3.up);
+        Vector3 source = rawFlat[rawFlat.Count - 1];
+        if (source.sqrMagnitude < 1e-14f)
+        {
+            for (int i = 0; i < rawFlat.Count; i++)
+                dest.Add(w0);
+            return;
+        }
+
+        float stretch = target.magnitude / source.magnitude;
+        float spin = Vector3.SignedAngle(source, target, Vector3.up);
+        Quaternion spinQ = Quaternion.AngleAxis(spin, Vector3.up);
+        for (int i = 0; i < rawFlat.Count; i++)
+            dest.Add(w0 + spinQ * (rawFlat[i] * stretch));
+    }
+
+    private void RefreshMapRouteVisualsFromCurrentChartPosition()
+    {
+        if (!pathSessionActive || currentPath.Count < 2 || !IsMapFaceShownForVisuals())
+            return;
+
+        if ((currentCoordinate - _lastMapVisualChartCoord).sqrMagnitude < 0.01f)
+            return;
+
+        _lastMapVisualChartCoord = currentCoordinate;
+        RebuildMapArrows();
+        RebuildWorldArrows();
+        if (pathLine != null && showMapPathLine)
+            DrawPathLine();
+    }
+
+    private void RefreshSessionChartMovementOrigin()
+    {
+        _sessionChartMovementValid = false;
+        if (!UseSessionFrozenMapSpatial())
+            return;
+
+        if (ResolveTrackingTransform() == null && player == null && trackingTransformOverride == null)
+            return;
+
+        _sessionChartAtMovementCalib = currentCoordinate;
+        Vector3 navPos = GetNavigationWorldPosition();
+        _sessionTrackingWorldAtCalib = navPos;
+        if (TryGetChartFromFrozenWorldPosition(navPos, out Vector2 chartOnFrozen))
+            _chartOffsetFromFrozenWorld = currentCoordinate - chartOnFrozen;
+        else
+            _chartOffsetFromFrozenWorld = Vector2.zero;
+        _sessionChartMovementValid = true;
+    }
+
+    private bool TryGetChartFromFrozenWorldPosition(Vector3 worldPos, out Vector2 chart)
+    {
+        chart = Vector2.zero;
+        if (!_worldCalibCaptured || grid == null)
+            return false;
+
+        Vector3 onPlane = ProjectOntoFrozenMapPlane(worldPos);
+        if (_worldCalibIsRect)
+        {
+            if (!grid.TryWorldToFractionalGridFromCorners(
+                    onPlane, _worldCalibCorner0, _worldCalibCorner1, _worldCalibCorner3, out float gx, out float gy))
+                return false;
+            chart = FractionalGridToChartCoordinate(gx, gy);
+            return true;
+        }
+
+        Vector3 local = onPlane - _worldCalibCenter;
+        float cw = _worldCalibMapW / Mathf.Max(1, _worldCalibGw);
+        float ch = _worldCalibMapH / Mathf.Max(1, _worldCalibGh);
+        float gxAxis = (Vector3.Dot(local, _worldCalibAxisX) + _worldCalibMapW * 0.5f) / Mathf.Max(1e-8f, cw) - 0.5f;
+        float gyAxis = (Vector3.Dot(local, _worldCalibAxisY) + _worldCalibMapH * 0.5f) / Mathf.Max(1e-8f, ch) - 0.5f;
+        chart = FractionalGridToChartCoordinate(gxAxis, gyAxis);
+        return true;
+    }
+
+    /// <summary>Places map markers on the live map face using fractional chart UV (not integer cell centers).</summary>
+    private Vector3 GetLiveMapSurfaceWorldForChartCoordinate(Vector2 chart)
+    {
+        if (grid == null)
+            return Vector3.zero;
+
+        ChartCoordinateToFractionalGrid(chart, out float gx, out float gy);
+        Vector3 onMap = CanRegenerateGridFromLiveMap()
+            ? grid.GridToWorldFractional(gx, gy)
+            : MapWorldFromFractionalGridForChartMovement(gx, gy);
+        return CanRegenerateGridFromLiveMap() ? grid.SnapOntoVisualMapFace(onMap) : onMap;
+    }
+
+    /// <summary>Maps a world-space displacement into chart coordinates using the frozen map basis at <paramref name="originChart"/>.</summary>
+    private Vector2 ApplyWorldMotionToChart(Vector2 originChart, Vector3 worldMotion)
+    {
+        if (worldMotion.sqrMagnitude <= Mathf.Epsilon)
+            return originChart;
+
+        const float chartProbeFeet = 1f;
+        Vector3 originWorld = CoordinateToWorldContinuous(originChart);
+        Vector3 axisChartX = CoordinateToWorldContinuous(originChart + new Vector2(chartProbeFeet, 0f)) - originWorld;
+        Vector3 axisChartY = CoordinateToWorldContinuous(originChart + new Vector2(0f, chartProbeFeet)) - originWorld;
+
+        Vector2 result = originChart;
+        if (axisChartX.sqrMagnitude > 1e-10f)
+            result.x += Vector3.Dot(worldMotion, axisChartX) * chartProbeFeet / axisChartX.sqrMagnitude;
+        if (axisChartY.sqrMagnitude > 1e-10f)
+            result.y += Vector3.Dot(worldMotion, axisChartY) * chartProbeFeet / axisChartY.sqrMagnitude;
+        return result;
+    }
+
+    private int FindClosestJourneyIndex(Vector2 chartProbe)
+    {
+        if (_snapPathNodes.Count == 0)
+            return 0;
+        int best = 0;
+        float bestD = float.MaxValue;
+        for (int i = 0; i < _snapPathNodes.Count; i++)
+        {
+            Vector2 c = GridCellToChartCoordinate(_snapPathNodes[i].x, _snapPathNodes[i].y);
+            float d = (c - chartProbe).sqrMagnitude;
+            if (d < bestD)
+            {
+                bestD = d;
+                best = i;
+            }
+        }
+        return best;
+    }
+
+    /// <summary>Advance along the route from chart movement (capped rate so progress cannot teleport to the goal).</summary>
+    private void AdvanceJourneyProgress()
+    {
+        if (_snapPathNodes.Count < 2)
+            return;
+
+        int closest = FindClosestJourneyIndex(currentCoordinate);
+        if (closest <= _journeyProgressIndex)
+            return;
+
+        float toFeet = Mathf.Max(0f, chartDistanceUnitsToFeet);
+        Vector2 progressChart = GridCellToChartCoordinate(
+            _snapPathNodes[_journeyProgressIndex].x, _snapPathNodes[_journeyProgressIndex].y);
+        float chartAheadFt = Vector2.Distance(progressChart, currentCoordinate) * toFeet;
+
+        int maxByRate = Mathf.Max(1, Mathf.CeilToInt(maxJourneyNodeAdvancePerSecond * Time.deltaTime));
+        int maxByWalk = chartAheadFt >= pathArrowSpacingFeet * 0.5f
+            ? Mathf.Max(maxByRate, Mathf.CeilToInt(chartAheadFt / Mathf.Max(0.5f, pathArrowSpacingFeet)))
+            : maxByRate;
+        _journeyProgressIndex = Mathf.Min(_journeyProgressIndex + maxByWalk, closest);
+    }
+
+    private bool IsJourneyNearEnd()
+    {
+        if (_snapPathNodes.Count < 2)
+            return false;
+        return _journeyProgressIndex >= _snapPathNodes.Count - 2;
+    }
+
+    private Vector3 GetWorldPathFloorAnchor(Transform trackingOverride)
+    {
+        if (trackingOverride != null)
+        {
+            Vector3 a = trackingOverride.position;
+            if (player != null)
+                a.y = player.position.y;
+            else if (worldArrowParent != null)
+                a.y = worldArrowParent.position.y;
+            return a;
+        }
+
+        return GetNavigationWorldPosition();
     }
 
     /// <summary>
@@ -825,29 +1778,27 @@ public class PathTest : MonoBehaviour
     /// </summary>
     private void ResolveStartEndGrid(out Vector2Int resolvedStart, out Vector2Int resolvedEnd)
     {
-        Vector3 startWorld = CoordinateToWorld(currentCoordinate);
-        Vector3 endWorld = CoordinateToWorld(endCoordinate);
-        Vector2Int startGrid = WorldToGridForSession(startWorld);
-        Vector2Int endGrid = WorldToGridForSession(endWorld);
+        Vector2Int startGrid = ChartCoordinateToGridCell(currentCoordinate);
+        Vector2Int endGrid = ChartCoordinateToGridCell(endCoordinate);
         resolvedStart = grid.FindNearestWalkable(startGrid, nearestWalkableSearchRadius);
         resolvedEnd = grid.FindNearestWalkable(endGrid, nearestWalkableSearchRadius);
         _lineResolvedStart = resolvedStart;
         _lineResolvedEnd = resolvedEnd;
     }
 
-    private void PlaceEndpointMarkers(Vector2Int resolvedStart, Vector2Int resolvedEnd)
+    private void PlaceEndpointMarkers()
     {
         Vector3 lift = MapFaceLift(markerHeightOffset);
 
         if (mapStartPoint != null)
         {
-            Vector3 p = MapCellWorldSnapped(resolvedStart.x, resolvedStart.y);
+            Vector3 p = GetLiveMapSurfaceWorldForChartCoordinate(currentCoordinate);
             mapStartPoint.position = p + lift;
         }
 
         if (endPoint != null)
         {
-            Vector3 p = MapCellWorldSnapped(resolvedEnd.x, resolvedEnd.y);
+            Vector3 p = GetLiveMapSurfaceWorldForChartCoordinate(endCoordinate);
             endPoint.position = p + lift;
         }
     }
@@ -856,7 +1807,13 @@ public class PathTest : MonoBehaviour
     {
         if (endPointWorldMarker == null)
             return;
-        if (!pathSessionActive || !_worldCalibCaptured || !_worldLayoutValid)
+        if (!pathSessionActive || !_worldCalibCaptured)
+        {
+            endPointWorldMarker.gameObject.SetActive(false);
+            return;
+        }
+
+        if (!_sessionWorldGoalLockValid && !_worldLayoutValid)
         {
             endPointWorldMarker.gameObject.SetActive(false);
             return;
@@ -871,7 +1828,9 @@ public class PathTest : MonoBehaviour
         }
 
         Vector3 pos;
-        if (_worldPathFloorPositions.Count > 0)
+        if (_sessionWorldGoalLockValid)
+            pos = _sessionWorldGoalLockBaseWorld;
+        else if (_worldPathFloorPositions.Count > 0)
             pos = _worldPathFloorPositions[_worldPathFloorPositions.Count - 1] + Vector3.up * worldArrowHeightAbovePlayer;
         else if (_snapPathMapPoints.Count > 0)
             pos = WorldArrowFloorFromSnapshotMapPoint(_snapPathMapPoints[_snapPathMapPoints.Count - 1]);
@@ -912,6 +1871,9 @@ public class PathTest : MonoBehaviour
 
     private void ForceRepath()
     {
+        if (pathSessionActive && !_worldCalibCaptured)
+            CaptureWorldSpatialCalibration();
+
         if (grid.grid == null)
             grid.GenerateGrid();
         else if (regenerateGridEachRepath && CanRegenerateGridFromLiveMap())
@@ -920,11 +1882,12 @@ public class PathTest : MonoBehaviour
         if (grid.grid == null)
             return;
 
+        AdvanceJourneyProgress();
         ResolveStartEndGrid(out Vector2Int resolvedStart, out Vector2Int resolvedEnd);
         bool mapVisible = IsMapFaceShownForVisuals();
         SetMapVisualsVisible(mapVisible);
         if (mapVisible)
-            PlaceEndpointMarkers(resolvedStart, resolvedEnd);
+            PlaceEndpointMarkers();
 
         List<Node> foundPath = pathfinder.FindPath(resolvedStart, resolvedEnd);
 
@@ -938,8 +1901,11 @@ public class PathTest : MonoBehaviour
             currentPath.AddRange(foundPath);
         }
 
-        // One journey-ordered snap for map line, map arrows, and world floor (fixes mismatch when invertPathVisualizationOrder reverses currentPath).
         RefreshWorldRouteLayoutSnapshot();
+        _journeyProgressIndex = 0;
+
+        if (_snapPathNodes.Count > 0)
+            AdvanceJourneyProgress();
 
         if (mapVisible)
         {
@@ -947,6 +1913,51 @@ public class PathTest : MonoBehaviour
             RebuildMapArrows();
         }
         RebuildWorldArrows();
+        _chartGridAtLastRepath = resolvedStart;
+        LogPathDiagnostics(resolvedStart, resolvedEnd, mapVisible);
+    }
+
+    private void LogPathDiagnostics(Vector2Int resolvedStart, Vector2Int resolvedEnd, bool mapVisible)
+    {
+        if (!logPathDiagnostics)
+            return;
+
+        float distFt = GetRemainingRouteDistanceFeet();
+        float worldM = _worldLayoutValid ? PolylineHorizontalLengthMeters(_worldPathFloorPositions) : 0f;
+        float mapSurfaceM = _snapPathMapPoints.Count >= 2 ? PolylineArcLengthMeters(_snapPathMapPoints) : 0f;
+        float chartJourneyFt = 0f;
+        if (_snapPathNodes.Count >= 2)
+        {
+            float toFeet = Mathf.Max(0f, chartDistanceUnitsToFeet);
+            for (int i = 1; i < _snapPathNodes.Count; i++)
+            {
+                Vector2 a = GridCellToChartCoordinate(_snapPathNodes[i - 1].x, _snapPathNodes[i - 1].y);
+                Vector2 b = GridCellToChartCoordinate(_snapPathNodes[i].x, _snapPathNodes[i].y);
+                chartJourneyFt += Vector2.Distance(a, b) * toFeet;
+            }
+        }
+
+        float worldMotionM = 0f;
+        string moveTr = "none";
+        if (_sessionChartMovementValid)
+        {
+            Transform tr = ResolveTrackingTransform();
+            if (tr != null)
+            {
+                Vector3 navPos = GetNavigationWorldPosition();
+                worldMotionM = (navPos - _sessionTrackingWorldAtCalib).magnitude;
+                moveTr = tr.name;
+            }
+        }
+
+        Debug.Log(
+            $"[PathTest] repath chartPos={currentCoordinate} startCoord={startCoordinate} endCoord={endCoordinate} " +
+            $"grid {resolvedStart.x},{resolvedStart.y} → {resolvedEnd.x},{resolvedEnd.y} pathNodes={currentPath.Count} " +
+            $"distance={distFt:F1}ft chartJourney={chartJourneyFt:F1}ft progressIdx={_journeyProgressIndex}/{Mathf.Max(0, _snapPathNodes.Count - 1)} " +
+            $"worldPolyline={worldM * feetPerMeter:F1}ft routeT={_sessionRouteProgressT:F2} fullRoute={_sessionFullRouteValid} " +
+            $"worldMotion={worldMotionM:F2}m moveTr={moveTr} chartMove={_sessionChartMovementValid} " +
+            $"mapVisible={mapVisible} mapArrows={activeMapArrows.Count} worldArrows={activeWorldArrows.Count} goalLock={_sessionWorldGoalLockValid}",
+            this);
     }
 
     /// <summary>
@@ -962,6 +1973,39 @@ public class PathTest : MonoBehaviour
 
     private Vector3 CoordinateToWorld(Vector2 coordinate)
     {
+        ChartCoordinateToFractionalGrid(coordinate, out float gx, out float gy);
+        return MapWorldFromFractionalGridForChartMovement(gx, gy);
+    }
+
+    /// <summary>Chart → world without snapping to integer grid cells (required for movement integration).</summary>
+    private Vector3 CoordinateToWorldContinuous(Vector2 coordinate)
+    {
+        ChartCoordinateToFractionalGrid(coordinate, out float gx, out float gy);
+        return MapWorldFromFractionalGridForChartMovement(gx, gy);
+    }
+
+    private Vector2 FractionalGridToChartCoordinate(float gx, float gy)
+    {
+        float denomX = Mathf.Max(1, grid.GridWidth - 1);
+        float denomY = Mathf.Max(1, grid.GridHeight - 1);
+        float tx = gx / denomX;
+        float ty = gy / denomY;
+        if (invertCoordinateX) tx = 1f - tx;
+        if (invertCoordinateY) ty = 1f - ty;
+        tx = Mathf.Clamp01(tx);
+        ty = Mathf.Clamp01(ty);
+
+        float adjustedX = Mathf.Lerp(mapCoordMin.x, mapCoordMax.x, tx);
+        float adjustedY = Mathf.Lerp(mapCoordMin.y, mapCoordMax.y, ty);
+        Vector2 scaled = new Vector2(adjustedX, adjustedY) - coordinateOffsetFeet;
+        Vector2 invScale = new Vector2(
+            Mathf.Abs(coordinateScale.x) > 1e-8f ? 1f / coordinateScale.x : 0f,
+            Mathf.Abs(coordinateScale.y) > 1e-8f ? 1f / coordinateScale.y : 0f);
+        return coordinateScalePivot + Vector2.Scale(scaled - coordinateScalePivot, invScale);
+    }
+
+    private void ChartCoordinateToFractionalGrid(Vector2 coordinate, out float gx, out float gy)
+    {
         Vector2 scaled = coordinateScalePivot + Vector2.Scale(coordinate - coordinateScalePivot, coordinateScale);
         Vector2 adjusted = scaled + coordinateOffsetFeet;
         float tx = Mathf.InverseLerp(mapCoordMin.x, mapCoordMax.x, adjusted.x);
@@ -973,9 +2017,52 @@ public class PathTest : MonoBehaviour
         tx = Mathf.Clamp01(tx);
         ty = Mathf.Clamp01(ty);
 
-        float x = tx * (grid.GridWidth - 1);
-        float y = ty * (grid.GridHeight - 1);
-        return MapWorldFromCellIndices(Mathf.RoundToInt(x), Mathf.RoundToInt(y));
+        gx = tx * (grid.GridWidth - 1);
+        gy = ty * (grid.GridHeight - 1);
+    }
+
+    private Vector3 MapWorldFromFractionalGridForChartMovement(float gx, float gy)
+    {
+        if (grid == null)
+            return Vector3.zero;
+        if (UseSessionFrozenMapSpatial())
+        {
+            if (_worldCalibIsRect)
+                return grid.GridToWorldUsingRectCornersFractional(
+                    gx, gy, _worldCalibCorner0, _worldCalibCorner1, _worldCalibCorner3);
+            float cw = _worldCalibMapW / Mathf.Max(1, _worldCalibGw);
+            float ch = _worldCalibMapH / Mathf.Max(1, _worldCalibGh);
+            Vector3 bl = _worldCalibCenter - _worldCalibAxisX * (_worldCalibMapW * 0.5f) - _worldCalibAxisY * (_worldCalibMapH * 0.5f);
+            return bl + _worldCalibAxisX * ((gx + 0.5f) * cw) + _worldCalibAxisY * ((gy + 0.5f) * ch);
+        }
+        if (!CanRegenerateGridFromLiveMap() && _worldCalibCaptured)
+        {
+            if (_worldCalibIsRect)
+                return grid.GridToWorldUsingRectCornersFractional(
+                    gx, gy, _worldCalibCorner0, _worldCalibCorner1, _worldCalibCorner3);
+            float cw = _worldCalibMapW / Mathf.Max(1, _worldCalibGw);
+            float ch = _worldCalibMapH / Mathf.Max(1, _worldCalibGh);
+            Vector3 bl = _worldCalibCenter - _worldCalibAxisX * (_worldCalibMapW * 0.5f) - _worldCalibAxisY * (_worldCalibMapH * 0.5f);
+            return bl + _worldCalibAxisX * ((gx + 0.5f) * cw) + _worldCalibAxisY * ((gy + 0.5f) * ch);
+        }
+        return grid.GridToWorldFractional(gx, gy);
+    }
+
+    private Vector2Int ChartCoordinateToGridCell(Vector2 coordinate)
+    {
+        Vector2 scaled = coordinateScalePivot + Vector2.Scale(coordinate - coordinateScalePivot, coordinateScale);
+        Vector2 adjusted = scaled + coordinateOffsetFeet;
+        float tx = Mathf.InverseLerp(mapCoordMin.x, mapCoordMax.x, adjusted.x);
+        float ty = Mathf.InverseLerp(mapCoordMin.y, mapCoordMax.y, adjusted.y);
+        if (invertCoordinateX) tx = 1f - tx;
+        if (invertCoordinateY) ty = 1f - ty;
+        tx = Mathf.Clamp01(tx);
+        ty = Mathf.Clamp01(ty);
+        int gx = Mathf.RoundToInt(tx * (grid.GridWidth - 1));
+        int gy = Mathf.RoundToInt(ty * (grid.GridHeight - 1));
+        return new Vector2Int(
+            Mathf.Clamp(gx, 0, grid.GridWidth - 1),
+            Mathf.Clamp(gy, 0, grid.GridHeight - 1));
     }
 
     /// <summary>
@@ -1096,6 +2183,118 @@ public class PathTest : MonoBehaviour
     private static float SafeDivScale(float a, float b) =>
         Mathf.Abs(b) > 1e-8f ? a / b : a;
 
+    private static float PolylineHorizontalLengthMeters(IReadOnlyList<Vector3> points)
+    {
+        if (points == null || points.Count < 2)
+            return 0f;
+        float sum = 0f;
+        for (int i = 1; i < points.Count; i++)
+        {
+            Vector3 d = points[i] - points[i - 1];
+            d.y = 0f;
+            sum += d.magnitude;
+        }
+        return sum;
+    }
+
+    /// <summary>Full 3D length along the polyline (required for arrows on a tilted map — horizontal flattening reads ~0).</summary>
+    private static float PolylineArcLengthMeters(IReadOnlyList<Vector3> points)
+    {
+        if (points == null || points.Count < 2)
+            return 0f;
+        float sum = 0f;
+        for (int i = 1; i < points.Count; i++)
+            sum += Vector3.Distance(points[i], points[i - 1]);
+        return sum;
+    }
+
+    private static bool SamplePolylineAtDistance(
+        IReadOnlyList<Vector3> points,
+        float distanceMeters,
+        out Vector3 position,
+        out Vector3 segmentTangent)
+    {
+        position = default;
+        segmentTangent = Vector3.forward;
+        if (points == null || points.Count == 0)
+            return false;
+        if (points.Count == 1)
+        {
+            position = points[0];
+            return true;
+        }
+
+        float remaining = Mathf.Max(0f, distanceMeters);
+        for (int i = 1; i < points.Count; i++)
+        {
+            Vector3 a = points[i - 1];
+            Vector3 b = points[i];
+            Vector3 seg = b - a;
+            float segLen = seg.magnitude;
+            if (segLen < 1e-8f)
+                continue;
+            if (remaining <= segLen)
+            {
+                float t = remaining / segLen;
+                position = Vector3.Lerp(a, b, t);
+                segmentTangent = seg;
+                return true;
+            }
+            remaining -= segLen;
+        }
+
+        position = points[points.Count - 1];
+        Vector3 tail = points[points.Count - 1] - points[points.Count - 2];
+        segmentTangent = tail.sqrMagnitude > 1e-10f ? tail : Vector3.forward;
+        return true;
+    }
+
+    private static bool SamplePolylineHorizontalAtDistance(
+        IReadOnlyList<Vector3> points,
+        float distanceMeters,
+        out Vector3 position,
+        out Vector3 segmentTangent)
+    {
+        position = default;
+        segmentTangent = Vector3.forward;
+        if (points == null || points.Count == 0)
+            return false;
+        if (points.Count == 1)
+        {
+            position = points[0];
+            return true;
+        }
+
+        float remaining = Mathf.Max(0f, distanceMeters);
+        for (int i = 1; i < points.Count; i++)
+        {
+            Vector3 a = points[i - 1];
+            Vector3 b = points[i];
+            Vector3 seg = b - a;
+            seg.y = 0f;
+            float segLen = seg.magnitude;
+            if (segLen < 1e-8f)
+                continue;
+            if (remaining <= segLen)
+            {
+                float t = remaining / segLen;
+                position = Vector3.Lerp(a, b, t);
+                segmentTangent = seg;
+                return true;
+            }
+            remaining -= segLen;
+        }
+
+        position = points[points.Count - 1];
+        Vector3 tail = points[points.Count - 1] - points[points.Count - 2];
+        tail.y = 0f;
+        segmentTangent = tail.sqrMagnitude > 1e-10f ? tail : Vector3.forward;
+        return true;
+    }
+
+    private float PathArrowSpacingMeters() =>
+        Mathf.Max(0.5f, pathArrowSpacingFeet) / Mathf.Max(0.01f, feetPerMeter);
+
     private void RebuildMapArrows()
     {
         DestroyArrowList(activeMapArrows);
@@ -1103,54 +2302,142 @@ public class PathTest : MonoBehaviour
         if (mapArrowPrefab == null || currentPath.Count < 2 || grid == null || !IsMapFaceShownForVisuals())
             return;
 
-        bool useJourneySnap = _snapPathNodes.Count == currentPath.Count
-            && _snapPathMapPoints.Count == _snapPathNodes.Count
-            && _snapPathNodes.Count >= 2;
-
+        bool useJourneySnap = _snapPathNodes.Count == currentPath.Count && _snapPathNodes.Count >= 2;
         Transform parent = EnsureMapArrowsRuntimeRoot();
-        int step = Mathf.Max(1, mapArrowEveryNNodes);
         float arrowAmount = mapArrowHeightOffset >= 0f ? mapArrowHeightOffset : lineHeightOffset;
         Vector3 arrowLift = MapFaceLift(arrowAmount);
         Vector3 faceNormal = MapFaceOutForSession();
 
-        int pathCount = useJourneySnap ? _snapPathNodes.Count : currentPath.Count;
-        for (int i = 0; i < pathCount - 1; i += step)
+        if (useJourneySnap)
         {
-            Node current = useJourneySnap ? _snapPathNodes[i] : GetCurrentPathNodeJourneyOrder(i);
-            int nextIdx = Mathf.Min(i + 1, pathCount - 1);
-            Node next = useJourneySnap ? _snapPathNodes[nextIdx] : GetCurrentPathNodeJourneyOrder(nextIdx);
+            if (SpawnMapArrowsAlongChartJourney(_snapPathNodes, parent, arrowLift, faceNormal) > 0)
+            {
+                _lastMapVisualChartCoord = currentCoordinate;
+                return;
+            }
+        }
 
-            Vector3 currentPos = useJourneySnap
-                ? _snapPathMapPoints[i]
-                : MapCellWorldSnapped(current.x, current.y);
-            Vector3 nextPos = useJourneySnap
-                ? _snapPathMapPoints[nextIdx]
-                : MapCellWorldSnapped(next.x, next.y);
-            Vector3 direction = (nextPos - currentPos).normalized;
+        var nodes = new List<Node>(currentPath.Count);
+        for (int i = 0; i < currentPath.Count; i++)
+            nodes.Add(GetCurrentPathNodeJourneyOrder(i));
+        if (SpawnMapArrowsAlongChartJourney(nodes, parent, arrowLift, faceNormal) > 0)
+            return;
+
+        int step = Mathf.Max(1, mapArrowEveryNNodes);
+        for (int i = 0; i < nodes.Count - 1; i += step)
+        {
+            int next = Mathf.Min(i + step, nodes.Count - 1);
+            Vector3 a = MapCellWorldSnapped(nodes[i].x, nodes[i].y);
+            Vector3 b = MapCellWorldSnapped(nodes[next].x, nodes[next].y);
+            Vector3 direction = b - a;
             if (direction.sqrMagnitude <= Mathf.Epsilon)
                 continue;
-
-            Vector3 spawnPos = currentPos + arrowLift;
-            Quaternion rotation = Quaternion.AngleAxis(mapArrowRollAroundNormalDegrees, faceNormal)
-                * Quaternion.LookRotation(direction, faceNormal);
-
-            GameObject instance = Instantiate(mapArrowPrefab);
-            instance.name = $"{mapArrowPrefab.name} (map seg {i})";
-            instance.SetActive(true);
-            Transform t = instance.transform;
-            Vector3 desiredWorldScale = t.lossyScale;
-            t.SetPositionAndRotation(spawnPos, rotation);
-            t.SetParent(parent, true);
-            PreserveChildLossyScale(t, desiredWorldScale);
-            activeMapArrows.Add(instance);
+            SpawnOneMapArrow(a + arrowLift, direction.normalized, faceNormal, parent, $"map node {i}");
         }
     }
 
-    /// <summary>Call when starting a path session or pressing Orient North. Locks world anchor + map basis + north; timer repath does not move the trail with the user.</summary>
-    private void CaptureWorldSpatialCalibration()
+    /// <summary>Space arrows by chart feet along the A* node list; world positions come from the live map face per cell.</summary>
+    private int SpawnMapArrowsAlongChartJourney(IReadOnlyList<Node> nodes, Transform parent, Vector3 arrowLift, Vector3 faceNormal)
     {
-        _worldCalibCaptured = false;
-        _worldLayoutValid = false;
+        if (nodes == null || nodes.Count < 2)
+            return 0;
+
+        float spacingFt = Mathf.Max(0.5f, pathArrowSpacingFeet);
+        float toFeet = Mathf.Max(0f, chartDistanceUnitsToFeet);
+        int count = 0;
+        float chartSinceSpawn = 0f;
+        int lastSpawnIdx = 0;
+
+        int firstAim = Mathf.Min(1, nodes.Count - 1);
+        Vector3 startPos = MapCellWorldSnapped(nodes[0].x, nodes[0].y);
+        Vector3 firstAimPos = MapCellWorldSnapped(nodes[firstAim].x, nodes[firstAim].y);
+        Vector3 startDir = firstAimPos - startPos;
+        if (startDir.sqrMagnitude > 1e-12f)
+        {
+            SpawnOneMapArrow(startPos + arrowLift, startDir.normalized, faceNormal, parent, "chart start");
+            count++;
+        }
+
+        for (int i = 1; i < nodes.Count; i++)
+        {
+            Vector2 prevChart = GridCellToChartCoordinate(nodes[i - 1].x, nodes[i - 1].y);
+            Vector2 curChart = GridCellToChartCoordinate(nodes[i].x, nodes[i].y);
+            chartSinceSpawn += Vector2.Distance(prevChart, curChart) * toFeet;
+
+            bool isLast = i == nodes.Count - 1;
+            if (chartSinceSpawn < spacingFt && !isLast)
+                continue;
+
+            int aimIdx = isLast ? i : Mathf.Min(i + 1, nodes.Count - 1);
+            Vector3 spawnPos = MapCellWorldSnapped(nodes[lastSpawnIdx].x, nodes[lastSpawnIdx].y);
+            Vector3 aimPos = MapCellWorldSnapped(nodes[aimIdx].x, nodes[aimIdx].y);
+            Vector3 direction = aimPos - spawnPos;
+            if (direction.sqrMagnitude <= 1e-12f && aimIdx + 1 < nodes.Count)
+                aimPos = MapCellWorldSnapped(nodes[aimIdx + 1].x, nodes[aimIdx + 1].y);
+            direction = aimPos - spawnPos;
+            if (direction.sqrMagnitude <= Mathf.Epsilon)
+                continue;
+
+            SpawnOneMapArrow(spawnPos + arrowLift, direction.normalized, faceNormal, parent, $"chart seg {lastSpawnIdx}");
+            count++;
+            chartSinceSpawn = 0f;
+            lastSpawnIdx = i;
+        }
+
+        return count;
+    }
+
+    private int SpawnMapArrowsAlongPolyline(List<Vector3> polyline, Transform parent, Vector3 arrowLift, Vector3 faceNormal)
+    {
+        float spacingM = PathArrowSpacingMeters();
+        float totalM = PolylineArcLengthMeters(polyline);
+        if (totalM < 1e-4f)
+            return 0;
+
+        int count = 0;
+        for (float dist = 0f; dist < totalM - 0.02f; dist += spacingM)
+        {
+            if (!SamplePolylineAtDistance(polyline, dist, out Vector3 worldPos, out _))
+                continue;
+            float aimDist = Mathf.Min(dist + spacingM, totalM);
+            if (!SamplePolylineAtDistance(polyline, aimDist, out Vector3 aimPos, out Vector3 segTan))
+                continue;
+
+            Vector3 direction = aimPos - worldPos;
+            if (direction.sqrMagnitude <= 1e-12f && segTan.sqrMagnitude > 1e-12f)
+                direction = segTan;
+            if (direction.sqrMagnitude <= Mathf.Epsilon)
+                continue;
+            SpawnOneMapArrow(worldPos + arrowLift, direction.normalized, faceNormal, parent, $"map d={dist:F1}m");
+            count++;
+        }
+        return count;
+    }
+
+    private void SpawnOneMapArrow(Vector3 spawnPos, Vector3 direction, Vector3 faceNormal, Transform parent, string suffix)
+    {
+        Quaternion rotation = Quaternion.AngleAxis(mapArrowRollAroundNormalDegrees, faceNormal)
+            * Quaternion.LookRotation(direction, faceNormal);
+        GameObject instance = Instantiate(mapArrowPrefab);
+        instance.name = $"{mapArrowPrefab.name} ({suffix})";
+        instance.SetActive(true);
+        Transform t = instance.transform;
+        Vector3 desiredWorldScale = t.lossyScale;
+        t.SetPositionAndRotation(spawnPos, rotation);
+        t.SetParent(parent, true);
+        PreserveChildLossyScale(t, desiredWorldScale);
+        activeMapArrows.Add(instance);
+    }
+
+    /// <summary>Call when starting a path session or pressing Orient North. Locks world anchor + map basis + north; timer repath does not move the trail with the user.</summary>
+    private void CaptureWorldSpatialCalibration(bool resumeExistingProgress = false)
+    {
+        if (!resumeExistingProgress)
+        {
+            _worldCalibCaptured = false;
+            _worldLayoutValid = false;
+        }
+
         if (grid == null || grid.ActiveMapTransform == null)
             return;
 
@@ -1184,22 +2471,18 @@ public class PathTest : MonoBehaviour
         _worldCalibTiltToHorizontal = Quaternion.FromToRotation(grid.GetGridPlaneNormal(), Vector3.up);
         _worldCalibNorthYawDeg = ComputeNorthAlignmentYawDegrees();
         _worldCalibCaptured = true;
+        if (!resumeExistingProgress)
+            RefreshSessionChartMovementOrigin();
     }
 
-    private Vector3 GetWorldPathFloorAnchor()
-    {
-        Transform tr = ResolveTrackingTransform();
-        Vector3 a = tr != null ? tr.position : _worldCalibAnchor;
-        if (player != null)
-            a.y = player.position.y;
-        else if (worldArrowParent != null)
-            a.y = worldArrowParent.position.y;
-        return a;
-    }
+    private Vector3 GetWorldPathFloorAnchor() => GetWorldPathFloorAnchor(null);
 
     /// <summary>Per repath: snapshot the current map polyline so world arrows follow the same route geometry.</summary>
     private void RefreshWorldRouteLayoutSnapshot()
     {
+        if (pathSessionActive && !_worldCalibCaptured)
+            CaptureWorldSpatialCalibration();
+
         _worldLayoutValid = false;
         _snapPathMapPoints.Clear();
         _snapPathNodes.Clear();
@@ -1254,6 +2537,17 @@ public class PathTest : MonoBehaviour
         _snapStartX = _lineResolvedStart.x;
         _snapStartY = _lineResolvedStart.y;
         _snapMapStartWorld = _snapPathMapPoints[0];
+
+        if (_sessionFullRouteValid)
+        {
+            ApplySessionRouteProgressTrimmedVisuals();
+            if (_sessionWorldGoalLockValid && !_sessionRouteStartFeetValid)
+            {
+                _sessionRouteStartFeetWorld = GetNavigationWorldPosition();
+                _sessionRouteStartFeetValid = true;
+            }
+            return;
+        }
 
         _worldPathFloorPositions.Clear();
         Vector3 w0 = GetWorldPathFloorAnchor();
@@ -1320,6 +2614,44 @@ public class PathTest : MonoBehaviour
             w1 = w0 + qNorth * rawFlat[rawFlat.Count - 1];
         }
 
+        if (!_sessionWorldGoalLockValid && rawFlat.Count > 0)
+        {
+            float lockYaw = worldFloorUsesGridLayout
+                ? (northOrientationLocked ? 0f : worldPathYawOffsetDegrees)
+                : worldPathYawOffsetDegrees + _worldCalibNorthYawDeg;
+            if (flipWorldFloorDefaultDirection && !northOrientationLocked)
+                lockYaw += 180f;
+            Vector3 lockOffset = Quaternion.Euler(0f, lockYaw, 0f) * rawFlat[rawFlat.Count - 1];
+
+            float chartPathFt = 0f;
+            float toFeet = Mathf.Max(0f, chartDistanceUnitsToFeet);
+            for (int i = 1; i < _snapPathNodes.Count; i++)
+            {
+                Vector2 a = GridCellToChartCoordinate(_snapPathNodes[i - 1].x, _snapPathNodes[i - 1].y);
+                Vector2 b = GridCellToChartCoordinate(_snapPathNodes[i].x, _snapPathNodes[i].y);
+                chartPathFt += Vector2.Distance(a, b) * toFeet;
+            }
+
+            float layoutMag = lockOffset.magnitude;
+            if (layoutMag > 1e-6f && chartPathFt > 0.1f)
+                lockOffset = lockOffset.normalized * (chartPathFt / Mathf.Max(0.01f, feetPerMeter));
+
+            _sessionWorldGoalLockBaseWorld = GetWorldPathFloorAnchor() + lockOffset + Vector3.up * worldArrowHeightAbovePlayer;
+            _sessionWorldGoalLockEndCell = _lineResolvedEnd;
+            _sessionWorldGoalLockValid = true;
+        }
+
+        // With a session-frozen world goal, w0 tracks the rig while the red marker stays fixed. If we keep
+        // w1 = w0 + (const offset), then w1 - w0 is translation-invariant and the entire floor polyline slides with the player.
+        // Retie the stretch target to the locked goal on the floor so arrows update from moving feet toward a fixed endpoint.
+        if (_sessionWorldGoalLockValid && worldRouteGoalWorld == null
+            && _lineResolvedEnd == _sessionWorldGoalLockEndCell)
+        {
+            Vector3 lockedFloor = _sessionWorldGoalLockBaseWorld - Vector3.up * worldArrowHeightAbovePlayer;
+            w1 = lockedFloor;
+            w1.y = w0.y;
+        }
+
         Vector3 target = Vector3.ProjectOnPlane(w1 - w0, Vector3.up);
         Vector3 source = rawFlat[rawFlat.Count - 1];
         if (source.sqrMagnitude < 1e-14f)
@@ -1337,14 +2669,29 @@ public class PathTest : MonoBehaviour
         }
 
         _worldLayoutValid = true;
+
+        if (_sessionWorldGoalLockValid && !_sessionRouteStartFeetValid)
+        {
+            _sessionRouteStartFeetWorld = GetNavigationWorldPosition();
+            _sessionRouteStartFeetValid = true;
+        }
+
+        if (!_sessionFullRouteValid)
+            TryCaptureSessionFullRoute(_snapPathMapPoints);
     }
 
     private Vector3 GridToWorldSnapshot(int gx, int gy)
     {
+        return GridToWorldSnapshotFractional(gx, gy);
+    }
+
+    private Vector3 GridToWorldSnapshotFractional(float gx, float gy)
+    {
         if (!_worldCalibCaptured)
             return _worldCalibAnchor;
         if (_worldCalibIsRect)
-            return grid.GridToWorldUsingRectCorners(gx, gy, _worldCalibCorner0, _worldCalibCorner1, _worldCalibCorner3);
+            return grid.GridToWorldUsingRectCornersFractional(
+                gx, gy, _worldCalibCorner0, _worldCalibCorner1, _worldCalibCorner3);
         float cw = _worldCalibMapW / Mathf.Max(1, _worldCalibGw);
         float ch = _worldCalibMapH / Mathf.Max(1, _worldCalibGh);
         Vector3 bl = _worldCalibCenter - _worldCalibAxisX * (_worldCalibMapW * 0.5f) - _worldCalibAxisY * (_worldCalibMapH * 0.5f);
@@ -1360,16 +2707,17 @@ public class PathTest : MonoBehaviour
         return WorldArrowFloorFromSnapshotMapPoint(p);
     }
 
-    /// <summary>Nearest vertex on the snapped route polyline → precomputed floor position.</summary>
+    /// <summary>Nearest point on the floor route polyline to a map-face sample (counts may differ after route trim).</summary>
     private Vector3 WorldArrowFloorFromSnapshotMapPoint(Vector3 mapPointWorld)
     {
-        if (!_worldLayoutValid || !_worldCalibCaptured || _worldPathFloorPositions.Count != _snapPathMapPoints.Count)
+        if (!_worldLayoutValid || !_worldCalibCaptured || _worldPathFloorPositions.Count < 1)
             return GetWorldPathFloorAnchor() + Vector3.up * worldArrowHeightAbovePlayer;
+
         int best = 0;
         float bestD = float.MaxValue;
-        for (int i = 0; i < _snapPathMapPoints.Count; i++)
+        for (int i = 0; i < _worldPathFloorPositions.Count; i++)
         {
-            float d = (_snapPathMapPoints[i] - mapPointWorld).sqrMagnitude;
+            float d = (_worldPathFloorPositions[i] - mapPointWorld).sqrMagnitude;
             if (d < bestD)
             {
                 bestD = d;
@@ -1383,12 +2731,15 @@ public class PathTest : MonoBehaviour
     private void RebuildWorldArrows()
     {
         DestroyArrowList(activeWorldArrows);
-        if (!_worldLayoutValid || _snapPathMapPoints.Count != currentPath.Count || currentPath.Count < 1)
-            RefreshWorldRouteLayoutSnapshot();
 
-        if (worldArrowPrefab == null || grid == null || grid.grid == null || currentPath.Count < 2
-            || !_worldCalibCaptured || !_worldLayoutValid || _snapPathMapPoints.Count < 2
-            || _worldPathFloorPositions.Count != _snapPathMapPoints.Count)
+        if (!_worldLayoutValid || _worldPathFloorPositions.Count < 2)
+        {
+            if (pathSessionActive && currentPath.Count >= 1 && _worldCalibCaptured)
+                RefreshWorldRouteLayoutSnapshot();
+        }
+
+        if (worldArrowPrefab == null || grid == null || grid.grid == null
+            || !_worldCalibCaptured || !_worldLayoutValid || _worldPathFloorPositions.Count < 2)
             return;
 
         float spaceScale = Mathf.Max(0.001f, worldPathUniformSpaceScale);
@@ -1396,36 +2747,46 @@ public class PathTest : MonoBehaviour
             ? Vector3.Scale(worldArrowScaleMultiplier, new Vector3(spaceScale, spaceScale, spaceScale))
             : worldArrowScaleMultiplier;
 
-        // Same placement cadence as map arrows (every pathStep). Heading aims at the next placed arrow (i + pathStep);
-        // using i→i+1 made sparse arrows point wrong vs the visible trail.
-        int pathStep = Mathf.Max(1, mapArrowEveryNNodes);
+        float spacingM = PathArrowSpacingMeters();
+        float totalM = PolylineHorizontalLengthMeters(_worldPathFloorPositions);
+        if (totalM < 1e-4f)
+            return;
+
         Quaternion playerMeshYawOnly = Quaternion.Euler(0f, worldArrowLookYawOffsetDegrees, 0f);
         Transform tracking = ResolveTrackingTransform();
 
         if (snapPlayerYawToWorldPath && _worldPathFloorPositions.Count >= 2 && tracking != null)
         {
-            int aim = Mathf.Min(pathStep, _worldPathFloorPositions.Count - 1);
-            Vector3 p0 = _worldPathFloorPositions[0] + Vector3.up * worldArrowHeightAbovePlayer;
-            Vector3 p1 = _worldPathFloorPositions[aim] + Vector3.up * worldArrowHeightAbovePlayer;
-            Vector3 flat = Vector3.ProjectOnPlane(p1 - p0, Vector3.up);
-            if (flat.sqrMagnitude > 1e-8f)
+            float aimDist = Mathf.Min(spacingM, totalM);
+            if (SamplePolylineHorizontalAtDistance(_worldPathFloorPositions, 0f, out Vector3 p0, out _)
+                && SamplePolylineHorizontalAtDistance(_worldPathFloorPositions, aimDist, out Vector3 p1, out _))
             {
-                Quaternion facePath = Quaternion.LookRotation(flat.normalized, Vector3.up) * playerMeshYawOnly;
-                Vector3 e = tracking.eulerAngles;
-                e.y = facePath.eulerAngles.y;
-                tracking.eulerAngles = e;
+                p0 += Vector3.up * worldArrowHeightAbovePlayer;
+                p1 += Vector3.up * worldArrowHeightAbovePlayer;
+                Vector3 flat = Vector3.ProjectOnPlane(p1 - p0, Vector3.up);
+                if (flat.sqrMagnitude > 1e-8f)
+                {
+                    Quaternion facePath = Quaternion.LookRotation(flat.normalized, Vector3.up) * playerMeshYawOnly;
+                    Vector3 e = tracking.eulerAngles;
+                    e.y = facePath.eulerAngles.y;
+                    tracking.eulerAngles = e;
+                }
             }
         }
 
-        for (int i = 0; i < _snapPathMapPoints.Count - 1; i += pathStep)
+        Vector3 lift = Vector3.up * worldArrowHeightAbovePlayer;
+        for (float dist = 0f; dist < totalM - 0.02f; dist += spacingM)
         {
-            // Must aim at the next *placed* arrow (i + pathStep). Using i+1 made headings follow single grid
-            // steps while arrows are spaced wider — they visibly ignored the next breadcrumb on curves.
-            int nextIdx = Mathf.Min(i + pathStep, _snapPathMapPoints.Count - 1);
-            Vector3 lift = Vector3.up * worldArrowHeightAbovePlayer;
-            Vector3 worldPos = _worldPathFloorPositions[i] + lift;
-            Vector3 nextWorld = _worldPathFloorPositions[nextIdx] + lift;
-            Vector3 tangent = Vector3.ProjectOnPlane(nextWorld - worldPos, Vector3.up);
+            if (!SamplePolylineHorizontalAtDistance(_worldPathFloorPositions, dist, out Vector3 floorPos, out _))
+                continue;
+            float aimDist = Mathf.Min(dist + spacingM, totalM);
+            if (!SamplePolylineHorizontalAtDistance(_worldPathFloorPositions, aimDist, out Vector3 aimPos, out Vector3 segTan))
+                continue;
+
+            Vector3 worldPos = floorPos + lift;
+            Vector3 tangent = Vector3.ProjectOnPlane(aimPos - floorPos, Vector3.up);
+            if (tangent.sqrMagnitude <= 1e-12f)
+                tangent = Vector3.ProjectOnPlane(segTan, Vector3.up);
             if (flipWorldPathDirection)
                 tangent = -tangent;
             if (tangent.sqrMagnitude <= 1e-12f)
@@ -1502,12 +2863,18 @@ public class PathTest : MonoBehaviour
         list.Clear();
     }
 
-    /// <summary>World-space goal used for the floor marker and off-screen cue (path tail cell + lift).</summary>
+    /// <summary>World-space goal for the floor marker and off-screen cue: session-frozen polyline tail while the goal cell is unchanged; otherwise same as live tail.</summary>
     private bool TryGetWorldPathDestinationWorld(out Vector3 worldPos)
     {
         worldPos = default;
         if (!pathSessionActive || grid == null || grid.grid == null)
             return false;
+        if (_sessionWorldGoalLockValid)
+        {
+            worldPos = _sessionWorldGoalLockBaseWorld + Vector3.up * endPointMarkerHeightAboveRoute;
+            return true;
+        }
+
         if (!_worldCalibCaptured || !_worldLayoutValid)
             return false;
 
@@ -1882,11 +3249,10 @@ public class PathTest : MonoBehaviour
         if (currentPath.Count == 0)
             return Vector2.Distance(currentCoordinate, endCoordinate) * toFeet;
 
-        float totalChart = 0f;
-        Vector2 previous = currentCoordinate;
-
         if (distanceSumUsesRawPathListOrder)
         {
+            float totalChart = 0f;
+            Vector2 previous = currentCoordinate;
             for (int i = 0; i < currentPath.Count; i++)
             {
                 Node stepNode = currentPath[i];
@@ -1894,28 +3260,61 @@ public class PathTest : MonoBehaviour
                 totalChart += Vector2.Distance(previous, current);
                 previous = current;
             }
-        }
-        else if (_snapPathNodes.Count == currentPath.Count && currentPath.Count > 0)
-        {
-            for (int i = 0; i < _snapPathNodes.Count; i++)
-            {
-                Node stepNode = _snapPathNodes[i];
-                Vector2 current = GridCellToChartCoordinate(stepNode.x, stepNode.y);
-                totalChart += Vector2.Distance(previous, current);
-                previous = current;
-            }
-        }
-        else
-        {
-            for (int i = 0; i < currentPath.Count; i++)
-            {
-                Node stepNode = GetCurrentPathNodeJourneyOrder(i);
-                Vector2 current = GridCellToChartCoordinate(stepNode.x, stepNode.y);
-                totalChart += Vector2.Distance(previous, current);
-                previous = current;
-            }
+            return totalChart * toFeet;
         }
 
-        return totalChart * toFeet;
+        // Remaining distance along journey from current chart position toward goal (grows again when backing away).
+        IReadOnlyList<Node> journeyNodes = GetJourneyNodesForDistance();
+        if (journeyNodes != null && journeyNodes.Count >= 2)
+            return RemainingChartDistanceFromProbeToGoalFeet(journeyNodes);
+
+        return Vector2.Distance(currentCoordinate, endCoordinate) * toFeet;
+    }
+
+    private float RemainingChartDistanceFromProbeToGoalFeet(IReadOnlyList<Node> nodes)
+    {
+        float scale = Mathf.Max(0f, chartDistanceUnitsToFeet);
+        int ix = FindClosestJourneyIndexOnList(nodes);
+        Vector2 cIx = GridCellToChartCoordinate(nodes[ix].x, nodes[ix].y);
+        float sum = Vector2.Distance(currentCoordinate, cIx);
+        for (int i = ix; i < nodes.Count - 1; i++)
+        {
+            Vector2 a = GridCellToChartCoordinate(nodes[i].x, nodes[i].y);
+            Vector2 b = GridCellToChartCoordinate(nodes[i + 1].x, nodes[i + 1].y);
+            sum += Vector2.Distance(a, b);
+        }
+
+        return sum * scale;
+    }
+
+    private IReadOnlyList<Node> GetJourneyNodesForDistance()
+    {
+        if (_snapPathNodes.Count == currentPath.Count && _snapPathNodes.Count > 0)
+            return _snapPathNodes;
+        if (currentPath.Count == 0)
+            return null;
+        var ordered = new List<Node>(currentPath.Count);
+        for (int i = 0; i < currentPath.Count; i++)
+            ordered.Add(GetCurrentPathNodeJourneyOrder(i));
+        return ordered;
+    }
+
+    private int FindClosestJourneyIndexOnList(IReadOnlyList<Node> nodes)
+    {
+        if (nodes == null || nodes.Count == 0)
+            return 0;
+        int best = 0;
+        float bestD = float.MaxValue;
+        for (int i = 0; i < nodes.Count; i++)
+        {
+            Vector2 c = GridCellToChartCoordinate(nodes[i].x, nodes[i].y);
+            float d = (c - currentCoordinate).sqrMagnitude;
+            if (d < bestD)
+            {
+                bestD = d;
+                best = i;
+            }
+        }
+        return best;
     }
 }
