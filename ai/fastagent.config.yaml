@@ -1,0 +1,22 @@
+# fast-agent looks for this file from the current directory upward.
+# The app also sets this model explicitly by default, so this file is here for
+# fast-agent tools and future scripts run from the project root.
+#
+# Ollama exposes an OpenAI-compatible API under /v1. The default model below
+# uses Qwen3.6 with reasoning disabled by the app request parameters.
+
+default_model: "generic.qwen3.6:35b-a3b?reasoning=off"
+
+generic:
+  api_key: "ollama"
+  base_url: "http://localhost:11434/v1"
+  default_model: "qwen3.6:35b-a3b"
+
+# Add MCP servers or provider-specific settings here as the app grows.
+#
+# Example MCP server:
+# mcp:
+#   servers:
+#     filesystem:
+#       command: "npx"
+#       args: ["-y", "@modelcontextprotocol/server-filesystem", "."]
