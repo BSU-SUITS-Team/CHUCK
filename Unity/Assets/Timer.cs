@@ -17,7 +17,7 @@ public class Timer : MonoBehaviour
         
         t += Time.deltaTime;
         TimeSpan time = TimeSpan.FromSeconds(t);
-        text.text = "Timer: " + time.ToString("hh':'mm':'ss");
+        text.text = time.ToString("hh':'mm':'ss");
     }
 
     public void StartStopTimer()

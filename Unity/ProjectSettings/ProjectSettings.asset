@@ -824,10 +824,10 @@ PlayerSettings:
       PointOfService: True
       RecordedCallsFolder: True
       Contacts: True
-      Proximity: True
       InternetClient: True
       CodeGeneration: True
       BackgroundMediaPlayback: True
+      Proximity: True
   metroTargetDeviceFamilies:
     Desktop: False
     Holographic: True
