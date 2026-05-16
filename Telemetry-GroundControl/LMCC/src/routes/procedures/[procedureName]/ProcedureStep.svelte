@@ -8,12 +8,11 @@
 		Img,
 		Fileupload
 	} from 'flowbite-svelte';
-	import { PlusOutline, PlusSolid, TrashBinOutline } from 'flowbite-svelte-icons';
 	import AdditionButton from './AdditionButton.svelte';
 	import RemoveButton from './RemoveButton.svelte';
-	import type { MouseEventHandler } from 'svelte/elements';
 	import File from './File.svelte';
 	import ImageAdditionButton from './ImageAdditionButton.svelte';
+	import type { MouseEventHandler } from 'svelte/elements';
 
 	export let title: string;
 	export let editMode: boolean = false;

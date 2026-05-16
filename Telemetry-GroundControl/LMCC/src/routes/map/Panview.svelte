@@ -5,7 +5,6 @@
 	import PathButton from './PathButton.svelte';
 	import { datastore } from '$lib/datastore';
 	import { Button, Input } from 'flowbite-svelte';
-	import { XCircleOutline } from 'flowbite-svelte-icons';
 
 	let img;
 	let naturalHeight;

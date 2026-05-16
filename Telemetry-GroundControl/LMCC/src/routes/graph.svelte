@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { Chart, Card, A, Button, Dropdown, DropdownItem } from 'flowbite-svelte';
-	import { ChevronRightSolid, ChevronDownSolid, ChevronUpSolid } from 'flowbite-svelte-icons';
+	import { Card, A, Button, Dropdown, DropdownItem } from 'flowbite-svelte';
+	import { ChevronRightOutline, ChevronDownOutline, ChevronUpOutline } from 'flowbite-svelte-icons';
+	import Chart from '$lib/Chart.svelte';
 
 	export let name = 'Power Level';
 	export let status = '12.1V';
@@ -85,9 +86,9 @@
 		>
 			{lastDelta}
 			{#if lastDelta.includes('-')}
-				<ChevronDownSolid class="w-3 h-3 ml-1" />
+				<ChevronDownOutline class="w-3 h-3 ml-1" />
 			{:else}
-				<ChevronUpSolid class="w-3 h-3 ml-1" />
+				<ChevronUpOutline class="w-3 h-3 ml-1" />
 			{/if}
 		</div>
 	</div>
@@ -98,7 +99,7 @@
 		<div class="flex justify-between items-center pt-5">
 			<Button
 				class="text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 text-center inline-flex items-center dark:hover:text-white bg-transparent hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent focus:ring-transparent dark:focus:ring-transparent py-0"
-				>Last Hour<ChevronDownSolid class="w-2.5 m-2.5 ml-1.5" /></Button
+				>Last Hour<ChevronDownOutline class="w-2.5 m-2.5 ml-1.5" /></Button
 			>
 			<Dropdown class="w-40" offset={-6}>
 				<DropdownItem>Last 5 Minuites</DropdownItem>
@@ -110,7 +111,7 @@
 				class="uppercase text-sm font-semibold hover:text-primary-700 dark:hover:text-primary-500 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 px-3 py-2 hover:no-underline"
 			>
 				Details
-				<ChevronRightSolid class="w-2.5 h-2.5 ml-1.5" />
+				<ChevronRightOutline class="w-2.5 h-2.5 ml-1.5" />
 			</A>
 		</div>
 	</div>

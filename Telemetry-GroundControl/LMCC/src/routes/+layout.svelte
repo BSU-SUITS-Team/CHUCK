@@ -6,7 +6,7 @@
 	import { Heading, DarkMode, Button, Span, Toast, Badge } from 'flowbite-svelte';
 	import {
 		TrashBinOutline,
-		FileEditSolid,
+		EditSolid,
 		ExclamationCircleOutline,
 		AnnotationOutline,
 		LightbulbOutline
@@ -61,7 +61,7 @@
 		class="h-16 border-b p-4 flex flex-row justify-between dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 text-lg"
 	>
 		<div class="flex flex-row">
-			<p class="pr-12">Oxygen: <span class="text-blue-600 font-bold">96 Minuties<span /></span></p>
+			<p class="pr-12">Oxygen: <span class="text-blue-600 font-bold">96 Minuties</span></p>
 			{#if elapsedTime !== undefined}
 				<p>Elapsed Time: {formatTime(elapsedTime)}</p>
 			{/if}
@@ -125,7 +125,7 @@
 				{#each new Set([...Object.keys($keepables), ...Object.keys($graphdata)]) as label}
 					<div class="border-b flex-row flex pb-2 mb-1 dark:border-gray-700">
 						<Heading tag="h4">{label}</Heading>
-						<FileEditSolid class="dark:text-gray-400 mr-2 h-7 text-gray-800" href="/rover" />
+						<EditSolid class="dark:text-gray-400 mr-2 h-7 text-gray-800" href="/rover" />
 						<TrashBinOutline class="dark:text-gray-400 h-7 text-gray-800" />
 					</div>
 

@@ -1,17 +1,5 @@
 <script lang="ts">
 	import {
-		TableHead,
-		TableHeadCell,
-		TableBody,
-		TableBodyRow,
-		TableBodyCell,
-		Table,
-		Tabs,
-		TabItem,
-		Card,
-		Listgroup
-	} from 'flowbite-svelte';
-	import {
 		sampleTelemetry,
 		getAstronauts,
 		getEVA,
@@ -31,6 +19,8 @@
 	import { formatTime, formatDecimals } from '$lib/formatting';
 
 	let selectedAstro = 'eva2';
+	let selectedCategory = 'Suit Resources';
+
 	type Metric = {
 		key: string;
 		units: string;
@@ -44,11 +34,6 @@
 		telemetry = store['telemetry'] ?? [sampleTelemetry];
 	});
 	onDestroy(unsubscribe);
-
-	$: currentTelemetry = telemetry[telemetry.length - 1];
-	$: currentAstro =
-		getEVA(currentTelemetry, selectedAstro) ??
-		getEVA(currentTelemetry, getAstronauts(currentTelemetry)[0]);
 
 	const suitResources = (eva: Astronaut): Metric[] => {
 		const resources: Metric[] = [
@@ -256,7 +241,9 @@
 		];
 	};
 
-	const categories = (eva: Astronaut | undefined) => {
+	type CategoryMap = Record<string, Metric[]>;
+
+	const categories = (eva: Astronaut | undefined): CategoryMap => {
 		if (!eva) return {};
 
 		return {
@@ -267,58 +254,220 @@
 			'Suit Temperature': suitTemperature(eva)
 		};
 	};
+
+	$: currentTelemetry = telemetry[telemetry.length - 1];
+	$: astronauts = getAstronauts(currentTelemetry);
+	$: selectedAstroKey = astronauts.includes(selectedAstro) ? selectedAstro : (astronauts[0] ?? '');
+	$: currentAstro =
+		getEVA(currentTelemetry, selectedAstroKey) ??
+		getEVA(currentTelemetry, getAstronauts(currentTelemetry)[0]);
+	$: categoryMap = categories(currentAstro);
+	$: categoryNames = Object.keys(categoryMap);
+	$: if (categoryNames.length && !categoryNames.includes(selectedCategory)) {
+		selectedCategory = categoryNames[0];
+	}
+	$: selectedMetrics = categoryMap[selectedCategory] ?? [];
+	$: selectedNominal = selectedMetrics.filter((metric) => metricStatus(metric) === 'nominal').length;
+
+	const clampPercent = (input: number) => Math.max(0, Math.min(input, 100));
+
+	const metricPercent = (metric: Metric, value = metric.value) => {
+		const [low, high] = metric.range.limit;
+		const span = high - low;
+		if (!Number.isFinite(span) || span === 0) return 0;
+		return clampPercent(((value - low) / span) * 100);
+	};
+
+	const metricStyle = (metric: Metric) => {
+		return `--value:${metricPercent(metric)}%; --min:${metricPercent(metric, metric.range.min)}%; --max:${metricPercent(metric, metric.range.max)}%;`;
+	};
+
+	const metricStatus = (metric: Metric) => {
+		if (metric.value < metric.range.min) return 'low';
+		if (metric.value > metric.range.max) return 'high';
+		return 'nominal';
+	};
+
+	const issueCount = (metrics: Metric[]) =>
+		metrics.filter((metric) => metricStatus(metric) !== 'nominal').length;
+
+	const astronautButtonClass = (active: boolean) =>
+		`rounded-md px-3 py-1.5 text-sm font-semibold transition ${
+			active
+				? 'bg-slate-900 text-white shadow-sm dark:bg-white dark:text-slate-950'
+				: 'text-slate-600 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white'
+		}`;
+
+	const categoryButtonClass = (active: boolean) =>
+		`shrink-0 rounded-md border px-3 py-1.5 text-sm font-semibold transition ${
+			active
+				? 'border-sky-500 bg-sky-50 text-sky-700 dark:border-sky-400 dark:bg-sky-500/15 dark:text-sky-200'
+				: 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:bg-slate-800 dark:hover:text-white'
+		}`;
+
+	const panelClass = (category: string) =>
+		`rounded-lg border bg-white shadow-sm transition dark:bg-slate-900 ${
+			category === selectedCategory
+				? 'border-sky-300 ring-1 ring-sky-200 dark:border-sky-500/80 dark:ring-sky-500/30'
+				: 'border-slate-200 dark:border-slate-700'
+		}`;
+
+	const statusDotClass = (metric: Metric) => {
+		const status = metricStatus(metric);
+		return status === 'nominal'
+			? 'bg-emerald-500'
+			: status === 'low'
+				? 'bg-amber-400'
+				: 'bg-rose-500';
+	};
+
+	const statusTextClass = (metric: Metric) => {
+		const status = metricStatus(metric);
+		return status === 'nominal'
+			? 'text-slate-950 dark:text-white'
+			: status === 'low'
+				? 'text-amber-700 dark:text-amber-300'
+				: 'text-rose-700 dark:text-rose-300';
+	};
 </script>
 
-<div class="h-full mr-2 ml-2 pt-2">
-	<Tabs>
-		{#each getAstronauts(currentTelemetry) as astro}
-			<TabItem
-				open
-				title={astro}
-				on:click={() => {
-					selectedAstro = astro;
-				}}
+<div class="h-full px-3 py-3 text-slate-900 dark:text-slate-100">
+	{#if astronauts.length}
+		<section
+			class="overflow-hidden rounded-lg border border-slate-200 bg-slate-50/80 shadow-sm dark:border-slate-700 dark:bg-slate-950/40"
+		>
+			<div
+				class="flex flex-col gap-3 border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-900 sm:flex-row sm:items-center sm:justify-between"
 			>
-				<div class="flex gap-2 flex-wrap">
-					{#each Object.keys(categories(getEVA(currentTelemetry, astro))) as category}
-						<Card>
-							<div class="flex justify-between items-center mb-4">
-								<h5 class="text-xl font-bold leading-none text-gray-900 dark:text-white">
-									{category}
-								</h5>
-							</div>
-							<Listgroup
-								items={categories(getEVA(currentTelemetry, astro))[category]}
-								let:item
-								class="border-0 dark:!bg-transparent"
-							>
-								<div class="flex items-center space-x-4 rtl:space-x-reverse">
-									<div class="flex-1 min-w-0">
-										<p class="text-sm font-medium text-gray-900 dark:text-white">
-											{item['key']}
-										</p>
-									</div>
-									<div class="flex-1 min-w-0">
-										<p class="text-sm font-medium text-gray-900 dark:text-white">
-											{item['formatter'](item['value'])}
-											{item['units']}
-										</p>
-									</div>
-								</div>
-							</Listgroup>
-						</Card>
+				<div class="min-w-0">
+					<p class="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Biometrics</p>
+					<div class="mt-1 flex min-w-0 items-center gap-2">
+						<span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+						<h1 class="truncate text-lg font-semibold text-slate-950 dark:text-white">
+							{selectedAstroKey.toUpperCase()}
+						</h1>
+						<span
+							class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+						>
+							{categoryNames.length} groups
+						</span>
+					</div>
+				</div>
+
+				<div
+					class="flex w-fit max-w-full gap-1 overflow-x-auto rounded-lg border border-slate-200 bg-slate-50 p-1 dark:border-slate-700 dark:bg-slate-950"
+				>
+					{#each astronauts as astro}
+						<button
+							type="button"
+							class={astronautButtonClass(astro === selectedAstroKey)}
+							on:click={() => {
+								selectedAstro = astro;
+							}}
+						>
+							{astro.toUpperCase()}
+						</button>
 					{/each}
 				</div>
-			</TabItem>
-		{/each}
-	</Tabs>
-	{#if currentAstro}
-		<div class="pt-2">
-			<Tabs>
-				{#each Object.keys(categories(currentAstro)) as category}
-					<TabItem open title={category}>
-						<div class="flex gap-2 flex-wrap">
-							{#each categories(currentAstro)[category] as data}
+			</div>
+
+			{#if currentAstro}
+				<div class="border-b border-slate-200 px-4 py-3 dark:border-slate-700">
+					<div class="flex gap-2 overflow-x-auto pb-1">
+						{#each categoryNames as category}
+							<button
+								type="button"
+								class={categoryButtonClass(category === selectedCategory)}
+								on:click={() => {
+									selectedCategory = category;
+								}}
+							>
+								{category}
+							</button>
+						{/each}
+					</div>
+				</div>
+
+				<div class="grid gap-3 p-3 xl:grid-cols-[minmax(0,1fr)_minmax(22rem,0.85fr)]">
+					<div class="grid auto-rows-min gap-3 2xl:grid-cols-2">
+						{#each categoryNames as category}
+							<section class={panelClass(category)}>
+								<button
+									type="button"
+									class="flex w-full items-center justify-between gap-3 border-b border-slate-200 px-3 py-2 text-left dark:border-slate-700"
+									on:click={() => {
+										selectedCategory = category;
+									}}
+								>
+									<span class="min-w-0 truncate text-sm font-semibold text-slate-950 dark:text-white">
+										{category}
+									</span>
+									<span
+										class={`shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold ${
+											issueCount(categoryMap[category])
+												? 'bg-rose-500/15 text-rose-700 dark:text-rose-300'
+												: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300'
+										}`}
+									>
+										{categoryMap[category].length}
+									</span>
+								</button>
+
+								<div class="divide-y divide-slate-100 dark:divide-slate-800">
+									{#each categoryMap[category] as item}
+										<div class="px-3 py-2">
+											<div class="flex items-center justify-between gap-3">
+												<div class="flex min-w-0 items-center gap-2">
+													<span class={`h-2 w-2 shrink-0 rounded-full ${statusDotClass(item)}`}></span>
+													<p class="min-w-0 text-sm font-medium leading-tight text-slate-700 dark:text-slate-200">
+														{item.key}
+													</p>
+												</div>
+												<div class="shrink-0 text-right">
+													<span class={`text-sm font-semibold tabular-nums ${statusTextClass(item)}`}>
+														{item.formatter(item.value)}
+													</span>
+													{#if item.units}
+														<span class="ml-1 text-[11px] font-medium text-slate-500 dark:text-slate-400">
+															{item.units}
+														</span>
+													{/if}
+												</div>
+											</div>
+											<div class="metric-track mt-1.5" style={metricStyle(item)}>
+												<span class="metric-safe"></span>
+												<span class="metric-fill"></span>
+											</div>
+										</div>
+									{/each}
+								</div>
+							</section>
+						{/each}
+					</div>
+
+					<section
+						class="min-w-0 rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900"
+					>
+						<div
+							class="flex items-center justify-between gap-3 border-b border-slate-200 px-3 py-2 dark:border-slate-700"
+						>
+							<div class="min-w-0">
+								<h2 class="truncate text-sm font-semibold text-slate-950 dark:text-white">
+									{selectedCategory}
+								</h2>
+								<p class="text-xs text-slate-500 dark:text-slate-400">
+									{selectedMetrics.length} readings
+								</p>
+							</div>
+							<span
+								class="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+							>
+								{selectedNominal}/{selectedMetrics.length} nominal
+							</span>
+						</div>
+
+						<div class="grid gap-2 p-3 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
+							{#each selectedMetrics as data}
 								<Gauge
 									name={data.key}
 									value={data.value}
@@ -327,9 +476,48 @@
 								/>
 							{/each}
 						</div>
-					</TabItem>
-				{/each}
-			</Tabs>
-		</div>
+					</section>
+				</div>
+			{/if}
+		</section>
+	{:else}
+		<section
+			class="rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-500 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400"
+		>
+			No telemetry received.
+		</section>
 	{/if}
 </div>
+
+<style>
+	.metric-track {
+		position: relative;
+		height: 0.375rem;
+		overflow: hidden;
+		border-radius: 999px;
+		background: rgb(244 63 94 / 0.45);
+	}
+
+	.metric-safe,
+	.metric-fill {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+	}
+
+	.metric-safe {
+		left: var(--min);
+		width: calc(var(--max) - var(--min));
+		background: rgb(16 185 129);
+	}
+
+	.metric-fill {
+		left: 0;
+		width: var(--value);
+		background: rgb(14 165 233 / 0.35);
+	}
+
+	:global(.dark) .metric-track {
+		background: rgb(190 18 60 / 0.5);
+	}
+</style>

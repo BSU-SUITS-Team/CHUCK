@@ -13,4 +13,4 @@
 	<meta name="description" content="ARSIS ground station" />
 </svelte:head>
 
-<section />
+<section></section>
