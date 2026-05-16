@@ -102225,7 +102225,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   image: {fileID: 181639923}
   firstColor: {r: 0, g: 0.78431374, b: 0, a: 0}
-  secondColor: {r: 0, g: 0.355, b: 0, a: 0}
+  secondColor: {r: 0, g: 1, b: 0, a: 0}
 --- !u!1 &1211095776
 GameObject:
   m_ObjectHideFlags: 0
