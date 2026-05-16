@@ -305,12 +305,8 @@
 				: 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:bg-slate-800 dark:hover:text-white'
 		}`;
 
-	const panelClass = (category: string) =>
-		`rounded-lg border bg-white shadow-sm transition dark:bg-slate-900 ${
-			category === selectedCategory
-				? 'border-sky-300 ring-1 ring-sky-200 dark:border-sky-500/80 dark:ring-sky-500/30'
-				: 'border-slate-200 dark:border-slate-700'
-		}`;
+	const panelClass =
+		'rounded-lg border border-slate-200 bg-white shadow-sm transition dark:border-slate-700 dark:bg-slate-900';
 
 	const statusDotClass = (metric: Metric) => {
 		const status = metricStatus(metric);
@@ -391,7 +387,7 @@
 				<div class="grid gap-3 p-3 xl:grid-cols-[minmax(0,1fr)_minmax(22rem,0.85fr)]">
 					<div class="grid auto-rows-min gap-3 2xl:grid-cols-2">
 						{#each categoryNames as category}
-							<section class={panelClass(category)}>
+							<section class={panelClass}>
 								<button
 									type="button"
 									class="flex w-full items-center justify-between gap-3 border-b border-slate-200 px-3 py-2 text-left dark:border-slate-700"
@@ -437,6 +433,7 @@
 											<div class="metric-track mt-1.5" style={metricStyle(item)}>
 												<span class="metric-safe"></span>
 												<span class="metric-fill"></span>
+												<span class="metric-marker"></span>
 											</div>
 										</div>
 									{/each}
@@ -499,7 +496,8 @@
 	}
 
 	.metric-safe,
-	.metric-fill {
+	.metric-fill,
+	.metric-marker {
 		position: absolute;
 		top: 0;
 		bottom: 0;
@@ -517,7 +515,21 @@
 		background: rgb(14 165 233 / 0.35);
 	}
 
+	.metric-marker {
+		left: var(--value);
+		width: 0.25rem;
+		transform: translateX(-0.125rem);
+		border-radius: 999px;
+		background: rgb(15 23 42);
+		box-shadow: 0 0 0 1px rgb(255 255 255 / 0.9);
+	}
+
 	:global(.dark) .metric-track {
 		background: rgb(190 18 60 / 0.5);
+	}
+
+	:global(.dark) .metric-marker {
+		background: rgb(226 232 240);
+		box-shadow: 0 0 0 1px rgb(15 23 42 / 0.8);
 	}
 </style>

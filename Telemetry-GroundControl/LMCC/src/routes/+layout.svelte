@@ -3,7 +3,7 @@
 	import Sidebar from './Sidebar.svelte';
 	import { slide } from 'svelte/transition';
 	import { graphdata, keepables, notifications } from './store';
-	import { Heading, DarkMode, Button, Span, Toast, Badge } from 'flowbite-svelte';
+	import { Heading, Button, Span, Toast, Badge } from 'flowbite-svelte';
 	import {
 		TrashBinOutline,
 		EditSolid,
@@ -18,6 +18,11 @@
 	import { formatTime } from '$lib/formatting';
 
 	if (browser) {
+		document.documentElement.classList.remove('dark');
+		localStorage.setItem('THEME_PREFERENCE_KEY', 'light');
+		localStorage.setItem('color-theme', 'light');
+		localStorage.setItem('theme', 'light');
+
 		const websocket = createWebSocketStore('ws://localhost:8181/ws/events');
 		const unsubscribe = datastore.subscribe(() => {});
 		onDestroy(() => {
@@ -56,9 +61,9 @@
 	$: elapsedTime = getElapsedTime($datastore);
 </script>
 
-<div class="flex flex-col h-screen">
+<div class="flex flex-col h-screen bg-slate-50 text-slate-900">
 	<div
-		class="h-16 border-b p-4 flex flex-row justify-between dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 text-lg"
+		class="h-16 border-b border-slate-200 bg-white p-4 flex flex-row justify-between text-slate-900 text-lg"
 	>
 		<div class="flex flex-row">
 			<p class="pr-12">Oxygen: <span class="text-blue-600 font-bold">96 Minuties</span></p>
@@ -74,10 +79,10 @@
 			{/if}
 		</p>
 	</div>
-	<div class="dark:bg-gray-900 flex overflow-hidden h-full">
+	<div class="bg-slate-50 flex overflow-hidden h-full">
 		<aside
 			class="absolute flex-grow-0 flex-shrink-0 w-fit
-					flex-col justify-between flex dark:bg-gray-800 border-r dark:border-gray-700"
+					flex-col justify-between flex bg-white border-r border-slate-200"
 			style="height: calc(100vh - 4rem);"
 		>
 			<span class="p-8 text-center">
@@ -85,9 +90,6 @@
 			</span>
 			<div class="min-h-0 flex-1 overflow-y-auto">
 				<Sidebar />
-			</div>
-			<div class="p-4 shrink-0">
-				<DarkMode />
 			</div>
 		</aside>
 
@@ -119,14 +121,14 @@
 
 		{#if hasSideBar}
 			<div
-				class="absolute right-0 p-5 bg-white dark:bg-gray-900 overflow-y-auto h-full border-l"
+				class="absolute right-0 p-5 bg-white overflow-y-auto h-full border-l border-slate-200"
 				style="width: 18rem; height: calc(100vh - 4rem);"
 			>
 				{#each new Set([...Object.keys($keepables), ...Object.keys($graphdata)]) as label}
-					<div class="border-b flex-row flex pb-2 mb-1 dark:border-gray-700">
+					<div class="border-b border-slate-200 flex-row flex pb-2 mb-1">
 						<Heading tag="h4">{label}</Heading>
-						<EditSolid class="dark:text-gray-400 mr-2 h-7 text-gray-800" href="/rover" />
-						<TrashBinOutline class="dark:text-gray-400 h-7 text-gray-800" />
+						<EditSolid class="mr-2 h-7 text-gray-800" href="/rover" />
+						<TrashBinOutline class="h-7 text-gray-800" />
 					</div>
 
 					{#if $keepables[label]}
