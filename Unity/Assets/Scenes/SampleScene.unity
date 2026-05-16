@@ -6874,6 +6874,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4917870212654306608, guid: 1453e7876c2bd614da4d4e7e683dee09, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1208344332}
+    - targetCorrespondingSourceObject: {fileID: 4917870212654306608, guid: 1453e7876c2bd614da4d4e7e683dee09, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1208344333}
   m_SourcePrefab: {fileID: 100100000, guid: 1453e7876c2bd614da4d4e7e683dee09, type: 3}
 --- !u!1 &71749518 stripped
 GameObject:
@@ -15288,6 +15291,17 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &181639923 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 727212707741343506, guid: 1453e7876c2bd614da4d4e7e683dee09, type: 3}
+  m_PrefabInstance: {fileID: 71749517}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1344c3c82d62a2a41a3576d8abb8e3ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &181829157
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -102129,6 +102143,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   source: hololens
   target: aia
+--- !u!114 &1208344333
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1208344319}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56ad0b1322a91419cb12a382facfffe6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  image: {fileID: 181639923}
+  firstColor: {r: 0, g: 0.78431374, b: 0, a: 0}
+  secondColor: {r: 0, g: 0.355, b: 0, a: 0}
 --- !u!1 &1211095776
 GameObject:
   m_ObjectHideFlags: 0
