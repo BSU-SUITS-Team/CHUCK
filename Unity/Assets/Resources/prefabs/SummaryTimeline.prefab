@@ -3296,6 +3296,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3945599707560585097, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
+      propertyPath: <IsToggled>k__BackingField.active
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3945599707560585099, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
       propertyPath: m_Size.y
       value: 32
