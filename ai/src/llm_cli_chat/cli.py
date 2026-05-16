@@ -264,4 +264,5 @@ def main() -> None:
         voice_config=voice_config,
         voice_model=voice_model,
         voice_event_api_url=args.ground_control_api_url,
+        aia_event_api_url=args.ground_control_api_url,
     ).run()

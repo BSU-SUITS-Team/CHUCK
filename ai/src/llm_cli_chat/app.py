@@ -13,6 +13,7 @@ from textual.app import App, ComposeResult
 from textual.containers import VerticalScroll
 from textual.widgets import Footer, Header, Input, LoadingIndicator, Select, Static
 
+from llm_cli_chat.aia_events import send_aia_message_event
 from llm_cli_chat.agent import FastAgentChatBackend
 from llm_cli_chat.voice import (
     VoiceInputConfig,
@@ -102,6 +103,7 @@ class ChatApp(App[None]):
         voice_config: VoiceInputConfig | None = None,
         voice_model: object | None = None,
         voice_event_api_url: str = "http://localhost:8181",
+        aia_event_api_url: str = "http://localhost:8181",
     ) -> None:
         super().__init__()
         self.backend = backend
@@ -109,6 +111,7 @@ class ChatApp(App[None]):
         self.voice_config = voice_config or VoiceInputConfig()
         self.voice_model = voice_model
         self.voice_events_url = events_websocket_url(voice_event_api_url)
+        self.aia_event_api_url = aia_event_api_url
         self.voice_controller: VoiceInputController | None = None
         self._app_thread_id: int | None = None
         self._audio_device_query_error: str | None = None
@@ -238,9 +241,17 @@ class ChatApp(App[None]):
         else:
             if not response:
                 self._update_assistant_message(assistant_message, "(no response)")
+            else:
+                await self._send_aia_message_event(response)
             self._status("Ready")
         finally:
             self._set_text_input_enabled(True)
+
+    async def _send_aia_message_event(self, message: str) -> None:
+        try:
+            await send_aia_message_event(self.aia_event_api_url, message)
+        except Exception as exc:  # noqa: BLE001 - speaking support should not break chat.
+            self._log_system(f"Could not send AIA message event: {exc}")
 
     def _start_voice_input(self) -> None:
         self.voice_controller = VoiceInputController(

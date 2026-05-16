@@ -26,6 +26,7 @@ namespace ARSIS.EventManager
             { "pins", typeof(Pins) },
             { "hololens_command", typeof(HololensCommand) },
             { "voice_transcription_command", typeof(VoiceTranscriptionCommand) },
+            { "aia_message", typeof(AiaMessage) },
         };
 
         public string type;
