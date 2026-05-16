@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ImageOutline, PlusSolid, TextSizeOutline, TrashBinOutline } from 'flowbite-svelte-icons';
+	import { ImageOutline, TextSizeOutline, TrashBinOutline } from 'flowbite-svelte-icons';
 	import type { MouseEventHandler } from 'svelte/elements';
 
 	export let onclick: MouseEventHandler<EventTarget>;
