@@ -60,6 +60,8 @@ public class ArmbarButtonList : MonoBehaviour
         //Move the indicators to be next to the associated button
         scrollAndPressIndicators.transform.position = buttons[index].transform.position;
 
+        scrollAndPressIndicators.transform.SetParent(buttons[index].transform);
+
         //If we're at the first or last item in the list, hide the scroll up or down indicator
         if (index == 0) scrollUpIndicator.SetActive(false);
         else scrollUpIndicator.SetActive(true);
