@@ -6,5 +6,5 @@ tasks:
 - description: EV CO2 scrubber is filled beyond 60% capacity
   name: Off Nominal CO2 Scrubber
   steps:
-  - body: 1. If DCU CO2 – PRI, switch DCU CO2 – SEC; If DCU CO2 – SEC, switch DCU CO2 – PRI
+  - body: "1. If DCU CO2 – PRI, switch DCU CO2 – SEC; If DCU CO2 – SEC, switch DCU CO2 – PRI"
     type: text
