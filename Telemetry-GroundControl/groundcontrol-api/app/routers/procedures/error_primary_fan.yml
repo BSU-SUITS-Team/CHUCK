@@ -1,0 +1,16 @@
+category: Built-In
+description: Procedure for handling off-nominal primary fan RPM during EVA. Will NOT prematurely end the test.
+duration: TBD
+name: Off Nominal Primary Fan
+tasks:
+- description: EV primary fan RPM is above or below 30,000
+  name: Off Nominal Primary Fan
+  steps:
+  - body: "1. DCU: FAN – SEC"
+    type: text
+  - body: "2. Return to PR as soon as possible"
+    type: text
+  - body: "3. Start the Navigate to PR procedure"
+    type: text
+  - body: "4. Start Ingress procedure upon arrival at PR"
+    type: text

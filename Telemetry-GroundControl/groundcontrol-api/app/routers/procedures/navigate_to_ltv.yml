@@ -1,0 +1,18 @@
+category: Built-In
+description: Procedure to Navigate to LTV Worksite
+duration: 3 mins
+name: Navigate to LTV Worksite
+tasks:
+- description: Navigate from HAB to the LTV worksite
+  name: Navigate to LTV Worksite
+  steps:
+  - body: 1. Open the EVA Egress procedure and complete EVA Egress procedure
+    type: text
+  - body: 2. Select the assigned LTV task board position from the navigation window, to determine best path to reach the LTV
+    type: text
+  - body: 3. Verbally confirm the path has been generated
+    type: text
+  - body: 4. Exit airlock and begin navigation to LTV worksite
+    type: text
+  - body: 5. Upon arrival at worksite, verbally confirm safe access to LTV
+    type: text
