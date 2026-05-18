@@ -1,4 +1,5 @@
 using ARSIS.EventManager;
+using MixedReality.Toolkit.UX;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -20,6 +21,9 @@ public class NotificationWindowManager : MonoBehaviour, IRenderable
     [Header("Reset All Button")]
     [SerializeField] private Button resetAllButton;
 
+    [Header("Clear History Button")]
+    [SerializeField] private PressableButton clearHistoryButton;
+
     // Local copy of notification data
     private List<BaseArsisEvent> _data = new();
 
@@ -36,6 +40,8 @@ public class NotificationWindowManager : MonoBehaviour, IRenderable
             resetAllButton.onClick.AddListener(OnResetAll);
         else
             Debug.LogWarning("NotificationWindowManager: no Reset All button assigned.");
+
+        clearHistoryButton?.OnClicked.AddListener(OnClearHistory);
     }
 
     private void OnDestroy()
@@ -44,6 +50,8 @@ public class NotificationWindowManager : MonoBehaviour, IRenderable
 
         if (resetAllButton != null)
             resetAllButton.onClick.RemoveListener(OnResetAll);
+
+        clearHistoryButton?.OnClicked.RemoveListener(OnClearHistory);
     }
 
     // Called by EventDatastore when notification data changes
@@ -110,6 +118,11 @@ public class NotificationWindowManager : MonoBehaviour, IRenderable
             // Register row so Update() can tick its timer
             _rows.Add(new NotificationRow(notification, timerLabel));
         }
+    }
+
+    public void OnClearHistory()
+    {
+        EventDatastore.Instance.ClearKey("notification");
     }
 
     private void OnResetAll()

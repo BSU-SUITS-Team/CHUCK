@@ -825,9 +825,9 @@ PlayerSettings:
       RecordedCallsFolder: True
       Contacts: True
       Proximity: True
+      InternetClient: True
       CodeGeneration: True
       BackgroundMediaPlayback: True
-      EnterpriseAuthentication: True
   metroTargetDeviceFamilies:
     Desktop: False
     Holographic: True
