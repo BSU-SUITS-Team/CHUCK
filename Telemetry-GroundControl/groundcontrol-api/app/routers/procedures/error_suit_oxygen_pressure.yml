@@ -6,12 +6,12 @@ tasks:
 - description: EV suit oxygen pressure is off nominal
   name: Off Nominal Suit Oxygen Pressure
   steps:
-  - body: 1. DCU: OXY – SEC
+  - body: "1. DCU: OXY – SEC"
     type: text
-  - body: 2. Return to PR as soon as possible
+  - body: "2. Return to PR as soon as possible"
     type: text
-  - body: 3. Start the Navigate to PR procedure
+  - body: "3. Start the Navigate to PR procedure"
     type: text
-  - body: 4. Start Ingress procedure upon arrival at PR
+  - body: "4. Start Ingress procedure upon arrival at PR"
     type: text
 
