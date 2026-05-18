@@ -49,7 +49,12 @@ namespace ARSIS.UI
         [SerializeField]
         private float followRecenterYawDegrees = 18f;
 
+        [Tooltip("When false, this window always opens centered in front of the camera and is excluded from the horizontal layout row.")]
+        [SerializeField]
+        private bool participatesInLayout = true;
+
         private int _registeredPrefabInstanceId = -1;
+        private int _layoutSlot = -1;
         private float _followTimer;
         private Vector3 _lastPlacementCameraPos;
         private Vector3 _lastPlacementCameraForward = Vector3.forward;
@@ -78,6 +83,15 @@ namespace ARSIS.UI
             }
 
             comp.Register(key);
+
+            if (comp.participatesInLayout && comp._layoutSlot < 0)
+            {
+                Camera cam = ResolveActiveCamera();
+                if (cam != null)
+                    comp._layoutSlot = WindowArrangementManager.RegisterWindow(
+                        comp, cam, comp.distanceMeters, comp.heightOffsetMeters);
+            }
+
             comp.ApplyPlacement();
         }
 
@@ -93,10 +107,20 @@ namespace ARSIS.UI
                 ByPrefabId.TryGetValue(_registeredPrefabInstanceId, out FloatingMenuFromPrefab owner) &&
                 owner == this)
                 ByPrefabId.Remove(_registeredPrefabInstanceId);
+
+            if (participatesInLayout && _layoutSlot >= 0)
+            {
+                WindowArrangementManager.UnregisterWindow(this);
+                _layoutSlot = -1;
+            }
         }
 
         private void Update()
         {
+            // Layout windows are fixed in world space; follow-camera has no effect on them.
+            if (participatesInLayout && _layoutSlot >= 0)
+                return;
+
             if (!followCameraWhileOpen || !gameObject.activeInHierarchy)
                 return;
             _followTimer += Time.deltaTime;
@@ -153,7 +177,11 @@ namespace ARSIS.UI
                 forward = cam.transform.forward;
             forward.Normalize();
 
-            Vector3 pos = cam.transform.position + forward * distanceMeters + Vector3.up * heightOffsetMeters;
+            Vector3 pos;
+            if (participatesInLayout && _layoutSlot >= 0 && WindowArrangementManager.IsAnchorEstablished)
+                pos = WindowArrangementManager.GetSlotWorldPosition(_layoutSlot);
+            else
+                pos = cam.transform.position + forward * distanceMeters + Vector3.up * heightOffsetMeters;
             Quaternion face = FacingUserRotation(pos, cam.transform.position);
             face *= Quaternion.Euler(pitchOffsetDegrees, yawOffsetDegrees, 0f);
             root.SetPositionAndRotation(pos, face);
