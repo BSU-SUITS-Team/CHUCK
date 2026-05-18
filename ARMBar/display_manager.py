@@ -3,8 +3,12 @@ import tkinter as tk
 class DisplayManager:
     def __init__(self):
         self.root = tk.Tk()
+        self.root.attributes("-fullscreen", True)
+        self.root.configure(bg="black")
         self.root.title("Armbar Display")
         self.root.geometry("400x300")
+        self.root.bind("<Escape>", lambda e: self.root.destroy())
+        # This code will help the display of the Arm Bar
 
         # Title
         self.title_label = tk.Label(self.root, text="Armbar System", font=("Arial", 16, "bold"))
@@ -51,3 +55,11 @@ class DisplayManager:
 
     def show_warning(self, msg):
         print(f"WARNING: {msg}")
+
+        # sudo nano /etc/systemd/system/chuck.service
+        #sudo systemctl daemon-reload
+        #sudo systemctl enable chuck.service
+        #sudo systemctl start chuck.service
+        #sudo reboot
+        #sudo chown -R pi /home/pi/CHUCK-main
+        #python3 /home/pi/CHUCK-main/ARMBar/main.py

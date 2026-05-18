@@ -28,3 +28,10 @@ except KeyboardInterrupt:
 
 client_sock.close()
 server_sock.close()
+#This to initiate the bluetooth script for the bluetooth connection to the holo lens
+#sudo apt update
+#sudo apt install bluetooth bluez bluez-tools python3-bluez
+#sudo systemctl enable bluetooth
+#sudo systemctl start bluetooth
+#bluetoothctl
+#remember to add the terminal code for the raspbery pi first
