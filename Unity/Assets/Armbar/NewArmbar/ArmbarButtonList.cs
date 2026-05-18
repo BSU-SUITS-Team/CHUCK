@@ -23,17 +23,26 @@ public class ArmbarButtonList : MonoBehaviour
     private void Awake()
     {
         //Populate a list of PressableButtons based on the children of buttonListParent
+        RefreshList();
+    }
+
+    private void RefreshList()
+    {
+        buttons.Clear();
         foreach(PressableButton pb in buttonListParent.GetComponentsInChildren<PressableButton>()) buttons.Add(pb);
+        UpdateIndicators();
     }
 
     public void MoveDown()
     {
+        RefreshList();
         if (index < buttons.Count - 1) index ++;
         UpdateIndicators();
     }
 
     public void MoveUp()
     {
+        RefreshList();
         if (index > 0) index --;
         UpdateIndicators();
     }
@@ -45,6 +54,9 @@ public class ArmbarButtonList : MonoBehaviour
 
     private void UpdateIndicators()
     {
+        if (buttons.Count == 0) scrollAndPressIndicators.SetActive(false);
+        else scrollAndPressIndicators.SetActive(true);
+
         //Move the indicators to be next to the associated button
         scrollAndPressIndicators.transform.position = buttons[index].transform.position;
 
