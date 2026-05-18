@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using MixedReality.Toolkit.UX;
+using Unity.VisualScripting;
 
 [RequireComponent(typeof(ArmbarControllable))]
 public class ArmbarButtonList : MonoBehaviour
@@ -31,6 +32,7 @@ public class ArmbarButtonList : MonoBehaviour
         buttons.Clear();
         foreach(PressableButton pb in buttonListParent.GetComponentsInChildren<PressableButton>()) buttons.Add(pb);
         UpdateIndicators();
+        Invoke("UpdateIndicators", 0.1f);
     }
 
     public void MoveDown()

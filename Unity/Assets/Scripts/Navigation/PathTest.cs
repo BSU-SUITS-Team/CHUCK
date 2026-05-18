@@ -584,7 +584,26 @@ public class PathTest : MonoBehaviour
         routeEndSelection = (RouteEndSelection)(((int)routeEndSelection + 1) % 3);
         ApplyRouteEndSelectionToEndCoordinate();
         if (pathSessionActive)
+        {
+            InvalidateWorldRouteForNewGoal();
             ForceRepath();
+        }
+    }
+
+    /// <summary>Clears frozen world goal + full floor route so A/B/HAB changes rebuild polyline and the red world marker.</summary>
+    private void InvalidateWorldRouteForNewGoal()
+    {
+        _sessionWorldGoalLockValid = false;
+        _sessionFullRouteValid = false;
+        _sessionFullSnapNodes.Clear();
+        _sessionFullWorldFloorPolyline.Clear();
+    }
+
+    private bool WorldGoalLockMatchesResolvedEnd()
+    {
+        return _sessionWorldGoalLockValid
+            && _lineResolvedEnd.x == _sessionWorldGoalLockEndCell.x
+            && _lineResolvedEnd.y == _sessionWorldGoalLockEndCell.y;
     }
 
     /// <summary>Turns pathfinding visuals and periodic repath on or off (map/world arrows, line, distance, markers).</summary>
@@ -2033,6 +2052,7 @@ public class PathTest : MonoBehaviour
             RebuildMapArrows();
         }
         RebuildWorldArrows();
+        UpdateEndPointWorldMarker();
         _chartGridAtLastRepath = resolvedStart;
         LogPathDiagnostics(resolvedStart, resolvedEnd, mapVisible);
     }
@@ -2658,6 +2678,9 @@ public class PathTest : MonoBehaviour
         _snapStartX = _lineResolvedStart.x;
         _snapStartY = _lineResolvedStart.y;
         _snapMapStartWorld = _snapPathMapPoints[0];
+
+        if (_sessionFullRouteValid && !WorldGoalLockMatchesResolvedEnd())
+            InvalidateWorldRouteForNewGoal();
 
         if (_sessionFullRouteValid)
         {

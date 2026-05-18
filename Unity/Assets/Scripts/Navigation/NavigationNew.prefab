@@ -1244,6 +1244,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 3789745260425431159}
     - target: {fileID: 8762147279310951890, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
+      propertyPath: indicators.Array.data[2]
+      value: 
+      objectReference: {fileID: 8946007244015403588}
+    - target: {fileID: 8762147279310951890, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
       propertyPath: Button3Pressed.m_PersistentCalls.m_Calls.Array.size
       value: 1
       objectReference: {fileID: 0}
@@ -1403,8 +1407,8 @@ MonoBehaviour:
   mapNorthReference: {fileID: 4779505322126007357}
   pathDistanceReadout: {fileID: 0}
   ensurePathDistanceInSidebar: 1
-  aCoordinate: {x: -5635, y: -9960}
-  bCoordinate: {x: -5615, y: -9995}
+  aCoordinate: {x: -5635, y: -9980}
+  bCoordinate: {x: -5615, y: -10015}
   habCoordinate: {x: -5670, y: -10060}
   routeEndSelection: 0
 --- !u!114 &9182736455463728190
@@ -1420,7 +1424,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   distanceMeters: 0.65
-  heightOffsetMeters: -10
+  heightOffsetMeters: 0
   placementCameraOverride: {fileID: 0}
   yawOffsetDegrees: 180
   pitchOffsetDegrees: 0
@@ -1428,6 +1432,7 @@ MonoBehaviour:
   followUpdateIntervalSeconds: 0.05
   followRecenterDistanceMeters: 0.2
   followRecenterYawDegrees: 18
+  participatesInLayout: 1
 --- !u!114 &1967866001154813518
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1480,9 +1485,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   buttonListParent: {fileID: 7524080289168672605}
-  scrollAndPressIndicators: {fileID: 0}
-  scrollUpIndicator: {fileID: 0}
-  scrollDownIndicator: {fileID: 0}
+  scrollAndPressIndicators: {fileID: 8946007244015403588}
+  scrollUpIndicator: {fileID: 2446360125674983137}
+  scrollDownIndicator: {fileID: 8806883457873265250}
 --- !u!1 &3789745260425431159 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3943953690407923538, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
@@ -1635,6 +1640,11 @@ RectTransform:
 --- !u!224 &6755119273415781096 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8653815945047313346, guid: f9b9823b44ef6cc469b6622eb29715ba, type: 3}
+  m_PrefabInstance: {fileID: 2713285669882405162}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &8806883457873265250 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6890458127875138376, guid: f9b9823b44ef6cc469b6622eb29715ba, type: 3}
   m_PrefabInstance: {fileID: 2713285669882405162}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &4430536972688294060
@@ -2100,5 +2110,10 @@ RectTransform:
 --- !u!224 &1786059335908161017 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5667377814202124926, guid: ef3208b86514df04aa67c87b183baafc, type: 3}
+  m_PrefabInstance: {fileID: 6228418466628632455}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &2446360125674983137 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8619043106528457062, guid: ef3208b86514df04aa67c87b183baafc, type: 3}
   m_PrefabInstance: {fileID: 6228418466628632455}
   m_PrefabAsset: {fileID: 0}
