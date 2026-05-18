@@ -8,7 +8,7 @@
 
 <div>
 	<DrawSquareSolid
-		on:click={() => {
+		onclick={() => {
 			onclick();
 			toggled = !toggled;
 		}}

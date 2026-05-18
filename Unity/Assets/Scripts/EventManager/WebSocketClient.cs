@@ -79,7 +79,7 @@ namespace ARSIS.EventManager
 
         private bool ShouldDiscardCommand(BaseArsisEvent wsEvent)
         {
-            if (!(wsEvent is HololensCommand))
+            if (!(wsEvent is HololensCommand) && !(wsEvent is ArmbarButtonPress))
                 return false;
 
             if (wsEvent.time <= applicationStartTimeNs)

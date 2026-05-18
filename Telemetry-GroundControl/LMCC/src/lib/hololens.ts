@@ -1,3 +1,5 @@
+import { apiUrl } from '$lib/api';
+
 export type HololensCommandAction = 'open_window' | 'close_window' | 'open_procedure';
 
 export type HololensCommand = {
@@ -53,7 +55,7 @@ export const hololensWindows: HololensWindowOption[] = [
 ];
 
 export async function sendHololensCommand(command: HololensCommand) {
-	const response = await fetch('http://localhost:8181/hololens/commands', {
+	const response = await fetch(apiUrl('/hololens/commands'), {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json'

@@ -16,6 +16,7 @@
 	} from 'flowbite-svelte';
 	import { onMount } from 'svelte';
 	import { openHololensProcedure } from '$lib/hololens';
+	import { apiUrl } from '$lib/api';
 
 	const enableLocalStagedProcedures = false;
 
@@ -525,7 +526,7 @@
 		: [];
 
 	function createNewProcedure(procedure: Object) {
-		const endpoint = 'http://localhost:8181/procedures/';
+		const endpoint = apiUrl('/procedures/');
 		fetch(endpoint, {
 			method: 'POST',
 			headers: {
@@ -597,7 +598,7 @@
 						<Button
 							size="xs"
 							color="alternative"
-							on:click={() => sendProcedureToHololens(prcedure)}
+							onclick={() => sendProcedureToHololens(prcedure)}
 						>
 							Send
 						</Button>
@@ -613,7 +614,7 @@
 							<p>{proc.duration}</p>
 							<Button
 								color="dark"
-								on:click={() => {
+								onclick={() => {
 									createNewProcedure(proc);
 								}}
 							>
@@ -625,7 +626,7 @@
 						<Button
 							size="xs"
 							color="alternative"
-							on:click={() => sendProcedureToHololens(proc.name)}
+							onclick={() => sendProcedureToHololens(proc.name)}
 						>
 							Send
 						</Button>
