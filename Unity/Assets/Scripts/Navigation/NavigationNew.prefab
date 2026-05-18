@@ -1403,6 +1403,10 @@ MonoBehaviour:
   mapNorthReference: {fileID: 4779505322126007357}
   pathDistanceReadout: {fileID: 0}
   ensurePathDistanceInSidebar: 1
+  aCoordinate: {x: -5635, y: -9960}
+  bCoordinate: {x: -5615, y: -9995}
+  habCoordinate: {x: -5670, y: -10060}
+  routeEndSelection: 0
 --- !u!114 &9182736455463728190
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1416,7 +1420,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   distanceMeters: 0.65
-  heightOffsetMeters: 0
+  heightOffsetMeters: -10
   placementCameraOverride: {fileID: 0}
   yawOffsetDegrees: 180
   pitchOffsetDegrees: 0
