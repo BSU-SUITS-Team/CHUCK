@@ -16,7 +16,7 @@
 	}
 </script>
 
-<button class="absolute right-8 -translate-y-8 -translate-x-1/2 p-1.5" on:click={onclick}>
+<button class="absolute right-8 -translate-y-8 -translate-x-1/2 p-1.5" onclick={onclick}>
 	{#if !isImage}
 		<ImageOutline class="w-3 h-3 text-gray-700" />
 	{:else}

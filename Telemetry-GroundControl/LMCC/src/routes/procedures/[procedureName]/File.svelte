@@ -21,7 +21,7 @@
 	<input
 		type="file"
 		bind:this={fileInput}
-		on:change={handleFileSelect}
+		onchange={handleFileSelect}
 		class="-translate-y-3 -translate-x-2"
 	/>
 </div>

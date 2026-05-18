@@ -77,7 +77,7 @@
 						size="sm"
 						color="alternative"
 						disabled={pendingCommand === `open:${windowOption.id}`}
-						on:click={() => sendWindowCommand('open', windowOption)}
+						onclick={() => sendWindowCommand('open', windowOption)}
 					>
 						<PlayOutline class="mr-2 h-4 w-4" />
 						Open
@@ -86,7 +86,7 @@
 						size="sm"
 						color="alternative"
 						disabled={pendingCommand === `close:${windowOption.id}`}
-						on:click={() => sendWindowCommand('close', windowOption)}
+						onclick={() => sendWindowCommand('close', windowOption)}
 					>
 						<CloseOutline class="mr-2 h-4 w-4" />
 						Close

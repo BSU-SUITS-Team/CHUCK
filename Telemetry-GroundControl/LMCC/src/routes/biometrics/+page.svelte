@@ -357,7 +357,7 @@
 						<button
 							type="button"
 							class={astronautButtonClass(astro === selectedAstroKey)}
-							on:click={() => {
+							onclick={() => {
 								selectedAstro = astro;
 							}}
 						>
@@ -374,7 +374,7 @@
 							<button
 								type="button"
 								class={categoryButtonClass(category === selectedCategory)}
-								on:click={() => {
+								onclick={() => {
 									selectedCategory = category;
 								}}
 							>
@@ -391,7 +391,7 @@
 								<button
 									type="button"
 									class="flex w-full items-center justify-between gap-3 border-b border-slate-200 px-3 py-2 text-left dark:border-slate-700"
-									on:click={() => {
+									onclick={() => {
 										selectedCategory = category;
 									}}
 								>

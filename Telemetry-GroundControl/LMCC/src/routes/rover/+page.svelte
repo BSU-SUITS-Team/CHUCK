@@ -40,7 +40,7 @@
     <Button color="alternative">Location: &nbsp (<Span highlight>31.9686</Span>,<Span highlight>99.9018</Span>)</Button> -->
 	<div style="width: 40rem;">
 		{#each data as item}
-			<Button color="alternative" on:click={() => keepables.addElement('ROVER', item)} class="m-1">
+			<Button color="alternative" onclick={() => keepables.addElement('ROVER', item)} class="m-1">
 				{item[0]} &nbsp
 				<Span highlight>{item[1]}</Span>
 			</Button>

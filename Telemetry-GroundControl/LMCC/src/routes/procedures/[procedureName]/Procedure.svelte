@@ -5,6 +5,7 @@
 	import { datastore } from '$lib/datastore';
 	import { get, writable } from 'svelte/store';
 	import { openHololensProcedure } from '$lib/hololens';
+	import { apiUrl } from '$lib/api';
 
 	export let name: string;
 	let editMode = false;
@@ -33,7 +34,7 @@
 				duration: current.duration,
 				tasks: allSteps
 			};
-			const endpoint = 'http://localhost:8181/procedures/';
+			const endpoint = apiUrl('/procedures/');
 			fetch(endpoint, {
 				method: 'POST',
 				headers: {
@@ -76,12 +77,12 @@
 	</div>
 	<div class="flex gap-2">
 		{#if !editMode}
-			<Button color="alternative" on:click={sendCurrentProcedureToHololens}>
+			<Button color="alternative" onclick={sendCurrentProcedureToHololens}>
 				Send to Hololens
 			</Button>
-			<Button color="none" on:click={toggleEditMode}><EditOutline /></Button>
+			<Button color="none" onclick={toggleEditMode}><EditOutline /></Button>
 		{:else}
-			<Button color="alternative" on:click={toggleEditMode}>Save</Button>
+			<Button color="alternative" onclick={toggleEditMode}>Save</Button>
 		{/if}
 	</div>
 </div>
