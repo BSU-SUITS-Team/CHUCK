@@ -203,7 +203,7 @@ public class TSSConnectionManager : MonoBehaviour
         FanErrorLatch.UpdateFromLive(fanLive);
         OxyErrorLatch.UpdateFromLive(oxyLive);
         PowerErrorLatch.UpdateFromLive(powerLive);
-        ScrubberErrorLatch.UpdateFromLive(scrubberLive);
+        ScrubberErrorLatch.UpdateFromLiveAutoClear(scrubberLive);
     }
 
     // Reset methods
@@ -225,18 +225,18 @@ public class TSSConnectionManager : MonoBehaviour
         ErrorLatchUpdated?.Invoke();
     }
 
-    public void ResetScrubberError()
-    {
-        ScrubberErrorLatch.Reset();
-        ErrorLatchUpdated?.Invoke();
-    }
+    // public void ResetScrubberError()
+    // {
+    //     ScrubberErrorLatch.Reset();
+    //     ErrorLatchUpdated?.Invoke();
+    // }
 
     public void ResetAllErrors()
     {
         FanErrorLatch.Reset();
         OxyErrorLatch.Reset();
         PowerErrorLatch.Reset();
-        ScrubberErrorLatch.Reset();
+        // ScrubberErrorLatch.Reset();
         ErrorLatchUpdated?.Invoke();
     }
 
@@ -295,6 +295,21 @@ public class ErrorLatch
         {
             latched = true;
             trippedAtTime = Time.unscaledTime;
+        }
+    }
+
+    public void UpdateFromLiveAutoClear(bool isLive)
+    {
+        live = isLive;
+
+        if (isLive && !latched)
+        {
+            latched = true;
+            trippedAtTime = Time.unscaledTime;
+        }
+        else if (!isLive && latched)
+        {
+            Reset();
         }
     }
 
