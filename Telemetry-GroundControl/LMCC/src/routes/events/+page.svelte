@@ -71,7 +71,7 @@
 				<Badge color="gray">{filteredEvents.length} shown</Badge>
 			</div>
 		</div>
-		<Button color="alternative" on:click={clearLog}>Clear</Button>
+		<Button color="alternative" onclick={clearLog}>Clear</Button>
 	</div>
 
 	<div
@@ -135,7 +135,7 @@
 						<button
 							type="button"
 							class="grid w-full grid-cols-[9rem_9rem_11rem_minmax(16rem,1fr)] gap-3 border-b border-gray-100 px-4 py-3 text-left text-sm hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800"
-							on:click={() =>
+							onclick={() =>
 								(expandedEventId = expandedEventId === event.id ? undefined : event.id)}
 						>
 							<span class="font-mono text-xs text-gray-600 dark:text-gray-300">

@@ -1,6 +1,7 @@
 <script>
 	import { goto } from '$app/navigation';
 	import { Input, Label, Button } from 'flowbite-svelte';
+	import { apiUrl } from '$lib/api';
 
 	let name = '';
 	let description = '';
@@ -13,7 +14,7 @@
 			duration: 'Empty Procedure',
 			tasks: [{ name: '', description: '', steps: [] }]
 		};
-		const endpoint = 'http://localhost:8181/procedures/';
+		const endpoint = apiUrl('/procedures/');
 		fetch(endpoint, {
 			method: 'POST',
 			headers: {
@@ -34,6 +35,6 @@
 		<Input bind:value={name} />
 		<Label>Description</Label>
 		<Input bind:value={description} />
-		<Button class="mt-2 w-full" on:click={createNewProcedure}>Create</Button>
+		<Button class="mt-2 w-full" onclick={createNewProcedure}>Create</Button>
 	</div>
 </div>

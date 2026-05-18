@@ -12,6 +12,7 @@
 		LightbulbOutline
 	} from 'flowbite-svelte-icons';
 	import TinyGraph from './TinyGraph.svelte';
+	import { getWebSocketEventsUrl } from '$lib/api';
 	import { createWebSocketStore, datastore } from '$lib/datastore';
 	import { onDestroy } from 'svelte';
 	import { browser } from '$app/environment';
@@ -23,7 +24,7 @@
 		localStorage.setItem('color-theme', 'light');
 		localStorage.setItem('theme', 'light');
 
-		const websocket = createWebSocketStore('ws://localhost:8181/ws/events');
+		const websocket = createWebSocketStore(getWebSocketEventsUrl());
 		const unsubscribe = datastore.subscribe(() => {});
 		onDestroy(() => {
 			unsubscribe();
@@ -71,13 +72,13 @@
 				<p>Elapsed Time: {formatTime(elapsedTime)}</p>
 			{/if}
 		</div>
-		<p>
+		<div>
 			{#if $datastore.connected}
 				<Badge color="green" class="ml-4">Connected</Badge>
 			{:else}
 				<Badge class="ml-4">Connecting</Badge>
 			{/if}
-		</p>
+		</div>
 	</div>
 	<div class="bg-slate-50 flex overflow-hidden h-full">
 		<aside
@@ -137,7 +138,7 @@
 								<div class="p-1">
 									<Button
 										color="alternative"
-										on:click={() => keepables.removeElement(label, item[0])}
+										onclick={() => keepables.removeElement(label, item[0])}
 									>
 										{item[0]}&nbsp
 										<Span highlight>{item[1]}</Span>
@@ -150,10 +151,10 @@
 						{#each Object.keys($graphdata[label]) as graph}
 							<div
 								class="h-52 flex p-3"
-								on:click={() => graphdata.removeGraph(label, graph)}
+								onclick={() => graphdata.removeGraph(label, graph)}
 								role="button"
 								tabindex="0"
-								on:keydown={() => graphdata.removeGraph(label, graph)}
+								onkeydown={() => graphdata.removeGraph(label, graph)}
 							>
 								<TinyGraph
 									graphdata={$graphdata[label][graph]}

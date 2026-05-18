@@ -8,6 +8,7 @@
 	import PinButton from './PinButton.svelte';
 	import BoxButton from './BoxButton.svelte';
 	import PathButton from './PathButton.svelte';
+	import { apiUrl } from '$lib/api';
 	import { datastore } from '$lib/datastore';
 	import { Button, Input } from 'flowbite-svelte';
 
@@ -175,7 +176,7 @@
 	}
 
 	async function addPin(x: number, y: number, id: string | number | null = null, name = '') {
-		const url = 'http://localhost:8181/navigation/pins';
+		const url = apiUrl('/navigation/pins');
 		const data = {
 			x,
 			y,
@@ -293,12 +294,15 @@
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div
 	bind:this={viewport}
-	on:wheel|preventDefault={handleWheel}
-	on:pointerdown={handlePointerDown}
-	on:pointermove={handlePointerMove}
-	on:pointerup={handlePointerUp}
-	on:pointercancel={handlePointerUp}
-	on:dragstart={handleDragStart}
+	onwheel={(event) => {
+		event.preventDefault();
+		handleWheel(event);
+	}}
+	onpointerdown={handlePointerDown}
+	onpointermove={handlePointerMove}
+	onpointerup={handlePointerUp}
+	onpointercancel={handlePointerUp}
+	ondragstart={handleDragStart}
 	class:cursor-grabbing={isPanning}
 	class:cursor-crosshair={isPlacingPin}
 	class="relative h-full w-full cursor-grab overflow-hidden bg-slate-100"
@@ -307,7 +311,7 @@
 	<img
 		src={image}
 		bind:this={img}
-		on:load={handleImageLoad}
+		onload={handleImageLoad}
 		alt="Rock yard map"
 		draggable="false"
 		style="
@@ -342,7 +346,7 @@
 					class="rounded p-2 text-slate-600 transition hover:bg-white hover:text-slate-950"
 					aria-label="Zoom out"
 					title="Zoom out"
-					on:click={() => zoomAtCenter(1 / 1.2)}
+					onclick={() => zoomAtCenter(1 / 1.2)}
 				>
 					<ZoomOutOutline class="h-5 w-5" />
 				</button>
@@ -351,7 +355,7 @@
 					class="rounded p-2 text-slate-600 transition hover:bg-white hover:text-slate-950"
 					aria-label="Reset map"
 					title="Reset map"
-					on:click={resetView}
+					onclick={resetView}
 				>
 					<HomeOutline class="h-5 w-5" />
 				</button>
@@ -360,7 +364,7 @@
 					class="rounded p-2 text-slate-600 transition hover:bg-white hover:text-slate-950"
 					aria-label="Zoom in"
 					title="Zoom in"
-					on:click={() => zoomAtCenter(1.2)}
+					onclick={() => zoomAtCenter(1.2)}
 				>
 					<ZoomInOutline class="h-5 w-5" />
 				</button>
@@ -400,7 +404,7 @@
 		<label class="text-sm font-semibold text-slate-800" for="pin-label">Pin Label</label>
 		<Input id="pin-label" bind:value={newname} class="mt-2" />
 		<div class="mt-4 flex justify-end">
-			<Button color="alternative" on:click={updatePinName}>Confirm</Button>
+			<Button color="alternative" onclick={updatePinName}>Confirm</Button>
 		</div>
 	</div>
 {/if}

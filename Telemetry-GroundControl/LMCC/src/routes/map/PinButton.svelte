@@ -10,7 +10,7 @@
 
 <button>
 	<MapPinAltSolid
-		on:click={onclick}
+		onclick={onclick}
 		class="m-2 w-5 h-5 text-{color}-{bright ? '500' : '100'}
 		transition duration-75 focus:outline-none"
 		style={move ? 'transform: translate3d(-95%, -150%, 0);' : ''}
