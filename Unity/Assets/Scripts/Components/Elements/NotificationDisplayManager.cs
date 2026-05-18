@@ -40,6 +40,10 @@ public class NotificationDisplayManager : MonoBehaviour, IRenderable
     // Whether we're actively showing a popup
     private bool _isShowing = false;
 
+    private bool _currentNotificationIsScrubber = false;
+
+    private TSSConnectionManager Manager => TSSConnectionManager.Instance;
+
     public void Render(List<BaseArsisEvent> data)
     {
         this.data = data;
@@ -57,9 +61,25 @@ public class NotificationDisplayManager : MonoBehaviour, IRenderable
     {
         if (!_isShowing) return;
 
-        _displayTimer += Time.deltaTime;
-        if (_displayTimer >= autoDismissDuration)
+        // Scrubber notification should persist until the scrubber error bool resets to false.
+        if (_currentNotificationIsScrubber)
+        {
+            if (Manager != null && Manager.ScrubberErrorLatch.live)
+            {
+                return;
+            }
+
+            // Once the scrubber bool is false, remove the persistent popup.
             Dismiss();
+            return;
+        }
+
+        _displayTimer += Time.deltaTime;
+
+        if (_displayTimer >= autoDismissDuration)
+        {
+            Dismiss();
+        }
     }
 
     /// <summary>
@@ -67,6 +87,11 @@ public class NotificationDisplayManager : MonoBehaviour, IRenderable
     /// </summary>
     public void DismissButton()
     {
+        if (_currentNotificationIsScrubber && Manager != null && Manager.ScrubberErrorLatch.live)
+        {
+            return;
+        }
+
         Dismiss();
     }
 
@@ -93,6 +118,10 @@ public class NotificationDisplayManager : MonoBehaviour, IRenderable
     private void ShowNotification(BaseArsisEvent baseEvent)
     {
         if (baseEvent is not ARSIS.EventManager.Notifications notification) return;
+
+        _currentNotificationIsScrubber =
+            notification.data.content != null &&
+            notification.data.content.ToLower().Contains("scrubber");
 
         // Clear any existing popup
         HidePopup();
@@ -149,6 +178,7 @@ public class NotificationDisplayManager : MonoBehaviour, IRenderable
 
         _isShowing = false;
         _displayTimer = 0f;
+        _currentNotificationIsScrubber = false;
     }
 
     private void OnDestroy()
@@ -202,7 +232,7 @@ public class NotificationDisplayManager : MonoBehaviour, IRenderable
 //         if (data.Count == 0) return;
 //         if(lastNotification >= data.Count)
 //         {
-            
+
 //             foreach (Transform child in mainParentObject.transform)
 //             {
 //                 Destroy(child.gameObject);

@@ -117,10 +117,10 @@ public class TSSLatchedErrorView : MonoBehaviour
         Manager?.ResetPowerError();
     }
 
-    public void ResetScrubberError()
-    {
-        Manager?.ResetScrubberError();
-    }
+    // public void ResetScrubberError()
+    // {
+    //     Manager?.ResetScrubberError();
+    // }
 
     public void ResetAllErrors()
     {

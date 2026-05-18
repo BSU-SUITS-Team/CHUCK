@@ -129,7 +129,7 @@
 
 	<br />
 	{#if editMode}
-		<Button color="alternative" class="m-1" on:click={createNewStep}>New Step</Button>
-		<Button class="m-1" on:click={removeThisStep}>Remove</Button>
+		<Button color="alternative" class="m-1" onclick={createNewStep}>New Step</Button>
+		<Button class="m-1" onclick={removeThisStep}>Remove</Button>
 	{/if}
 </TimelineItem>

@@ -790,7 +790,6 @@ PlayerSettings:
   metroSplashScreenUseBackgroundColor: 0
   platformCapabilities:
     WindowsStoreApps:
-      EnterpriseAuthentication: True
       VideosLibrary: True
       Location: True
       HumanInterfaceDevice: True
@@ -803,6 +802,7 @@ PlayerSettings:
       InternetClientServer: True
       OfflineMapsManagement: True
       Objects3D: True
+      InternetClient: True
       RemoteSystem: True
       BlockedChatMessages: True
       PhoneCall: True

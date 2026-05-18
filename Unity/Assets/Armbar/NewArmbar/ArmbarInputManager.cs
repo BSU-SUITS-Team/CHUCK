@@ -1,18 +1,47 @@
 using System.Collections;
 using System.Collections.Generic;
+using ARSIS.EventManager;
 using UnityEngine;
 
 //This script goes in the root of the scene and is used to determine what menu the user is looking at, 
 //and if they're looking at one and press a button on their armbar, send the input to the ArmbarControllable on the menu
-public class ArmbarInputManager : MonoBehaviour
+public class ArmbarInputManager : MonoBehaviour, IRenderable
 {
+    private const string ArmbarButtonPressEventType = "armbar_button_press";
+
     //A reference to the menu currently being controlled
     private ArmbarControllable controlledMenu;
+    private readonly object eventLock = new object();
+    private List<BaseArsisEvent> armbarButtonPressEvents = new List<BaseArsisEvent>();
+    private bool hasRemoteButtonPressChanges;
+    private int processedRemoteButtonPressCount;
+    private long lastHandledRemoteButtonPressTime;
+
+    void OnEnable()
+    {
+        lastHandledRemoteButtonPressTime = WebSocketClient.GetUnixTimeNanoseconds();
+        EventDatastore.Instance.AddHandler(ArmbarButtonPressEventType, this);
+    }
+
+    void OnDisable()
+    {
+        EventDatastore.Instance.RemoveHandler(ArmbarButtonPressEventType, this);
+    }
+
+    public void Render(List<BaseArsisEvent> data)
+    {
+        lock (eventLock)
+        {
+            armbarButtonPressEvents = new List<BaseArsisEvent>(data);
+            hasRemoteButtonPressChanges = true;
+        }
+    }
 
     void Update()
     {
         CheckInput();
         CheckControlledMenu();
+        ProcessRemoteButtonPresses();
     }
 
     //Raycast out and update controlledMenu if we're looking at a new menu
@@ -61,5 +90,54 @@ public class ArmbarInputManager : MonoBehaviour
         else if (Input.GetKeyDown("4")) controlledMenu.InvokeButton(4);
         else if (Input.GetKeyDown("5")) controlledMenu.InvokeButton(5);
         else if (Input.GetKeyDown("6")) controlledMenu.InvokeButton(6);
+    }
+
+    private void ProcessRemoteButtonPresses()
+    {
+        List<BaseArsisEvent> events;
+
+        lock (eventLock)
+        {
+            if (!hasRemoteButtonPressChanges)
+                return;
+
+            events = new List<BaseArsisEvent>(armbarButtonPressEvents);
+            hasRemoteButtonPressChanges = false;
+        }
+
+        if (processedRemoteButtonPressCount > events.Count)
+            processedRemoteButtonPressCount = 0;
+
+        for (int i = processedRemoteButtonPressCount; i < events.Count; i++)
+        {
+            if (events[i] is not ArmbarButtonPress press)
+                continue;
+
+            if (press.time <= lastHandledRemoteButtonPressTime)
+                continue;
+
+            int button = press.data != null ? press.data.button : 0;
+            if (button < 1 || button > 6)
+            {
+                Debug.LogWarning($"ArmbarInputManager: Ignoring unsupported armbar button '{button}'.");
+                continue;
+            }
+
+            InvokeButton(button);
+            lastHandledRemoteButtonPressTime = press.time;
+        }
+
+        processedRemoteButtonPressCount = events.Count;
+    }
+
+    private void InvokeButton(int button)
+    {
+        if (controlledMenu == null)
+        {
+            Debug.LogWarning($"ArmbarInputManager: No controlled menu is available for remote button {button}.");
+            return;
+        }
+
+        controlledMenu.InvokeButton(button);
     }
 }

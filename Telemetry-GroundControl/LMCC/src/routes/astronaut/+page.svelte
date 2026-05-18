@@ -73,7 +73,7 @@
 				{#each data as item}
 					<Button
 						color="alternative"
-						on:click={() => keepables.addElement('ROVER', item)}
+						onclick={() => keepables.addElement('ROVER', item)}
 						class="m-1"
 					>
 						{item[0]} &nbsp
