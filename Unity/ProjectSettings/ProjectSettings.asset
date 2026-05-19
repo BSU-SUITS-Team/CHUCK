@@ -802,7 +802,6 @@ PlayerSettings:
       InternetClientServer: True
       OfflineMapsManagement: True
       Objects3D: True
-      InternetClient: True
       RemoteSystem: True
       BlockedChatMessages: True
       PhoneCall: True
@@ -824,8 +823,8 @@ PlayerSettings:
       PointOfService: True
       RecordedCallsFolder: True
       Contacts: True
-      Proximity: True
       InternetClient: True
+      Proximity: True
       CodeGeneration: True
       BackgroundMediaPlayback: True
   metroTargetDeviceFamilies:
