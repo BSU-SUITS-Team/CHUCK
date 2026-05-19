@@ -368,7 +368,7 @@ class ChatApp(App[None]):
         self._set_audio_device_menu_enabled(False)
         self._set_voice_help("Recording. Press Space again to stop and send.")
         self._set_voice_transcript("")
-        self._status("Listening and transcribing...")
+        self._status("Recording voice input...")
 
     def _voice_realtime_transcript(self, text: str) -> None:
         self._set_voice_transcript(text)

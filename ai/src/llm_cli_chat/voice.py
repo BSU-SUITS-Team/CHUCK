@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import re
 import shutil
-import signal
 import subprocess
+import tempfile
+import wave
 from collections.abc import Callable
 from dataclasses import dataclass, replace
 from pathlib import Path
-from threading import Lock, RLock, Thread, current_thread
+from threading import Lock, RLock, Thread
 from time import sleep
 from typing import Any
 
@@ -25,11 +26,14 @@ class VoiceInputConfig:
     whisper_model: str = "tiny.en"
     whisper_device: str = "auto"
     audio_input_device: int | None = None
-    whisper_stream_command: str = "whisper-stream"
-    whisper_stream_model: Path = Path("ggml-base.en.bin")
-    whisper_stream_threads: int = 8
-    whisper_stream_step_ms: int = 500
-    whisper_stream_length_ms: int = 5000
+    whisper_cli_command: str = "whisper-cli"
+    whisper_cli_model: Path = Path("ggml-base.en.bin")
+    whisper_cli_threads: int = 8
+    whisper_stream_command: str | None = None
+    whisper_stream_model: Path | None = None
+    whisper_stream_threads: int | None = None
+    whisper_stream_step_ms: int | None = None
+    whisper_stream_length_ms: int | None = None
     whisper_stream_keep_ms: int | None = None
     sample_rate: int = 16_000
     channels: int = 1
@@ -41,6 +45,14 @@ class VoiceInputConfig:
     speech_rms_threshold: float = 0.003
     send_realtime_on_stop: bool = True
     language: str | None = None
+
+    def __post_init__(self) -> None:
+        if self.whisper_stream_command is not None:
+            object.__setattr__(self, "whisper_cli_command", self.whisper_stream_command)
+        if self.whisper_stream_model is not None:
+            object.__setattr__(self, "whisper_cli_model", self.whisper_stream_model)
+        if self.whisper_stream_threads is not None:
+            object.__setattr__(self, "whisper_cli_threads", self.whisper_stream_threads)
 
 
 @dataclass(frozen=True)
@@ -77,11 +89,6 @@ class VoiceInputController:
 
         self._engine = resolve_voice_engine(config)
         self._stream: Any | None = None
-        self._stream_process: subprocess.Popen[str] | None = None
-        self._stream_threads: list[Thread] = []
-        self._stream_committed_transcript = ""
-        self._stream_draft_transcript = ""
-        self._stream_stderr = ""
         self._model: Any | None = model
 
         self._frames: list[np.ndarray] = []
@@ -103,7 +110,7 @@ class VoiceInputController:
 
         self._started = True
 
-        if self._engine == "whisper-stream":
+        if self._engine == "whisper-cli":
             self._on_ready("Press Space to start recording.")
         elif self._model is None:
             self._on_ready("Press Space to start recording. Loading Whisper model...")
@@ -149,15 +156,15 @@ class VoiceInputController:
             self._on_ready("Press Space to start recording.")
 
     def _start_recording(self) -> None:
-        if self._engine == "whisper-stream":
-            self._start_whisper_stream_recording()
+        if self._engine == "whisper-cli":
+            self._start_whisper_cli_recording()
             return
 
         self._start_python_recording()
 
     def _finish_recording(self, *, send_final: bool, notify: bool = True) -> None:
-        if self._engine == "whisper-stream":
-            self._finish_whisper_stream_recording(send_final=send_final, notify=notify)
+        if self._engine == "whisper-cli":
+            self._finish_whisper_cli_recording(send_final=send_final, notify=notify)
             return
 
         self._finish_python_recording(send_final=send_final, notify=notify)
@@ -232,7 +239,7 @@ class VoiceInputController:
             try:
                 stream.stop()
                 stream.close()
-            except Exception as exc:  # noqa: BLE001 - closing audio streams can surface driver errors.
+            except Exception as exc:  # noqa: BLE001
                 self._on_error(f"Microphone input could not stop cleanly: {exc}")
 
         if notify:
@@ -253,69 +260,52 @@ class VoiceInputController:
                 daemon=True,
             ).start()
 
-    def _start_whisper_stream_recording(self) -> None:
+    def _start_whisper_cli_recording(self) -> None:
         with self._recording_lock:
             if self._recording or self._stopped:
                 return
 
-            self._stream_committed_transcript = ""
-            self._stream_draft_transcript = ""
-            self._stream_stderr = ""
-            self._stream_threads = []
+            self._frames = []
             self._recording = True
             self._session_id += 1
             session_id = self._session_id
 
-        command = build_whisper_stream_command(self.config)
         try:
-            process = subprocess.Popen(
-                command,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                bufsize=1,
+            sd = _load_sounddevice()
+
+            stream = sd.InputStream(
+                samplerate=self.config.sample_rate,
+                channels=self.config.channels,
+                device=self.config.audio_input_device,
+                dtype="float32",
+                callback=self._audio_callback,
             )
+            stream.start()
         except Exception as exc:  # noqa: BLE001 - keep launch failures visible in the TUI.
             with self._recording_lock:
                 self._recording = False
-                self._stream_process = None
-            self._on_error(f"whisper-stream could not start: {exc}")
+                self._frames = []
+            self._on_error(f"Microphone input could not start: {exc}")
             return
 
-        stdout_thread = Thread(
-            target=self._read_whisper_stream_stdout,
-            args=(session_id, process),
-            daemon=True,
-        )
-        stderr_thread = Thread(
-            target=self._read_whisper_stream_stderr,
-            args=(session_id, process),
-            daemon=True,
-        )
-        watcher_thread = Thread(
-            target=self._watch_whisper_stream_process,
-            args=(session_id, process),
-            daemon=True,
-        )
-
+        close_stream = False
         with self._recording_lock:
-            if not self._recording or session_id != self._session_id:
-                should_close = True
+            if self._recording and session_id == self._session_id:
+                self._stream = stream
             else:
-                should_close = False
-                self._stream_process = process
-                self._stream_threads = [stdout_thread, stderr_thread, watcher_thread]
+                close_stream = True
 
-        if should_close:
-            self._stop_whisper_stream_process(process)
+        if close_stream:
+            try:
+                stream.stop()
+                stream.close()
+            except Exception as exc:  # noqa: BLE001 - report audio cleanup failures.
+                self._on_error(f"Microphone input could not stop cleanly: {exc}")
             return
 
         self._on_recording_started()
-        stdout_thread.start()
-        stderr_thread.start()
-        watcher_thread.start()
 
-    def _finish_whisper_stream_recording(
+    def _finish_whisper_cli_recording(
         self,
         *,
         send_final: bool,
@@ -327,31 +317,58 @@ class VoiceInputController:
 
             self._recording = False
             session_id = self._session_id
-            process = self._stream_process
-            threads = list(self._stream_threads)
-            self._stream_process = None
-            self._stream_threads = []
+            config = self.config
+            frames = list(self._frames)
+            self._frames = []
+            stream = self._stream
+            self._stream = None
+
+        if stream is not None:
+            try:
+                stream.stop()
+                stream.close()
+            except Exception as exc:  # noqa: BLE001
+                self._on_error(f"Microphone input could not stop cleanly: {exc}")
 
         if notify:
             self._on_recording_stopped()
 
-        if process is not None:
-            self._stop_whisper_stream_process(process)
-
-        current = current_thread()
-        for thread in threads:
-            if thread is not current and thread.is_alive():
-                thread.join(timeout=0.5)
-
-        with self._recording_lock:
-            if session_id != self._session_id:
-                return
-            transcript = current_whisper_stream_transcript(
-                self._stream_committed_transcript,
-                self._stream_draft_transcript,
-            )
-
         if not send_final:
+            return
+
+        Thread(
+            target=self._finalize_whisper_cli_transcription,
+            args=(session_id, frames, config),
+            daemon=True,
+        ).start()
+
+    def _finalize_whisper_cli_transcription(
+        self,
+        session_id: int,
+        frames: list[np.ndarray],
+        config: VoiceInputConfig,
+    ) -> None:
+        audio = self._join_frames(frames)
+        if audio.size == 0:
+            if session_id == self._session_id:
+                self._on_ready("No speech captured. Press Space to try again.")
+            return
+
+        if not self._has_speech(audio):
+            if session_id == self._session_id:
+                self._on_ready("No speech recognized. Press Space to try again.")
+            return
+
+        try:
+            with tempfile.TemporaryDirectory(prefix="llm-chat-voice-") as temp_dir:
+                audio_path = Path(temp_dir) / "recording.wav"
+                write_wav_audio(audio_path, audio, sample_rate=config.sample_rate)
+                transcript = self._transcribe_with_whisper_cli(audio_path, config)
+        except Exception as exc:  # noqa: BLE001 - surface runtime speech errors in the TUI.
+            self._on_error(f"whisper-cli transcription failed: {exc}")
+            return
+
+        if session_id != self._session_id:
             return
 
         if transcript:
@@ -360,137 +377,29 @@ class VoiceInputController:
 
         self._on_ready("No speech recognized. Press Space to try again.")
 
-    def _stop_whisper_stream_process(self, process: subprocess.Popen[str]) -> None:
-        if process.poll() is not None:
-            return
-
-        try:
-            process.send_signal(signal.SIGINT)
-            process.wait(timeout=2)
-            return
-        except subprocess.TimeoutExpired:
-            pass
-        except Exception:
-            pass
-
-        if process.poll() is not None:
-            return
-
-        try:
-            process.terminate()
-            process.wait(timeout=2)
-            return
-        except subprocess.TimeoutExpired:
-            pass
-        except Exception:
-            pass
-
-        if process.poll() is None:
-            try:
-                process.kill()
-                process.wait(timeout=1)
-            except Exception:
-                pass
-
-    def _read_whisper_stream_stdout(
-        self,
-        session_id: int,
-        process: subprocess.Popen[str],
-    ) -> None:
-        if process.stdout is None:
-            return
-
-        buffer = ""
-        while True:
-            char = process.stdout.read(1)
-            if char == "":
-                break
-            if char in "\r\n":
-                self._consume_whisper_stream_text(
-                    session_id,
-                    buffer,
-                    commit=char == "\n",
+    def _transcribe_with_whisper_cli(self, audio_path: Path, config: VoiceInputConfig) -> str:
+        command = build_whisper_cli_command(config, audio_path)
+        completed = subprocess.run(
+            command,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if completed.returncode != 0:
+            detail = completed.stderr.strip() or completed.stdout.strip()
+            if detail:
+                raise RuntimeError(
+                    f"{command[0]} exited with code {completed.returncode}: {detail}"
                 )
-                buffer = ""
-                continue
-            buffer += char
+            raise RuntimeError(f"{command[0]} exited with code {completed.returncode}")
 
-        self._consume_whisper_stream_text(session_id, buffer, commit=True)
-
-    def _read_whisper_stream_stderr(
-        self,
-        session_id: int,
-        process: subprocess.Popen[str],
-    ) -> None:
-        if process.stderr is None:
-            return
-
-        while True:
-            line = process.stderr.readline()
-            if line == "":
-                break
-            with self._recording_lock:
-                if session_id != self._session_id:
-                    return
-                self._stream_stderr = (self._stream_stderr + line)[-4000:]
-
-    def _watch_whisper_stream_process(
-        self,
-        session_id: int,
-        process: subprocess.Popen[str],
-    ) -> None:
-        returncode = process.wait()
-        with self._recording_lock:
-            if (
-                session_id != self._session_id
-                or process is not self._stream_process
-                or not self._recording
-            ):
-                return
-
-            self._recording = False
-            self._stream_process = None
-            stderr = self._stream_stderr.strip()
-
-        if returncode != 0:
-            detail = f": {stderr}" if stderr else ""
-            self._on_error(f"whisper-stream exited with code {returncode}{detail}")
-        else:
-            self._on_ready("Recording stopped. Press Space to start recording.")
-
-    def _consume_whisper_stream_text(
-        self,
-        session_id: int,
-        raw_text: str,
-        *,
-        commit: bool,
-    ) -> None:
-        text = clean_whisper_stream_text(raw_text)
-
-        with self._recording_lock:
-            if session_id != self._session_id:
-                return
-            old_transcript = current_whisper_stream_transcript(
-                self._stream_committed_transcript,
-                self._stream_draft_transcript,
+        return clean_whisper_cli_text(
+            "\n".join(
+                part
+                for part in (completed.stdout, completed.stderr)
+                if part
             )
-            (
-                self._stream_committed_transcript,
-                self._stream_draft_transcript,
-            ) = update_whisper_stream_transcript(
-                self._stream_committed_transcript,
-                self._stream_draft_transcript,
-                text,
-                commit=commit,
-            )
-            transcript = current_whisper_stream_transcript(
-                self._stream_committed_transcript,
-                self._stream_draft_transcript,
-            )
-            if transcript == old_transcript:
-                return
-
-        self._on_realtime_transcript(transcript)
+        )
 
     def _audio_callback(
         self,
@@ -677,51 +586,75 @@ def resolve_whisper_device(device: str) -> str:
 
 
 def resolve_voice_engine(config: VoiceInputConfig) -> str:
-    if config.voice_engine not in {"auto", "python", "whisper-stream"}:
-        raise ValueError("voice_engine must be one of: auto, python, whisper-stream")
+    if config.voice_engine not in {"auto", "python", "whisper-cli", "whisper-stream"}:
+        raise ValueError(
+            "voice_engine must be one of: auto, python, whisper-cli, whisper-stream"
+        )
+
+    if config.voice_engine == "whisper-stream":
+        return "whisper-cli"
 
     if config.voice_engine != "auto":
         return config.voice_engine
 
-    if whisper_stream_unavailable_reason(config) is None:
-        return "whisper-stream"
+    if whisper_cli_unavailable_reason(config) is None:
+        return "whisper-cli"
 
     return "python"
 
 
-def whisper_stream_unavailable_reason(config: VoiceInputConfig) -> str | None:
-    if shutil.which(config.whisper_stream_command) is None:
-        return f"{config.whisper_stream_command!r} was not found on PATH"
+def whisper_cli_unavailable_reason(config: VoiceInputConfig) -> str | None:
+    if shutil.which(config.whisper_cli_command) is None:
+        return f"{config.whisper_cli_command!r} was not found on PATH"
 
-    model_path = Path(config.whisper_stream_model)
+    model_path = Path(config.whisper_cli_model)
     if not model_path.exists():
         return f"model file {str(model_path)!r} does not exist"
 
     return None
 
 
-def build_whisper_stream_command(config: VoiceInputConfig) -> list[str]:
+def whisper_stream_unavailable_reason(config: VoiceInputConfig) -> str | None:
+    return whisper_cli_unavailable_reason(config)
+
+
+def build_whisper_cli_command(
+    config: VoiceInputConfig,
+    audio_path: Path | None = None,
+) -> list[str]:
     command = [
-        config.whisper_stream_command,
+        config.whisper_cli_command,
         "-m",
-        str(Path(config.whisper_stream_model)),
+        str(Path(config.whisper_cli_model)),
         "-t",
-        str(config.whisper_stream_threads),
-        "--step",
-        str(config.whisper_stream_step_ms),
-        "--length",
-        str(config.whisper_stream_length_ms),
+        str(config.whisper_cli_threads),
+        "--no-timestamps",
     ]
-    if config.audio_input_device is not None:
-        command.extend(["--capture", str(config.audio_input_device)])
-
-    if config.whisper_stream_keep_ms is not None and config.whisper_stream_keep_ms >= 0:
-        command.extend(["--keep", str(config.whisper_stream_keep_ms)])
-
     if config.language:
         command.extend(["--language", config.language])
 
+    if audio_path is not None:
+        command.extend(["-f", str(audio_path)])
+
     return command
+
+
+def build_whisper_stream_command(
+    config: VoiceInputConfig,
+    audio_path: Path | None = None,
+) -> list[str]:
+    return build_whisper_cli_command(config, audio_path)
+
+
+def write_wav_audio(audio_path: Path, audio: np.ndarray, *, sample_rate: int) -> None:
+    clipped = np.clip(audio.astype(np.float32, copy=False), -1.0, 1.0)
+    pcm = (clipped * np.iinfo(np.int16).max).astype(np.int16)
+
+    with wave.open(str(audio_path), "wb") as wav_file:
+        wav_file.setnchannels(1)
+        wav_file.setsampwidth(np.dtype(np.int16).itemsize)
+        wav_file.setframerate(sample_rate)
+        wav_file.writeframes(pcm.tobytes())
 
 
 def list_audio_input_devices() -> list[AudioInputDevice]:
@@ -826,7 +759,17 @@ _STATUS_PREFIXES = (
 )
 
 
-def clean_whisper_stream_text(raw_text: str) -> str:
+def clean_whisper_cli_text(raw_text: str) -> str:
+    lines = []
+    for line in raw_text.replace("\r", "\n").splitlines():
+        text = clean_whisper_cli_line(line)
+        if text:
+            lines.append(text)
+
+    return " ".join(lines).strip()
+
+
+def clean_whisper_cli_line(raw_text: str) -> str:
     text = _ANSI_RE.sub("", raw_text)
     text = _TIMESTAMP_RE.sub("", text)
     text = _STREAM_MARKER_RE.sub("", text)
@@ -839,6 +782,10 @@ def clean_whisper_stream_text(raw_text: str) -> str:
         return ""
 
     return " ".join(text.split())
+
+
+def clean_whisper_stream_text(raw_text: str) -> str:
+    return clean_whisper_cli_text(raw_text)
 
 
 def merge_transcript_update(transcript: str, update: str) -> str:

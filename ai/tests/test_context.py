@@ -137,6 +137,8 @@ class MissionContextTests(unittest.TestCase):
         self.assertIn("similar-sounding", message)
         self.assertIn("the user is that EVA astronaut", message)
         self.assertIn("mention only that user's EVA", message)
+        self.assertIn("bracketed error code", message)
+        self.assertIn("ends with that exact bracketed code", message)
         self.assertIn("say you do not know", message)
         self.assertIn("Hololens command tools", message)
         self.assertTrue(message.rstrip().endswith("</user_prompt>"))
