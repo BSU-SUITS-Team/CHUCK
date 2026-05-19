@@ -136,7 +136,7 @@ MonoBehaviour:
         m_MethodName: ActivateMRTKButton
         m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgument: {fileID: 220739245136757900}
           m_ObjectArgumentAssemblyTypeName: MixedReality.Toolkit.UX.PressableButton,
             MixedReality.Toolkit.UXCore
           m_IntArgument: 0
@@ -218,6 +218,7 @@ MonoBehaviour:
   followUpdateIntervalSeconds: 0.05
   followRecenterDistanceMeters: 0.2
   followRecenterYawDegrees: 18
+  participatesInLayout: 1
 --- !u!1 &1300197805499173707
 GameObject:
   m_ObjectHideFlags: 0
@@ -946,6 +947,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211224, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
       propertyPath: m_Center.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8376646494505211224, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
+      propertyPath: m_Center.y
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8376646494505211226, guid: a0ee47595f2431b418a2027f89905d53, type: 3}
