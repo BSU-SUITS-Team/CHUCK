@@ -4,12 +4,10 @@ using UnityEngine;
 namespace ARSIS.UI
 {
     /// <summary>
-    /// Tracks open floating windows on a horizontal arc, Quest 3-style.
+    /// Tracks open floating windows on a horizontal arc
     /// Every slot sits at the same radius from the user's head; each additional
     /// window is rotated <see cref="ArcStepDegrees"/> to the right. The layout
     /// resets when all windows are closed.
-    ///
-    /// No MonoBehaviour — no scene setup required.
     /// </summary>
     internal static class WindowArrangementManager
     {
@@ -47,8 +45,13 @@ namespace ARSIS.UI
             if (!_anchorEstablished)
                 EstablishAnchor(cam, distanceMeters, heightOffsetMeters);
 
-            _orderedWindows.Add(window);
-            return _orderedWindows.Count - 1;
+            // Insert at front: new window gets slot 0 (directly in front of user).
+            // Existing windows shift right by one slot and reposition immediately.
+            _orderedWindows.Insert(0, window);
+            for (int i = 1; i < _orderedWindows.Count; i++)
+                _orderedWindows[i].UpdateLayoutSlotAndReposition(i);
+
+            return 0;
         }
 
         /// <summary>
