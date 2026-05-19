@@ -55,36 +55,36 @@ public class TSSNotificationWatcher : MonoBehaviour
         if (Manager == null) return;
 
         CheckLatch("Fan",     Manager.FanErrorLatch.latched,     ref _prevFanLatched,
-                   "Fan error detected.",   "Fan error cleared.");
+                   "Fan error detected.",   "Fan error cleared.", "Off Nominal Primary Fan");
 
         CheckLatch("Oxy",     Manager.OxyErrorLatch.latched,     ref _prevOxyLatched,
-                   "Oxygen error detected.", "Oxygen error cleared.");
+                   "Oxygen error detected.", "Oxygen error cleared.", "Off Nominal Suit Oxygen Pressure");
 
         CheckLatch("Power",   Manager.PowerErrorLatch.latched,   ref _prevPowerLatched,
-                   "Power error detected.", "Power error cleared.");
+                   "Power error detected.", "Power error cleared.", "");
 
         CheckLatch("Scrubber", Manager.ScrubberErrorLatch.latched, ref _prevScrubberLatched,
-                   "Scrubber error detected.", "Scrubber error cleared.");
+                   "Scrubber error detected.", "Scrubber error cleared.", "Off Nomincal CO2 Scrubber");
     }
 
     private void CheckLatch(string label, bool currentLatched, ref bool previousLatched,
-                            string tripMessage, string clearMessage)
+                            string tripMessage, string clearMessage, string fixProc)
     {
         if (currentLatched && !previousLatched)
         {
             // Error just latched — notify
-            PushNotification(label, tripMessage, severity: 0);
+            PushNotification(label, tripMessage, severity: 0, fixProc);
         }
         else if (!currentLatched && previousLatched)
         {
             // Error was reset — confirm
-            PushNotification(label + "_cleared", clearMessage, severity: 1);
+            PushNotification(label + "_cleared", clearMessage, severity: 1, fixProc);
         }
 
         previousLatched = currentLatched;
     }
 
-    private void PushNotification(string label, string content, int severity)
+    private void PushNotification(string label, string content, int severity, string fixProcedure)
     {
         var notification = new ARSIS.EventManager.Notifications
         {
@@ -95,6 +95,7 @@ public class TSSNotificationWatcher : MonoBehaviour
             {
                 content  = content,
                 severity = severity,
+                procedure = fixProcedure,
                 time     = (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()
             }
         };

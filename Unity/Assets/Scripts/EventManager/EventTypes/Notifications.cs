@@ -11,6 +11,7 @@ namespace ARSIS.EventManager
         public string content ;
         public int severity;
         public int time;
+        public string procedure;
     }
 
     [System.Serializable]
