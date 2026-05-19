@@ -21,6 +21,16 @@ public class Navigation : MonoBehaviour
     [SerializeField, Tooltip("Adds a row under Find Path on the Navigation panel and binds it to PathTest.")]
     private bool ensurePathDistanceInSidebar = true;
 
+    [Header("Route end presets (chart feet)")]
+    [SerializeField, Tooltip("Route goal when the cycle button shows A.")]
+    private Vector2 aCoordinate = new Vector2(-5635f, -9960f);
+    [SerializeField, Tooltip("Route goal B.")]
+    private Vector2 bCoordinate = new Vector2(-5615f, -9995f);
+    [SerializeField, Tooltip("Route goal HAB.")]
+    private Vector2 habCoordinate = new Vector2(-5670f, -10060f);
+    [SerializeField, Tooltip("Active preset (A → B → HAB). Pushed to PathTest on enable and when edited.")]
+    private RouteEndSelection routeEndSelection = RouteEndSelection.A;
+
     private bool isCapture = false;
     private bool findPathButtonSynced;
 
@@ -35,13 +45,41 @@ public class Navigation : MonoBehaviour
     public static void RefreshPathfindingMapBindingStatic()
     {
         if (s_lastActiveInstance != null)
+        {
             s_lastActiveInstance.SyncPathfindingToActiveMapPlane();
+            return;
+        }
+
+        Navigation[] instances = Object.FindObjectsByType<Navigation>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        for (int i = 0; i < instances.Length; i++)
+        {
+            Navigation nav = instances[i];
+            if (nav != null && nav.isActiveAndEnabled)
+            {
+                nav.SyncPathfindingToActiveMapPlane();
+                return;
+            }
+        }
     }
 
     private void OnEnable()
     {
         s_lastActiveInstance = this;
+        SyncRoutePresetsToPathTest();
         SyncPathfindingToActiveMapPlane();
+    }
+
+    private void OnValidate()
+    {
+        SyncRoutePresetsToPathTest();
+    }
+
+    private void SyncRoutePresetsToPathTest()
+    {
+        PathTest pt = ResolvePathTest();
+        if (pt == null)
+            return;
+        pt.ApplyRoutePresetsFromNavigation(aCoordinate, bCoordinate, habCoordinate, routeEndSelection);
     }
 
     private void OnDisable()
@@ -87,6 +125,18 @@ public class Navigation : MonoBehaviour
         pt?.CalibrateNorthFromUserFacing();
     }
 
+    /// <summary>Cycle route preset A → B → HAB; updates PathTest end coordinate and repaths when active.</summary>
+    public void CycleRouteEndFromMenu()
+    {
+        PathTest pt = ResolvePathTest();
+        if (pt == null)
+            return;
+        SyncRoutePresetsToPathTest();
+        pt.CycleRouteEndSelection();
+        routeEndSelection = pt.ActiveRouteEndSelection;
+        RefreshRouteEndButtonLabel();
+    }
+
     public void TogglePathCapture()
     {
         PathTest pt = ResolvePathTest();
@@ -109,7 +159,7 @@ public class Navigation : MonoBehaviour
     {
         if (pathDistanceReadout == null && ensurePathDistanceInSidebar)
             TryInjectPathDistanceSidebar();
-        TryEnsureOrientNorthButton();
+        TryEnsureNavControlButtons();
         ApplyPrimaryNavigationButtonSizing();
     }
 
@@ -121,6 +171,8 @@ public class Navigation : MonoBehaviour
             pt.BindDistanceReadout(pathDistanceReadout);
         if (pt != null)
         {
+            SyncRoutePresetsToPathTest();
+            RefreshRouteEndButtonLabel();
             bool session = pt.IsPathSessionActive();
             findPathButtonSynced = session;
             string icon = session ? "Icon 135" : "Icon 128";
@@ -143,21 +195,30 @@ public class Navigation : MonoBehaviour
         SyncPathfindingToActiveMapPlane();
     }
 
-    private void SyncPathfindingToActiveMapPlane()
+    /// <summary>Binds <see cref="PathTest"/> to this panel's chart plane (editor scene instance or floating menu).</summary>
+    public void SyncPathfindingToActiveMapPlane()
     {
-        // Chart + texture live on `map`; `image` is often a zoom/pan parent. Binding `image` skews the grid vs the painted quad.
-        RectTransform plane = map != null ? map : image;
-        if (plane == null)
+        RectTransform chartSurface = ResolveChartSurfaceForPathfinding();
+        if (chartSurface == null)
             return;
         PathTest pt = ResolvePathTest();
         if (pt == null)
             return;
-        pt.BindActiveNavigationMap(plane);
+        SyncRoutePresetsToPathTest();
+        pt.BindActiveNavigationMap(chartSurface);
         if (mapNorthReference != null)
         {
             pt.mapNorthReference = mapNorthReference;
             pt.RefreshMapNorthReferenceVisibility();
         }
+    }
+
+    /// <summary>Map viewport rect — same surface GridManager and map markers used before route presets.</summary>
+    private RectTransform ResolveChartSurfaceForPathfinding()
+    {
+        if (map != null)
+            return map;
+        return image;
     }
 
     private void TryInjectPathDistanceSidebar()
@@ -171,7 +232,7 @@ public class Navigation : MonoBehaviour
             if (existingReadout != null)
             {
                 pathDistanceReadout = existingReadout.GetComponent<TextMeshProUGUI>();
-                TryEnsureOrientNorthButtonUnderControls(rt);
+                TryEnsureNavControlButtonsUnderControls(rt);
                 return;
             }
 
@@ -265,10 +326,10 @@ public class Navigation : MonoBehaviour
         distRt.SetAsLastSibling();
 
         pathDistanceReadout = tmp;
-        TryEnsureOrientNorthButtonUnderControls(controls);
+        TryEnsureNavControlButtonsUnderControls(controls);
     }
 
-    private void TryEnsureOrientNorthButton()
+    private void TryEnsureNavControlButtons()
     {
         foreach (RectTransform rt in GetComponentsInChildren<RectTransform>(true))
         {
@@ -276,12 +337,12 @@ public class Navigation : MonoBehaviour
                 continue;
             if (rt.GetComponent<VerticalLayoutGroup>() == null)
                 continue;
-            TryEnsureOrientNorthButtonUnderControls(rt);
+            TryEnsureNavControlButtonsUnderControls(rt);
             return;
         }
     }
 
-    private void TryEnsureOrientNorthButtonUnderControls(RectTransform controls)
+    private void TryEnsureNavControlButtonsUnderControls(RectTransform controls)
     {
         if (controls == null || toggleCapture == null)
             return;
@@ -294,17 +355,74 @@ public class Navigation : MonoBehaviour
         if (pathParent == null)
             return;
 
-        Transform existing = pathParent.Find("OrientNorthButton");
-        if (existing != null)
+        int captureIndex = toggleCapture.transform.GetSiblingIndex();
+
+        Transform routeEnd = pathParent.Find("RouteEndButton");
+        if (routeEnd == null)
         {
-            ConfigureOrientNorthButton(existing.gameObject);
-            return;
+            GameObject routeClone = Instantiate(toggleCapture.gameObject, pathParent);
+            routeClone.name = "RouteEndButton";
+            routeEnd = routeClone.transform;
         }
 
-        GameObject clone = Instantiate(toggleCapture.gameObject, pathParent);
-        clone.name = "OrientNorthButton";
-        ConfigureOrientNorthButton(clone);
-        clone.transform.SetSiblingIndex(toggleCapture.transform.GetSiblingIndex() + 1);
+        ConfigureRouteEndButton(routeEnd.gameObject);
+        routeEnd.SetSiblingIndex(captureIndex + 1);
+
+        Transform orientNorth = pathParent.Find("OrientNorthButton");
+        if (orientNorth == null)
+        {
+            GameObject orientClone = Instantiate(toggleCapture.gameObject, pathParent);
+            orientClone.name = "OrientNorthButton";
+            orientNorth = orientClone.transform;
+        }
+
+        ConfigureOrientNorthButton(orientNorth.gameObject);
+        orientNorth.SetSiblingIndex(captureIndex + 2);
+    }
+
+    private void RefreshRouteEndButtonLabel()
+    {
+        if (toggleCapture == null)
+            return;
+
+        Transform pathParent = toggleCapture.transform.parent;
+        if (pathParent == null)
+            return;
+
+        Transform routeEnd = pathParent.Find("RouteEndButton");
+        if (routeEnd == null)
+            return;
+
+        ARSIS.UI.Button arsisBtn = routeEnd.GetComponent<ARSIS.UI.Button>();
+        PathTest pt = ResolvePathTest();
+        if (arsisBtn == null || pt == null)
+            return;
+
+        arsisBtn.SetIcon(false, string.Empty, string.Empty);
+        arsisBtn.SetText(true, pt.GetRouteEndSelectionLabel());
+    }
+
+    private void ConfigureRouteEndButton(GameObject buttonObject)
+    {
+        if (buttonObject == null)
+            return;
+
+        ARSIS.UI.Button arsisBtn = buttonObject.GetComponent<ARSIS.UI.Button>();
+        PathTest pt = ResolvePathTest();
+        if (arsisBtn != null)
+        {
+            arsisBtn.SetIcon(false, string.Empty, string.Empty);
+            arsisBtn.SetText(true, pt != null ? pt.GetRouteEndSelectionLabel() : "A");
+        }
+
+        PressableButton pb = arsisBtn != null ? arsisBtn.GetPressableButton() : buttonObject.GetComponentInChildren<PressableButton>(true);
+        if (pb == null)
+            return;
+
+        for (int i = 0; i < pb.OnClicked.GetPersistentEventCount(); i++)
+            pb.OnClicked.SetPersistentListenerState(i, UnityEngine.Events.UnityEventCallState.Off);
+        pb.OnClicked.RemoveAllListeners();
+        pb.OnClicked.AddListener(CycleRouteEndFromMenu);
     }
 
     private void ConfigureOrientNorthButton(GameObject buttonObject)
@@ -340,6 +458,9 @@ public class Navigation : MonoBehaviour
         Transform pathParent = toggleCapture != null ? toggleCapture.transform.parent : null;
         if (pathParent == null)
             return;
+        Transform routeEnd = pathParent.Find("RouteEndButton");
+        if (routeEnd != null)
+            ApplyLayoutSizingToButtonRoot(routeEnd, PrimaryNavButtonMinHeight, PrimaryNavButtonPreferredHeight);
         Transform orient = pathParent.Find("OrientNorthButton");
         if (orient != null)
             ApplyLayoutSizingToButtonRoot(orient, PrimaryNavButtonMinHeight, PrimaryNavButtonPreferredHeight);

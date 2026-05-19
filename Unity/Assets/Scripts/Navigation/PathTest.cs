@@ -7,6 +7,14 @@ using UnityEngine.UI;
 /// <summary>
 /// Which local axis of the NavArrow mesh should follow the path tangent. Most FBX arrows use +Y as the tip axis; Unity LookRotation uses +Z.
 /// </summary>
+/// <summary>Which preset drives <see cref="PathTest.endCoordinate"/> (Navigation cycle button).</summary>
+public enum RouteEndSelection
+{
+    A,
+    B,
+    HAB
+}
+
 public enum WorldArrowMeshForwardAxis
 {
     [Tooltip("Align mesh local +Z with path (Quaternion.LookRotation). Default Unity convention.")]
@@ -50,10 +58,20 @@ public class PathTest : MonoBehaviour
 
     [Header("Map coordinates (feet on chart)")]
     [Tooltip("Start/end and path distance use these chart (floor-plan) coordinates. Walking in the room updates chart position from headset movement vs the map captured at Find Path — not from projecting your camera onto the floating map panel.")]
-    public Vector2 mapCoordMin = new Vector2(-5758f, -10076f);
-    public Vector2 mapCoordMax = new Vector2(-5545f, -9940f);
-    public Vector2 startCoordinate = new Vector2(-5668f, -10060f);
-    public Vector2 endCoordinate = new Vector2(-5635f, -9975f);
+    public Vector2 mapCoordMin;
+    public Vector2 mapCoordMax;
+    public Vector2 startCoordinate;
+    [Header("Route end presets (A / B / HAB)")]
+    [Tooltip("Chart feet for route goal A (cycle button label “A”).")]
+    public Vector2 aCoordinate = new Vector2(-5635f, -9960f);
+    [Tooltip("Chart feet for route goal B.")]
+    public Vector2 bCoordinate = new Vector2(-5615f, -9995f);
+    [Tooltip("Chart feet for route goal HAB.")]
+    public Vector2 habCoordinate = new Vector2(-5670f, -10060f);
+    [Tooltip("Active preset on the Navigation cycle button (A → B → HAB).")]
+    public RouteEndSelection routeEndSelection = RouteEndSelection.A;
+    [Tooltip("Live route goal used by pathfinding; updated from the active preset above.")]
+    public Vector2 endCoordinate = new Vector2(-5635f, -9960f);
     public Vector2 coordinateOffsetFeet = Vector2.zero;
     public Vector2 coordinateScale = Vector2.one;
     public Vector2 coordinateScalePivot = Vector2.zero;
@@ -503,7 +521,7 @@ public class PathTest : MonoBehaviour
 
         _suppressMapFaceVisualsWhileNavPanelClosed = false;
         grid.mapTransform = mapSurface;
-        grid.gridAreaTransform = null;
+        grid.gridAreaTransform = mapSurface;
         mapArrowParent = mapSurface;
 
         if (mapArrowsRuntimeRoot != null && mapArrowsRuntimeRoot.parent != mapSurface)
@@ -516,6 +534,76 @@ public class PathTest : MonoBehaviour
 
         if (pathSessionActive)
             ForceRepath();
+    }
+
+    public RouteEndSelection ActiveRouteEndSelection => routeEndSelection;
+
+    public string GetRouteEndSelectionLabel() => routeEndSelection.ToString();
+
+    private Vector2 GetRouteEndPresetCoordinate(RouteEndSelection selection)
+    {
+        return selection switch
+        {
+            RouteEndSelection.B => bCoordinate,
+            RouteEndSelection.HAB => habCoordinate,
+            _ => aCoordinate
+        };
+    }
+
+    /// <summary>Keeps chart goals on the authored floor-plan rectangle so grid UVs do not clamp to a black border.</summary>
+    private Vector2 ClampChartCoordinateToMapBounds(Vector2 chart)
+    {
+        float minX = Mathf.Min(mapCoordMin.x, mapCoordMax.x);
+        float maxX = Mathf.Max(mapCoordMin.x, mapCoordMax.x);
+        float minY = Mathf.Min(mapCoordMin.y, mapCoordMax.y);
+        float maxY = Mathf.Max(mapCoordMin.y, mapCoordMax.y);
+        return new Vector2(
+            Mathf.Clamp(chart.x, minX, maxX),
+            Mathf.Clamp(chart.y, minY, maxY));
+    }
+
+    /// <summary>Copies the active A / B / HAB preset into <see cref="endCoordinate"/> (pathfinding uses end only).</summary>
+    public void ApplyRouteEndSelectionToEndCoordinate()
+    {
+        endCoordinate = ClampChartCoordinateToMapBounds(GetRouteEndPresetCoordinate(routeEndSelection));
+    }
+
+    /// <summary>Push route presets from a <see cref="Navigation"/> inspector (clamped to map bounds).</summary>
+    public void ApplyRoutePresetsFromNavigation(Vector2 a, Vector2 b, Vector2 hab, RouteEndSelection selection)
+    {
+        aCoordinate = ClampChartCoordinateToMapBounds(a);
+        bCoordinate = ClampChartCoordinateToMapBounds(b);
+        habCoordinate = ClampChartCoordinateToMapBounds(hab);
+        routeEndSelection = selection;
+        ApplyRouteEndSelectionToEndCoordinate();
+    }
+
+    /// <summary>Navigation cycle button: A → B → HAB; updates end coordinate and repaths if a session is active.</summary>
+    public void CycleRouteEndSelection()
+    {
+        routeEndSelection = (RouteEndSelection)(((int)routeEndSelection + 1) % 3);
+        ApplyRouteEndSelectionToEndCoordinate();
+        if (pathSessionActive)
+        {
+            InvalidateWorldRouteForNewGoal();
+            ForceRepath();
+        }
+    }
+
+    /// <summary>Clears frozen world goal + full floor route so A/B/HAB changes rebuild polyline and the red world marker.</summary>
+    private void InvalidateWorldRouteForNewGoal()
+    {
+        _sessionWorldGoalLockValid = false;
+        _sessionFullRouteValid = false;
+        _sessionFullSnapNodes.Clear();
+        _sessionFullWorldFloorPolyline.Clear();
+    }
+
+    private bool WorldGoalLockMatchesResolvedEnd()
+    {
+        return _sessionWorldGoalLockValid
+            && _lineResolvedEnd.x == _sessionWorldGoalLockEndCell.x
+            && _lineResolvedEnd.y == _sessionWorldGoalLockEndCell.y;
     }
 
     /// <summary>Turns pathfinding visuals and periodic repath on or off (map/world arrows, line, distance, markers).</summary>
@@ -538,6 +626,7 @@ public class PathTest : MonoBehaviour
             bool resume = _persistNavigationProgress;
             _persistNavigationProgress = false;
 
+            _suppressMapFaceVisualsWhileNavPanelClosed = false;
             TryRefreshNavigationMapBinding();
             if (ResolveTrackingTransform() != null || player != null || trackingTransformOverride != null)
                 lastPlayerWorldPos = GetNavigationWorldPosition();
@@ -581,6 +670,22 @@ public class PathTest : MonoBehaviour
     public void TryRefreshNavigationMapBinding()
     {
         Navigation.RefreshPathfindingMapBindingStatic();
+    }
+
+    private void TryBindFirstActiveNavigationInScene()
+    {
+        if (grid?.mapTransform != null && grid.mapTransform.GetComponentInParent<Navigation>() != null)
+            return;
+
+        Navigation[] navs = Object.FindObjectsByType<Navigation>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        for (int i = 0; i < navs.Length; i++)
+        {
+            if (navs[i] != null && navs[i].isActiveAndEnabled)
+            {
+                navs[i].SyncPathfindingToActiveMapPlane();
+                return;
+            }
+        }
     }
 
     /// <summary>
@@ -637,6 +742,14 @@ public class PathTest : MonoBehaviour
         ClearPathSessionVisualsOnly();
     }
 
+    private void OnValidate()
+    {
+        aCoordinate = ClampChartCoordinateToMapBounds(aCoordinate);
+        bCoordinate = ClampChartCoordinateToMapBounds(bCoordinate);
+        habCoordinate = ClampChartCoordinateToMapBounds(habCoordinate);
+        ApplyRouteEndSelectionToEndCoordinate();
+    }
+
     private void OnEnable()
     {
         if (navigationVisualRoot == null)
@@ -665,6 +778,11 @@ public class PathTest : MonoBehaviour
         }
 
         currentCoordinate = startCoordinate;
+        ApplyRouteEndSelectionToEndCoordinate();
+        TryRefreshNavigationMapBinding();
+        TryBindFirstActiveNavigationInScene();
+        if (grid != null && grid.grid == null && grid.mapTransform != null)
+            grid.GenerateGrid();
         if (ResolveTrackingTransform() != null || player != null)
         {
             Vector3 navPos = GetNavigationWorldPosition();
@@ -865,7 +983,6 @@ public class PathTest : MonoBehaviour
         PlaceEndpointMarkers();
         RefreshMapRouteVisualsFromCurrentChartPosition();
         UpdateEndPointWorldMarker();
-
         UpdateOffScreenTurnCues();
     }
 
@@ -881,7 +998,6 @@ public class PathTest : MonoBehaviour
         return IsMapSurfaceVisible() && !_suppressMapFaceVisualsWhileNavPanelClosed;
     }
 
-    /// <summary>Walkability sampling must not run against a disabled/invisible map rect or it can corrupt the grid mid-session.</summary>
     private bool CanRegenerateGridFromLiveMap()
     {
         return grid != null && grid.ActiveMapTransform != null && grid.ActiveMapTransform.gameObject.activeInHierarchy;
@@ -927,8 +1043,7 @@ public class PathTest : MonoBehaviour
             return Vector3.zero;
         if (CanRegenerateGridFromLiveMap())
             return grid.SnapOntoVisualMapFace(grid.GridToWorld(xi, yi));
-        Vector3 w = MapWorldFromCellIndices(xi, yi);
-        return w;
+        return MapWorldFromCellIndices(xi, yi);
     }
 
     private Vector2Int WorldToGridForSession(Vector3 worldPos)
@@ -1678,7 +1793,6 @@ public class PathTest : MonoBehaviour
         return true;
     }
 
-    /// <summary>Places map markers on the live map face using fractional chart UV (not integer cell centers).</summary>
     private Vector3 GetLiveMapSurfaceWorldForChartCoordinate(Vector2 chart)
     {
         if (grid == null)
@@ -1776,12 +1890,24 @@ public class PathTest : MonoBehaviour
     /// <summary>
     /// Map start/end in grid cells. Start uses <see cref="currentCoordinate"/> (chart). World floor visuals anchor at each repath (see snapshot), not every frame from the live map pose.
     /// </summary>
+    private Vector2Int ResolveWalkableGridCell(Vector2 chartCoordinate, bool isGoal)
+    {
+        Vector2Int cell = ChartCoordinateToGridCell(ClampChartCoordinateToMapBounds(chartCoordinate));
+        int radius = nearestWalkableSearchRadius;
+        Vector2Int resolved = grid.FindNearestWalkable(cell, radius);
+        if (!grid.IsWalkable(resolved))
+        {
+            int expanded = isGoal ? Mathf.Max(radius, 50) : Mathf.Max(radius, 24);
+            resolved = grid.FindNearestWalkable(cell, expanded);
+        }
+
+        return resolved;
+    }
+
     private void ResolveStartEndGrid(out Vector2Int resolvedStart, out Vector2Int resolvedEnd)
     {
-        Vector2Int startGrid = ChartCoordinateToGridCell(currentCoordinate);
-        Vector2Int endGrid = ChartCoordinateToGridCell(endCoordinate);
-        resolvedStart = grid.FindNearestWalkable(startGrid, nearestWalkableSearchRadius);
-        resolvedEnd = grid.FindNearestWalkable(endGrid, nearestWalkableSearchRadius);
+        resolvedStart = ResolveWalkableGridCell(currentCoordinate, isGoal: false);
+        resolvedEnd = ResolveWalkableGridCell(endCoordinate, isGoal: true);
         _lineResolvedStart = resolvedStart;
         _lineResolvedEnd = resolvedEnd;
     }
@@ -1891,6 +2017,19 @@ public class PathTest : MonoBehaviour
 
         List<Node> foundPath = pathfinder.FindPath(resolvedStart, resolvedEnd);
 
+        if ((foundPath == null || foundPath.Count == 0) && logPathDiagnostics)
+        {
+            Vector2 clampedEnd = ClampChartCoordinateToMapBounds(endCoordinate);
+            Vector2Int rawEndCell = ChartCoordinateToGridCell(clampedEnd);
+            Debug.LogWarning(
+                $"[PathTest] No path: chart start={currentCoordinate} end={endCoordinate} " +
+                $"endClamped={clampedEnd} mapX=[{mapCoordMin.x},{mapCoordMax.x}] mapY=[{mapCoordMin.y},{mapCoordMax.y}] " +
+                $"grid {resolvedStart} (walkable={grid.IsWalkable(resolvedStart)}) rawEndCell={rawEndCell} (walkable={grid.IsWalkable(rawEndCell)}) → " +
+                $"resolvedEnd={resolvedEnd} (walkable={grid.IsWalkable(resolvedEnd)}) " +
+                $"activeMap={grid.ActiveMapTransform?.name} coordOffset={coordinateOffsetFeet}",
+                this);
+        }
+
         currentPath.Clear();
         if (foundPath != null && foundPath.Count > 0)
         {
@@ -1913,6 +2052,7 @@ public class PathTest : MonoBehaviour
             RebuildMapArrows();
         }
         RebuildWorldArrows();
+        UpdateEndPointWorldMarker();
         _chartGridAtLastRepath = resolvedStart;
         LogPathDiagnostics(resolvedStart, resolvedEnd, mapVisible);
     }
@@ -1950,8 +2090,9 @@ public class PathTest : MonoBehaviour
             }
         }
 
+        Vector2 clampedGoal = ClampChartCoordinateToMapBounds(endCoordinate);
         Debug.Log(
-            $"[PathTest] repath chartPos={currentCoordinate} startCoord={startCoordinate} endCoord={endCoordinate} " +
+            $"[PathTest] repath chartPos={currentCoordinate} startCoord={startCoordinate} endCoord={endCoordinate} endClamped={clampedGoal} " +
             $"grid {resolvedStart.x},{resolvedStart.y} → {resolvedEnd.x},{resolvedEnd.y} pathNodes={currentPath.Count} " +
             $"distance={distFt:F1}ft chartJourney={chartJourneyFt:F1}ft progressIdx={_journeyProgressIndex}/{Mathf.Max(0, _snapPathNodes.Count - 1)} " +
             $"worldPolyline={worldM * feetPerMeter:F1}ft routeT={_sessionRouteProgressT:F2} fullRoute={_sessionFullRouteValid} " +
@@ -2537,6 +2678,9 @@ public class PathTest : MonoBehaviour
         _snapStartX = _lineResolvedStart.x;
         _snapStartY = _lineResolvedStart.y;
         _snapMapStartWorld = _snapPathMapPoints[0];
+
+        if (_sessionFullRouteValid && !WorldGoalLockMatchesResolvedEnd())
+            InvalidateWorldRouteForNewGoal();
 
         if (_sessionFullRouteValid)
         {
