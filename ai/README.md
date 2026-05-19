@@ -90,7 +90,7 @@ Voice mode replaces the text input box with a simple Space-toggle recorder:
 uv run llm-chat --voice
 ```
 
-Press Space to start recording. While recording, the app shows a spinner and reveals a compact live transcript only after speech is recognized. Space again stops recording and sends the collected transcript to the model.
+Press Space to start recording. While recording, the app shows a spinner. Space again stops recording, transcribes the recorded segment, and sends the transcript to the model.
 
 Voice mode includes a microphone menu above the recorder controls. Choosing a
 device uses that microphone for subsequent recordings. You can also set an
@@ -105,18 +105,18 @@ event websocket derived from `--ground-control-api-url`. A
 `POST /voice/transcription/toggle` request on that API emits a voice command
 event that toggles recording in the TUI.
 
-By default, voice mode now uses the `whisper-stream` binary when it is available on `PATH` and `ggml-base.en.bin` exists in the working directory. This matches the low-repeat command:
+By default, voice mode now records a microphone segment and transcribes it with the `whisper-cli` binary when it is available on `PATH` and `ggml-base.en.bin` exists in the working directory. Transcription uses 8 threads and the same ggml model:
 
 ```bash
-whisper-stream -m ggml-base.en.bin -t 8 --step 500 --length 5000
+whisper-cli -m ggml-base.en.bin -t 8 --no-timestamps -f <recorded-segment.wav>
 ```
 
-The app launches that process on Space and reads transcription text from stdout while recording. If `whisper-stream` or the ggml model is unavailable, `--voice-engine auto` falls back to the Python Whisper engine.
+The app opens the selected microphone itself while recording, writes a temporary WAV segment after Space stops recording, and then runs `whisper-cli` on that file. If `whisper-cli` or the ggml model is unavailable, `--voice-engine auto` falls back to the Python Whisper engine.
 
 You can force either engine:
 
 ```bash
-uv run llm-chat --voice --voice-engine whisper-stream
+uv run llm-chat --voice --voice-engine whisper-cli
 uv run llm-chat --voice --voice-engine python
 ```
 
@@ -136,10 +136,10 @@ You can override the speech model or language hint:
 uv run llm-chat --voice --whisper-model base.en --voice-language en
 ```
 
-You can tune `whisper-stream` responsiveness:
+You can override the `whisper-cli` binary, ggml model, or thread count:
 
 ```bash
-uv run llm-chat --voice --whisper-stream-step 500 --whisper-stream-length 5000
+uv run llm-chat --voice --whisper-cli-command whisper-cli --whisper-cli-model ggml-base.en.bin --whisper-cli-threads 8
 ```
 
 You can tune Python Whisper live transcription responsiveness:
