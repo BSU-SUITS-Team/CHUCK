@@ -17,6 +17,9 @@ public class Procedures : MonoBehaviour, IRenderable
     private static string key = "procedure";
     private List<BaseArsisEvent> procedures = new List<BaseArsisEvent>();
     private bool changed = true;
+    
+    [Tooltip("If this is enabled, this script is only here for reference and should not make changes to the menu")]
+    public bool noMenuChanges;
 
     void IRenderable.Render(List<BaseArsisEvent> list)
     {
@@ -30,6 +33,13 @@ public class Procedures : MonoBehaviour, IRenderable
         ProcedureDisplay view = display.GetComponent<ProcedureDisplay>();
         view.SetProcedure(procedure); // apply the procedure
         display.SetActive(true); // enable after procedure is applied
+    }
+
+    //This is used where we know the name of the procedure that will be opened (for example, the timeline summary)
+    //It is used when that button is pressed to find and open the appropriate procedure
+    public void UseProcedureButton(string procedureName)
+    {
+        CreateProcedureDisplay(FindProcedureByName(procedureName));
     }
 
     public bool OpenProcedureByName(string procedureName)
@@ -63,6 +73,7 @@ public class Procedures : MonoBehaviour, IRenderable
 
     public void ShowSummaryTimeline()
     {
+        if (noMenuChanges) return;
         if (summaryTimeline == null)
         {
             Debug.LogWarning("Procedures: summaryTimeline prefab is not assigned.");
@@ -86,6 +97,7 @@ public class Procedures : MonoBehaviour, IRenderable
 
     void Update()
     {
+        if (noMenuChanges) return;
         if (!changed) return;
         List<GameObject> entries = new();
         foreach (BaseArsisEvent baseArsisEvent in procedures)

@@ -24,6 +24,7 @@ public class ArmbarButtonList : MonoBehaviour
     {
         //Populate a list of PressableButtons based on the children of buttonListParent
         RefreshList();
+        Invoke("RefreshList", 0.1f);
     }
 
     private void RefreshList()

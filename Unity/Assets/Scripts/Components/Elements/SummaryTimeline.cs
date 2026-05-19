@@ -62,9 +62,9 @@ public class SummaryTimeline : MonoBehaviour, IRenderable
 
     void Update()
     {
-        if (!changed) return;
-        float newPos = Mathf.Clamp((time.data.total_time / cutoffInSeconds) * timerHeight, -250, 0);
-        handle.anchoredPosition = new Vector2(handle.anchoredPosition.x, newPos);
-        changed = false;
+        //if (!changed) return;
+        //float newPos = Mathf.Clamp((time.data.total_time / cutoffInSeconds) * timerHeight, -250, 0);
+        //handle.anchoredPosition = new Vector2(handle.anchoredPosition.x, newPos);
+        //changed = false;
     }
 }
