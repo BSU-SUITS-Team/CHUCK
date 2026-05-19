@@ -17,16 +17,16 @@ from llm_cli_chat.context import (
 )
 from llm_cli_chat.voice import (
     VoiceInputConfig,
-    build_whisper_stream_command,
+    build_whisper_cli_command,
     load_whisper_model,
     resolve_voice_engine,
     resolve_whisper_device,
-    whisper_stream_unavailable_reason,
+    whisper_cli_unavailable_reason,
 )
 
 
 DEFAULT_WHISPER_MODEL = "tiny.en"
-DEFAULT_WHISPER_STREAM_MODEL = Path("ggml-base.en.bin")
+DEFAULT_WHISPER_CLI_MODEL = Path("ggml-base.en.bin")
 
 
 def optional_int_env(name: str) -> int | None:
@@ -67,10 +67,10 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--voice-engine",
-        choices=("auto", "whisper-stream", "python"),
+        choices=("auto", "whisper-cli", "whisper-stream", "python"),
         default=os.getenv("LLM_CHAT_VOICE_ENGINE", "auto"),
         help=(
-            "Voice transcription engine. auto prefers whisper-stream when available "
+            "Voice transcription engine. auto prefers whisper-cli when available "
             "and falls back to Python Whisper."
         ),
     )
@@ -137,44 +137,75 @@ def parse_args() -> argparse.Namespace:
         help="Optional spoken language hint for Whisper, for example 'en'.",
     )
     parser.add_argument(
+        "--whisper-cli-command",
+        dest="whisper_cli_command",
+        default=os.getenv("LLM_CHAT_WHISPER_CLI_COMMAND", "whisper-cli"),
+        help="Command used by the whisper-cli voice engine.",
+    )
+    parser.add_argument(
         "--whisper-stream-command",
-        default=os.getenv("LLM_CHAT_WHISPER_STREAM_COMMAND", "whisper-stream"),
-        help="Command used by the whisper-stream voice engine.",
+        dest="whisper_cli_command",
+        default=argparse.SUPPRESS,
+        help=argparse.SUPPRESS,
+    )
+    parser.add_argument(
+        "--whisper-cli-model",
+        dest="whisper_cli_model",
+        type=Path,
+        default=Path(
+            os.getenv(
+                "LLM_CHAT_WHISPER_CLI_MODEL",
+                os.getenv("LLM_CHAT_WHISPER_STREAM_MODEL", str(DEFAULT_WHISPER_CLI_MODEL)),
+            ),
+        ),
+        help=(
+            "ggml model path used by the whisper-cli voice engine "
+            f"(default: {str(DEFAULT_WHISPER_CLI_MODEL)!r})."
+        ),
     )
     parser.add_argument(
         "--whisper-stream-model",
+        dest="whisper_cli_model",
         type=Path,
-        default=Path(
-            os.getenv("LLM_CHAT_WHISPER_STREAM_MODEL", str(DEFAULT_WHISPER_STREAM_MODEL)),
+        default=argparse.SUPPRESS,
+        help=argparse.SUPPRESS,
+    )
+    parser.add_argument(
+        "--whisper-cli-threads",
+        dest="whisper_cli_threads",
+        type=int,
+        default=int(
+            os.getenv(
+                "LLM_CHAT_WHISPER_CLI_THREADS",
+                os.getenv("LLM_CHAT_WHISPER_STREAM_THREADS", "8"),
+            )
         ),
-        help=(
-            "ggml model path used by the whisper-stream voice engine "
-            f"(default: {str(DEFAULT_WHISPER_STREAM_MODEL)!r})."
-        ),
+        help="Thread count passed to whisper-cli.",
     )
     parser.add_argument(
         "--whisper-stream-threads",
+        dest="whisper_cli_threads",
         type=int,
-        default=int(os.getenv("LLM_CHAT_WHISPER_STREAM_THREADS", "8")),
-        help="Thread count passed to whisper-stream.",
+        default=argparse.SUPPRESS,
+        help=argparse.SUPPRESS,
     )
     parser.add_argument(
         "--whisper-stream-step",
         type=int,
         default=int(os.getenv("LLM_CHAT_WHISPER_STREAM_STEP", "500")),
-        help="Audio step size in milliseconds passed to whisper-stream.",
+        help=argparse.SUPPRESS,
     )
     parser.add_argument(
         "--whisper-stream-length",
         type=int,
         default=int(os.getenv("LLM_CHAT_WHISPER_STREAM_LENGTH", "5000")),
-        help="Audio window length in milliseconds passed to whisper-stream.",
+        help=argparse.SUPPRESS,
     )
     parser.add_argument(
         "--whisper-stream-keep",
         type=int,
         default=optional_int_env("LLM_CHAT_WHISPER_STREAM_KEEP"),
-        help="Optional prior audio in milliseconds kept between whisper-stream chunks.",
+        help=argparse.SUPPRESS,
     )
     parser.add_argument(
         "--realtime-interval",
@@ -225,12 +256,9 @@ def main() -> None:
         whisper_model=args.whisper_model,
         whisper_device=args.whisper_device,
         audio_input_device=args.audio_input_device,
-        whisper_stream_command=args.whisper_stream_command,
-        whisper_stream_model=args.whisper_stream_model,
-        whisper_stream_threads=args.whisper_stream_threads,
-        whisper_stream_step_ms=args.whisper_stream_step,
-        whisper_stream_length_ms=args.whisper_stream_length,
-        whisper_stream_keep_ms=args.whisper_stream_keep,
+        whisper_cli_command=args.whisper_cli_command,
+        whisper_cli_model=args.whisper_cli_model,
+        whisper_cli_threads=args.whisper_cli_threads,
         realtime_interval_seconds=args.realtime_interval,
         realtime_window_seconds=args.realtime_window,
         commit_interval_seconds=args.commit_interval,
@@ -239,16 +267,16 @@ def main() -> None:
     )
     voice_model = None
     if args.voice:
-        if args.voice_engine == "whisper-stream":
-            unavailable = whisper_stream_unavailable_reason(voice_config)
+        if args.voice_engine in {"whisper-cli", "whisper-stream"}:
+            unavailable = whisper_cli_unavailable_reason(voice_config)
             if unavailable is not None:
-                raise SystemExit(f"Could not use whisper-stream voice engine: {unavailable}")
+                raise SystemExit(f"Could not use whisper-cli voice engine: {unavailable}")
 
         voice_engine = resolve_voice_engine(voice_config)
-        if voice_engine == "whisper-stream":
+        if voice_engine == "whisper-cli":
             print(
-                "Using whisper-stream for voice transcription: "
-                f"{shlex.join(build_whisper_stream_command(voice_config))}"
+                "Using whisper-cli for voice transcription: "
+                f"{shlex.join(build_whisper_cli_command(voice_config))}"
             )
         else:
             whisper_device = resolve_whisper_device(args.whisper_device)
