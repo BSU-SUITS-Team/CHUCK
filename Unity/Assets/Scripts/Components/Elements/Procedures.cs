@@ -55,7 +55,7 @@ public class Procedures : MonoBehaviour, IRenderable
         return true;
     }
 
-    private Procedure FindProcedureByName(string procedureName)
+    public Procedure FindProcedureByName(string procedureName)
     {
         if (string.IsNullOrWhiteSpace(procedureName)) return null;
 

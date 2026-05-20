@@ -81,6 +81,7 @@ public class NotificationWindowManager : MonoBehaviour, IRenderable
             if (baseEvent is not ARSIS.EventManager.Notifications notification) continue;
 
             GameObject obj = Instantiate(miniNotifPrefab, miniParentObject.transform);
+            if (obj.GetComponent<NotificationButton>() != null) obj.GetComponent<NotificationButton>().relatedProcedureName = notification.data.procedure;
 
             // Content
             Transform contentTransform = obj.transform.Find("MainNotifBackground/Content");

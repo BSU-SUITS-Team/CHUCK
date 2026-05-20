@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using ARSIS.EventManager;
 using UnityEngine;
+using UnityEngine.Events;
 
 //This script goes in the root of the scene and is used to determine what menu the user is looking at, 
 //and if they're looking at one and press a button on their armbar, send the input to the ArmbarControllable on the menu
@@ -16,6 +17,8 @@ public class ArmbarInputManager : MonoBehaviour, IRenderable
     private bool hasRemoteButtonPressChanges;
     private int processedRemoteButtonPressCount;
     private long lastHandledRemoteButtonPressTime;
+
+    public UnityEvent dedicatedButton1Events, dedicatedButton2Events;
 
     void OnEnable()
     {
@@ -90,6 +93,8 @@ public class ArmbarInputManager : MonoBehaviour, IRenderable
         else if (Input.GetKeyDown("4")) controlledMenu.InvokeButton(4);
         else if (Input.GetKeyDown("5")) controlledMenu.InvokeButton(5);
         else if (Input.GetKeyDown("6")) controlledMenu.InvokeButton(6);
+        else if (Input.GetKeyDown("7")) dedicatedButton1Events.Invoke();
+        else if (Input.GetKeyDown("8")) dedicatedButton2Events.Invoke();
     }
 
     private void ProcessRemoteButtonPresses()
@@ -139,5 +144,11 @@ public class ArmbarInputManager : MonoBehaviour, IRenderable
         }
 
         controlledMenu.InvokeButton(button);
+    }
+
+    public void CloseAllWindows()
+    {
+        Window[] windows = GameObject.FindObjectsOfType<Window>();
+        foreach (Window window in windows) window.Close();
     }
 }
