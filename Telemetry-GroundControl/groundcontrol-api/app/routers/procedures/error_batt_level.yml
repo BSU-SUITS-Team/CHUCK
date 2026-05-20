@@ -1,0 +1,10 @@
+category: Built-In
+description: Procedure for handling off-nominal suit CO2 pressure during EVA. Will NOT prematurely end the test.
+duration: TBD
+name: Off Nominal Battery Level
+tasks:
+- description: EV suit CO2 pressure has exceeded the nominal range
+  name: Off Nominal Suit CO2 Pressure
+  steps:
+  - body: "1. If DCU BATT – PRI, switch DCU BATT – SEC; If DCU BATT – SEC, switch DCU BATT – PRI"
+    type: text

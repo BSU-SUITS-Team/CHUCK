@@ -61,7 +61,7 @@ public class TSSNotificationWatcher : MonoBehaviour
                    "Oxygen error detected.", "Oxygen error cleared.", "Off Nominal Suit Oxygen Pressure");
 
         CheckLatch("Power",   Manager.PowerErrorLatch.latched,   ref _prevPowerLatched,
-                   "Power error detected.", "Power error cleared.", "");
+                   "Power error detected.", "Power error cleared.", "Off Nominal Battery Level");
 
         CheckLatch("Scrubber", Manager.ScrubberErrorLatch.latched, ref _prevScrubberLatched,
                    "Scrubber error detected.", "Scrubber error cleared.", "Off Nomincal CO2 Scrubber");
