@@ -10,7 +10,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2136075019219556742, guid: cf79b05a44f943b4bb5a357b339fa8e9, type: 3}
       propertyPath: m_Name
-      value: ArmbarIndicator_B6 Variant
+      value: B6_Indicator
       objectReference: {fileID: 0}
     - target: {fileID: 4189341620181774604, guid: cf79b05a44f943b4bb5a357b339fa8e9, type: 3}
       propertyPath: m_Pivot.x
@@ -95,7 +95,11 @@ PrefabInstance:
     - target: {fileID: 4686921127426373947, guid: cf79b05a44f943b4bb5a357b339fa8e9, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: c7e7411fca2b6214d83c7986d4880bab, type: 3}
+      objectReference: {fileID: 21300000, guid: 6cdb77d5e3e62514084b8ada7a58ee6d, type: 3}
+    - target: {fileID: 8371008606715589683, guid: cf79b05a44f943b4bb5a357b339fa8e9, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
