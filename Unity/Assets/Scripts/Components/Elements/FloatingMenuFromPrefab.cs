@@ -54,7 +54,7 @@ namespace ARSIS.UI
         private bool participatesInLayout = true;
 
         private int _registeredPrefabInstanceId = -1;
-        private int _layoutSlot = -1;
+        private int _layoutSlot = int.MinValue;
         private float _followTimer;
         private Vector3 _lastPlacementCameraPos;
         private Vector3 _lastPlacementCameraForward = Vector3.forward;
@@ -69,7 +69,12 @@ namespace ARSIS.UI
             if (ByPrefabId.TryGetValue(key, out FloatingMenuFromPrefab existing) && existing != null)
             {
                 existing.gameObject.SetActive(true);
-                existing.ApplyPlacement();
+                if (existing.participatesInLayout
+                    && existing._layoutSlot != int.MinValue
+                    && existing._layoutSlot != 0)
+                    WindowArrangementManager.PromoteToCenter(existing, existing._layoutSlot);
+                else
+                    existing.ApplyPlacement();
                 return;
             }
 
@@ -84,7 +89,7 @@ namespace ARSIS.UI
 
             comp.Register(key);
 
-            if (comp.participatesInLayout && comp._layoutSlot < 0)
+            if (comp.participatesInLayout && comp._layoutSlot == int.MinValue)
             {
                 Camera cam = ResolveActiveCamera();
                 if (cam != null)
@@ -108,17 +113,17 @@ namespace ARSIS.UI
                 owner == this)
                 ByPrefabId.Remove(_registeredPrefabInstanceId);
 
-            if (participatesInLayout && _layoutSlot >= 0)
+            if (participatesInLayout && _layoutSlot != int.MinValue)
             {
                 WindowArrangementManager.UnregisterWindow(this);
-                _layoutSlot = -1;
+                _layoutSlot = int.MinValue;
             }
         }
 
         private void Update()
         {
             // Layout windows are fixed in world space; follow-camera has no effect on them.
-            if (participatesInLayout && _layoutSlot >= 0)
+            if (participatesInLayout && _layoutSlot != int.MinValue)
                 return;
 
             if (!followCameraWhileOpen || !gameObject.activeInHierarchy)
@@ -184,7 +189,7 @@ namespace ARSIS.UI
             forward.Normalize();
 
             Vector3 pos;
-            if (participatesInLayout && _layoutSlot >= 0 && WindowArrangementManager.IsAnchorEstablished)
+            if (participatesInLayout && _layoutSlot != int.MinValue && WindowArrangementManager.IsAnchorEstablished)
                 pos = WindowArrangementManager.GetSlotWorldPosition(_layoutSlot);
             else
                 pos = cam.transform.position + forward * distanceMeters + Vector3.up * heightOffsetMeters;
