@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using ARSIS.EventManager;
 using UnityEngine;
 using UnityEngine.Events;
+using MixedReality.Toolkit;
+using MixedReality.Toolkit.UX;
 
 //This script goes in the root of the scene and is used to determine what menu the user is looking at, 
 //and if they're looking at one and press a button on their armbar, send the input to the ArmbarControllable on the menu
@@ -78,6 +80,19 @@ public class ArmbarInputManager : MonoBehaviour, IRenderable
                 controlledMenu.ShowHideIndicators(true);
             }
         }
+    }
+
+    public void PressButton(PressableButton button)
+    {
+        if (button == null)
+            return;
+
+        StatefulInteractable interactable = button;
+
+        bool current = interactable.IsToggled;
+        interactable.ForceSetToggled(!current);
+     
+        button.OnClicked.Invoke();
     }
 
     //Check if the user is pressing down a button and if they are, pass it along to the menu being controlled
