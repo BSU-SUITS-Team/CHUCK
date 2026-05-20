@@ -381,8 +381,8 @@ public class PathTest : MonoBehaviour
                 Vector3 feet = GetNavigationWorldPosition();
                 float wTot = PolylineHorizontalLengthMeters(_sessionFullWorldFloorPolyline);
                 if (wTot > 1e-8f)
-                    _sessionRouteProgressT = GetHorizontalPolylineClosestArcAlongUnbounded(
-                                                 _sessionFullWorldFloorPolyline, feet)
+                    _sessionRouteProgressT = GetHorizontalPolylineClosestArcAlong(
+                                                 _sessionFullWorldFloorPolyline, feet, allowExtrapolation: true)
                                              / wTot;
             }
 
@@ -597,6 +597,7 @@ public class PathTest : MonoBehaviour
         _sessionFullRouteValid = false;
         _sessionFullSnapNodes.Clear();
         _sessionFullWorldFloorPolyline.Clear();
+        _sessionRouteStartFeetValid = false;
     }
 
     private bool WorldGoalLockMatchesResolvedEnd()
@@ -1173,6 +1174,17 @@ public class PathTest : MonoBehaviour
 
         if (UseSessionFrozenMapSpatial() && _sessionChartMovementValid)
         {
+            // Active route session: integrate walking deltas only (same as A/B polyline sync). Do not project
+            // the HMD onto the frozen map each frame — that makes the green dot chase head look on short/HAB routes.
+            if (pathSessionActive && _sessionWorldGoalLockValid && _sessionRouteStartFeetValid)
+            {
+                if (delta.sqrMagnitude <= Mathf.Epsilon)
+                    return;
+                Vector3 horizontalDelta = Vector3.ProjectOnPlane(delta, Vector3.up);
+                currentCoordinate = ApplyWorldMotionToChart(currentCoordinate, horizontalDelta);
+                return;
+            }
+
             if (TryGetChartFromFrozenWorldPosition(worldPos, out Vector2 chartOnFrozen))
                 currentCoordinate = chartOnFrozen + _chartOffsetFromFrozenWorld;
             else
@@ -1197,19 +1209,39 @@ public class PathTest : MonoBehaviour
     /// </summary>
     private bool SyncChartPositionFromFeetProgressAlongRoute()
     {
-        if (!_sessionFullRouteValid || _sessionFullSnapNodes.Count < 2 || _sessionFullWorldFloorPolyline.Count < 2)
+        if (_sessionFullRouteValid
+            && _sessionFullSnapNodes.Count >= 2
+            && _sessionFullWorldFloorPolyline.Count >= 2
+            && SyncChartPositionFromFeetPolyline(_sessionFullWorldFloorPolyline, _sessionFullSnapNodes, allowExtrapolation: true))
+            return true;
+
+        if (_worldLayoutValid
+            && _worldPathFloorPositions.Count >= 2
+            && _snapPathNodes.Count >= 2
+            && SyncChartPositionFromFeetPolyline(_worldPathFloorPositions, _snapPathNodes, allowExtrapolation: false))
+            return true;
+
+        return false;
+    }
+
+    private bool SyncChartPositionFromFeetPolyline(
+        IReadOnlyList<Vector3> worldPolyline,
+        IReadOnlyList<Node> chartNodes,
+        bool allowExtrapolation)
+    {
+        if (worldPolyline == null || chartNodes == null || worldPolyline.Count < 2 || chartNodes.Count < 2)
             return false;
 
         Vector3 feet = GetNavigationWorldPosition();
-        float wTot = PolylineHorizontalLengthMeters(_sessionFullWorldFloorPolyline);
+        float wTot = PolylineHorizontalLengthMeters(worldPolyline);
         if (wTot < 1e-8f)
             return false;
 
-        float arc = GetHorizontalPolylineClosestArcAlongUnbounded(_sessionFullWorldFloorPolyline, feet);
-        _sessionRouteProgressT = arc / wTot;
+        float arc = GetHorizontalPolylineClosestArcAlong(worldPolyline, feet, allowExtrapolation);
+        _sessionRouteProgressT = Mathf.Clamp01(arc / wTot);
 
-        float chartLen = TotalChartPolylineUnits(_sessionFullSnapNodes);
-        currentCoordinate = SampleChartAtDistanceAlongNodes(_sessionFullSnapNodes, _sessionRouteProgressT * chartLen);
+        float chartLen = TotalChartPolylineUnits(chartNodes);
+        currentCoordinate = SampleChartAtDistanceAlongNodes(chartNodes, _sessionRouteProgressT * chartLen);
         return true;
     }
 
@@ -1224,10 +1256,6 @@ public class PathTest : MonoBehaviour
     private void TryCaptureSessionFullRoute(IReadOnlyList<Vector3> mapPointsForSnap)
     {
         if (_sessionFullRouteValid || _snapPathNodes.Count < 5 || !_sessionWorldGoalLockValid)
-            return;
-
-        Vector2Int sessionStart = ChartCoordinateToGridCell(startCoordinate);
-        if ((sessionStart - _lineResolvedStart).sqrMagnitude > 9)
             return;
 
         if (!_sessionRouteStartFeetValid)
@@ -1495,9 +1523,9 @@ public class PathTest : MonoBehaviour
         _sessionFullSnapNodes.RemoveRange(0, startIdx);
     }
 
-    /// <summary>Closest arc length from first floor point along the polyline to <paramref name="worldPoint"/> (XZ). First segment can extend backward; last can extend past the end.</summary>
-    private static float GetHorizontalPolylineClosestArcAlongUnbounded(
-        IReadOnlyList<Vector3> polyline, Vector3 worldPoint)
+    /// <summary>Closest arc length from first floor point along the polyline to <paramref name="worldPoint"/> (XZ).</summary>
+    private static float GetHorizontalPolylineClosestArcAlong(
+        IReadOnlyList<Vector3> polyline, Vector3 worldPoint, bool allowExtrapolation)
     {
         if (polyline == null || polyline.Count < 2)
             return 0f;
@@ -1539,7 +1567,9 @@ public class PathTest : MonoBehaviour
 
             bool firstSeg = i == 0;
             bool lastSeg = i == segCount - 1;
-            if (firstSeg && lastSeg)
+            if (!allowExtrapolation)
+                tAlong = Mathf.Clamp01(tAlong);
+            else if (firstSeg && lastSeg)
             {
                 // Single segment polyline — allow extrapolation either way.
             }
@@ -1954,10 +1984,10 @@ public class PathTest : MonoBehaviour
         }
 
         Vector3 pos;
-        if (_sessionWorldGoalLockValid)
-            pos = _sessionWorldGoalLockBaseWorld;
-        else if (_worldPathFloorPositions.Count > 0)
+        if (_worldPathFloorPositions.Count > 0)
             pos = _worldPathFloorPositions[_worldPathFloorPositions.Count - 1] + Vector3.up * worldArrowHeightAbovePlayer;
+        else if (_sessionWorldGoalLockValid)
+            pos = _sessionWorldGoalLockBaseWorld;
         else if (_snapPathMapPoints.Count > 0)
             pos = WorldArrowFloorFromSnapshotMapPoint(_snapPathMapPoints[_snapPathMapPoints.Count - 1]);
         else
@@ -3013,20 +3043,16 @@ public class PathTest : MonoBehaviour
         worldPos = default;
         if (!pathSessionActive || grid == null || grid.grid == null)
             return false;
-        if (_sessionWorldGoalLockValid)
-        {
-            worldPos = _sessionWorldGoalLockBaseWorld + Vector3.up * endPointMarkerHeightAboveRoute;
-            return true;
-        }
-
         if (!_worldCalibCaptured || !_worldLayoutValid)
             return false;
 
         Vector3 baseWorld = _worldPathFloorPositions.Count > 0
             ? _worldPathFloorPositions[_worldPathFloorPositions.Count - 1] + Vector3.up * worldArrowHeightAbovePlayer
-            : (_snapPathMapPoints.Count > 0
-                ? WorldArrowFloorFromSnapshotMapPoint(_snapPathMapPoints[_snapPathMapPoints.Count - 1])
-                : WorldArrowFloorFromSnapshot(_lineResolvedEnd.x, _lineResolvedEnd.y));
+            : (_sessionWorldGoalLockValid
+                ? _sessionWorldGoalLockBaseWorld
+                : (_snapPathMapPoints.Count > 0
+                    ? WorldArrowFloorFromSnapshotMapPoint(_snapPathMapPoints[_snapPathMapPoints.Count - 1])
+                    : WorldArrowFloorFromSnapshot(_lineResolvedEnd.x, _lineResolvedEnd.y)));
         worldPos = baseWorld + Vector3.up * endPointMarkerHeightAboveRoute;
         return true;
     }
@@ -3287,7 +3313,9 @@ public class PathTest : MonoBehaviour
         bool noPath = currentPath.Count < 2;
         string line;
         if (noPath)
-            line = noPathAvailableText;
+            line = Vector2.Distance(currentCoordinate, habCoordinate) <= 0.5f
+                ? destinationReachedText
+                : noPathAvailableText;
         else if (remainingFeet <= Mathf.Max(0f, destinationReachedFeet))
             line = destinationReachedText;
         else
