@@ -84,7 +84,7 @@ public class ArmbarInputManager : MonoBehaviour, IRenderable
     void CheckInput()
     {
         //If we aren't controlling a menu, don't do anything
-        if (controlledMenu == null) return;
+        if (controlledMenu != null && controlledMenu.locked) return;
 
         //Invoke events when a button is pressed. This is an else if list so we can't press two buttons on the same frame.
         if (Input.GetKeyDown("1")) controlledMenu.InvokeButton(1);
@@ -137,8 +137,10 @@ public class ArmbarInputManager : MonoBehaviour, IRenderable
 
     private void InvokeButton(int button)
     {
-        if (button == 1) dedicatedButton1Events.Invoke();
-        else if (button == 2) dedicatedButton2Events.Invoke();
+        if (controlledMenu != null && controlledMenu.locked) return;
+
+        if (button == 7) dedicatedButton1Events.Invoke();
+        else if (button == 8) dedicatedButton2Events.Invoke();
 
         if (controlledMenu == null)
         {
