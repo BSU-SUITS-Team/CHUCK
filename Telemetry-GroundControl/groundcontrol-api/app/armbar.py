@@ -45,7 +45,7 @@ class ArmbarButtonPress(BaseModel):
         except ValueError as exc:
             raise ValueError("button must be an armbar button number from 1 to 6") from exc
 
-        if button < 1 or button > 6:
+        if button < 1 or button > 8:
             raise ValueError("button must be an armbar button number from 1 to 6")
 
         return button
