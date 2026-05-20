@@ -367,6 +367,7 @@ GameObject:
   - component: {fileID: 7016246410536116538}
   - component: {fileID: 6009671963900098207}
   - component: {fileID: 4439450588809236928}
+  - component: {fileID: 3624483117277957609}
   m_Layer: 0
   m_Name: Main
   m_TagString: Untagged
@@ -500,6 +501,23 @@ MonoBehaviour:
   miniParentObject: {fileID: 1700170123812427549}
   resetAllButton: {fileID: 0}
   clearHistoryButton: {fileID: 0}
+--- !u!114 &3624483117277957609
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1700170123812427549}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1505a5f026c7bd84eba90c774814556e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  procedureButton: {fileID: 0}
+  scrollArea: {fileID: 0}
+  procedureDisplay: {fileID: 6037297893685616930, guid: a9af6125ef552214d800a05ae914465a, type: 3}
+  summaryTimeline: {fileID: 0}
+  noMenuChanges: 1
 --- !u!1 &2472518441137513179
 GameObject:
   m_ObjectHideFlags: 0
