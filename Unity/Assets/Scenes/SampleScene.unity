@@ -34444,7 +34444,7 @@ MonoBehaviour:
   distanceUICamera: {fileID: 0}
   navigationVisualRoot: {fileID: 0}
   navigationMenuRaiseMeters: 0.08
-  mapCoordMin: {x: -5758, y: -10076}
+  mapCoordMin: {x: -5763, y: -10078}
   mapCoordMax: {x: -5545, y: -9940}
   startCoordinate: {x: -5670, y: -10060}
   aCoordinate: {x: -5635, y: -9960}
@@ -34452,7 +34452,7 @@ MonoBehaviour:
   habCoordinate: {x: -5670, y: -10060}
   routeEndSelection: 0
   endCoordinate: {x: -5635, y: -9960}
-  coordinateOffsetFeet: {x: 0, y: 9}
+  coordinateOffsetFeet: {x: 0, y: 0}
   coordinateScale: {x: 1, y: 1}
   coordinateScalePivot: {x: 0, y: 0}
   invertCoordinateX: 0
@@ -34467,7 +34467,7 @@ MonoBehaviour:
   maxJourneyNodeAdvancePerSecond: 2
   logPathDiagnostics: 1
   destinationReachedFeet: 8
-  destinationReachedText: Destination reached
+  destinationReachedText: Destination Reached
   noPathAvailableText: No Available Path
   pathLine: {fileID: 0}
   showMapPathLine: 0
@@ -90584,17 +90584,17 @@ MonoBehaviour:
   mirrorRectCornerV: 1
   mapWidthAxis: 0
   mapHeightAxis: 2
-  mapWidth: 0.3
+  mapWidth: 0.31
   mapHeight: 0.25
   mapCenterOffset: {x: 0, y: 0}
-  obstacleMap: {fileID: 2800000, guid: 592ce6907005e7d4da3fc90344c605f1, type: 3}
+  obstacleMap: {fileID: 2800000, guid: 6c0de0b0f05347a47b2fbd1881a68813, type: 3}
   walkableBrightnessThreshold: 0.683
   invertObstacleMask: 0
   flipObstacleX: 1
   flipObstacleY: 1
   obstacleUvMin: {x: 0, y: 0}
   obstacleUvMax: {x: 1, y: 1}
-  walkablePaddingCells: 2
+  walkablePaddingCells: 0
 --- !u!4 &1082123490
 Transform:
   m_ObjectHideFlags: 0
