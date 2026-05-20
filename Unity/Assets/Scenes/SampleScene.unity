@@ -56974,10 +56974,9 @@ MonoBehaviour:
   dedicatedButton1Events:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1208344332}
-        m_TargetAssemblyTypeName: ARSIS.EventManager.VoiceTranscriptionToggleSender,
-          Assembly-CSharp
-        m_MethodName: ToggleVoiceTranscription
+      - m_Target: {fileID: 722413637}
+        m_TargetAssemblyTypeName: ArmbarInputManager, Assembly-CSharp
+        m_MethodName: CloseAllWindows
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -56990,9 +56989,10 @@ MonoBehaviour:
   dedicatedButton2Events:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 722413637}
-        m_TargetAssemblyTypeName: ArmbarInputManager, Assembly-CSharp
-        m_MethodName: CloseAllWindows
+      - m_Target: {fileID: 1208344332}
+        m_TargetAssemblyTypeName: ARSIS.EventManager.VoiceTranscriptionToggleSender,
+          Assembly-CSharp
+        m_MethodName: ToggleVoiceTranscription
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

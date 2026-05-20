@@ -137,6 +137,9 @@ public class ArmbarInputManager : MonoBehaviour, IRenderable
 
     private void InvokeButton(int button)
     {
+        if (button == 1) dedicatedButton1Events.Invoke();
+        else if (button == 2) dedicatedButton2Events.Invoke();
+
         if (controlledMenu == null)
         {
             Debug.LogWarning($"ArmbarInputManager: No controlled menu is available for remote button {button}.");
