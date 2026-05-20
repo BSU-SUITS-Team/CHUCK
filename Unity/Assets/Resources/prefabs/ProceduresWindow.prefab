@@ -832,6 +832,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: B5_Indicator (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 7113382176969633472, guid: 3c09f8a8c9fff8f4c91c865817552ab2, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 6cdb77d5e3e62514084b8ada7a58ee6d, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -855,6 +859,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 3478886673640708232}
     m_Modifications:
+    - target: {fileID: 2540144581659963297, guid: 7f091e54b3b184a42a5e0ffcbdcb4125, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 31c8225bd74285b43858fafd19613651, type: 3}
     - target: {fileID: 5104145305566983172, guid: 7f091e54b3b184a42a5e0ffcbdcb4125, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.74999994
@@ -1700,11 +1708,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8762147279310951890, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
       propertyPath: Button5Pressed.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: MoveDown
+      value: MoveUp
       objectReference: {fileID: 0}
     - target: {fileID: 8762147279310951890, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
       propertyPath: Button6Pressed.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: MoveUp
+      value: MoveDown
       objectReference: {fileID: 0}
     - target: {fileID: 8762147279310951890, guid: 8eedee802484a9145946c5fe3408883e, type: 3}
       propertyPath: Button3Pressed.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
