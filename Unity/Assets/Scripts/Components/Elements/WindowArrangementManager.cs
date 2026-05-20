@@ -29,6 +29,10 @@ namespace ARSIS.UI
 
         private static bool _anchorEstablished;
 
+        // Tracks which slot to assign the next window displaced from center.
+        // Starts at -1 (left); after that increments through +1, +2, +3 ...
+        private static int _nextDisplacementSlot = -1;
+
         public static bool IsAnchorEstablished => _anchorEstablished;
 
         /// <summary>
@@ -45,13 +49,34 @@ namespace ARSIS.UI
             if (!_anchorEstablished)
                 EstablishAnchor(cam, distanceMeters, heightOffsetMeters);
 
-            // Insert at front: new window gets slot 0 (directly in front of user).
-            // Existing windows shift right by one slot and reposition immediately.
-            _orderedWindows.Insert(0, window);
-            for (int i = 1; i < _orderedWindows.Count; i++)
-                _orderedWindows[i].UpdateLayoutSlotAndReposition(i);
+            // Only the current center window moves — all others stay where they landed.
+            if (_orderedWindows.Count > 0)
+            {
+                int displaced = _nextDisplacementSlot;
+                _nextDisplacementSlot = (_nextDisplacementSlot == -1) ? 1 : _nextDisplacementSlot + 1;
+                _orderedWindows[0].UpdateLayoutSlotAndReposition(displaced);
+            }
 
+            _orderedWindows.Insert(0, window);
             return 0;
+        }
+
+        /// <summary>
+        /// Promotes an existing side-slot window to center. The current center window
+        /// is displaced to the next available side slot, all other windows stay put.
+        /// </summary>
+        public static void PromoteToCenter(FloatingMenuFromPrefab window, int vacatedSlot)
+        {
+            int idx = _orderedWindows.IndexOf(window);
+            if (idx <= 0) return; // not in layout, or already center
+
+            // Swap: center takes the promoted window's old slot. No new slot is created
+            // and _nextDisplacementSlot is not advanced.
+            _orderedWindows[0].UpdateLayoutSlotAndReposition(vacatedSlot);
+
+            _orderedWindows.RemoveAt(idx);
+            _orderedWindows.Insert(0, window);
+            window.UpdateLayoutSlotAndReposition(0);
         }
 
         /// <summary>
@@ -68,6 +93,7 @@ namespace ARSIS.UI
                 _layoutForward = Vector3.forward;
                 _radius = 0f;
                 _heightOffset = 0f;
+                _nextDisplacementSlot = -1;
             }
         }
 
@@ -78,6 +104,7 @@ namespace ARSIS.UI
         /// </summary>
         public static Vector3 GetSlotWorldPosition(int slotIndex)
         {
+            // Negative slotIndex rotates left of center; positive rotates right.
             float angleDeg = slotIndex * ArcStepDegrees;
             Vector3 direction = Quaternion.AngleAxis(angleDeg, Vector3.up) * _layoutForward;
             return _arcCenter + direction * _radius + Vector3.up * _heightOffset;
@@ -109,10 +136,11 @@ namespace ARSIS.UI
         {
             _orderedWindows.Clear();
             _anchorEstablished = false;
-            _arcCenter     = Vector3.zero;
-            _layoutForward = Vector3.forward;
-            _radius        = 0f;
-            _heightOffset  = 0f;
+            _arcCenter            = Vector3.zero;
+            _layoutForward        = Vector3.forward;
+            _radius               = 0f;
+            _heightOffset         = 0f;
+            _nextDisplacementSlot = -1;
         }
     }
 }
