@@ -122,7 +122,7 @@ public class ArmbarInputManager : MonoBehaviour, IRenderable
                 continue;
 
             int button = press.data != null ? press.data.button : 0;
-            if (button < 1 || button > 6)
+            if (button < 1 || button > 8)
             {
                 Debug.LogWarning($"ArmbarInputManager: Ignoring unsupported armbar button '{button}'.");
                 continue;

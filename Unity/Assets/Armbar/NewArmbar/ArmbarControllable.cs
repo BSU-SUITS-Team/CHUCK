@@ -41,7 +41,14 @@ public class ArmbarControllable : MonoBehaviour
     //Toggle whether the indicators are visible. This is called by ArmbarInputManager when the menu being controlled changes.
     public void ShowHideIndicators(bool show)
     {
-        foreach(GameObject indicator in indicators) indicator.SetActive(show);
+        foreach(GameObject indicator in indicators) 
+        {
+            if (indicator == null)
+            {
+                Debug.LogError("No indicator assigned to this window!");
+            }
+            else indicator.SetActive(show);
+        }
     }
 
     public void ActivateMRTKButton(PressableButton button)
