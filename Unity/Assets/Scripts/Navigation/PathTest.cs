@@ -1180,8 +1180,8 @@ public class PathTest : MonoBehaviour
             {
                 if (delta.sqrMagnitude <= Mathf.Epsilon)
                     return;
-                Vector3 horizontalDelta = Vector3.ProjectOnPlane(delta, Vector3.up);
-                currentCoordinate = ApplyWorldMotionToChart(currentCoordinate, horizontalDelta);
+                currentCoordinate = ApplyWorldMotionToChart(
+                    currentCoordinate, Vector3.ProjectOnPlane(delta, Vector3.up));
                 return;
             }
 
@@ -3309,17 +3309,14 @@ public class PathTest : MonoBehaviour
             return;
         }
 
+        float proximityFeet = GetProximityToEndFeet();
         float remainingFeet = GetRemainingRouteDistanceFeet();
-        bool noPath = currentPath.Count < 2;
+        float displayFeet = Mathf.Max(remainingFeet, proximityFeet);
         string line;
-        if (noPath)
-            line = Vector2.Distance(currentCoordinate, habCoordinate) <= 0.5f
-                ? destinationReachedText
-                : noPathAvailableText;
-        else if (remainingFeet <= Mathf.Max(0f, destinationReachedFeet))
+        if (proximityFeet <= Mathf.Max(0f, destinationReachedFeet))
             line = destinationReachedText;
         else
-            line = $"Distance: {remainingFeet:F1} ft";
+            line = $"Distance: {displayFeet:F1} ft";
         foreach (TextMeshProUGUI tmp in EnumerateDistanceReadouts())
         {
             tmp.enabled = true;
@@ -3410,6 +3407,31 @@ public class PathTest : MonoBehaviour
                 return cams[i];
         }
         return null;
+    }
+
+    /// <summary>
+    /// Straight-line separation from the user to the active route end (A/B/HAB), in feet.
+    /// Used only for the destination-reached label so backing away clears "Destination Reached" even when
+    /// chart/route remaining distance is still pinned at the goal.
+    /// </summary>
+    private float GetProximityToEndFeet()
+    {
+        float chartFeet = Vector2.Distance(currentCoordinate, endCoordinate)
+            * Mathf.Max(0f, chartDistanceUnitsToFeet);
+
+        if (!pathSessionActive || grid == null)
+            return chartFeet;
+
+        Vector3 feetPos = GetNavigationWorldPosition();
+        Vector3 goalPos = TryGetWorldPathDestinationWorld(out Vector3 lockedGoal)
+            ? lockedGoal
+            : GetLiveMapSurfaceWorldForChartCoordinate(endCoordinate);
+
+        float worldFeet = Vector3.Distance(
+            new Vector3(feetPos.x, 0f, feetPos.z),
+            new Vector3(goalPos.x, 0f, goalPos.z)) * Mathf.Max(0f, feetPerMeter);
+
+        return Mathf.Max(chartFeet, worldFeet);
     }
 
     private float GetRemainingRouteDistanceFeet()
