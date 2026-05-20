@@ -157,6 +157,12 @@ namespace ARSIS.UI
             ApplyPlacement(notifyNavigation: true, null);
         }
 
+        internal void UpdateLayoutSlotAndReposition(int newSlot)
+        {
+            _layoutSlot = newSlot;
+            ApplyPlacement(notifyNavigation: false, providedCamera: null);
+        }
+
         private Camera ResolvePlacementCamera() =>
             placementCameraOverride != null && placementCameraOverride.isActiveAndEnabled
                 ? placementCameraOverride
