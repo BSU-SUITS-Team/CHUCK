@@ -56974,22 +56974,6 @@ MonoBehaviour:
   dedicatedButton1Events:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1208344332}
-        m_TargetAssemblyTypeName: ARSIS.EventManager.VoiceTranscriptionToggleSender,
-          Assembly-CSharp
-        m_MethodName: ToggleVoiceTranscription
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  dedicatedButton2Events:
-    m_PersistentCalls:
-      m_Calls:
       - m_Target: {fileID: 722413637}
         m_TargetAssemblyTypeName: ArmbarInputManager, Assembly-CSharp
         m_MethodName: CloseAllWindows
@@ -57002,6 +56986,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  dedicatedButton2Events:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!4 &722413638
 Transform:
   m_ObjectHideFlags: 0
@@ -112319,7 +112306,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 887bbb6b84c96184eabe2dfc9f86a3f1, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 5556cf5c050079d46ae48792cd268c83, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -130175,7 +130162,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1, y: 0}
+  m_AnchoredPosition: {x: 1.5, y: 0}
   m_SizeDelta: {x: 12.06, y: 1.6}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1569475432
@@ -130225,8 +130212,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 1.1
-  m_fontSizeBase: 1.1
+  m_fontSize: 1.58
+  m_fontSizeBase: 1.58
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -140911,7 +140898,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 0c11fa95dcf6c864091b07004b448d49, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 57429cc2b99d84149a8b98834ce642b6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -142161,7 +142148,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1, y: 0}
+  m_AnchoredPosition: {x: 1.5, y: 0}
   m_SizeDelta: {x: 12.06, y: 1.6}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1759245751
@@ -142211,8 +142198,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 1.1
-  m_fontSizeBase: 1.1
+  m_fontSize: 1.58
+  m_fontSizeBase: 1.58
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using ARSIS.EventManager;
 using UnityEngine;
 using UnityEngine.Events;
+using MixedReality.Toolkit;
+using MixedReality.Toolkit.UX;
 
 //This script goes in the root of the scene and is used to determine what menu the user is looking at, 
 //and if they're looking at one and press a button on their armbar, send the input to the ArmbarControllable on the menu
@@ -80,11 +82,24 @@ public class ArmbarInputManager : MonoBehaviour, IRenderable
         }
     }
 
+    public void PressButton(PressableButton button)
+    {
+        if (button == null)
+            return;
+
+        StatefulInteractable interactable = button;
+
+        bool current = interactable.IsToggled;
+        interactable.ForceSetToggled(!current);
+     
+        button.OnClicked.Invoke();
+    }
+
     //Check if the user is pressing down a button and if they are, pass it along to the menu being controlled
     void CheckInput()
     {
         //If we aren't controlling a menu, don't do anything
-        if (controlledMenu == null) return;
+        if (controlledMenu != null && controlledMenu.locked) return;
 
         //Invoke events when a button is pressed. This is an else if list so we can't press two buttons on the same frame.
         if (Input.GetKeyDown("1")) controlledMenu.InvokeButton(1);
@@ -122,7 +137,7 @@ public class ArmbarInputManager : MonoBehaviour, IRenderable
                 continue;
 
             int button = press.data != null ? press.data.button : 0;
-            if (button < 1 || button > 6)
+            if (button < 1 || button > 8)
             {
                 Debug.LogWarning($"ArmbarInputManager: Ignoring unsupported armbar button '{button}'.");
                 continue;
@@ -137,6 +152,11 @@ public class ArmbarInputManager : MonoBehaviour, IRenderable
 
     private void InvokeButton(int button)
     {
+        if (controlledMenu != null && controlledMenu.locked) return;
+
+        if (button == 7) dedicatedButton1Events.Invoke();
+        else if (button == 8) dedicatedButton2Events.Invoke();
+
         if (controlledMenu == null)
         {
             Debug.LogWarning($"ArmbarInputManager: No controlled menu is available for remote button {button}.");
