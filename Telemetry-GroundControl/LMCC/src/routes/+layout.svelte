@@ -1,6 +1,7 @@
 <script>
 	import '../app.postcss';
 	import Sidebar from './Sidebar.svelte';
+	import { page } from '$app/stores';
 	import { slide } from 'svelte/transition';
 	import { graphdata, keepables, notifications } from './store';
 	import { Heading, Button, Span, Toast, Badge } from 'flowbite-svelte';
@@ -60,8 +61,12 @@
 
 	$: hasSideBar = Object.keys($keepables).length > 0 || Object.keys($graphdata).length > 0;
 	$: elapsedTime = getElapsedTime($datastore);
+	$: isLowResBiometrics = $page.url.pathname === '/biometrics/low-res';
 </script>
 
+{#if isLowResBiometrics}
+	<slot />
+{:else}
 <div class="flex flex-col h-screen bg-slate-50 text-slate-900">
 	<div
 		class="h-16 border-b border-slate-200 bg-white p-4 flex flex-row justify-between text-slate-900 text-lg"
@@ -89,8 +94,7 @@
 			<span class="p-8 text-center">
 				<Heading tag="h1">CHUCK</Heading>
 			</span>
-			<div class="min-h-0 flex-1 overflow-y-auto">
-				<Sidebar />
+			<div class="min-h-0 flex-1 overflow-y-auto"> <Sidebar />
 			</div>
 		</aside>
 
@@ -169,6 +173,7 @@
 		{/if}
 	</div>
 </div>
+{/if}
 
 <style>
 	/* Utilities for hiding scrollbars */
