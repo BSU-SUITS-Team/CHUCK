@@ -12,7 +12,11 @@ tasks:
     type: text
   - body: 3. Verbally confirm the path has been generated
     type: text
-  - body: 4. Exit airlock and begin navigation to LTV worksite
+  - body: 4. Close the navigation window
     type: text
-  - body: 5. Upon arrival at worksite, verbally confirm safe access to LTV
+  - body: 5. Exit airlock and begin navigation to LTV worksite
+    type: text
+  - body: 6. Upon arrival at worksite, open navigation window and select stop path
+    type: text
+    body: 7. Verbally confirm safe access to LTV
     type: text
