@@ -24,8 +24,11 @@ namespace ARSIS.UI
         // Arc geometry — established once when the first window opens.
         private static Vector3 _arcCenter;       // user's head position at anchor time
         private static Vector3 _layoutForward;   // flattened camera-forward (slot 0 direction)
-        private static float   _radius;          // distanceMeters of first window
-        private static float   _heightOffset;    // heightOffsetMeters of first window
+        private static float _radius;          // distanceMeters of first window
+        private static float _heightOffset;    // heightOffsetMeters of first window
+
+        public static GameObject cam;
+        public static float resetAnchorDistance; //How far does the user need to be to delete the old anchor and make a new one
 
         private static bool _anchorEstablished;
 
@@ -46,8 +49,23 @@ namespace ARSIS.UI
             float distanceMeters,
             float heightOffsetMeters)
         {
-            if (!_anchorEstablished)
-                EstablishAnchor(cam, distanceMeters, heightOffsetMeters);
+
+            //If the user is over a certain distance away from the point of their first window array, close the old windows
+            if (Vector3.Distance(cam.transform.position, _arcCenter) > resetAnchorDistance)
+            {
+                foreach (FloatingMenuFromPrefab menu in _orderedWindows)
+                {
+                    if (menu != null)
+                    {
+                        UnregisterWindow(menu);
+                        menu.GetComponent<Window>().Close();
+                    }
+                }
+
+                _anchorEstablished = false;
+            }
+
+            if (!_anchorEstablished) EstablishAnchor(cam, distanceMeters, heightOffsetMeters);
 
             // Only the current center window moves — all others stay where they landed.
             if (_orderedWindows.Count > 0)
@@ -122,10 +140,10 @@ namespace ARSIS.UI
             // The arc pivots around the user's head. Storing the camera position
             // (not the first window's world position) ensures every slot is at
             // exactly distanceMeters from the user — no depth offset between slots.
-            _arcCenter      = cam.transform.position;
-            _layoutForward  = forward;
-            _radius         = distanceMeters;
-            _heightOffset   = heightOffsetMeters;
+            _arcCenter = cam.transform.position;
+            _layoutForward = forward;
+            _radius = distanceMeters;
+            _heightOffset = heightOffsetMeters;
 
             _anchorEstablished = true;
         }
@@ -136,10 +154,10 @@ namespace ARSIS.UI
         {
             _orderedWindows.Clear();
             _anchorEstablished = false;
-            _arcCenter            = Vector3.zero;
-            _layoutForward        = Vector3.forward;
-            _radius               = 0f;
-            _heightOffset         = 0f;
+            _arcCenter = Vector3.zero;
+            _layoutForward = Vector3.forward;
+            _radius = 0f;
+            _heightOffset = 0f;
             _nextDisplacementSlot = -1;
         }
     }
