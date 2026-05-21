@@ -12,7 +12,7 @@ tasks:
     type: text
   - body: 3. Verbally confirm the path has been generated
     type: text
-  - body: 4. Close the navigation window
+  - body: 4. Assure that all windows are closed before exiting the airlock
     type: text
   - body: 5. Exit airlock and begin navigation to LTV worksite
     type: text

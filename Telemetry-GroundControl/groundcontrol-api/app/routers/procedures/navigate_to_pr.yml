@@ -10,7 +10,7 @@ tasks:
     type: text
   - body: 2. Verbally confirm path has been generated
     type: text
-  - body: 3. Close the navigation window
+  - body: 3. Assure all windows are closed before navigating to the HAB
     type: text
   - body: 4. Begin navigation to the HAB
     type: text
