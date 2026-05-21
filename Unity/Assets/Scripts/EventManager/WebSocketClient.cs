@@ -21,10 +21,16 @@ namespace ARSIS.EventManager
         private static readonly HashSet<long> SeenCommandTimes = new();
         private static readonly object SeenCommandTimesLock = new();
         private readonly long applicationStartTimeNs;
+        private const int MaxReconnectAttempts = 300;
+        private const int ReconnectDelaySeconds = 2;
+
+        private bool manuallyClosed = false;
+        private bool isReconnecting = false;
 
         public WebSocketClient(string endpoint) : this(endpoint, GetUnixTimeNanoseconds()) { }
 
-        public WebSocketClient(string endpoint, long applicationStartTimeNs) {
+        public WebSocketClient(string endpoint, long applicationStartTimeNs)
+        {
             this.endpoint = endpoint;
             this.applicationStartTimeNs = applicationStartTimeNs;
         }
@@ -47,14 +53,102 @@ namespace ARSIS.EventManager
             return (BaseArsisEvent)JsonConvert.DeserializeObject(json, eventType);
         }
 
-        private IEnumerator AttemptReconnect(CloseEventArgs e)
+        private async void AttemptReconnect(CloseEventArgs e)
         {
-            if (!e.WasClean && !connection.IsAlive)
+            if (manuallyClosed)
             {
-                Debug.Log("Attempting to reconnect...");
-                connection.ConnectAsync();
-                yield return new WaitForSeconds(delay);
+                Debug.Log("WebSocket closed manually. Auto-reconnect skipped.");
+                return;
             }
+
+            if (isReconnecting)
+            {
+                Debug.Log("Reconnect already in progress. Skipping duplicate reconnect attempt.");
+                return;
+            }
+
+            if (e.WasClean)
+            {
+                Debug.Log("WebSocket closed cleanly. Auto-reconnect skipped.");
+                return;
+            }
+
+            isReconnecting = true;
+
+            Debug.LogWarning($"WebSocket connection lost. Attempting auto-reconnect to: {endpoint}");
+
+            for (int attempt = 1; attempt <= MaxReconnectAttempts; attempt++)
+            {
+                try
+                {
+                    Debug.Log($"Reconnect attempt {attempt}/{MaxReconnectAttempts} in {ReconnectDelaySeconds} seconds...");
+
+                    await System.Threading.Tasks.Task.Delay(ReconnectDelaySeconds * 1000);
+
+                    if (connection != null)
+                    {
+                        connection.OnOpen -= HandleOpen;
+                        connection.OnMessage -= HandleMessage;
+                        connection.OnError -= HandleError;
+                        connection.OnClose -= HandleClose;
+
+                        connection.Close();
+                    }
+
+                    StartClient();
+
+                    await System.Threading.Tasks.Task.Delay(1000);
+
+                    if (connection != null && connection.IsAlive)
+                    {
+                        Debug.Log("WebSocket auto-reconnected successfully.");
+                        isReconnecting = false;
+                        return;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"Reconnect attempt {attempt} failed: {ex.Message}");
+                }
+            }
+
+            Debug.LogError($"WebSocket failed to reconnect after {MaxReconnectAttempts} attempts.");
+            isReconnecting = false;
+        }
+        // private IEnumerator AttemptReconnect(CloseEventArgs e)
+        // {
+        //     if (!e.WasClean && !connection.IsAlive)
+        //     {
+        //         Debug.Log("Attempting to reconnect...");
+        //         connection.ConnectAsync();
+        //         yield return new WaitForSeconds(delay);
+        //     }
+        // }
+        private void HandleOpen(object sender, EventArgs e)
+        {
+            Debug.Log("WebSocket connected!");
+            manuallyClosed = false;
+        }
+
+        private void HandleMessage(object sender, MessageEventArgs e)
+        {
+            Collect(e);
+        }
+
+        private void HandleError(object sender, ErrorEventArgs e)
+        {
+            if (e.Exception != null)
+            {
+                Debug.LogError(e.Exception.ToString());
+            }
+
+            Debug.LogError(e.Message);
+        }
+
+        private void HandleClose(object sender, CloseEventArgs e)
+        {
+            Debug.LogWarning($"WebSocket closed. Reason: {e.Reason}, Code: {e.Code}, WasClean: {e.WasClean}");
+            AttemptReconnect(e);
         }
 
         private void Collect(MessageEventArgs e)
@@ -128,22 +222,55 @@ namespace ARSIS.EventManager
         /// <returns></returns>
         public void StartClient()
         {
+            manuallyClosed = false;
+
+            endpoint = NormalizeEndpoint(endpoint);
+
             connection = new WebSocket(endpoint);
-            connection.OnOpen += (sender, e) => Debug.Log("WebSocket connected!");
-            connection.OnMessage += (sender, e) => Collect(e);
-            connection.OnError += (sender, e) => {
-                Debug.LogError(e.Exception.ToString());
-                Debug.LogError(e.Message);
-            };
-            connection.OnClose += (sender, e) => AttemptReconnect(e);
+
+            connection.OnOpen += HandleOpen;
+            connection.OnMessage += HandleMessage;
+            connection.OnError += HandleError;
+            connection.OnClose += HandleClose;
+
+            Debug.Log($"Connecting WebSocket to: {endpoint}");
             connection.ConnectAsync();
         }
 
         public void EndClient()
         {
-            Debug.Log("Closing connection...");
+            Debug.Log("Closing connection manually...");
+
+            manuallyClosed = true;
+            isReconnecting = false;
+
             if (connection == null) return;
+
+            connection.OnOpen -= HandleOpen;
+            connection.OnMessage -= HandleMessage;
+            connection.OnError -= HandleError;
+            connection.OnClose -= HandleClose;
+
             connection.Close();
+        }
+
+        private string NormalizeEndpoint(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return "ws://localhost:8181/ws/events";
+            }
+
+            value = value.Trim();
+
+            // If the value is already a complete websocket endpoint, use it as-is.
+            if (value.StartsWith("ws://") || value.StartsWith("wss://"))
+            {
+                return value;
+            }
+
+            // If only an IP or hostname was entered, build the full websocket endpoint.
+            return $"ws://{value}:8181/ws/events";
         }
     }
 }

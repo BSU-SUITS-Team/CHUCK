@@ -54,7 +54,17 @@ public class SettingsWindow : MonoBehaviour
     public void SetEndpoint()
     {
         EventManager instance = EventManager.Instance;
-        instance.Endpoint = string.Format("ws://{0}:8181/ws/events", inputField.text);
+
+        string value = inputField.text.Trim();
+
+        if (value.StartsWith("ws://") || value.StartsWith("wss://"))
+        {
+            instance.Endpoint = value;
+        }
+        else
+        {
+            instance.Endpoint = $"ws://{value}:8181/ws/events";
+        }
     }
 
     public void RestartClient()
