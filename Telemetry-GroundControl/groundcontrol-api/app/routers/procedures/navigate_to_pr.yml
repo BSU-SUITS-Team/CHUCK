@@ -1,16 +1,20 @@
 category: Built-In
-description: Procedure to Navigate from LTV Worksite to PR Location
+description: Procedure to Navigate from LTV Worksite to HAB Location
 duration: 3 mins
-name: Navigate to PR Location
+name: Navigate to HAB Location
 tasks:
-- description: Navigate from LTV worksite to the PR
-  name: Navigate to PR Location
+- description: Navigate from LTV worksite to the HAB
+  name: Navigate to HAB Location
   steps:
-  - body: 1. Select the PR task board position from the navigation window, to determine optimal path to reach the PR
+  - body: 1. Select the HAB task board position from the navigation window, to determine optimal path to reach the HAB
     type: text
   - body: 2. Verbally confirm path has been generated
     type: text
-  - body: 3. Begin navigation to the PR
+  - body: 3. Close the navigation window
     type: text
-  - body: 4. Upon arrival at the PR, announce arrival and begin ingress
+  - body: 4. Begin navigation to the HAB
+    type: text
+  - body: 5. Upon arrival at the HAB, open navigation window and select stop path 
+    type: text
+    body: 6. Announce arrival and begin ingress
     type: text
