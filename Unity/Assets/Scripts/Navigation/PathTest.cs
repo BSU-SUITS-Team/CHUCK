@@ -267,6 +267,7 @@ public class PathTest : MonoBehaviour
     /// <summary>When true, next Find Path restores chart/route progress instead of resetting to <see cref="startCoordinate"/>.</summary>
     private bool _persistNavigationProgress;
     private Vector2 _lastMapVisualChartCoord;
+    private float _lastMapVisualRouteT = -1f;
     /// <summary>Monotonic index along <see cref="_snapPathNodes"/> for distance + repath start (world polyline can shrink while chart start was stuck at session origin).</summary>
     private int _journeyProgressIndex;
     private float repathTimer;
@@ -665,6 +666,7 @@ public class PathTest : MonoBehaviour
         _sessionFullWorldFloorPolyline.Clear();
         _sessionRouteProgressT = 0f;
         _lastMapVisualChartCoord = currentCoordinate;
+        _lastMapVisualRouteT = -1f;
     }
 
     /// <summary>Rebinds GridManager to the Navigation panel that is currently open so map markers match the menu (not the scene prefab pose).</summary>
@@ -917,7 +919,10 @@ public class PathTest : MonoBehaviour
     {
         UpdateCoordinateFromMovement();
         if (pathSessionActive)
+        {
             AdvanceJourneyProgress();
+            RefreshMapRouteVisualsFromCurrentChartPosition();
+        }
 
         if (!pathSessionActive)
             return;
@@ -1766,17 +1771,38 @@ public class PathTest : MonoBehaviour
 
     private void RefreshMapRouteVisualsFromCurrentChartPosition()
     {
-        if (!pathSessionActive || currentPath.Count < 2 || !IsMapFaceShownForVisuals())
+        if (!pathSessionActive || !_worldCalibCaptured)
             return;
 
-        if ((currentCoordinate - _lastMapVisualChartCoord).sqrMagnitude < 0.01f)
+        bool canTrimFullRoute = _sessionFullRouteValid && _sessionFullWorldFloorPolyline.Count >= 2;
+        if (currentPath.Count < 2 && !canTrimFullRoute)
+            return;
+
+        bool chartMoved = (currentCoordinate - _lastMapVisualChartCoord).sqrMagnitude >= 0.01f;
+        bool routeProgressMoved = canTrimFullRoute
+            && Mathf.Abs(_sessionRouteProgressT - _lastMapVisualRouteT) >= 0.001f;
+        if (!chartMoved && !routeProgressMoved)
             return;
 
         _lastMapVisualChartCoord = currentCoordinate;
-        RebuildMapArrows();
+        _lastMapVisualRouteT = _sessionRouteProgressT;
+
+        if (canTrimFullRoute)
+            ApplySessionRouteProgressTrimmedVisuals();
+        else
+            RefreshWorldRouteLayoutSnapshot();
+
         RebuildWorldArrows();
-        if (pathLine != null && showMapPathLine)
-            DrawPathLine();
+
+        if (!IsMapFaceShownForVisuals())
+            return;
+
+        if (currentPath.Count >= 2)
+        {
+            RebuildMapArrows();
+            if (pathLine != null && showMapPathLine)
+                DrawPathLine();
+        }
     }
 
     private void RefreshSessionChartMovementOrigin()
