@@ -1,5 +1,5 @@
 # CHUCK
-The sixth iteration of of the CHUCK project.
+The eighth iteration of of the CHUCK project.
 
 ## Project Summary
 
@@ -11,7 +11,7 @@ memorized instructions. SUITS addresses this problem by creating an AR environme
 will also communicate with ground control, and then be displayed in the astronaut’s helmet 
 with up-to-date information and instructions about the task at hand. 
 
-See last year's project on the `2024` branch.
+See last years version on the `v2026` tagged commit.
 
 ## Technologies
 
@@ -32,7 +32,7 @@ See section "Contributing To The Project" for local development instructions.
 2. Make sure you have [Unity Hub](https://unity.com/unity-hub) installed AND Unity Editor version 2020.3.8f1.
 3. Open Unity Hub and Click "Open" to open a project from your computer.
 4. Navigate to and click on the ARSIS-Unity folder inside the cloned project.
-5. To start the Telemetry and Ground Control servers, navigate to the ARSIS-Telemetry-GroundControl directory and run the command `docker-compose up`
+5. To start the Telemetry and Ground Control servers, navigate to the ARSIS-Telemetry-GroundControl directory and run the command `docker compose up --build`
 6. Become the ultimate NASA SUITS member!
 
 ## Contributing To The Project
@@ -48,7 +48,3 @@ See more detailed [instructions here](https://www.tomasbeuzen.com/post/git-fork-
 9. Now that your fork has been updated, you should update your current "new_feature" branch with `git checkout new_feature` and `git merge main`
 10. When you believe your feature is production ready, push your branch to your fork with `git push origin new_feature`
 11. Open a pull request in Github to have your feature reviewed and hopefully merged!
-
-##Resources
-Student Made Unity Documentation: https://github.com/Win47236/CoreUnityScripts/blob/main/Unity%20Dev%20Notes/Winter'sArcade__UnityBibble.docx
-Equipment checkout sheet: https://docs.google.com/spreadsheets/d/1IMgZBJsx9OA9XYFdXyX93lKP-tXRsMrSiMN4eFm2nx4/edit?usp=sharing
