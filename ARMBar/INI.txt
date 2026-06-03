@@ -1,0 +1,14 @@
+[Unit]
+Description=CHUCK-main UI
+After=graphical.target
+
+[Service]
+ExecStart=/usr/bin/python3 /home/pi/CHUCK-main/ARMBar/main.py
+WorkingDirectory=/home/pi/CHUCK-main/ARMBar
+Restart=always
+User=pi
+Environment=DISPLAY=:0
+Environment=XAUTHORITY=/home/pi/.Xauthority
+
+[Install]
+WantedBy=graphical.target

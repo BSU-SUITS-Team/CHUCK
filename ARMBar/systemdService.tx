@@ -1,0 +1,15 @@
+[Unit]
+Description=CHUCK-main Embedded System
+After=graphical.target
+
+[Service]
+ExecStart=/usr/bin/python3 /home/pi/CHUCK-main/ARMBar/main.py
+WorkingDirectory=/home/pi/CHUCK-main/ARMBar
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=pi
+Environment=DISPLAY=:0
+
+[Install]
+WantedBy=graphical.target
